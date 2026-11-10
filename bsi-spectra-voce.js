@@ -156,7 +156,7 @@
     return new Promise(function (fine) {
       var u = new SpeechSynthesisUtterance(testo), L = speechSynthesis.getVoices(), lg = (globale.BSILingue && BSILingue.corrente && BSILingue.corrente() === 'en') ? 'en' : 'it';
       var v = L.filter(function (x) { return (x.lang || '').toLowerCase().indexOf(lg) === 0; }).sort(function (a, b) { return punteggio(b) - punteggio(a); })[0];
-      if (v) u.voice = v; u.lang = v ? v.lang : (lg === 'en' ? 'en-GB' : 'it-IT'); u.rate = 0.93; u.pitch = 0.6; u.volume = 1;
+      if (v) u.voice = v; u.lang = v ? v.lang : (lg === 'en' ? 'en-GB' : 'it-IT'); u.rate = 0.88; u.pitch = 0.58; u.volume = 1;
       u.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: ev.charIndex / Math.max(1, testo.length) }); };
       u.onend = u.onerror = function () { if (opz.suBocca) opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); fine({ ok: true, motore: 'sistema' }); };
       mio.u = u; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { fine({ ok: false }); }

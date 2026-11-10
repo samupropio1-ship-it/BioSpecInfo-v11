@@ -5942,7 +5942,7 @@ var CSS = [
 '.bsi-md-code{background:#050d16;border:1px solid #1a3050;border-radius:8px;padding:10px;overflow-x:auto;font-size:.82rem;margin:6px 0;}',
 '.bsi-md-inline{background:#0d1b2e;border:1px solid #1a3050;border-radius:4px;padding:1px 5px;font-size:.85em;}',
 '.bsi-msg-actions{display:flex;gap:8px;margin-top:6px;}',
-'.bsi-msg-actions button{background:none;border:none;color:#3d6280;font-size:.72rem;cursor:pointer;padding:2px 4px;}',
+'.spectra-speak-btn.speaking{color:#00c9b7;border-color:#00c9b7}.bsi-msg-actions button{background:none;border:none;color:#3d6280;font-size:.72rem;cursor:pointer;padding:2px 4px;}',
 '.bsi-msg-actions button:hover{color:#00c9b7;}',
 /* pannello del ragionamento in diretta */
 '.bsi-think{align-self:flex-start;max-width:88%;background:#0b1622;border:1px solid #17324a;',
@@ -6193,6 +6193,7 @@ function selectTab(name){
 }
 
 function closeHub(){
+  stopSpeaking();   /* (v246) chiusa la finestra, Spectra smette di leggere */
   var ov = document.getElementById('bsi-hub-ov');
   if(ov) ov.classList.remove('open');
   STATE.activeRecognitions.slice().forEach(function(rec){ try{ rec.stop(); }catch(e){} });
@@ -6334,15 +6335,126 @@ function providerSelectHtml(selected){
   return html;
 }
 
-function speak(text){
-  try{
-    if(!('speechSynthesis' in window)) return;
-    var u = new SpeechSynthesisUtterance(text.replace(/[*_#`]/g,'').slice(0, 600));
-    u.lang = 'it-IT';
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  }catch(e){}
+/* ═══ VOCE ROBOTICA DI SPECTRA (v246) ═════════════════════════════════════
+   Richiesta dell'autore: ogni risposta di Spectra deve potersi ascoltare con una
+   voce maschile robotica, bassa e fredda, «stile Ultron», solo con la Web Speech
+   API del browser (niente librerie, niente servizi a pagamento, anche offline).
+   · voce: italiana maschile → italiana → maschile → la prima disponibile; le voci
+     arrivano in ritardo (voiceschanged) e si riscelgono quando arrivano;
+   · parametri fissati dall'autore: pitch 0,58 · rate 0,88 · volume 1;
+   · la risposta INTERA, letta frase per frase: Chrome tronca le frasi lunghe
+     dopo ~15 s, e prima qui si leggevano solo i primi 600 caratteri; markdown e
+     formule passano da BSISpectraLive.calcolo.perLaVoce (H₂O → «acqua»…);
+   · si annulla solo se c'e' qualcosa in corso: su Android annullare a vuoto fa
+     cadere la frase successiva (la causa della voce muta trovata nella v243);
+   · pulsante «🔊 Ascolta» su ogni risposta (diventa «⏹ Ferma»), interruttore
+     «🔊 Leggi automaticamente» salvato in localStorage (spectraAutoSpeak);
+   · si ferma quando si chiude la finestra o si cambia sezione;
+   · senza speechSynthesis i pulsanti non compaiono.
+   Le funzioni speakRobotic, stopSpeaking, toggleAutoSpeak, createSpeakButton
+   sono anche globali, con i nomi chiesti dall'autore. */
+var VOCE_ROBOTICA = { pitch: 0.58, rate: 0.88, volume: 1 };
+var _vocePreferita = null, _voceGiro = 0, _voceInCorso = false;
+var autoSpeakEnabled = (function(){ try{ return localStorage.getItem('spectraAutoSpeak') === 'true'; }catch(e){ return false; } })();
+function voceSupportata(){ return typeof window !== 'undefined' && !!window.speechSynthesis && typeof window.speechSynthesis.speak === 'function' && typeof SpeechSynthesisUtterance !== 'undefined'; }
+function caricaVoci(){
+  if(!voceSupportata()) return null;
+  var V = []; try{ V = speechSynthesis.getVoices() || []; }catch(e){}
+  if(!V.length) return null;
+  var it = function(v){ return /^it/i.test(v.lang || ''); };
+  var maschio = /male|uomo|luca|diego|giorgio|cosimo|paolo|marco|roberto|google.*italiano|david|mark|james|daniel|george/i;
+  var donna = /female|donna|alice|elsa|federica|paola|samantha|zira|susan/i;
+  _vocePreferita =
+    V.filter(function(v){ return it(v) && maschio.test(v.name) && !donna.test(v.name); })[0] ||
+    V.filter(function(v){ return it(v) && !donna.test(v.name); })[0] ||
+    V.filter(it)[0] ||
+    V.filter(function(v){ return maschio.test(v.name) && !donna.test(v.name); })[0] ||
+    V[0];
+  return _vocePreferita;
 }
+if(voceSupportata()){
+  try{ speechSynthesis.addEventListener('voiceschanged', function(){ _vocePreferita = null; caricaVoci(); }); }catch(e){}
+  caricaVoci();
+}
+function testoPerVoce(text){
+  var t = String(text || '');
+  var L = window.BSISpectraLive;
+  try{ if(L && L.calcolo && L.calcolo.perLaVoce) return L.calcolo.perLaVoce(t); }catch(e){}
+  return t.replace(/```[\s\S]*?```/g, ' ').replace(/[*_#`>|]/g, ' ').replace(/\[(.*?)\]\([^)]*\)/g, '$1').replace(/\s+/g, ' ').trim();
+}
+function segnaPulsanti(attivo){
+  [].forEach.call(document.querySelectorAll('.spectra-speak-btn'), function(b){
+    var mio = attivo && b === _pulsanteInCorso;
+    b.classList.toggle('speaking', !!mio);
+    b.textContent = mio ? '⏹ Ferma' : '🔊 Ascolta';
+    b.setAttribute('aria-pressed', mio ? 'true' : 'false');
+  });
+}
+var _pulsanteInCorso = null;
+/** Fa parlare Spectra con la voce maschile robotica. Restituisce false se il browser non ha la sintesi. */
+function speakRobotic(text, opz){
+  if(!voceSupportata()) return false;
+  opz = opz || {};
+  var pulito = testoPerVoce(text);
+  var frasi = (pulito.match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function(x){ return x.trim(); }).filter(function(x){ return x.length > 1; });
+  if(!frasi.length) return false;
+  stopSpeaking(true);
+  var mio = ++_voceGiro, i = 0; _voceInCorso = true;
+  _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
+  if(!_vocePreferita) caricaVoci();
+  /* la figura di Spectra muove le labbra con la voce */
+  try{ document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: pulito.slice(0, 4000) } })); }catch(e){}
+  (function prossima(){
+    if(mio !== _voceGiro) return;
+    if(i >= frasi.length){ _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); return; }
+    var u = new SpeechSynthesisUtterance(frasi[i++]);
+    u.pitch = VOCE_ROBOTICA.pitch; u.rate = VOCE_ROBOTICA.rate; u.volume = VOCE_ROBOTICA.volume;
+    if(_vocePreferita){ u.voice = _vocePreferita; u.lang = _vocePreferita.lang; } else u.lang = 'it-IT';
+    var fatta = false; function avanti(){ if(fatta) return; fatta = true; prossima(); }
+    u.onend = avanti;
+    u.onerror = function(ev){ if(ev && (ev.error === 'interrupted' || ev.error === 'canceled')) return; avanti(); };
+    try{ speechSynthesis.resume(); speechSynthesis.speak(u); }catch(e){ avanti(); }
+  })();
+  return true;
+}
+/** Interrompe la lettura (anche la voce della console). */
+function stopSpeaking(senzaPulsanti){
+  _voceGiro++; var miaVoce = _voceInCorso; _voceInCorso = false;
+  if(!senzaPulsanti){ _pulsanteInCorso = null; segnaPulsanti(false); }
+  if(!voceSupportata()) return;
+  /* si annulla solo la voce di questa finestra (e solo se c'e'): la console ha la sua e la gestisce da se' */
+  try{ if(miaVoce && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); }catch(e){}
+}
+/** Accende/spegne la lettura automatica delle risposte (salvata in localStorage). */
+function toggleAutoSpeak(valore){
+  autoSpeakEnabled = (typeof valore === 'boolean') ? valore : !autoSpeakEnabled;
+  try{ localStorage.setItem('spectraAutoSpeak', autoSpeakEnabled ? 'true' : 'false'); }catch(e){}
+  var tg = document.getElementById('spectra-auto-speak-toggle');
+  if(tg){ tg.checked = autoSpeakEnabled; tg.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; }
+  if(!autoSpeakEnabled) stopSpeaking();
+  return autoSpeakEnabled;
+}
+/** Il pulsante «🔊 Ascolta» di una risposta: un tocco legge, un altro ferma. Null se il browser non ha la voce. */
+function createSpeakButton(text){
+  if(!voceSupportata()) return null;
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'spectra-speak-btn'; b.textContent = '🔊 Ascolta';
+  b.title = 'Ascolta la risposta (voce di Spectra)'; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(_pulsanteInCorso === b) stopSpeaking(); else speakRobotic(text, { pulsante: b });
+  });
+  return b;
+}
+function speak(text){ speakRobotic(text); }
+window.speakRobotic = speakRobotic; window.stopSpeaking = stopSpeaking;
+window.toggleAutoSpeak = toggleAutoSpeak; window.createSpeakButton = createSpeakButton;
+window.bsiVoceRobotica = { parametri: VOCE_ROBOTICA, voce: function(){ return _vocePreferita || caricaVoci(); }, auto: function(){ return autoSpeakEnabled; } };
+/* si ferma quando si cambia sezione */
+document.addEventListener('click', function(e){
+  var n = e.target && e.target.closest && e.target.closest('.nav-btn[data-s], .nav-group-panel [data-s]');
+  if(n && _voceInCorso) stopSpeaking();
+}, true);
 
 // Distingue italiano e inglese contando le parole grammaticali tipiche di
 // ciascuna lingua. Cercare solo gli accenti non bastava: una frase come
@@ -6601,6 +6713,7 @@ function buildChatPane(){
       '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-prova" title="Prova quali fornitori il tuo browser riesce davvero a contattare — bastano pochi secondi e non serve una chiave">🔌 Prova</button>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
+      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label>' : '') +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-provabox" style="display:none"></div>' +
@@ -7164,6 +7277,9 @@ function buildChatPane(){
     eseguiProva();
   };
 
+  /* (v246) l'interruttore della lettura automatica, ricordato fra una visita e l'altra */
+  var tgV = document.getElementById('spectra-auto-speak-toggle');
+  if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
   document.getElementById('bsi-hub-reset').onclick = function(){
     if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }
     disegnaReset();                 // ridisegnato ogni volta: i conteggi cambiano
@@ -7318,8 +7434,7 @@ function buildChatPane(){
         var actions = el('div', { class: 'bsi-msg-actions' });
         var copyBtn = el('button', {}, '📋 Copia');
         copyBtn.onclick = function(){ try{ navigator.clipboard.writeText(m.content); }catch(e){} };
-        var speakBtn = el('button', {}, '🔊 Ascolta');
-        speakBtn.onclick = function(){ speak(m.content); };
+        var speakBtn = createSpeakButton(m.content);   /* null senza sintesi vocale: niente pulsante */
         var pinBtn = el('button', {}, '📌 Ripassa');
         pinBtn.onclick = function(){
           var q = (thread.messages[idx-1] && thread.messages[idx-1].role === 'user') ? thread.messages[idx-1].content : 'Domanda';
@@ -7346,7 +7461,7 @@ function buildChatPane(){
           var s = document.getElementById('bsi-hub-send');
           if(s) s.click();
         };
-        actions.appendChild(copyBtn); actions.appendChild(speakBtn); actions.appendChild(pinBtn);
+        actions.appendChild(copyBtn); if(speakBtn) actions.appendChild(speakBtn); actions.appendChild(pinBtn);
         actions.appendChild(trBtn); actions.appendChild(pdfBtn);
         body.appendChild(actions);
       }
@@ -7642,6 +7757,15 @@ function buildChatPane(){
       renderMessages();
       // la console di Spectra legge a voce la risposta finale
       try{ _rispostaAnnunciata = true; document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: acc || '' } })); }catch(e){}
+      /* (v246) «🔊 Leggi automaticamente»: la risposta appena arrivata si legge con la voce robotica, col suo pulsante acceso.
+         Non se la console Spectra Live e' aperta: lei ha gia' la sua voce */
+      if(autoSpeakEnabled && acc && !abortFlag.stop){
+        var jvA = document.getElementById('bsiJV');
+        if(!(jvA && jvA.classList.contains('aperto'))) setTimeout(function(){
+          var bts = document.querySelectorAll('#bsi-hub-msgs .spectra-speak-btn');
+          speakRobotic(acc, { pulsante: bts.length ? bts[bts.length - 1] : null });
+        }, 300);
+      }
       refreshThreadSel();
     }catch(err){
       var wasStopped = abortFlag.stop || (err && err.name === 'AbortError');

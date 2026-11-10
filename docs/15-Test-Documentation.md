@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v245` |
+| **Versione descritta** | `bsi-v246` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**86 banchi**, raggruppati per ciò che dimostrano.
+**87 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -308,7 +308,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -463,6 +463,23 @@ riconoscimento impronta, però solo con me». Prova `bsi-spectra-creatore.js`
 
 WebAuthn non accetta un indirizzo IP come dominio: il banco apre l'app da
 `localhost`. **Non provato**: il sensore vero di un telefono e l'audio udibile.
+
+**`test_voce` — 17 controlli (v246).** Nasce dalla richiesta dell'autore di
+una voce maschile robotica, «stile Ultron», per ogni risposta di Spectra nella
+Chat, solo con la Web Speech API. Prova `bsi-ai-hub.js` (`speakRobotic`,
+`stopSpeaking`, `toggleAutoSpeak`, `createSpeakButton`) con una sintesi vocale
+**finta** che registra ogni frase e offre voci italiane e inglesi, maschili e
+femminili.
+
+| Parte | Che cosa pretende |
+|---|---|
+| Voce e parametri (5) | Scelta l'italiana maschile «Luca»; ogni frase a pitch 0,58, rate 0,88, volume 1; una risposta di 1228 caratteri letta **tutta**, a frasi (prima: 600 caratteri); niente markdown letto; nessun annullamento quando non c'è niente in corso |
+| Nella Chat (9) | L'interruttore «🔊 Leggi automaticamente» c'è e si ricorda acceso e spento (`spectraAutoSpeak`); acceso, la risposta di Gemini (rete finta) si legge da sola; pulsante 🔊 su ogni risposta, che diventa «⏹ Ferma» e ferma; la voce si ferma chiudendo la finestra e cambiando sezione |
+| Console (1) | Spectra Live usa gli stessi parametri |
+| Senza sintesi (1) | Nessun pulsante, nessun errore |
+| Errori (1) | Nessun errore JavaScript |
+
+**Non provato**: il suono vero di una voce di un telefono.
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -918,7 +935,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 578 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 579 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -938,4 +955,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v245`._
+_Documento aggiornato alla versione `bsi-v246`._

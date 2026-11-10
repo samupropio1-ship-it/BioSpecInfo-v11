@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v245` |
+| **Version described** | `bsi-v246` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**86 benches**, grouped by what they demonstrate.
+**87 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -294,7 +294,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -445,6 +445,23 @@ fingerprint recognition, but only with me». It tests
 
 WebAuthn does not accept an IP address as a domain: the bench opens the app
 from `localhost`. **Not tested**: a real phone sensor and audible sound.
+
+**`test_voce` — 17 checks (v246).** It comes from the author's request for a
+male robotic voice, «Ultron style», for every Spectra answer in the Chat,
+using only the Web Speech API. It tests `bsi-ai-hub.js` (`speakRobotic`,
+`stopSpeaking`, `toggleAutoSpeak`, `createSpeakButton`) with a **fake** speech
+synthesis that records every sentence and offers Italian and English, male and
+female voices.
+
+| Part | What it requires |
+|---|---|
+| Voice and parameters (5) | The Italian male «Luca» is chosen; every sentence at pitch 0.58, rate 0.88, volume 1; a 1228-character answer read **in full**, sentence by sentence (before: 600 characters); no markdown read aloud; no cancel when nothing is in progress |
+| In the Chat (9) | The «🔊 Leggi automaticamente» switch is there and is remembered on and off (`spectraAutoSpeak`); when on, Gemini's answer (fake network) is read by itself; a 🔊 button on every answer, which becomes «⏹ Ferma» and stops; the voice stops on closing the window and on changing section |
+| Console (1) | Spectra Live uses the same parameters |
+| Without synthesis (1) | No button, no error |
+| Errors (1) | No JavaScript errors |
+
+**Not tested**: the real sound of a phone voice.
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
@@ -892,7 +909,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 578 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 579 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -912,4 +929,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v245`._
+_Document updated to version `bsi-v246`._

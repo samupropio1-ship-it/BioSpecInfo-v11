@@ -243,7 +243,7 @@
       if (!voce.inCorso || mio !== voce.giro) return;
       if (i >= pezzi.length) { voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); return; }
       var u = new SpeechSynthesisUtterance(pezzi[i++]);
-      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 0.95; u.pitch = 0.7; u.volume = 1;
+      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 0.88; u.pitch = 0.58; u.volume = 1;   /* (v246) la voce robotica fissata dall'autore, la stessa della Chat */
       var frase = pezzi[i - 1], partita = false, finita = false;
       /* una sintesi vocale che non parte (nessuna voce installata, audio
          bloccato) non deve fermare il discorso: dopo 1,2 s la frase si
