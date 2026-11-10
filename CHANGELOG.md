@@ -7,6 +7,39 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v247] — 2026-11-10
+
+**Avvio più leggero: il motore chimico non si carica più da solo mentre si usa l'app**
+
+Richiesta dell'autore: «ottimizza tutto». Prima si è misurato: profilo
+dell'avvio su un telefono simulato lento (CPU ×4). Un solo compito bloccava lo
+schermo per ~2 s, pochi secondi dopo l'apertura: il caricamento di RDKit
+(6,7 MB di wasm) e l'indicizzazione di tutte le molecole, partiti da soli.
+
+### Cambiato
+- `bsi-pannelli-lingua.js`: l'archivio dei nomi di «Linguaggi delle molecole»
+  non si costruisce più 3 s dopo l'avvio, ma quando si apre il convertitore.
+- `bsi-spettri.js`: RDKit si scalda solo nella materia Chimica, solo quando
+  l'app è ferma da 4 secondi (nessun tocco, tasto o scorrimento) e mai con
+  «Risparmio dati». Chi apre una sezione che lo usa lo carica subito, come
+  prima.
+
+### Misurato (telefono simulato lento, Chimica)
+- blocco più lungo dell'avvio: da ~1960 ms a ~250 ms;
+- tempo di blocco totale: da ~2560 ms a ~640–815 ms;
+- chi studia Fisica o Matematica non scarica né avvia RDKit all'apertura.
+
+### Verifiche
+- Banco **`test_avvio`** (9 controlli sui comportamenti); requisito STA-09;
+  batteria a 88 banchi.
+
+### Onestà
+- I millisecondi vengono da una CPU rallentata in simulazione, non da un
+  telefono vero: dicono la proporzione del guadagno, non il valore assoluto.
+- Il primo caricamento di Spectra col corpo resta pesante (lo scheletro si
+  calcola nel browser): non è stato toccato in questa versione.
+
+---
 ## [bsi-v246] — 2026-11-10
 
 **La voce robotica di Spectra nella Chat: ogni risposta si ascolta, anche da sola**

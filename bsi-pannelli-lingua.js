@@ -351,6 +351,7 @@
                 'morgan', 'maccs', 'rdkitFp', 'coppieAtomi', 'torsioni', 'pattern'];
 
   function agganciaConvertitore() {
+    setTimeout(preparaArchivio, 300);   /* (v247) l'archivio dei nomi, solo quando serve */
     var src = document.getElementById('bsiLG-src');
     var out = document.getElementById('bsiLG-out');
     if (!src) return;
@@ -1011,7 +1012,10 @@
                                                      { silenzioso: true });
   }
 
-  /* l'archivio dei nomi si costruisce una volta sola, senza bloccare l'avvio */
+  /* l'archivio dei nomi si costruisce una volta sola.
+     (v247) Prima partiva da solo 3 s dopo l'avvio: caricava RDKit (6,7 MB) e indicizzava tutte le molecole, un blocco di
+     ~2 s dello schermo su un telefono lento, per tutti, anche per chi non apre mai «Linguaggi delle molecole». Ora si
+     costruisce quando si apre il convertitore (e, se manca, alla prima conversione): l'avvio resta libero. */
   function preparaArchivio() {
     if (!globale.BSIMolLingue || globale.BSIMolLingue.archivio) return;
     globale.BSIMolLingue.costruisciArchivio(function (arch, quanti) {
@@ -1075,10 +1079,10 @@
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
-      aggiungiVoci(); setTimeout(preparaArchivio, 3000);
+      aggiungiVoci();
     });
   } else {
-    aggiungiVoci(); setTimeout(preparaArchivio, 3000);
+    aggiungiVoci();
   }
 
 })(typeof window !== 'undefined' ? window : globalThis);

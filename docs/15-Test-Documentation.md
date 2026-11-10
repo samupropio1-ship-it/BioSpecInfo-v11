@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v246` |
+| **Versione descritta** | `bsi-v247` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**87 banchi**, raggruppati per ciò che dimostrano.
+**88 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -310,7 +310,7 @@ controlli già presenti prima della v238.
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
 `test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
 `test_guidaproxy` ·
-`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
+`test_fluidita` · `test_avvio` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
 **`test_spectra238` — 66 controlli.** Nasce da segnalazioni fatte con una
 schermata dal telefono: con l'app installata la barra di stato e i tasti di
@@ -556,6 +556,17 @@ che è anche il difetto originario: subito dopo il ritorno del gestore del click
 il contesto WebGL **non deve esistere**, poco dopo **deve**. Misurato 0 e 1; e
 la misura non è vacua, perché al secondo click — quando la tela c'è già —
 restituisce 1.
+
+**`test_avvio` — 9 controlli (v247).** Nasce dalla richiesta dell'autore di
+ottimizzare l'app. Il profilo dell'avvio su un telefono simulato lento (CPU ×4)
+mostrava un solo blocco di ~2 s: due precaricamenti partiti da soli (l'archivio
+dei nomi di «Linguaggi delle molecole» e il riscaldamento di RDKit). Il banco
+pretende i **comportamenti**, non i millisecondi, che su una macchina di prova
+non sono ripetibili: con l'app in uso RDKit non parte da solo e l'archivio non
+si costruisce; in Fisica e con «Risparmio dati» non parte nemmeno da fermi; in
+Chimica da fermi si scalda; l'archivio si costruisce aprendo «Linguaggi delle
+molecole» (283 molecole); chi lo chiede lo ottiene subito; nessun errore
+JavaScript.
 
 **`test_lingue` — 64 controlli.** Sorveglia due funzioni nuove e due modi
 diversi di mentire senza accorgersene.
@@ -935,7 +946,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 579 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 580 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -955,4 +966,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v246`._
+_Documento aggiornato alla versione `bsi-v247`._

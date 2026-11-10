@@ -696,6 +696,33 @@ if(!innesta()){
   window.addEventListener('load', function(){ innesta(); });
 }
 // RDKit si scalda con calma, quando la pagina ha finito le sue cose.
-window.addEventListener('load', function(){ setTimeout(precarica, 1500); });
+/* (v247) OTTIMIZZAZIONE DELL'AVVIO. Misurato su un telefono lento (CPU ×4): RDKit (6,7 MB di wasm) scaldato 1,5 s dopo il
+   caricamento bloccava lo schermo per ~2 s proprio mentre si cominciava a toccare l'app (un solo compito lungo, il 75 % del
+   tempo di blocco dell'avvio), anche a chi studia fisica o matematica e RDKit non lo usa. Ora si scalda:
+   · solo nella materia Chimica (se si passa a Chimica piu' tardi, allora);
+   · solo quando l'app e' ferma da 4 secondi (nessun tocco, tasto o scorrimento): chi sta usando l'app non viene interrotto;
+   · non con «Risparmio dati» attivo: li' si carica solo quando una sezione lo chiede.
+   Chi apre una sezione che lo usa lo carica comunque subito (bsiLoadRDKit), come prima. */
+(function(){
+  var fatto = false, timer = 0, QUIETE_MS = 4000;
+  function serve(){
+    try{ var c = navigator.connection; if(c && c.saveData) return false; }catch(e){}
+    try{ if(window.BSIMaterie && BSIMaterie.corrente && BSIMaterie.corrente() !== 'chimica') return false; }catch(e){}
+    return true;
+  }
+  function via(){
+    if(fatto) return;
+    if(window.__rdkit || window.__rdkitLoading){ fine(); return; }
+    if(document.hidden || !serve()){ riparti(); return; }
+    fine(); precarica();
+  }
+  function riparti(){ if(fatto) return; clearTimeout(timer); timer = setTimeout(via, QUIETE_MS); }
+  function fine(){ fatto = true; clearTimeout(timer); EV.forEach(function(e){ window.removeEventListener(e, riparti, true); }); }
+  var EV = ['pointerdown', 'keydown', 'scroll', 'touchstart', 'wheel'];
+  window.addEventListener('load', function(){
+    EV.forEach(function(e){ window.addEventListener(e, riparti, { capture: true, passive: true }); });
+    riparti();
+  });
+})();
 
 })();
