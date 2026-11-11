@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v249';
+window.BSI_APP_VERSION='bsi-v250';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -961,7 +961,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="snoe">🔗 NMR 2D/NOE</button>
     <button class="nav-btn" data-s="suvvis">🌈 UV-Vis</button>
     <button class="nav-btn" data-s="snmrpred">📡 NMR Pred.</button>
-  <button class="nav-btn" data-s="squizspec">🎯 Quiz Spettri</button><button class="nav-btn" data-s="selucid" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">🧩 Elucidazione Strutturale</button></div>
+  <button class="nav-btn" data-s="squizspec">🎯 Quiz Spettri</button><button class="nav-btn" data-s="selucid" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">🧩 Elucidazione Strutturale</button><button class="nav-btn" data-s="sdeconv" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">📈 Deconvoluzione</button></div>
   <div id="navGroup2" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="saa">🧬 Amminoacidi</button>
     <button class="nav-btn" data-s="sbio">🧫 Biomolecole</button>
@@ -987,6 +987,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="scroma">🧫 Cromatografia</button>
     <button class="nav-btn" data-s="staratura">📏 Taratura</button>
     <button class="nav-btn" data-s="scheminfo">🧬 Chemioinformatica</button>
+    <button class="nav-btn" data-s="sspaziochim" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🗺️ Spazio chimico</button>
     <button class="nav-btn" data-s="stitr">🧪 Titolazione</button>
     <button class="nav-btn" data-s="skin">⏱️ Cinetica</button>
     <button class="nav-btn" data-s="schiequil">⚖️ Equilibrio e Le Chatelier</button>
@@ -1136,6 +1137,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sastrocosmo" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌠 Cosmologia 3D</button>
     <button class="nav-btn" data-s="sastrocielo" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔭 Planetario 3D</button>
     <button class="nav-btn" data-s="sastroeso" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌍 Esopianeti 3D</button>
+    <button class="nav-btn" data-s="snubeism" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">☁️ Nube interstellare</button>
+    <button class="nav-btn" data-s="ssaha" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌡️ Saha e classi spettrali</button>
   </div>
 </div>
 
@@ -29682,6 +29685,10 @@ window.calcMolProps = function() {
 <div id="sastrocosmo" class="section"></div>
 <div id="sastrocielo" class="section"></div>
 <div id="sastroeso" class="section"></div>
+<div id="snubeism" class="section"></div>
+<div id="ssaha" class="section"></div>
+<div id="sspaziochim" class="section"></div>
+<div id="sdeconv" class="section"></div>
 <div id="sfisspin" class="section"></div>
 <div id="sfisstat" class="section"></div>
 <div id="sfisnuclei" class="section"></div>
@@ -32107,6 +32114,8 @@ window.addEventListener('load', init);
 <script src="./bsi-astro-cosmo.js" defer></script>
 <script src="./bsi-astro-cielo.js" defer></script>
 <script src="./bsi-astro-esopianeti.js" defer></script>
+<script src="./bsi-astro-chimica.js" defer></script>
+<script src="./bsi-chem-mappe.js" defer></script>
 <script src="./bsi-fis-spin.js" defer></script>
 <script src="./bsi-fis-statistica.js" defer></script>
 <script src="./bsi-fis-nuclei.js" defer></script>

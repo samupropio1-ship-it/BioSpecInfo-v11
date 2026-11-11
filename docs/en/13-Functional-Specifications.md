@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v249` |
+| **Version described** | `bsi-v250` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **197 sections**, grouped by area of study.
+The application has **201 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -433,8 +433,8 @@ and mathematics must be there, nothing may be missing from this hologram:
 everything must be explainable and showable). The catalogue is not written by
 hand: it is read from the app bar (every section button, with its group —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — and its subject): 197 sections
-(chemistry 76, physics 61, mathematics 31, shared 29, since v242); a new section appears by
+Utility, Fisica, Matematica, Astrofisica — and its subject): 201 sections
+(chemistry 78, physics 63, mathematics 31, shared 29, since v242); a new section appears by
 itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
 nell'ologramma»** lists them by group, with a search box and a subject
 filter; one tap opens the section behind the Spectra window (switching subject
@@ -725,4 +725,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v249`._
+_Document updated to version `bsi-v250`._

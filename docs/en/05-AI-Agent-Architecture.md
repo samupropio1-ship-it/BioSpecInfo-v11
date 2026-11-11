@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v249` |
+| **Documented version** | Service Worker `bsi-v250` |
 
 ---
 
@@ -945,8 +945,8 @@ summarised here.
   screen data as text). With the screen included, text and image go to the
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
-  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 197
-  sections since v242 (chemistry 76, physics 61, mathematics 31, shared 29), read from
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 201
+  sections since v242 (chemistry 78, physics 63, mathematics 31, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window
