@@ -78,6 +78,20 @@ fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
   fine pagina. Il corsivo scritto con i trattini bassi ora si stampa in
   corsivo. Nel dossier completo restano, volute, le fini di capitolo: ogni
   documento comincia a pagina nuova.
+- **Impaginazione formale dei PDF** (richiesta: «con impaginazioni più formali
+  e migliori»): ogni documento apre con un **frontespizio** con la fascia
+  «Documentazione tecnica di progetto», il titolo e il **riquadro di controllo
+  del documento** (identificativo `BSI-DOC-NN-IT/EN`, titolo, versione del
+  software, revisione = commit, data di emissione, autore, lingua, stato),
+  tutti ricavati dal repository; segue l'**indice** dei capitoli (se sono
+  almeno quattro), con i collegamenti; ogni pagina ha la **testata** (titolo
+  del documento e progetto, con un filo) e il **piè** (versione, revisione,
+  data, autore, pagina / totale); il testo è **giustificato**, i margini più
+  ampi. Pedici, apici e grassetti scritti in HTML nel sorgente (`<sub>`,
+  `<sup>`, `<b>`) ora si stampano come tali; i riquadri lunghi continuano di
+  pagina; la riga di chiusura non resta sola. Il dossier completo ha il suo
+  frontespizio e il suo indice, in italiano e in inglese. Ricontrollate tutte
+  le 1 004 pagine: nessuna pagina bianca, nessun testo fuori dai margini.
 
 - **Il corpo di Spectra più leggero** su telefoni e tablet (richiesta:
   «alleggerisci il corpo»): le tre mappe del corpo a 1024 px invece di 2048

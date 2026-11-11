@@ -47,6 +47,7 @@ function commit(){
 }
 const VER = versione(), SHA = commit();
 const OGGI = new Date().toISOString().slice(0, 10);
+let CONTA_TITOLI = 0;   /* (v248) ogni titolo ha un'ancora, per l'indice di ogni documento */
 
 /* ─────────────────────────────────────────────────────────────────────
    1. Markdown → HTML
@@ -67,6 +68,9 @@ function inline(s){
     return '\u0000C' + (codici.length - 1) + '\u0000';
   });
   s = esc(s);
+  /* (v248) i pedici, gli apici e gli a capo scritti in HTML nel sorgente (R<sub>s</sub>, m<sup>2</sup>, <br>) si stampavano
+     come testo, con le parentesi angolari: ora valgono */
+  s = s.replace(/&lt;(\/?)(sub|sup|b|i|strong|em|u)&gt;/gi, '<$1$2>').replace(/&lt;br\s*\/?&gt;/gi, '<br>');
   s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<em>[immagine: $1]</em>');
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -150,7 +154,7 @@ function mdToHtml(md){
     if (t) {
       chiudiLista();
       const liv = t[1].length;
-      out += '<h' + liv + '>' + inline(t[2]) + '</h' + liv + '>\n';
+      out += '<h' + liv + (liv === 2 || liv === 3 ? ' id="s' + (++CONTA_TITOLI) + '"' : '') + '>' + inline(t[2]) + '</h' + liv + '>\n';
       i++; continue;
     }
 
@@ -166,7 +170,8 @@ function mdToHtml(md){
       while (i < righe.length && /^\s*>/.test(righe[i])) {
         corpo.push(righe[i].replace(/^\s*>\s?/, '')); i++;
       }
-      out += '<blockquote>' + mdToHtml(corpo.join('\n')) + '</blockquote>\n';
+      /* (v248) un riquadro lungo (con tabelle dentro) non puo' restare «intero»: lasciava mezza pagina bianca prima di lui */
+      out += '<blockquote' + (corpo.length > 14 ? ' class="lungo"' : '') + '>' + mdToHtml(corpo.join('\n')) + '</blockquote>\n';
       continue;
     }
 
@@ -211,6 +216,8 @@ function mdToHtml(md){
   chiudiLista();
   /* (v248) la riga di chiusura («Generato il …») non resta sola in una pagina, nemmeno dentro il dossier completo */
   out = out.replace(/<p>(\s*<em>\s*(?:Generato il|Generated on|Generated at)\b)/g, '<p class="chiusa">$1');
+  /* la riga finale in corsivo dopo un filo («Documento aggiornato alla versione …»): filo e riga stanno con cio' che precede */
+  out = out.replace(/<hr>\s*<p>(\s*<em>[^\n]*<\/em>\.?\s*<\/p>\s*)$/, '<hr class="chiusa"><p class="chiusa">$1');
   return out;
 }
 
@@ -219,7 +226,7 @@ function mdToHtml(md){
    ─────────────────────────────────────────────────────────────────── */
 
 const STILE = `
-  @page { size: A4; margin: 20mm 16mm 18mm 16mm; }
+  @page { size: A4; margin: 22mm 18mm 18mm 18mm; }
   * { box-sizing: border-box; }
   body { font: 10.5pt/1.55 "DejaVu Serif", Georgia, "Times New Roman", serif;
          color: #14202c; margin: 0; }
@@ -233,7 +240,7 @@ const STILE = `
   h4, h5, h6 { font-size: 10.8pt; }
   p { margin: .55em 0; orphans: 3; widows: 3; }
   /* (v248) l'ultima riga di un documento («Generato il …») non resta sola su una pagina: sta con cio' che la precede */
-  p.chiusa { break-before: avoid; page-break-before: avoid; }
+  p.chiusa, hr.chiusa { break-before: avoid; page-break-before: avoid; }
   /* (v248) nel dossier completo ogni documento comincia a pagina nuova. Prima c'era un separatore DOPO ogni documento:
      se il documento finiva proprio in fondo a una pagina, il separatore ne creava una tutta bianca */
   section.documento + section.documento { break-before: page; page-break-before: always; }
@@ -261,48 +268,122 @@ const STILE = `
   blockquote { margin: .8em 0; padding: .5em .9em; background: #f3f7fb;
                border-left: 2.5pt solid #7fa6c9; break-inside: avoid; }
   blockquote p { margin: .3em 0; }
+  blockquote.lungo { break-inside: auto; page-break-inside: auto; }
   ul, ol { margin: .5em 0; padding-left: 1.5em; }
   li { margin: .18em 0; }
   hr { border: none; border-top: .5pt solid #ccd8e4; margin: 1.3em 0; }
   .dettagli { border: .5pt solid #cfdae6; border-radius: 3pt; padding: .6em .8em; margin: .8em 0; }
   .riassunto { font-family: "DejaVu Sans", Helvetica, sans-serif; font-weight: 600;
                margin: 0 0 .4em; color: #0d2438; }
-  .frontespizio { text-align: center; padding-top: 55mm; break-after: page; page-break-after: always; }
-  .frontespizio .marchio { font-family: "DejaVu Sans", Helvetica, sans-serif;
-      font-size: 27pt; font-weight: 700; color: #0d2438; letter-spacing: .5pt; }
+  /* (v248) impaginazione formale */
+  body > p, section.documento > p, li { text-align: justify; hyphens: auto; }
+  td, th, blockquote p, .frontespizio * { text-align: left; hyphens: manual; }
+  h1 { letter-spacing: .1pt; }
+  h2 { margin-top: 1.7em; }
+  .frontespizio { padding-top: 14mm; break-after: page; page-break-after: always; }
+  .frontespizio .fascia { font-family: "DejaVu Sans", Helvetica, sans-serif; font-size: 8pt; letter-spacing: 2.2pt;
+      color: #ffffff; background: #0d2438; padding: 3.2mm 5mm; }
+  .frontespizio .marchio { font-family: "DejaVu Sans", Helvetica, sans-serif; margin-top: 30mm;
+      font-size: 30pt; font-weight: 700; color: #0d2438; letter-spacing: .4pt; }
+  .frontespizio .sotto { font-size: 10pt; color: #4a5c6b; margin-top: 2mm; font-style: italic; }
+  .frontespizio .riga { width: 100%; height: 1.6pt; background: #0d4f8b; margin: 9mm 0 9mm; }
   .frontespizio .titolo { font-family: "DejaVu Sans", Helvetica, sans-serif;
-      font-size: 16pt; margin-top: 9mm; color: #24404f; }
-  .frontespizio .riga { width: 55mm; height: 2pt; background: #0d4f8b; margin: 8mm auto; }
-  .frontespizio .dati { font-size: 9.5pt; color: #4a5c6b; line-height: 1.85; }
-  .frontespizio .avviso { margin-top: 26mm; font-size: 8pt; color: #6b7a88;
-      max-width: 120mm; margin-left: auto; margin-right: auto; line-height: 1.5; }
+      font-size: 21pt; font-weight: 700; line-height: 1.22; color: #14202c; }
+  .frontespizio .nota { font-size: 10pt; color: #4a5c6b; margin-top: 5mm; line-height: 1.5; max-width: 140mm; }
+  .frontespizio table.controllo { margin-top: 26mm; width: 100%; font-size: 9.2pt; border-top: 1.2pt solid #0d2438; border-bottom: 1.2pt solid #0d2438; }
+  .frontespizio table.controllo caption { caption-side: top; text-align: left; font-family: "DejaVu Sans", Helvetica, sans-serif;
+      font-size: 8pt; letter-spacing: 1.4pt; text-transform: uppercase; color: #0d4f8b; padding: 0 0 2mm; font-weight: 700; }
+  .frontespizio table.controllo th, .frontespizio table.controllo td { border: none; border-bottom: .4pt solid #d5dee7; padding: 1.9mm 2mm; background: none; }
+  .frontespizio table.controllo th { width: 52mm; color: #4a5c6b; font-weight: 600; font-size: 8.6pt; }
+  .frontespizio table.controllo tr:last-child th, .frontespizio table.controllo tr:last-child td { border-bottom: none; }
+  .frontespizio .avviso { margin-top: 12mm; font-size: 7.8pt; color: #6b7a88; line-height: 1.5; max-width: 150mm; }
+  nav.indice { break-after: page; page-break-after: always; }
+  nav.indice .indice-t { font-family: "DejaVu Sans", Helvetica, sans-serif; font-size: 16pt; font-weight: 700; color: #0d2438;
+      border-bottom: 2pt solid #0d2438; padding-bottom: .3em; margin-bottom: 1em; }
+  nav.indice ol { list-style: none; margin: 0; padding: 0; }
+  nav.indice li { margin: 0; padding: 1.3mm 0; border-bottom: .3pt dotted #b9c7d4; text-align: left; font-family: "DejaVu Sans", Helvetica, sans-serif; font-size: 9.6pt; }
+  nav.indice li.l3 { padding-left: 7mm; font-size: 8.6pt; color: #4a5c6b; border-bottom: none; padding-top: .6mm; padding-bottom: .6mm; }
+  nav.indice a { color: inherit; }
 `;
 
 const PIEDE = (titolo) => `
   <div style="font-family:'DejaVu Sans',Helvetica,sans-serif;font-size:7pt;color:#7a8896;
               width:100%;padding:0 16mm;display:flex;justify-content:space-between;">
-    <span>${esc(titolo)} · ${VER} · ${SHA}</span>
-    <span>pag. <span class="pageNumber"></span> / <span class="totalPages"></span></span>
+    <span>${VER} · rev. ${SHA} · ${OGGI}</span>
+    <span>Samuele Pio Provenzano</span>
+    <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
   </div>`;
 
-const TESTA = `<div style="font-size:1px;color:#fff;padding:0;margin:0;">&nbsp;</div>`;
+/* (v248) la testata di ogni pagina: il titolo del documento a sinistra, il progetto a destra, e un filo */
+const TESTA = (titolo) => `
+  <div style="font-family:'DejaVu Sans',Helvetica,sans-serif;font-size:7pt;color:#5d6d7c;width:100%;margin:0 16mm;
+              padding:0 0 1.6mm;border-bottom:0.4pt solid #b9c7d4;display:flex;justify-content:space-between;">
+    <span>${esc(String(titolo).replace(/^BioSpecInfo\s*[—–:-]\s*/, '').replace(/\s*[—–]\s*BioSpecInfo\s*$/, ''))}</span>
+    <span style="letter-spacing:.6pt">BIOSPECINFO</span>
+  </div>`;
 
-function frontespizio(titolo){
+/* ── (v248) IL FRONTESPIZIO FORMALE ─────────────────────────────────────────
+   Richiesta dell'autore: «i documenti in PDF, ma con impaginazioni più formali
+   e migliori», per l'azienda, il tirocinio e la tesi. Ogni documento apre con:
+   la fascia d'intestazione, il titolo, e il RIQUADRO DI CONTROLLO DEL DOCUMENTO
+   (identificativo, versione del software descritta, revisione = commit, data di
+   emissione, autore, lingua, stato), come nei documenti tecnici d'impresa. I dati
+   sono tutti ricavati dal repository: niente è scritto a mano. */
+const ETICHETTE = {
+  it: { fascia: 'DOCUMENTAZIONE TECNICA DI PROGETTO', sotto: 'Piattaforma web per la chimica computazionale, la fisica e la matematica',
+        controllo: 'Controllo del documento', id: 'Identificativo', titolo: 'Titolo', ver: 'Versione del software', rev: 'Revisione (commit)',
+        data: 'Data di emissione', autore: 'Autore', lingua: 'Lingua', linguaV: 'Italiano', stato: 'Stato', statoV: 'Emesso con la versione ',
+        avviso: 'Documento generato dal sorgente versionato nel repository del progetto. La versione e la revisione riportate qui e nel piè di ogni pagina identificano esattamente lo stato del software descritto.',
+        indice: 'Indice', dossier: 'Dossier completo', raccolta: 'Raccolta integrale dei documenti del progetto, nell\'ordine di numerazione. Ogni documento è disponibile anche come PDF separato.', doc: 'Documento' },
+  en: { fascia: 'PROJECT TECHNICAL DOCUMENTATION', sotto: 'Web platform for computational chemistry, physics and mathematics',
+        controllo: 'Document control', id: 'Identifier', titolo: 'Title', ver: 'Software version', rev: 'Revision (commit)',
+        data: 'Date of issue', autore: 'Author', lingua: 'Language', linguaV: 'English', stato: 'Status', statoV: 'Issued with version ',
+        avviso: 'Document generated from the versioned source in the project repository. The version and revision shown here and in the footer of every page identify exactly the state of the software described.',
+        indice: 'Contents', dossier: 'Full dossier', raccolta: 'Complete collection of the project documents, in numbering order. Each document is also available as a separate PDF.', doc: 'Document' }
+};
+function codiceDi(file, lang){
+  const m = String(file || '').match(/^(\d\d)-/);
+  if (m) return 'BSI-DOC-' + m[1] + (lang === 'en' ? '-EN' : '-IT');
+  if (/Dossier/i.test(file || '')) return 'BSI-DOS-' + (lang === 'en' ? 'EN' : 'IT');
+  return 'BSI-GUIDA-' + String(file || 'X').replace(/\.md$/, '').replace(/^Guida-/, '').replace(/[^A-Za-z0-9]+/g, '-').toUpperCase().slice(0, 24);
+}
+function frontespizio(titolo, opz){
+  opz = opz || {}; const lang = opz.lang === 'en' ? 'en' : 'it', E = ETICHETTE[lang];
+  const pulito = String(titolo).replace(/^BioSpecInfo\s*[—–:-]\s*/, '').replace(/\s*[—–]\s*BioSpecInfo\s*$/, '');
+  const riga = function(k, v){ return '<tr><th>' + k + '</th><td>' + v + '</td></tr>'; };
   return '<div class="frontespizio">' +
+    '<div class="fascia">' + E.fascia + '</div>' +
     '<div class="marchio">BioSpecInfo</div>' +
-    /* (v248) «BioSpecInfo — Dossier Tecnico» sotto il marchio «BioSpecInfo» ripeteva il nome: resta il titolo del documento */
-    '<div class="titolo">' + esc(String(titolo).replace(/^BioSpecInfo\s*[—–:-]\s*/, '')) + '</div>' +
+    '<div class="sotto">' + E.sotto + '</div>' +
     '<div class="riga"></div>' +
-    '<div class="dati">' +
-      'Samuele Pio Provenzano<br>' +
-      'Versione <strong>' + VER + '</strong> · commit <code>' + SHA + '</code><br>' +
-      'Generato il ' + OGGI +
-    '</div>' +
-    '<div class="avviso">Documento generato automaticamente dal sorgente Markdown ' +
-      'versionato nel repository. La versione e il commit stampati in ogni piè di ' +
-      'pagina identificano esattamente lo stato del software descritto.</div>' +
+    '<div class="titolo">' + esc(pulito) + '</div>' +
+    (opz.nota ? '<div class="nota">' + esc(opz.nota) + '</div>' : '') +
+    '<table class="controllo"><caption>' + E.controllo + '</caption><tbody>' +
+      riga(E.id, '<code>' + esc(codiceDi(opz.file, lang)) + '</code>') +
+      riga(E.titolo, esc(pulito)) +
+      riga(E.ver, '<strong>' + VER + '</strong>') +
+      riga(E.rev, '<code>' + SHA + '</code>') +
+      riga(E.data, OGGI) +
+      riga(E.autore, 'Samuele Pio Provenzano') +
+      riga(E.lingua, E.linguaV) +
+      riga(E.stato, E.statoV + VER) +
+    '</tbody></table>' +
+    '<div class="avviso">' + E.avviso + '</div>' +
   '</div>';
 }
+/* l'indice di un documento: i suoi capitoli (h2) e paragrafi (h3), con il collegamento. Solo se ne ha almeno quattro. */
+function indiceDi(html, lang){
+  const voci = []; const re = /<h([23]) id="(s\d+)">([\s\S]*?)<\/h\1>/g; let m;
+  while ((m = re.exec(html))) voci.push({ liv: +m[1], id: m[2], t: m[3].replace(/<[^>]+>/g, '') });
+  if (voci.filter(function(v){ return v.liv === 2; }).length < 4) return '';
+  let o = '<nav class="indice"><div class="indice-t">' + ETICHETTE[lang === 'en' ? 'en' : 'it'].indice + '</div><ol>';
+  /* i paragrafi (h3) entrano nell'indice solo se il tutto resta in una pagina */
+  const tutti = voci.length <= 34;
+  voci.forEach(function(v){ if (v.liv === 3 && !tutti) return; o += '<li class="l' + v.liv + '"><a href="#' + v.id + '">' + v.t + '</a></li>'; });
+  return o + '</ol></nav>';
+}
+/* un documento intero: frontespizio, indice, corpo */
+function documento(titolo, corpo, opz){ return frontespizio(titolo, opz) + indiceDi(corpo, opz && opz.lang) + corpo; }
 
 /* Il titolo di un documento e' il suo primo h1; il nome del file e' un
    ripiego, non una scelta. */
@@ -332,27 +413,23 @@ function trovaChromium(){
 /* L'indice del dossier completo: un PDF di duecento pagine senza indice si
    sfoglia, non si consulta. I numeri di pagina non sono noti prima della
    stampa, quindi l'indice elenca i documenti nell'ordine in cui compaiono. */
-function indiceGenerale(voci){
-  let m = '<div class="frontespizio"><div class="marchio">BioSpecInfo</div>' +
-    '<div class="titolo">Dossier completo</div><div class="riga"></div>' +
-    '<div class="dati">Samuele Pio Provenzano<br>Versione <strong>' + VER +
-    '</strong> · commit <code>' + SHA + '</code><br>Generato il ' + OGGI + '</div>' +
-    '<div class="avviso">Raccolta integrale dei documenti del progetto, nell\'ordine ' +
-    'di numerazione. Ogni documento è disponibile anche come PDF separato.</div></div>';
-  m += '<h1>Indice</h1><table><thead><tr><th>#</th><th>Documento</th></tr></thead><tbody>';
+function indiceGenerale(voci, lang){
+  const E = ETICHETTE[lang === 'en' ? 'en' : 'it'];
+  let m = frontespizio(E.dossier, { file: 'Dossier', lang: lang, nota: E.raccolta });
+  m += '<h1>' + E.indice + '</h1><table><thead><tr><th style="width:12mm">#</th><th>' + E.doc + '</th></tr></thead><tbody>';
   voci.forEach(function(v, i){
     m += '<tr><td>' + (i + 1) + '</td><td>' + esc(v) + '</td></tr>';
   });
-  m += '</tbody></table><div style="break-after:page;page-break-after:always"></div>';
-  return m;
+  m += '</tbody></table>';
+  return '<section class="documento">' + m + '</section>';
 }
 
 async function stampa(pagina, dest, html, titolo){
   await pagina.setContent(html, { waitUntil: 'load' });
   await pagina.pdf({
     path: dest, format: 'A4', printBackground: true,
-    displayHeaderFooter: true, headerTemplate: TESTA, footerTemplate: PIEDE(titolo),
-    margin: { top: '20mm', bottom: '18mm', left: '0', right: '0' }
+    displayHeaderFooter: true, headerTemplate: TESTA(titolo), footerTemplate: PIEDE(titolo),
+    margin: { top: '22mm', bottom: '18mm', left: '0', right: '0' }
   });
   return fs.statSync(dest).size;
 }
@@ -391,7 +468,7 @@ async function main(){
     corpiIt.push(corpo); titoliIt.push(titolo);
     const nome = f.replace(/\.md$/, '.pdf');
     const d = await stampa(pagina, path.join(USCITA, nome),
-                           pagina_html('it', titolo, frontespizio(titolo) + corpo), titolo);
+                           pagina_html('it', titolo, documento(titolo, corpo, { file: f, lang: 'it' })), titolo);
     prodotti.push([nome, d]); byte += d;
     console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
   }
@@ -405,7 +482,7 @@ async function main(){
     const titolo = titoloDi(md, f);
     const nome = f.replace(/\.md$/, '.pdf');
     const d = await stampa(pagina, path.join(USCITA, nome),
-                           pagina_html('it', titolo, frontespizio(titolo) + mdToHtml(md)), titolo);
+                           pagina_html('it', titolo, documento(titolo, mdToHtml(md), { file: f, lang: 'it' })), titolo);
     prodotti.push([nome, d]); byte += d;
     console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
   }
@@ -416,7 +493,7 @@ async function main(){
     const nome = 'BioSpecInfo-Dossier-Completo.it.pdf';
     const d = await stampa(pagina, path.join(USCITA, nome),
       pagina_html('it', 'Dossier completo',
-                  indiceGenerale(titoliIt) + corpiIt.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Dossier completo');
+                  indiceGenerale(titoliIt, 'it') + corpiIt.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Dossier completo');
     prodotti.push([nome, d]); byte += d;
     console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
   }
@@ -432,7 +509,7 @@ async function main(){
       corpiEn.push(corpo); titoliEn.push(titolo);
       const nome = f.replace(/\.md$/, '.en.pdf');
       const d = await stampa(pagina, path.join(USCITA, nome),
-                             pagina_html('en', titolo, frontespizio(titolo) + corpo), titolo);
+                             pagina_html('en', titolo, documento(titolo, corpo, { file: f, lang: 'en' })), titolo);
       prodotti.push([nome, d]); byte += d;
       console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
     }
@@ -441,7 +518,7 @@ async function main(){
       const nome = 'BioSpecInfo-Full-Dossier.en.pdf';
       const d = await stampa(pagina, path.join(USCITA, nome),
         pagina_html('en', 'Full dossier',
-                    indiceGenerale(titoliEn) + corpiEn.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Full dossier');
+                    indiceGenerale(titoliEn, 'en') + corpiEn.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Full dossier');
       prodotti.push([nome, d]); byte += d;
       console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
     }
