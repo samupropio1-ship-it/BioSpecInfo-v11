@@ -7,6 +7,107 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v248] — 2026-11-11
+
+**L'ologramma interattivo mostra tutta l'app (197 sezioni e il menu ✨) e si legge bene sul telefono; corpo più leggero; voce ricontrollata per Android; PDF impaginati meglio**
+
+Schermata dell'autore dall'ologramma interattivo sul telefono: «non sento
+nulla» e «non c'è abbastanza spazio: fammi scorrere la sezione verso il basso
+per leggere tutto». Nella schermata i passaggi stavano in una striscia in
+fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
+**muto**.
+
+### Cambiato
+- `bsi-spectra-olointerattivo.js`, sul telefono (≤ 820 px): **tutta la
+  finestra scorre**. La testata resta in alto (senza il titolo, per stare in
+  meno righe), poi Spectra (170 px), il grafico, i comandi e i passaggi per
+  intero, a 15,5 px, con 130 px di spazio in fondo per i tasti del telefono.
+  Prima Spectra e il grafico erano fissi e ai passaggi restava il 20 % dello
+  schermo.
+
+### Aggiunto
+- **«🔔 Prova audio»** nell'ologramma interattivo e nel comando «prova la
+  voce»: un bip con Web Audio (non dipende dal motore vocale) e una frase di
+  prova, con la spiegazione: se non si sente nemmeno il bip il telefono è in
+  muto o il volume «Multimedia» è a zero; se si sente il bip ma non la voce,
+  manca la voce del telefono (`BSISpectraLive.provaAudio()`).
+
+- **«🗂️ Tutta l'app» nell'ologramma interattivo** (richiesta: «l'ologramma è
+  impostato solo su alcuni argomenti: voglio selezionare io ogni cosa
+  dell'app, dalla Tavola Periodica ai pianeti»). Un elenco di **tutte le 197
+  sezioni** (letto dal catalogo dell'app, non scritto a mano), filtrabile per
+  materia e per nome. Scelta una sezione: se ha grafici o scene 3D si vede
+  **dal vivo** nel riquadro (4 volte al secondo); se è fatta di testo e
+  tabelle (la Tavola Periodica) viene **ospitata** nel riquadro, cioè la
+  sezione vera viene spostata lì, con i suoi tocchi che funzionano, e rimessa
+  al suo posto dopo. I passaggi sono la lezione che l'app costruisce dalla
+  sezione; Spectra li dice a voce. «↗ Apri la sezione» porta alla sezione
+  vera; chiusa la finestra si torna da dove si era partiti.
+- **Anche il menu ✨ nell'ologramma** (schermate dell'autore: «mancano la
+  sezione Astro, il Centro spettri… deve esserci tutto»): all'elenco si
+  aggiungono le 15 voci del menu ✨, lette dal menu stesso. Le 8 **pagine**
+  (Astrochimica 3D PRO, Accademia, Chimica Organica 1+2, RDKit Lab, PRO Hub,
+  Simulazioni, Guida alla retrosintesi, Documentazione) si aprono **dentro il
+  riquadro**, vere e usabili; le 7 **finestre** (Lab Quantistico, Editor di
+  struttura, Sintesi & Retrosintesi, Sfida, Glossario, Costanti J, Esporta
+  figure) si aprono con «↗ Apri la sezione». Restano fuori le voci di
+  servizio (impostazioni, aggiornamenti, installa, stampa, File Manager con
+  password). Il Centro spettri era già fra le 197 sezioni. In tutto 212 voci.
+- **La voce, ricontrollata per Android** (`bsi-spectra-live.js`,
+  `bsi-ai-hub.js`, `bsi-spectra-voce.js`): (1) al primo tocco non si manda più
+  la frase vuota «di sblocco» (serve a iPhone; certi motori vocali di Android
+  si bloccano su una frase di soli spazi e lasciano in coda tutto il resto);
+  (2) dopo un annullamento la frase nuova parte 160 ms dopo (parlare subito
+  la fa cadere); (3) non si sceglie più la voce per nome (può essere una voce
+  «di rete», muta senza risposta): si dichiara la lingua e il telefono usa la
+  sua voce predefinita; (4) l'enunciato si tiene in vita finché parla.
+  `test_voce` a 21 controlli.
+- **I PDF dei documenti** (`tools/genera-pdf.js`), per l'azienda, il tirocinio
+  e la tesi: una riga di tabella lunga ora **continua nella pagina seguente**
+  con l'intestazione ripetuta (prima non poteva spezzarsi e lasciava mezze
+  pagine bianche: la Matrice di tracciabilità passa da 37 a 31 pagine); le
+  tabelle senza titoli non stampano più una riga d'intestazione vuota; il
+  frontespizio non ripete «BioSpecInfo» nel titolo.
+  **Controllati tutti i 36 PDF, pagina per pagina** (893 pagine, analisi
+  automatica dell'inchiostro di ogni pagina più un campione a vista): nessun
+  testo fuori dai margini, nessun carattere mancante, tutti i caratteri
+  incorporati. Tre difetti trovati e tolti: una pagina finale con la sola riga
+  «Generato il…» (SBOM); mezza pagina bianca prima di un blocco di codice
+  lungo (la specifica OpenAPI, ora continua di pagina); una pagina tutta
+  bianca nel dossier completo inglese, quando un documento finiva proprio a
+  fine pagina. Il corsivo scritto con i trattini bassi ora si stampa in
+  corsivo. Nel dossier completo restano, volute, le fini di capitolo: ogni
+  documento comincia a pagina nuova.
+- **Impaginazione formale dei PDF** (richiesta: «con impaginazioni più formali
+  e migliori»): ogni documento apre con un **frontespizio** con la fascia
+  «Documentazione tecnica di progetto», il titolo e il **riquadro di controllo
+  del documento** (identificativo `BSI-DOC-NN-IT/EN`, titolo, versione del
+  software, revisione = commit, data di emissione, autore, lingua, stato),
+  tutti ricavati dal repository; segue l'**indice** dei capitoli (se sono
+  almeno quattro), con i collegamenti; ogni pagina ha la **testata** (titolo
+  del documento e progetto, con un filo) e il **piè** (versione, revisione,
+  data, autore, pagina / totale); il testo è **giustificato**, i margini più
+  ampi. Pedici, apici e grassetti scritti in HTML nel sorgente (`<sub>`,
+  `<sup>`, `<b>`) ora si stampano come tali; i riquadri lunghi continuano di
+  pagina; la riga di chiusura non resta sola. Il dossier completo ha il suo
+  frontespizio e il suo indice, in italiano e in inglese. Ricontrollate tutte
+  le 1 004 pagine: nessuna pagina bianca, nessun testo fuori dai margini.
+
+- **Il corpo di Spectra più leggero** su telefoni e tablet (richiesta:
+  «alleggerisci il corpo»): le tre mappe del corpo a 1024 px invece di 2048
+  (un quarto dei pixel da ricolorare all'apertura e da tenere in memoria
+  grafica), rapporto di pixel fino a 2 invece di 2,5, 30 fotogrammi al
+  secondo invece di 60. Sul computer e nello studio resta la definizione
+  piena. `test_spectra_figura` a 111 controlli.
+
+### Onestà
+- L'app non può sapere se il telefono è in muto né alzare il volume: può solo
+  suonare e dire che cosa controllare.
+- Il corpo leggero non è stato misurato su un telefono vero: il risparmio è
+  quello dei pixel (un quarto per le mappe, circa un terzo in meno a
+  fotogramma). Il calcolo dello scheletro all'apertura è rimasto com'era.
+
+---
 ## [bsi-v247] — 2026-11-10
 
 **Avvio più leggero: il motore chimico non si carica più da solo mentre si usa l'app**
