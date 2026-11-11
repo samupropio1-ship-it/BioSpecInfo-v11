@@ -39,3 +39,4 @@ stack/api/.pytest_cache/
 # confermare): vedi docs/spectra/01-Analisi-modello-e-piano.md §7.4
 models/spectra-corpo.glb
 models/spectra-cyberpunk.glb
+spectra2/**/__pycache__/

@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [Non pubblicato] — Spectra 2.0, il cervello separato dall'app
+
+Richiesta dell'autore: un sistema personale con memoria cognitiva, continuità
+di identità, obiettivi di lungo periodo, raggiungibile sempre e integrato con i
+Ray-Ban Meta. È un progetto a sé nella cartella **`spectra2/`**: un servizio in
+Python, non parte dell'applicazione statica. **L'app non cambia**: nessun file
+di BioSpecInfo è stato toccato, la versione resta `bsi-v249`.
+
+### Aggiunto (`spectra2/`)
+- **Memoria** (`spectra/memoria/`): un archivio SQLite con cinque tipi di
+  ricordo (episodio, fatto, procedura, autobiografia, riflessione), memoria di
+  lavoro, grafo dei legami, entità; recupero su sei segnali (rilevanza,
+  recenza, importanza, emozione, obiettivi, fiducia) con attivazione diffusa,
+  diversità e rinforzo al richiamo; cura notturna (consolidamento,
+  riconciliazione, oblio, riflessione, diario), che funziona anche senza un
+  modello linguistico.
+- **Modello di sé, obiettivi, lacune** (`se.py`): sfaccettature con fiducia e
+  storia; il nucleo (identità, valori, stile) lo cambia solo l'utente;
+  capacità misurate dagli esiti; «non lo so» diventa una lacuna con un piano.
+- **Ciclo principale** (`cervello.py`), **fornitori** (`fornitori.py`: Claude
+  con l'SDK ufficiale, protocollo chat/completions, Gemini, con riserva),
+  **voce** (`voce.py`), **servizio** sempre attivo con gettone e relè degli
+  strumenti (`servizio.py`), **prompt di sistema** (`prompt/sistema.md`).
+- **Ponte** (`ponte/`): gli strumenti di BioSpecInfo esposti via WebMCP e via
+  relè (`biospecinfo-strumenti.js`); il progetto dell'app Android per gli
+  occhiali (`android/PonteOcchiali.kt`).
+- **47 prove** (`prove/`), senza rete e senza chiavi.
+
+### Onestà
+- Nessuna chiamata a un modello vero è stata fatta: i fornitori sono scritti
+  secondo la documentazione, da provare con una chiave.
+- Il ponte Android **non è compilato**; l'adattatore del toolkit degli occhiali
+  è da completare sul riferimento della versione installata.
+- WebMCP è un'anteprima dietro un'opzione di Chrome: qui è provato contro un
+  oggetto finto con la forma documentata.
+- Il dettaglio, voce per voce, è in `spectra2/README.md`, sezione 7.
+
+---
 ## [bsi-v249] — 2026-11-11
 
 **Il giro di controllo di tutta l'app: 197 sezioni e 14 pagine aperte una per una**
