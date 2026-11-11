@@ -424,7 +424,7 @@ un modello (il percorso è quello di «🧠 Spiega», provato da
 `test_spectra_figura`); la qualità didattica dei testi, che va giudicata
 leggendo.
 
-**`test_spectra_olo` — 63 controlli (15 in node, 25 a 412 px, 23 a 1280 px; v242, v248).**
+**`test_spectra_olo` — 69 controlli (15 in node, 28 a 412 px, 26 a 1280 px; v242, v248).**
 Nasce dalla richiesta dell'autore di selezionare l'ologramma e interagire, con
 ogni passaggio spiegato. Prova `bsi-spectra-olointerattivo.js`.
 
@@ -434,6 +434,7 @@ ogni passaggio spiegato. Prova `bsi-spectra-olointerattivo.js`.
 | Universo (7, in node) | Terra: periodo di Keplero 1 anno, vis-viva **30,29 km/s** al perielio e **29,29 km/s** all'afelio; Marte: rapporto delle velocità = (1+e)/(1−e), gravità in superficie **3,71 m/s²**; velocità di fuga della Terra **11,19 km/s**; un'orbita scritta con a = 4 UA → T = 8 anni |
 | La finestra (3 per larghezza) | Il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra in «spettri» (perché l'ologramma mostrava uno spettro); Spectra col corpo ci si sposta; i pulsanti flottanti dell'app spariscono |
 | Spettri dal vivo (3 per larghezza) | Cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 e 2950 cm⁻¹ fra i passaggi); una traccia di massa con due picchi dà due passaggi; toccando il picco a m/z 43 si sceglie il suo passaggio e Spectra lo dice |
+| Il menu ✨ nell'ologramma (v248: 3 per larghezza) | Nell'elenco ci sono anche le **15 voci del menu ✨** (8 pagine e 7 finestre: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) e il Centro spettri; «Astrochimica 3D PRO» si apre **dentro il riquadro** (la sua pagina vera) e cambiando modo si toglie; per una finestra (Lab Quantistico) «↗ Apri la sezione» chiude l'ologramma e la apre |
 | «🗂️ Tutta l'app» (v248: 4 per larghezza) | L'elenco ha **tutte** le sezioni della barra (197/197, letto dal catalogo, non scritto a mano), filtrabile per materia e per nome; la Tavola Periodica, senza grafici, è **ospitata davvero** nel riquadro (la sezione vera, spostata e viva); scelta un'altra sezione torna al suo posto e «Sistema solare 3D» si vede **dal vivo** con la sua lezione; chiusa la finestra l'app è di nuovo nella sezione di partenza |
 | Lettura sul telefono e prova audio (v248: 2 a 412 px, 1 a 1280 px) | Sul telefono **tutta la finestra scorre**: l'ultimo passaggio arriva ad almeno 70 px dal bordo (sopra i tasti di Android), la testata resta in alto, i passaggi sono a 15,5 px; «🔔 Prova audio» suona un bip, dice una frase di prova e spiega che cosa fare se non si sente (muto, volume «Multimedia», voce del telefono) |
 | Voce, tocco e Spiega senza chiave (3 per larghezza) | Scritta una traccia, Spectra la spiega **da sola a voce** dopo 1,4 s, senza toccare «🔊»; un tocco **sull'ologramma stesso** (il pannello alla destra di Spectra, colpito con un raggio dalla telecamera) lo apre interattivo; «🧠 Spiega» **senza chiave** risponde comunque alla domanda (pH di HCl 0,01 M: lo svolgimento dell'assistente locale per intero) e lo dice a voce |
@@ -466,7 +467,7 @@ riconoscimento impronta, però solo con me». Prova `bsi-spectra-creatore.js`
 WebAuthn non accetta un indirizzo IP come dominio: il banco apre l'app da
 `localhost`. **Non provato**: il sensore vero di un telefono e l'audio udibile.
 
-**`test_voce` — 17 controlli (v246).** Nasce dalla richiesta dell'autore di
+**`test_voce` — 21 controlli (v246, v248).** Nasce dalla richiesta dell'autore di
 una voce maschile robotica, «stile Ultron», per ogni risposta di Spectra nella
 Chat, solo con la Web Speech API. Prova `bsi-ai-hub.js` (`speakRobotic`,
 `stopSpeaking`, `toggleAutoSpeak`, `createSpeakButton`) con una sintesi vocale
@@ -478,6 +479,7 @@ femminili.
 | Voce e parametri (5) | Scelta l'italiana maschile «Luca»; ogni frase a pitch 0,58, rate 0,88, volume 1; una risposta di 1228 caratteri letta **tutta**, a frasi (prima: 600 caratteri); niente markdown letto; nessun annullamento quando non c'è niente in corso |
 | Nella Chat (9) | L'interruttore «🔊 Leggi automaticamente» c'è e si ricorda acceso e spento (`spectraAutoSpeak`); acceso, la risposta di Gemini (rete finta) si legge da sola; pulsante 🔊 su ogni risposta, che diventa «⏹ Ferma» e ferma; la voce si ferma chiudendo la finestra e cambiando sezione |
 | Console (1) | Spectra Live usa gli stessi parametri |
+| Android (4, v248) | Con l'identità di un telefono Android: nessuna frase vuota di sblocco al primo tocco; nessuna voce scelta per nome, solo la lingua `it-IT`; console e Chat parlano; dopo un annullamento la frase nuova parte ≥ 120 ms dopo |
 | Senza sintesi (1) | Nessun pulsante, nessun errore |
 | Errori (1) | Nessun errore JavaScript |
 

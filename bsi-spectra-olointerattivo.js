@@ -287,9 +287,36 @@
   }
   function congeda() {
     if (APP.ospite && APP.segno && APP.segno.parentNode) { APP.segno.parentNode.insertBefore(APP.ospite, APP.segno); APP.segno.parentNode.removeChild(APP.segno); }
+    if (APP.pagina && APP.pagina.parentNode) APP.pagina.parentNode.removeChild(APP.pagina); APP.pagina = null;
     APP.ospite = null; APP.segno = null; if (el.box) el.box.classList.remove('ospita');
   }
-  function catalogoApp() { var Sp = globale.BSISpiega; try { return Sp && Sp.catalogo ? Sp.catalogo() : []; } catch (e) { return []; } }
+  /* (v248) ANCHE IL MENU ✨. Schermate dell'autore: «mancano anche queste cose: la sezione Astro, il Lab Quantistico, il
+     Centro spettri… deve esserci tutto». I laboratori e gli strumenti del menu ✨ non sono sezioni della barra: sono pagine
+     a parte (Astrochimica 3D, Accademia, Chimica Organica, RDKit Lab, PRO Hub, Simulazioni, Guida alla retrosintesi,
+     Documentazione) o finestre (Lab Quantistico, Editor di struttura, Sintesi, Sfida, Glossario, Costanti J, Esporta).
+     Le PAGINE si aprono DENTRO il riquadro dell'ologramma, vere e usabili; le FINESTRE si aprono con «↗ Apri».
+     I nomi e le descrizioni si leggono dal menu stesso; restano fuori solo le voci di servizio (impostazioni,
+     aggiornamenti, schermo intero, installa, condividi, stampa, questionario, File Manager con password). */
+  var MENU_PAGINE = { astro: 'astro.html', accademia: 'accademia.html', chimorga: 'chimorga.html', rdkitlab: 'rdkit_lab.html', pro: 'pro.html', simulazioni: 'simulazioni.html', guidaret: 'guidaret.html', tesi: 'changelog_tesi.html' };
+  var MENU_FINESTRE = { qlab: 1, chemdraw: 1, sr: 1, challenge: 1, gloss: 1, jconst: 1, 'export': 1 };
+  var MENU_RISERVA = { astro: ['🌌 Astrochimica 3D PRO', ''], accademia: ['🎓 Accademia Chimica', ''], chimorga: ['⚗️ Chimica Organica 1+2', ''], rdkitlab: ['🧪 RDKit Cheminformatics Lab', ''], pro: ['⚗️ PRO Hub — ML · QM · Fisica · Statistica', ''], simulazioni: ['🧪 Simulazioni Interattive', ''], guidaret: ['📋 Guida Retrosintesi', ''], tesi: ['📄 Documentazione Tecnica', ''], qlab: ['⚛️ Lab Quantistico', ''], chemdraw: ['🎨 Editor di struttura', ''], sr: ['⚗️ Sintesi & Retrosintesi', ''], challenge: ['🎯 Sfida spettroscopica', ''], gloss: ['📖 Glossario chimico', ''], jconst: ['⚛️ Costanti J', ''], 'export': ['📸 Esporta figure', ''] };
+  function righeMenu() {
+    if (!D.querySelector('.bsi14-row[data-key]')) { var fab = D.getElementById('bsi14-fab'); if (fab) { try { fab.click(); var sh = D.getElementById('bsi14-sheet'); if (sh) sh.classList.remove('open'); } catch (e) {} } }
+    var out = {}; [].forEach.call(D.querySelectorAll('.bsi14-row[data-key]'), function (rw) { var k = rw.getAttribute('data-key'); if (out[k]) return; var tx = rw.querySelector('.bsi14-tx'), nm = tx && tx.firstElementChild ? tx.firstElementChild.textContent : '', ds = tx && tx.children[1] ? tx.children[1].textContent : '', ic = rw.firstElementChild && rw.firstElementChild !== tx ? rw.firstElementChild.textContent : ''; out[k] = { nome: (ic ? ic + ' ' : '') + nm.trim(), ds: ds.trim(), riga: rw }; });
+    return out;
+  }
+  function vociMenu() {
+    var R = righeMenu(), g = t('✨ Laboratori e strumenti', '✨ Labs and tools'), out = [];
+    Object.keys(MENU_PAGINE).concat(Object.keys(MENU_FINESTRE)).forEach(function (k) {
+      var x = R[k] || { nome: MENU_RISERVA[k][0], ds: MENU_RISERVA[k][1] };
+      out.push({ id: 'menu:' + k, nome: x.nome || MENU_RISERVA[k][0], ds: x.ds, gruppo: g, materia: 'comune', menu: k, pagina: MENU_PAGINE[k] || null });
+    });
+    return out;
+  }
+  function apriVoceMenu(k) {   /* la stessa azione del menu ✨ */
+    var R = righeMenu(); if (R[k] && R[k].riga) { try { R[k].riga.click(); var sh = D.getElementById('bsi14-sheet'); if (sh) sh.classList.remove('open'); return true; } catch (e) {} } return false;
+  }
+  function catalogoApp() { var Sp = globale.BSISpiega, base = []; try { base = Sp && Sp.catalogo ? Sp.catalogo() : []; } catch (e) { base = []; } var m = []; try { m = vociMenu(); } catch (e) { m = []; } return base.concat(m); }
   function normaApp(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
   function modoApp(c, txt) {
     var cat = catalogoApp(), MAT = [['', t('Tutte le materie', 'All subjects')], ['chimica', t('Chimica', 'Chemistry')], ['fisica', t('Fisica', 'Physics')], ['matematica', t('Matematica', 'Mathematics')], ['comune', t('Comuni', 'Shared')]];
@@ -310,7 +337,7 @@
       if (ST.app && sel.querySelector('option[value="' + ST.app + '"]')) sel.value = ST.app;
     }
     mat.onchange = elenco; cerca.oninput = elenco; sel.onchange = function () { if (sel.value) apriApp(sel.value); };
-    D.getElementById('bsiOI-avai').onclick = function () { if (!ST.app) return; APP.resta = true; chiudi(); };
+    D.getElementById('bsiOI-avai').onclick = function () { if (!ST.app) return; var mk = /^menu:/.test(ST.app) ? ST.app.slice(5) : null; APP.resta = !mk; chiudi(); if (mk) setTimeout(function () { apriVoceMenu(mk); }, 250); };
     if (txt) cerca.value = txt;
     elenco(); mostraTela('2d');
     if (txt && sel.options.length) { sel.selectedIndex = 0; apriApp(sel.value); }
@@ -322,6 +349,20 @@
     var L = globale.BSISpectraLive;
     if (!APP.origine) { try { APP.origine = (L.schermo() || {}).sezione || null; } catch (e) {} }
     ST.app = id; fermaApp(); fermaVoce();
+    if (x.menu) {   /* una voce del menu ✨: la pagina dentro il riquadro, oppure la scheda con «↗ Apri» */
+      ST.sel = -1;
+      if (x.pagina) {
+        var box = D.getElementById('bsiOI-ospite'), fr = D.createElement('iframe'); fr.id = 'bsiOI-pagina'; fr.title = x.nome; fr.src = x.pagina; fr.setAttribute('loading', 'eager');
+        fr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;background:#030812;border-radius:10px';
+        box.appendChild(fr); APP.pagina = fr; el.box.classList.add('ospita');
+        ST.dati = { tipo: 'app', id: id, nome: x.nome, gruppo: x.gruppo, righe: [x.ds], ospite: true, pagina: x.pagina };
+        passi([{ tit: x.nome, html: esc(x.ds || t('Una pagina dell\'app.', 'A page of the app.')) }, { tit: t('È qui dentro, vera', 'It is in here, for real'), html: t('La pagina è aperta <b>dentro il riquadro</b>: puoi scorrerla e usarla come sempre. «↗ Apri la sezione» la apre a tutto schermo.', 'The page is open <b>inside the frame</b>: you can scroll and use it as usual. «↗ Open the section» opens it full screen.') }]);
+      } else {
+        ST.dati = { tipo: 'app', id: id, nome: x.nome, gruppo: x.gruppo, righe: [x.ds, t('Questo strumento si apre in una sua finestra: tocca «↗ Apri la sezione».', 'This tool opens in its own window: tap «↗ Open the section».')].filter(Boolean) };
+        passi([{ tit: x.nome, html: esc(x.ds || '') }, { tit: t('Come si apre', 'How to open it'), html: t('È una finestra dell\'app, non una sezione: tocca <b>«↗ Apri la sezione»</b> e si apre.', 'It is a window of the app, not a section: tap <b>«↗ Open the section»</b> and it opens.') }]);
+      }
+      disegna(); return true;
+    }
     ST.dati = { tipo: 'app', id: id, nome: x.nome, gruppo: x.gruppo, righe: [t('Apro la sezione…', 'Opening the section…')], vivo: null }; ST.sel = -1; disegna();
     var r = null; try { r = L && L.calcolo && L.calcolo.apriSezione ? L.calcolo.apriSezione(id) : null; } catch (e) { r = null; }
     if (!r || !r.ok) { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); }

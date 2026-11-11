@@ -6354,6 +6354,7 @@ function providerSelectHtml(selected){
    Le funzioni speakRobotic, stopSpeaking, toggleAutoSpeak, createSpeakButton
    sono anche globali, con i nomi chiesti dall'autore. */
 var VOCE_ROBOTICA = { pitch: 0.58, rate: 0.88, volume: 1 };
+var VOCE_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
 var _vocePreferita = null, _voceGiro = 0, _voceInCorso = false;
 var autoSpeakEnabled = (function(){ try{ return localStorage.getItem('spectraAutoSpeak') === 'true'; }catch(e){ return false; } })();
 function voceSupportata(){ return typeof window !== 'undefined' && !!window.speechSynthesis && typeof window.speechSynthesis.speak === 'function' && typeof SpeechSynthesisUtterance !== 'undefined'; }
@@ -6398,23 +6399,28 @@ function speakRobotic(text, opz){
   var pulito = testoPerVoce(text);
   var frasi = (pulito.match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function(x){ return x.trim(); }).filter(function(x){ return x.length > 1; });
   if(!frasi.length) return false;
+  var cera = false; try{ cera = _voceInCorso && (speechSynthesis.speaking || speechSynthesis.pending); }catch(e){}
   stopSpeaking(true);
   var mio = ++_voceGiro, i = 0; _voceInCorso = true;
   _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
   if(!_vocePreferita) caricaVoci();
   /* la figura di Spectra muove le labbra con la voce */
   try{ document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: pulito.slice(0, 4000) } })); }catch(e){}
-  (function prossima(){
+  var prossima = function(){
     if(mio !== _voceGiro) return;
     if(i >= frasi.length){ _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); return; }
     var u = new SpeechSynthesisUtterance(frasi[i++]);
     u.pitch = VOCE_ROBOTICA.pitch; u.rate = VOCE_ROBOTICA.rate; u.volume = VOCE_ROBOTICA.volume;
-    if(_vocePreferita){ u.voice = _vocePreferita; u.lang = _vocePreferita.lang; } else u.lang = 'it-IT';
+    /* (v248) su Android non si sceglie la voce per nome (puo' essere una voce di rete, muta): solo la lingua */
+    if(_vocePreferita && !VOCE_ANDROID){ u.voice = _vocePreferita; u.lang = _vocePreferita.lang; } else u.lang = (_vocePreferita && /^it/i.test(_vocePreferita.lang || '')) || !_vocePreferita ? 'it-IT' : _vocePreferita.lang;
+    window._bsiUltimaFrase = u;   /* tenuto in vita: il browser a volte lo butta via prima che finisca */
     var fatta = false; function avanti(){ if(fatta) return; fatta = true; prossima(); }
     u.onend = avanti;
     u.onerror = function(ev){ if(ev && (ev.error === 'interrupted' || ev.error === 'canceled')) return; avanti(); };
     try{ speechSynthesis.resume(); speechSynthesis.speak(u); }catch(e){ avanti(); }
-  })();
+  };
+  /* (v248) parlare subito dopo un annullamento, su Android, fa cadere la frase: si aspetta un attimo */
+  if(cera) setTimeout(prossima, 160); else prossima();
   return true;
 }
 /** Interrompe la lettura (anche la voce della console). */

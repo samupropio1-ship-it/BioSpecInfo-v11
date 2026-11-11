@@ -155,6 +155,35 @@ function sintesiFinta() {
   });
   att('Spectra Live: pitch 0,58 · rate 0,88', '0.58/0.88', v);
 
+  console.log('\n── Su Android ──');
+  /* (v248) le tre fragilita' di Android: nessuna voce scelta per nome (solo la lingua), nessuna frase vuota di sblocco,
+     e dopo un annullamento la frase nuova non parte nello stesso istante */
+  const ctxA = await b.newContext({ serviceWorkers: 'block', viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true, userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36' });
+  const pgA = await ctxA.newPage(); pgA.on('pageerror', e => errs.push(e.message));
+  await pgA.addInitScript(sintesiFinta);
+  await pgA.addInitScript(() => { const S = speechSynthesis, sp = S.speak; S.lingue = []; S.speak = function (u) { S.lingue.push(u.lang); S.tempi = S.tempi || []; S.tempi.push(performance.now()); return sp.call(this, u); }; const cn = S.cancel; S.cancel = function () { if (this.speaking || this.pending) S.tAnnulla = performance.now(); return cn.call(this); }; });
+  await pgA.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+  await pgA.waitForFunction(() => !!(window.speakRobotic && window.BSISpectraLive), null, { timeout: 60000 });
+  await pgA.mouse.click(200, 400);   /* il primo tocco: qui partirebbe la frase vuota di sblocco */
+  const an = await pgA.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), S = speechSynthesis, o = {};
+    await pausa(300); o.sblocco = S.frasi.length;
+    BSISpectraLive.parla('Prima frase della console.'); await pausa(300);
+    speakRobotic('Risposta della chat.'); await pausa(300);
+    o.voci = [...new Set(S.frasi.map(f => f.voce))].join('|'); o.lingue = [...new Set(S.lingue)].join('|'); o.dette = S.frasi.map(f => f.t).join(' | ');
+    /* un discorso lento interrotto da uno nuovo: il nuovo parte dopo l'annullamento, non insieme */
+    const sp0 = S.speak; S.speak = function (u) { S.tempi.push(performance.now()); this.frasi.push({ t: u.text, voce: '' }); this.speaking = true; const me = this; me._t = setTimeout(() => { me.speaking = false; u.onend && u.onend(); }, 2000); };
+    BSISpectraLive.parla('Una frase lunga che viene interrotta.'); await pausa(250); S.tAnnulla = 0; const n0 = S.tempi.length;
+    BSISpectraLive.parla('La frase nuova.'); await pausa(600);
+    o.ritardo = S.tAnnulla && S.tempi.length > n0 ? Math.round(S.tempi[n0] - S.tAnnulla) : -1; o.nuova = (S.frasi[S.frasi.length - 1] || {}).t;
+    o.android = BSISpectraLive.statoVoce().android; S.speak = sp0; BSISpectraLive.taci(); return o;
+  });
+  vero('riconosciuto Android; al primo tocco nessuna frase vuota di sblocco (' + an.sblocco + ')', an.android && an.sblocco === 0);
+  att('nessuna voce scelta per nome: solo la lingua italiana, la voce è quella predefinita del telefono', '|it-IT', an.voci + '|' + an.lingue);
+  vero('console e Chat parlano (' + an.dette.slice(0, 60) + ')', /Prima frase della console/.test(an.dette) && /Risposta della chat/.test(an.dette));
+  vero('dopo un annullamento la frase nuova parte ' + an.ritardo + ' ms dopo, non nello stesso istante («' + an.nuova + '»)', an.ritardo >= 120 && /frase nuova/.test(an.nuova));
+  await ctxA.close();
+
   console.log('\n── Senza sintesi vocale ──');
   const pg2 = await ctx.newPage();
   await pg2.addInitScript(() => { try { delete window.speechSynthesis; Object.defineProperty(window, 'speechSynthesis', { configurable: true, get() { return undefined; } }); } catch (e) {} });

@@ -120,9 +120,15 @@ function mdToHtml(md){
       const intest = celle(r);
       const alli = celle(righe[i + 1]).map(allineamento);
       i += 2;
-      out += '<table>\n<thead><tr>';
-      intest.forEach(function(c, k){ out += '<th' + (alli[k] || '') + '>' + inline(c) + '</th>'; });
-      out += '</tr></thead>\n<tbody>\n';
+      /* (v248) una tabella «a due colonne senza titoli» (| | | nel sorgente) stampava una riga d'intestazione vuota e
+         grigia: se tutte le intestazioni sono vuote, l'intestazione non si stampa */
+      out += '<table>\n';
+      if (intest.some(function(c){ return String(c).replace(/&nbsp;/g, '').trim() !== ''; })) {
+        out += '<thead><tr>';
+        intest.forEach(function(c, k){ out += '<th' + (alli[k] || '') + '>' + inline(c) + '</th>'; });
+        out += '</tr></thead>\n';
+      }
+      out += '<tbody>\n';
       while (i < righe.length && /\|/.test(righe[i]) && righe[i].trim() !== '') {
         const c = celle(righe[i]);
         out += '<tr>';
@@ -233,7 +239,12 @@ const STILE = `
            vertical-align: top; }
   th { background: #e8eef5; font-family: "DejaVu Sans", Helvetica, sans-serif;
        font-weight: 600; font-size: 8.6pt; }
-  tr { break-inside: avoid; page-break-inside: avoid; }
+  /* (v248) IMPAGINAZIONE DELLE TABELLE LUNGHE. Prima una riga non poteva mai spezzarsi fra due pagine: nelle matrici
+     (tracciabilita', documentazione dei banchi) una riga alta mezza pagina lasciava l'altra mezza BIANCA, pagina dopo
+     pagina. Ora una riga puo' continuare nella pagina seguente (l'intestazione si ripete), ma mai lasciando una o due
+     righe di testo isolate in cima o in fondo. */
+  tr { break-inside: auto; page-break-inside: auto; }
+  td, th { orphans: 3; widows: 3; }
   thead { display: table-header-group; }     /* l'intestazione si ripete a ogni pagina */
   blockquote { margin: .8em 0; padding: .5em .9em; background: #f3f7fb;
                border-left: 2.5pt solid #7fa6c9; break-inside: avoid; }
@@ -267,7 +278,8 @@ const TESTA = `<div style="font-size:1px;color:#fff;padding:0;margin:0;">&nbsp;<
 function frontespizio(titolo){
   return '<div class="frontespizio">' +
     '<div class="marchio">BioSpecInfo</div>' +
-    '<div class="titolo">' + esc(titolo) + '</div>' +
+    /* (v248) «BioSpecInfo — Dossier Tecnico» sotto il marchio «BioSpecInfo» ripeteva il nome: resta il titolo del documento */
+    '<div class="titolo">' + esc(String(titolo).replace(/^BioSpecInfo\s*[—–:-]\s*/, '')) + '</div>' +
     '<div class="riga"></div>' +
     '<div class="dati">' +
       'Samuele Pio Provenzano<br>' +

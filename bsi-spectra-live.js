@@ -194,6 +194,7 @@
 
   /* ═══ 3. LA VOCE ═══════════════════════════════════════════════════════ */
   var voce = { scelta: null, attiva: true, inCorso: false, coda: [] };
+  var ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
   function scegliVoce() {
     if (!('speechSynthesis' in globale)) return null;
     var L = speechSynthesis.getVoices() || [], lg = lingua() === 'en' ? 'en' : 'it';
@@ -232,18 +233,24 @@
     if (!('speechSynthesis' in globale) || !voce.attiva) { if (hud.volto && testo) { hud.volto.dici(perLaVoce(testo).slice(0, 220)); setTimeout(function () { if (hud.volto) hud.volto.taci(); }, Math.min(9000, 300 + perLaVoce(testo).length * 70)); } if (fatto) setTimeout(fatto, 0); return false; }
     /* (v243) «non sento la voce»: su Android annullare quando non c'e' nulla in corso puo' far cadere la frase successiva,
        e la sintesi a volte resta in pausa: si annulla solo se serve e si riprende */
-    try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); } catch (e) {}
+    /* (v248) «controlla un'altra volta la voce». Tre fragilita' di Android, tolte:
+       · parlare SUBITO dopo un annullamento fa cadere la frase: dopo cancel() si aspettano 160 ms;
+       · scegliere una voce per nome puo' finire su una voce «di rete» che senza risposta resta muta: su Android non si
+         sceglie la voce, si dichiara solo la lingua e il telefono usa la sua voce predefinita, la piu' affidabile;
+       · l'enunciato si tiene in vita (voce.u): il browser a volte lo butta via prima che finisca. */
+    var annullato = false;
+    try { if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); annullato = true; } speechSynthesis.resume(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
     /* (v245) ogni discorso ha il suo numero: un discorso vecchio rimasto a meta' (timer, «onend» in ritardo) non riprende
        quando ne comincia uno nuovo, che rimette voce.inCorso a vero — prima le due sequenze si accavallavano */
     var mio = voce.giro = (voce.giro || 0) + 1;
     voce.scelta = voce.scelta || scegliVoce(); voce.inCorso = true; stato('parla');
     var i = 0;
-    (function prossima() {
+    var prossima = function () {
       if (!voce.inCorso || mio !== voce.giro) return;
       if (i >= pezzi.length) { voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); return; }
       var u = new SpeechSynthesisUtterance(pezzi[i++]);
-      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 0.88; u.pitch = 0.58; u.volume = 1;   /* (v246) la voce robotica fissata dall'autore, la stessa della Chat */
+      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta && !ANDROID) u.voice = voce.scelta; voce.u = u; u.rate = 0.88; u.pitch = 0.58; u.volume = 1;   /* (v246) la voce robotica fissata dall'autore, la stessa della Chat */
       var frase = pezzi[i - 1], partita = false, finita = false;
       /* una sintesi vocale che non parte (nessuna voce installata, audio
          bloccato) non deve fermare il discorso: dopo 1,2 s la frase si
@@ -269,7 +276,8 @@
       /* (v243) «onend» porta avanti anche quando «onstart» non e' mai arrivato (certi motori Android non lo mandano) */
       u.onend = function () { partita = true; avanti(); }; u.onerror = function () { if (partita) avanti(); };
       try { speechSynthesis.speak(u); } catch (e) {}
-    })();
+    };
+    if (annullato) setTimeout(prossima, 160); else prossima();
     return true;
   }
   /* (v243) SBLOCCO DELLA VOCE al primo tocco: su iPhone e su alcuni Android la sintesi e l'audio partono solo se la prima volta
@@ -278,7 +286,9 @@
   var sbloccata = false;
   function sbloccaVoce() {
     if (sbloccata) return; sbloccata = true;
-    try { if ('speechSynthesis' in globale) { var u0 = new SpeechSynthesisUtterance(' '); u0.volume = 0; u0.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; speechSynthesis.speak(u0); speechSynthesis.resume(); } } catch (e) {}
+    /* (v248) la frase vuota serve a iPhone/Safari; su Android non serve e certi motori vocali si bloccano su una frase
+       fatta di soli spazi, lasciando in coda tutto quello che viene dopo: li' non si manda */
+    try { if ('speechSynthesis' in globale && !ANDROID) { var u0 = new SpeechSynthesisUtterance(' '); u0.volume = 0; u0.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; speechSynthesis.speak(u0); speechSynthesis.resume(); } } catch (e) {}
     try { if (globale.BSISpectraVoce && globale.BSISpectraVoce.sblocca) globale.BSISpectraVoce.sblocca(); } catch (e) {}
   }
   if (typeof document !== 'undefined') {
@@ -303,7 +313,7 @@
   }
   function statoVoce() {
     var n = 0; try { n = ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : -1; } catch (e) {}
-    return { attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
+    return { android: ANDROID, attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
   }
   function taci() { voce.inCorso = false; voce.giro = (voce.giro || 0) + 1; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 

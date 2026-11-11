@@ -118,7 +118,14 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
         o.app = { nav, opz, fis, trovate, ospitata: !!pt && osp.contains(pt) && pt.offsetParent !== null, alta: Math.round(osp.getBoundingClientRect().height), passi: I.stato().passi.length };
         cerca.value = 'sistema solare 3d'; cerca.oninput(); sel.selectedIndex = 0; sel.onchange(); await pausa(3200);
         o.app.tornata = !!pt && !osp.contains(pt) && !!pt.parentNode && pt.parentNode.id !== 'bsiOI-ospite'; o.app.vivo = !!I.stato().dati.vivo; o.app.sez = (BSISpectraLive.schermo() || {}).sezione; o.app.passiSole = I.stato().passi.length;
-        I.modo('spettri'); await pausa(300); o.app.prima = prima; }
+        /* le voci del menu ✨: una pagina (Astrochimica 3D) si apre dentro il riquadro */
+        const cat = I.catalogo(); o.app.menu = cat.filter(x => x.menu).length; o.app.pagine = cat.filter(x => x.pagina).length; o.app.nomi = cat.filter(x => x.menu).map(x => x.nome).join(' | ');
+        o.app.centro = cat.some(x => x.id === 'scentrospettri');
+        cerca.value = 'astrochimica'; cerca.oninput(); sel.value = 'menu:astro'; sel.onchange();
+        for (let k = 0; k < 60; k++) { await pausa(150); const fr = document.getElementById('bsiOI-pagina'); if (fr && fr.contentDocument && fr.contentDocument.body && fr.contentDocument.body.textContent.length > 200) break; }
+        const fr = document.getElementById('bsiOI-pagina'); o.app.astro = !!fr && fr.getBoundingClientRect().height > 250 && /Astro/i.test(fr.contentDocument.title || '');
+        o.app.foglio = !!(document.getElementById('bsi14-sheet') && document.getElementById('bsi14-sheet').classList.contains('open'));
+        I.modo('spettri'); await pausa(300); o.app.prima = prima; o.app.paginaTolta = !document.getElementById('bsiOI-pagina'); }
       /* (v242) la voce automatica: scritta una traccia, Spectra la spiega da sola, senza toccare «🔊» */
       I.voceAutomatica(true); I.modo('spettri'); await pausa(300); detti.length = 0;
       const tr2 = document.getElementById('bsiOI-traccia'); tr2.value = '1700 s'; tr2.oninput(); for (let k = 0; k < 40 && !detti.length; k++) await pausa(100);
@@ -126,6 +133,11 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
       /* approfondisci → Spiega; chiusa la finestra, Spectra torna */
       document.getElementById('bsiOI-ai').click(); await pausa(1200); o.spiega = document.getElementById('bsi-hub-ov').classList.contains('open') && !ov.classList.contains('aperto');
       document.getElementById('bsi-hub-close').click(); await pausa(1500); o.torna = !!F.box.closest('.section'); o.finale = (BSISpectraLive.schermo() || {}).sezione;
+      /* (v248) una FINESTRA del menu ✨ (Lab Quantistico): «↗ Apri la sezione» chiude l'ologramma e la apre */
+      I.apri('app'); await pausa(500); { const c2 = document.getElementById('bsiOI-acerca'), s2 = document.getElementById('bsiOI-asez'); c2.value = 'lab quantistico'; c2.oninput(); s2.value = 'menu:qlab'; s2.onchange(); await pausa(300);
+        o.qlabPassi = I.stato().passi.length; document.getElementById('bsiOI-avai').click(); await pausa(1500);
+        o.qlab = !I.stato().aperto && [...document.querySelectorAll('iframe')].some(f => f.getAttribute('srcdoc') && f.offsetParent !== null && f.getBoundingClientRect().height > 200); }
+
       /* (v242) un tocco SULL'OLOGRAMMA (il pannello alla destra di Spectra) lo apre interattivo */
       F.box.scrollIntoView({ block: 'center' }); await pausa(400); const cvF = F.box.querySelector('canvas'), pt = F.puntoOlogramma();
       const ev = (tipo) => cvF.dispatchEvent(new PointerEvent(tipo, { clientX: pt.x, clientY: pt.y, bubbles: true, pointerId: 1 }));
@@ -153,11 +165,14 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
     vero('«🧠 Approfondisci» apre Spiega', r.spiega);
     vero('chiuse le finestre, Spectra torna nella sezione', r.torna);
     att('e l\'app è di nuovo nella sezione da cui si era partiti', 'sareachim', r.finale);
+    vero('una finestra del menu ✨ (Lab Quantistico): «↗ Apri la sezione» chiude l\'ologramma e la apre', r.qlabPassi === 2 && r.qlab);
     if (nome === 'telefono') vero('sul telefono la finestra scorre fino in fondo: l\'ultimo passaggio sta ' + r.scorre.ultimo + ' px sopra il bordo (tasti di Android), la testata resta in alto, caratteri da ' + r.scorre.font + ' px', r.scorre.alta && r.scorre.sceso && r.scorre.ultimo >= 70 && r.scorre.testa === 0 && r.scorre.font >= 15);
     vero('«🔔 Prova audio»: bip, frase di prova e che cosa fare se non si sente (' + r.bip.frase.slice(0, 40) + '…)', /muto/.test(r.bip.nota) && /Multimedia|multimediali/.test(r.bip.nota) && /voce di Spectra/.test(r.bip.frase));
-    vero('«🗂️ Tutta l\'app»: l\'elenco ha tutte le sezioni della barra (' + r.app.opz + '/' + r.app.nav + '), filtrabili per materia (Fisica: ' + r.app.fis + ') e per nome (' + r.app.trovate + ' per «tavola periodica»)', r.app.opz === r.app.nav && r.app.nav > 150 && r.app.fis > 20 && r.app.fis < r.app.opz && r.app.trovate >= 1);
+    vero('«🗂️ Tutta l\'app»: l\'elenco ha tutte le sezioni della barra più le 15 voci del menu ✨ (' + r.app.opz + ' = ' + r.app.nav + ' + 15), filtrabili per materia (Fisica: ' + r.app.fis + ') e per nome (' + r.app.trovate + ' per «tavola periodica»)', r.app.opz === r.app.nav + 15 && r.app.nav > 150 && r.app.fis > 20 && r.app.fis < r.app.opz && r.app.trovate >= 1);
     vero('la Tavola Periodica (senza grafici) è ospitata davvero nel riquadro, viva e alta ' + r.app.alta + ' px, con i suoi passaggi (' + r.app.passi + ')', r.app.ospitata && r.app.alta > 250 && r.app.passi >= 1);
     vero('scelta un\'altra sezione, la Tavola torna al suo posto e «Sistema solare 3D» si vede dal vivo con la sua lezione (' + r.app.passiSole + ' passaggi)', r.app.tornata && r.app.vivo && r.app.sez === 'sastrosole' && r.app.passiSole >= 3);
+    vero('ci sono anche i laboratori e gli strumenti del menu ✨ (' + r.app.menu + ' voci, ' + r.app.pagine + ' pagine: Astrochimica, Lab Quantistico, Accademia…) e il Centro spettri', r.app.menu === 15 && r.app.pagine === 8 && /Astrochimica/.test(r.app.nomi) && /Lab Quantistico/.test(r.app.nomi) && /Glossario/.test(r.app.nomi) && r.app.centro && !r.app.foglio);
+    vero('«Astrochimica 3D PRO» si apre dentro il riquadro, vera (la sua pagina), e cambiando modo si toglie', r.app.astro && r.app.paginaTolta);
     vero('Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)', r.auto);
     vero('un tocco sull\'ologramma stesso lo apre interattivo', r.toccoOlo);
     vero('«🧠 Spiega» senza chiave: lo svolgimento locale per intero (' + r.spiegaLocale + ' passaggi) e detto a voce (' + r.spiegaVoce.slice(0, 60) + '…)', r.spiegaLocale >= 2 && /pH/i.test(r.spiegaVoce));

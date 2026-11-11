@@ -9,7 +9,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 ---
 ## [bsi-v248] — 2026-11-11
 
-**L'ologramma interattivo mostra ogni sezione dell'app e si legge bene sul telefono; corpo di Spectra più leggero; «🔔 Prova audio»**
+**L'ologramma interattivo mostra tutta l'app (197 sezioni e il menu ✨) e si legge bene sul telefono; corpo più leggero; voce ricontrollata per Android; PDF impaginati meglio**
 
 Schermata dell'autore dall'ologramma interattivo sul telefono: «non sento
 nulla» e «non c'è abbastanza spazio: fammi scorrere la sezione verso il basso
@@ -43,6 +43,32 @@ fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
   al suo posto dopo. I passaggi sono la lezione che l'app costruisce dalla
   sezione; Spectra li dice a voce. «↗ Apri la sezione» porta alla sezione
   vera; chiusa la finestra si torna da dove si era partiti.
+- **Anche il menu ✨ nell'ologramma** (schermate dell'autore: «mancano la
+  sezione Astro, il Centro spettri… deve esserci tutto»): all'elenco si
+  aggiungono le 15 voci del menu ✨, lette dal menu stesso. Le 8 **pagine**
+  (Astrochimica 3D PRO, Accademia, Chimica Organica 1+2, RDKit Lab, PRO Hub,
+  Simulazioni, Guida alla retrosintesi, Documentazione) si aprono **dentro il
+  riquadro**, vere e usabili; le 7 **finestre** (Lab Quantistico, Editor di
+  struttura, Sintesi & Retrosintesi, Sfida, Glossario, Costanti J, Esporta
+  figure) si aprono con «↗ Apri la sezione». Restano fuori le voci di
+  servizio (impostazioni, aggiornamenti, installa, stampa, File Manager con
+  password). Il Centro spettri era già fra le 197 sezioni. In tutto 212 voci.
+- **La voce, ricontrollata per Android** (`bsi-spectra-live.js`,
+  `bsi-ai-hub.js`, `bsi-spectra-voce.js`): (1) al primo tocco non si manda più
+  la frase vuota «di sblocco» (serve a iPhone; certi motori vocali di Android
+  si bloccano su una frase di soli spazi e lasciano in coda tutto il resto);
+  (2) dopo un annullamento la frase nuova parte 160 ms dopo (parlare subito
+  la fa cadere); (3) non si sceglie più la voce per nome (può essere una voce
+  «di rete», muta senza risposta): si dichiara la lingua e il telefono usa la
+  sua voce predefinita; (4) l'enunciato si tiene in vita finché parla.
+  `test_voce` a 21 controlli.
+- **I PDF dei documenti** (`tools/genera-pdf.js`), per l'azienda, il tirocinio
+  e la tesi: una riga di tabella lunga ora **continua nella pagina seguente**
+  con l'intestazione ripetuta (prima non poteva spezzarsi e lasciava mezze
+  pagine bianche: la Matrice di tracciabilità passa da 37 a 31 pagine); le
+  tabelle senza titoli non stampano più una riga d'intestazione vuota; il
+  frontespizio non ripete «BioSpecInfo» nel titolo.
+
 - **Il corpo di Spectra più leggero** su telefoni e tablet (richiesta:
   «alleggerisci il corpo»): le tre mappe del corpo a 1024 px invece di 2048
   (un quarto dei pixel da ricolorare all'apertura e da tenere in memoria
