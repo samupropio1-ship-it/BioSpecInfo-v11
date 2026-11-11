@@ -68,6 +68,16 @@ fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
   pagine bianche: la Matrice di tracciabilità passa da 37 a 31 pagine); le
   tabelle senza titoli non stampano più una riga d'intestazione vuota; il
   frontespizio non ripete «BioSpecInfo» nel titolo.
+  **Controllati tutti i 36 PDF, pagina per pagina** (893 pagine, analisi
+  automatica dell'inchiostro di ogni pagina più un campione a vista): nessun
+  testo fuori dai margini, nessun carattere mancante, tutti i caratteri
+  incorporati. Tre difetti trovati e tolti: una pagina finale con la sola riga
+  «Generato il…» (SBOM); mezza pagina bianca prima di un blocco di codice
+  lungo (la specifica OpenAPI, ora continua di pagina); una pagina tutta
+  bianca nel dossier completo inglese, quando un documento finiva proprio a
+  fine pagina. Il corsivo scritto con i trattini bassi ora si stampa in
+  corsivo. Nel dossier completo restano, volute, le fini di capitolo: ogni
+  documento comincia a pagina nuova.
 
 - **Il corpo di Spectra più leggero** su telefoni e tablet (richiesta:
   «alleggerisci il corpo»): le tre mappe del corpo a 1024 px invece di 2048

@@ -71,6 +71,8 @@ function inline(s){
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[^*\w])\*([^*\n]+)\*(?=[^*\w]|$)/g, '$1<em>$2</em>');
+  /* (v248) il corsivo scritto con i trattini bassi (_cosi'_), a inizio parola: prima si stampavano i trattini */
+  s = s.replace(/(^|[\s(«])_([^_\n]+)_(?=[\s).,;:»]|$)/g, '$1<em>$2</em>');
   s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
   return s.replace(/\u0000C(\d+)\u0000/g, function(_, i){ return codici[+i]; });
 }
@@ -108,7 +110,9 @@ function mdToHtml(md){
       i++;
       while (i < righe.length && !/^\s*```/.test(righe[i])) { corpo.push(righe[i]); i++; }
       i++;
-      out += '<pre class="codice"' + (lingua ? ' data-lingua="' + esc(lingua) + '"' : '') +
+      /* (v248) un blocco di codice lungo (la specifica OpenAPI, 300 righe) non puo' stare in una pagina: tenerlo «intero»
+         lasciava mezza pagina bianca prima di lui. Solo i blocchi brevi restano interi; i lunghi continuano di pagina. */
+      out += '<pre class="codice' + (corpo.length > 30 ? ' lungo' : '') + '"' + (lingua ? ' data-lingua="' + esc(lingua) + '"' : '') +
              '><code>' + esc(corpo.join('\n')) + '</code></pre>\n';
       continue;
     }
@@ -205,6 +209,8 @@ function mdToHtml(md){
     if (par.length) out += '<p>' + inline(par.join(' ')) + '</p>\n';
   }
   chiudiLista();
+  /* (v248) la riga di chiusura («Generato il …») non resta sola in una pagina, nemmeno dentro il dossier completo */
+  out = out.replace(/<p>(\s*<em>\s*(?:Generato il|Generated on|Generated at)\b)/g, '<p class="chiusa">$1');
   return out;
 }
 
@@ -226,6 +232,12 @@ const STILE = `
   h3 { font-size: 12pt; }
   h4, h5, h6 { font-size: 10.8pt; }
   p { margin: .55em 0; orphans: 3; widows: 3; }
+  /* (v248) l'ultima riga di un documento («Generato il …») non resta sola su una pagina: sta con cio' che la precede */
+  p.chiusa { break-before: avoid; page-break-before: avoid; }
+  /* (v248) nel dossier completo ogni documento comincia a pagina nuova. Prima c'era un separatore DOPO ogni documento:
+     se il documento finiva proprio in fondo a una pagina, il separatore ne creava una tutta bianca */
+  section.documento + section.documento { break-before: page; page-break-before: always; }
+  pre.codice.lungo { break-inside: auto; page-break-inside: auto; orphans: 4; widows: 4; }
   a { color: #0d4f8b; text-decoration: none; }
   code { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: .86em;
          background: #eef3f8; padding: .1em .32em; border-radius: 2pt; }
@@ -404,7 +416,7 @@ async function main(){
     const nome = 'BioSpecInfo-Dossier-Completo.it.pdf';
     const d = await stampa(pagina, path.join(USCITA, nome),
       pagina_html('it', 'Dossier completo',
-                  indiceGenerale(titoliIt) + corpiIt.join(sep)), 'Dossier completo');
+                  indiceGenerale(titoliIt) + corpiIt.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Dossier completo');
     prodotti.push([nome, d]); byte += d;
     console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
   }
@@ -429,7 +441,7 @@ async function main(){
       const nome = 'BioSpecInfo-Full-Dossier.en.pdf';
       const d = await stampa(pagina, path.join(USCITA, nome),
         pagina_html('en', 'Full dossier',
-                    indiceGenerale(titoliEn) + corpiEn.join(sep)), 'Full dossier');
+                    indiceGenerale(titoliEn) + corpiEn.map(function(c){ return '<section class="documento">' + c + '</section>'; }).join('')), 'Full dossier');
       prodotti.push([nome, d]); byte += d;
       console.log('  ✓ ' + nome.padEnd(44) + (d / 1024).toFixed(0).padStart(5) + ' kB');
     }
