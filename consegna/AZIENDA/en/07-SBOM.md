@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v246` |
-| Commit | `5dafb94132deb1a7dd0387ca3159bc8fa5aa5b38` |
-| Generated (UTC) | `2026-11-10T23:37:55.239Z` |
+| Application version | `bsi-v247` |
+| Commit | `0a2ef8025a2fcde913822a9f6463f7ef9ac39fa4` |
+| Generated (UTC) | `2026-11-11T01:14:02.767Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -64,7 +64,7 @@ availability.
 |---|---:|---|
 | `index.html` | 4702 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 445 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
-| `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
+| `bsi-spettri.js` | 36 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
 | `bsi-nmr.js` | 57 kB | Per-atom ¹H and ¹³C NMR prediction: applies the bsi-pretsch.js tables by walking the ring and measuring distances, with a cyclic reference compound and chemical equivalence by environment code. |
@@ -199,9 +199,9 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `770ef03c89844bb9f3807d36caf3b8877813b7272c9388f52257f9701053cf0f` |
+| `index.html` | `459b83c041941d8d52e927cdcaeb01dce1743ff2a72b7bd36af7824cf56a2051` |
 | `bsi-ai-hub.js` | `5f9a616fa27b1ebf4ac66e61aa209a47aa8bdf0c13b27946458182a532068a21` |
-| `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
+| `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
@@ -325,8 +325,8 @@ availability.
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
 | `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
-| `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `0497383e92460aed1ca435c812047e6fda0e735f3b6d1bf34e50a450009ed635` |
+| `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
+| `sw.js` | `6e24be9575ff6f04b03ae43d52330b1aa501fdbc625962d667b79b7903857216` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -379,4 +379,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-10T23:37:55.239Z._
+_Generated on 2026-11-11T01:14:02.767Z._

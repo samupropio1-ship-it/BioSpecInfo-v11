@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v246` |
+| **Version described** | `bsi-v247` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -140,6 +140,7 @@
 | **STA-06** | An update must not destroy work in progress | `BSI_SW_UPDATED` message, decision taken page-side | `test_sw` §4 |
 | **STA-07** | Browsing molecules must not exhaust the WebGL contexts | reuse of the 3D viewer at all 5 creation points | `test_visore3d` — from 7 constructions down to 1 |
 | **STA-08** | An unavailable IndexedDB store must be declared, not fatal | `dbStore()` over a promise; persistent warning | `test_filemanager` §2 |
+| **STA-09** | Start-up must not load the RDKit chemistry engine (6.7 MB) on its own while the user is using the app, nor for those not studying chemistry | `bsi-pannelli-lingua.js` — the name archive is built when the converter is opened (`agganciaConvertitore`), no longer 3 s after start-up; `bsi-spettri.js` — RDKit warms up only in Chemistry, only after the app has been still for 4 s, never with «Data saver»; on-demand `bsiLoadRDKit` is unchanged. Measured on a simulated slow phone (CPU ×4), in Chemistry: longest start-up block from ~1960 ms to ~250 ms, total blocking time from ~2560 ms to ~640–815 ms | `test_avvio` — 9 behaviour checks: it does not start while in use; not in Physics; not with «Data saver»; in Chemistry when still it warms up; the archive is absent at start-up and is built on opening «Linguaggi delle molecole» (283 molecules); on demand it still arrives. **Not tested**: the milliseconds on a real phone |
 
 ---
 
@@ -165,7 +166,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 579 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 580 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -213,13 +214,13 @@ manual testing, and their automation is planned.
 |---|---:|---:|---:|
 | Scientific (SCI-01…59) | 57 | 57 | 100 % |
 | AI agent (AI-01…18) | 17 | 17 | 100 % |
-| Stability (STA-01…08) | 8 | 8 | 100 % |
+| Stability (STA-01…09) | 9 | 9 | 100 % |
 | Interface (UI-01…33) | 30 | 30 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **122** | **122** | **100 %** |
+| **Automated total** | **123** | **123** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **129** | **122** | **95 %** |
+| **Declared total** | **130** | **123** | **95 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -254,4 +255,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v246`._
+_Document updated to version `bsi-v247`._

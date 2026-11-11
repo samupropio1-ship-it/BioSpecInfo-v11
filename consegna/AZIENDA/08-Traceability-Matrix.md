@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v246` |
+| **Versione descritta** | `bsi-v247` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -140,6 +140,7 @@
 | **STA-06** | Un aggiornamento non deve distruggere il lavoro in corso | messaggio `BSI_SW_UPDATED`, decisione lato pagina | `test_sw` §4 |
 | **STA-07** | Sfogliare molecole non deve esaurire i contesti WebGL | riuso del visore 3D nei 5 punti di creazione | `test_visore3d` — da 7 costruzioni a 1 |
 | **STA-08** | L'archivio IndexedDB non disponibile deve essere dichiarato, non fatale | `dbStore()` su promessa; avviso persistente | `test_filemanager` §2 |
+| **STA-09** | L'avvio non deve caricare da solo il motore chimico RDKit (6,7 MB) mentre l'utente usa l'app, né a chi non studia chimica | `bsi-pannelli-lingua.js` — l'archivio dei nomi si costruisce all'apertura del convertitore (`agganciaConvertitore`), non più 3 s dopo l'avvio; `bsi-spettri.js` — RDKit si scalda solo in Chimica, solo con l'app ferma da 4 s, mai con «Risparmio dati»; `bsiLoadRDKit` a richiesta resta com'era. Misurato su telefono simulato lento (CPU ×4), in Chimica: blocco più lungo dell'avvio da ~1960 ms a ~250 ms, tempo di blocco totale da ~2560 ms a ~640–815 ms | `test_avvio` — 9 controlli sui comportamenti: in uso non parte; in Fisica non parte; con «Risparmio dati» non parte; in Chimica da fermi si scalda; l'archivio non c'è all'avvio e si costruisce aprendo «Linguaggi delle molecole» (283 molecole); a richiesta arriva comunque. **Non provato**: i millisecondi su un telefono vero |
 
 ---
 
@@ -165,7 +166,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 579 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 580 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -213,13 +214,13 @@ manuale, e la loro automazione è in programma.
 |---|---:|---:|---:|
 | Scientifici (SCI-01…59) | 57 | 57 | 100 % |
 | Agente AI (AI-01…18) | 17 | 17 | 100 % |
-| Stabilità (STA-01…08) | 8 | 8 | 100 % |
+| Stabilità (STA-01…09) | 9 | 9 | 100 % |
 | Interfaccia (UI-01…33) | 30 | 30 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **122** | **122** | **100 %** |
+| **Totale automatizzato** | **123** | **123** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **129** | **122** | **95 %** |
+| **Totale dichiarato** | **130** | **123** | **95 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -255,4 +256,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v246`._
+_Documento aggiornato alla versione `bsi-v247`._

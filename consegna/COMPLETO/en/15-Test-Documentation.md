@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v246` |
+| **Version described** | `bsi-v247` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**87 benches**, grouped by what they demonstrate.
+**88 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -296,7 +296,7 @@ existed before v238.
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
 `test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
 `test_guidaproxy` ·
-`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
+`test_fluidita` · `test_avvio` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
 **`test_spectra238` — 66 checks.** It comes from reports made with a phone
 screenshot: with the app installed, Android's status bar and navigation keys
@@ -535,6 +535,17 @@ original defect: immediately after the click handler returns the WebGL context
 **must not exist**, shortly after it **must**. Measured 0 and 1; and the
 measurement is not vacuous, because on a second click — when the canvas is
 already there — it returns 1.
+
+**`test_avvio` — 9 checks (v247).** It comes from the author's request to
+optimise the app. The start-up profile on a simulated slow phone (CPU ×4)
+showed a single ~2 s block: two preloads that started on their own (the name
+archive of «Linguaggi delle molecole» and the RDKit warm-up). The bench
+requires the **behaviours**, not the milliseconds, which are not repeatable on
+a test machine: with the app in use RDKit does not start by itself and the
+archive is not built; in Physics and with «Data saver» it does not start even
+when still; in Chemistry when still it warms up; the archive is built on
+opening «Linguaggi delle molecole» (283 molecules); whoever asks for it gets it
+at once; no JavaScript errors.
 
 **`test_lingue` — 64 checks.** It watches two new features and two different
 ways of lying without noticing.
@@ -909,7 +920,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 579 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 580 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -929,4 +940,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v246`._
+_Document updated to version `bsi-v247`._
