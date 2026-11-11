@@ -285,6 +285,22 @@
     ['pointerdown', 'keydown', 'touchend'].forEach(function (ev) { document.addEventListener(ev, sbloccaVoce, { capture: true, passive: true }); });
     try { if ('speechSynthesis' in globale) speechSynthesis.addEventListener('voiceschanged', function () { voce.scelta = null; }); } catch (e) {}
   }
+  /* (v248) PROVA AUDIO: un bip con Web Audio (non dipende dal motore vocale) e poi una frase. Se il bip non si sente il
+     telefono e' in muto o il volume multimediale e' a zero; se si sente il bip ma non la frase, manca la voce del telefono */
+  var acProva = null;
+  function provaAudio() {
+    sbloccaVoce(); voce.attiva = true; voce.scelta = null; var bip = false;
+    try {
+      var AC = globale.AudioContext || globale.webkitAudioContext;
+      if (AC) { acProva = acProva || new AC(); if (acProva.state === 'suspended') acProva.resume();
+        var o = acProva.createOscillator(), g = acProva.createGain(), t0 = acProva.currentTime;
+        o.type = 'sine'; o.frequency.value = 660; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.5, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.55);
+        o.connect(g); g.connect(acProva.destination); o.start(t0); o.stop(t0 + 0.6); bip = true; }
+    } catch (e) {}
+    var V = statoVoce();
+    setTimeout(function () { parla(t('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.', 'This is Spectra\'s voice. If you can hear me, audio works.')); }, 750);
+    return { bip: bip, voci: V.voci, scelta: V.scelta };
+  }
   function statoVoce() {
     var n = 0; try { n = ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : -1; } catch (e) {}
     return { attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
@@ -352,9 +368,10 @@
     /* (v243) «non sento la voce»: la prova dice che cosa vede il browser e che cosa fare */
     { re: /^(prova (la )?voce|non (ti )?sento|test (the )?voice|i can ?t hear you)/, f: function () {
       sbloccaVoce(); voce.attiva = true; voce.scelta = null; var V = statoVoce();
+      try { var acB = globale.AudioContext || globale.webkitAudioContext; if (acB) { acProva = acProva || new acB(); if (acProva.state === 'suspended') acProva.resume(); var oB = acProva.createOscillator(), gB = acProva.createGain(); oB.frequency.value = 660; gB.gain.value = 0.4; oB.connect(gB); gB.connect(acProva.destination); oB.start(); oB.stop(acProva.currentTime + 0.4); } } catch (e) {}
       if (V.voci === -1) return { testo: t('Questo browser non ha la sintesi vocale: ti rispondo per iscritto, con il labiale.', 'This browser has no speech synthesis: I answer in writing, with lip-sync.') };
       if (V.voci === 0) return { testo: t('Il telefono non mi dà nessuna voce. Su Android apri Impostazioni → Sistema → Lingue → Output sintesi vocale, scegli «Servizi di riconoscimento vocale di Google» e scarica la voce italiana; poi riapri l\'app. Controlla anche il volume dei contenuti multimediali.', 'The phone gives me no voice. On Android open Settings → System → Languages → Text-to-speech output, choose Google speech services and download the voice; then reopen the app. Also check the media volume.') };
-      return { testo: t('Mi senti? Uso la voce «' + (scegliVoce() || { name: 'predefinita' }).name + '», una delle ' + V.voci + ' del telefono. Se non senti nulla, alza il volume dei contenuti multimediali (non quello della suoneria) e togli il silenzioso.', 'Can you hear me? I am using the voice «' + (scegliVoce() || { name: 'default' }).name + '», one of the phone\'s ' + V.voci + '. If you hear nothing, raise the media volume (not the ringer) and turn off silent mode.') }; } },
+      return { testo: t('Mi senti? Uso la voce «' + (scegliVoce() || { name: 'predefinita' }).name + '», una delle ' + V.voci + ' del telefono. Ho suonato anche un bip: se non senti nemmeno quello, il telefono è in muto o il volume dei contenuti multimediali è a zero; alzalo con i tasti del volume (non quello della suoneria).', 'Can you hear me? I am using the voice «' + (scegliVoce() || { name: 'default' }).name + '», one of the phone\'s ' + V.voci + '. If you hear nothing, raise the media volume (not the ringer) and turn off silent mode.') }; } },
     /* il creatore (bsi-spectra-creatore.js): chi l'ha creato, e la prova per riconoscerlo */
     { re: /^(chi ti ha creato|chi ti ha fatto|chi e il tuo creatore|chi ti ha programmato|chi e il tuo autore|who (made|created|built) you)/, f: function () {
       var Cr = globale.BSISpectraCreatore; if (!Cr) return null;
@@ -1137,7 +1154,7 @@
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
-    apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
+    apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, provaAudio: provaAudio, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -103,6 +103,11 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
       detti.length = 0; document.getElementById('bsiOI-voce').click(); for (let k = 0; k < 60 && detti.length < I.stato().passi.length; k++) await pausa(100); await pausa(300);
       o.voce = detti.length + '/' + I.stato().passi.length;
       o.sborda = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      /* (v248) sul telefono tutta la finestra scorre: i passaggi si leggono per intero, sopra i tasti del telefono */
+      if (innerWidth < 820) { const sc0 = ov.scrollTop; ov.scrollTop = 99999; await pausa(150); const ul = document.querySelector('#bsiOI-passi .p:last-child').getBoundingClientRect();
+        o.scorre = { alta: ov.scrollHeight > ov.clientHeight + 100, ultimo: Math.round(innerHeight - ul.bottom), sceso: ov.scrollTop > 100, testa: Math.round(document.getElementById('bsiOI-testa').getBoundingClientRect().top), font: parseFloat(getComputedStyle(document.querySelector('#bsiOI-passi .p')).fontSize) }; ov.scrollTop = sc0; }
+      /* (v248) «🔔 Prova audio»: un bip e una frase, con la spiegazione */
+      const provati = []; const ascolta = e => provati.push(e.detail && e.detail.testo || ''); document.addEventListener('bsi-spectra-dice', ascolta); document.getElementById('bsiOI-bip').click(); await pausa(1300); document.removeEventListener('bsi-spectra-dice', ascolta); BSISpectraLive.taci(); o.bip = { nota: document.getElementById('bsiOI-audio').textContent, frase: provati.join(' ') };
       /* (v242) la voce automatica: scritta una traccia, Spectra la spiega da sola, senza toccare «🔊» */
       I.voceAutomatica(true); I.modo('spettri'); await pausa(300); detti.length = 0;
       const tr2 = document.getElementById('bsiOI-traccia'); tr2.value = '1700 s'; tr2.oninput(); for (let k = 0; k < 40 && !detti.length; k++) await pausa(100);
@@ -136,6 +141,8 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
     if (nome === 'telefono') att('a 412 px niente sborda', 0, r.sborda);
     vero('«🧠 Approfondisci» apre Spiega', r.spiega);
     vero('chiuse le finestre, Spectra torna nella sezione', r.torna);
+    if (nome === 'telefono') vero('sul telefono la finestra scorre fino in fondo: l\'ultimo passaggio sta ' + r.scorre.ultimo + ' px sopra il bordo (tasti di Android), la testata resta in alto, caratteri da ' + r.scorre.font + ' px', r.scorre.alta && r.scorre.sceso && r.scorre.ultimo >= 70 && r.scorre.testa === 0 && r.scorre.font >= 15);
+    vero('«🔔 Prova audio»: bip, frase di prova e che cosa fare se non si sente (' + r.bip.frase.slice(0, 40) + '…)', /muto/.test(r.bip.nota) && /Multimedia|multimediali/.test(r.bip.nota) && /voce di Spectra/.test(r.bip.frase));
     vero('Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)', r.auto);
     vero('un tocco sull\'ologramma stesso lo apre interattivo', r.toccoOlo);
     vero('«🧠 Spiega» senza chiave: lo svolgimento locale per intero (' + r.spiegaLocale + ' passaggi) e detto a voce (' + r.spiegaVoce.slice(0, 60) + '…)', r.spiegaLocale >= 2 && /pH/i.test(r.spiegaVoce));

@@ -7,6 +7,36 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v248] — 2026-11-11
+
+**L'ologramma interattivo si legge bene sul telefono; «🔔 Prova audio» per capire perché non si sente**
+
+Schermata dell'autore dall'ologramma interattivo sul telefono: «non sento
+nulla» e «non c'è abbastanza spazio: fammi scorrere la sezione verso il basso
+per leggere tutto». Nella schermata i passaggi stavano in una striscia in
+fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
+**muto**.
+
+### Cambiato
+- `bsi-spectra-olointerattivo.js`, sul telefono (≤ 820 px): **tutta la
+  finestra scorre**. La testata resta in alto (senza il titolo, per stare in
+  meno righe), poi Spectra (170 px), il grafico, i comandi e i passaggi per
+  intero, a 15,5 px, con 130 px di spazio in fondo per i tasti del telefono.
+  Prima Spectra e il grafico erano fissi e ai passaggi restava il 20 % dello
+  schermo.
+
+### Aggiunto
+- **«🔔 Prova audio»** nell'ologramma interattivo e nel comando «prova la
+  voce»: un bip con Web Audio (non dipende dal motore vocale) e una frase di
+  prova, con la spiegazione: se non si sente nemmeno il bip il telefono è in
+  muto o il volume «Multimedia» è a zero; se si sente il bip ma non la voce,
+  manca la voce del telefono (`BSISpectraLive.provaAudio()`).
+
+### Onestà
+- L'app non può sapere se il telefono è in muto né alzare il volume: può solo
+  suonare e dire che cosa controllare.
+
+---
 ## [bsi-v247] — 2026-11-10
 
 **Avvio più leggero: il motore chimico non si carica più da solo mentre si usa l'app**

@@ -169,7 +169,18 @@
     '#bsi-olo-ov .ctrl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}#bsi-olo-ov input[type=text],#bsi-olo-ov select{background:#0d1b2e;border:1px solid #1a3550;color:#e9eef6;padding:6px 9px}#bsi-olo-ov input[type=text]{flex:1;min-width:150px}' +
     '#bsiOI-passi{display:flex;flex-direction:column;gap:6px}#bsiOI-passi .p{background:rgba(13,27,46,.75);border:1px solid #1a3550;border-radius:10px;padding:8px 10px;cursor:pointer}#bsiOI-passi .p.on{border-color:#00c9b7;box-shadow:0 0 0 1px rgba(0,201,183,.4)}' +
     '#bsiOI-passi .p h4{margin:0 0 3px;font:700 13.5px system-ui;color:#5eead4}#bsi-olo-ov .nota{color:#9fb6dd;font-size:13px}' +
-    '@media (max-width:820px){#bsi-olo-ov.aperto{grid-template-columns:1fr;grid-template-rows:auto 190px 38vh 1fr;grid-template-areas:"testa" "fig" "tela" "lato"}#bsiOI-figura{grid-area:fig;height:auto;padding:6px 10px 0}#bsiOI-lato{border-right:0;border-top:1px solid rgba(107,207,255,.15)}}';
+    /* (v248) SUL TELEFONO TUTTA LA FINESTRA SCORRE. Richiesta dell'autore, con una schermata: «non c'è abbastanza spazio,
+       fammi scorrere la sezione verso il basso per leggere tutto». Prima Spectra e il grafico erano fissi e ai passaggi
+       restava una striscia in fondo, per di piu' sotto i tasti di Android. Ora si scorre l'intera finestra: la testata
+       resta in alto, poi Spectra (piu' bassa), il grafico, e i passaggi per intero, a caratteri piu' grandi, con lo
+       spazio in fondo per i tasti del telefono */
+    '@media (max-width:820px){#bsi-olo-ov.aperto{display:block;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}' +
+    '#bsiOI-testa{position:sticky;top:0;z-index:5;background:rgba(5,10,22,.96);padding-top:calc(8px + env(safe-area-inset-top,0px))}' +
+    '#bsiOI-testa b{display:none}#bsiOI-testa{gap:5px}#bsi-olo-ov .tab{padding:6px 9px}' +
+    '#bsiOI-figura{height:170px;padding:6px 10px 0}#bsiOI-tela{height:min(46vh,340px);margin:4px 0}' +
+    '#bsiOI-lato{overflow:visible;border-right:0;border-top:1px solid rgba(107,207,255,.15);padding:12px 12px calc(130px + env(safe-area-inset-bottom,0px))}' +
+    '#bsiOI-passi .p{padding:11px 13px;font-size:15.5px;line-height:1.6}#bsiOI-passi .p h4{font-size:15px;margin-bottom:5px}}' +
+    '#bsiOI-audio{font-size:13px;color:#ffd166;display:none}#bsiOI-audio.si{display:block}';
   var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '', autoVoce: true };
   var el = {};
   function costruisci() {
@@ -180,7 +191,7 @@
       [['spettri', '🧪 ' + t('Spettri', 'Spectra')], ['universo', '🪐 ' + t('Universo', 'Universe')], ['matematica', '📐 ' + t('Matematica', 'Mathematics')], ['fisica', '⚛️ ' + t('Fisica e chimica', 'Physics & chemistry')]].map(function (m) { return '<button type="button" class="tab" data-modo="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
       '<button type="button" class="b2" id="bsiOI-x" aria-label="' + t('Chiudi', 'Close') + '">✕</button></div>' +
       '<div id="bsiOI-figura"></div><div id="bsiOI-tela"><canvas id="bsiOI-2d" aria-hidden="true"></canvas></div>' +
-      '<div id="bsiOI-lato"><div id="bsiOI-ctrl"></div><div class="ctrl"><button type="button" class="bt" id="bsiOI-voce">🔊 ' + t('Spectra spiega i passaggi', 'Spectra explains the steps') + '</button><button type="button" class="b2" id="bsiOI-ai">🧠 ' + t('Approfondisci', 'Go deeper') + '</button></div><div id="bsiOI-passi" aria-live="polite"></div></div>';
+      '<div id="bsiOI-lato"><div id="bsiOI-ctrl"></div><div class="ctrl"><button type="button" class="bt" id="bsiOI-voce">🔊 ' + t('Spectra spiega i passaggi', 'Spectra explains the steps') + '</button><button type="button" class="b2" id="bsiOI-ai">🧠 ' + t('Approfondisci', 'Go deeper') + '</button><button type="button" class="b2" id="bsiOI-bip" title="' + t('Suona un bip e una frase di prova: per capire se il telefono è in muto', 'Plays a beep and a test sentence: to find out whether the phone is muted') + '">🔔 ' + t('Prova audio', 'Test audio') + '</button></div><div id="bsiOI-audio" role="status"></div><div id="bsiOI-passi" aria-live="polite"></div></div>';
     D.body.appendChild(b);
     /* sul telefono la figura sta sopra l'ologramma (la griglia la mette nella sua area) */
     if (globale.matchMedia && globale.matchMedia('(max-width:820px)').matches) { /* niente: le aree della griglia */ }
@@ -189,6 +200,15 @@
     [].forEach.call(b.querySelectorAll('.tab'), function (x) { x.onclick = function () { modo(x.getAttribute('data-modo')); }; });
     D.getElementById('bsiOI-voce').onclick = function () { ST.voce ? fermaVoce() : spiegaPassaggi(); };
     D.getElementById('bsiOI-ai').onclick = approfondisci;
+    /* (v248) «non sento nulla»: un bip (Web Audio) e una frase di prova, con la spiegazione di che cosa vuol dire il risultato */
+    D.getElementById('bsiOI-bip').onclick = function () {
+      var L = globale.BSISpectraLive, n = D.getElementById('bsiOI-audio'); fermaVoce();
+      var r = L && L.provaAudio ? L.provaAudio() : { bip: false, voci: -1 };
+      n.className = 'si';
+      n.innerHTML = (r.bip ? t('🔔 Ho suonato un <b>bip</b> e ora dico una frase. ', '🔔 I played a <b>beep</b> and now I say a sentence. ') : '') +
+        (r.voci === 0 ? t('<b>Il telefono non mi dà nessuna voce</b>: Impostazioni → Gestione generale → Sintesi vocale → scegli il motore Google e scarica la voce italiana. ', '<b>The phone gives me no voice</b>: Settings → General management → Text-to-speech → choose the Google engine and download the voice. ') : '') +
+        t('Se <b>non senti nemmeno il bip</b>, il telefono è in <b>muto</b> o il volume dei <b>contenuti multimediali</b> è a zero: premi i tasti del volume e alza «Multimedia» (non «Suoneria»). Se senti il bip ma <b>non la voce</b>, manca la voce del telefono (vedi sopra).', 'If you <b>cannot hear even the beep</b>, the phone is <b>muted</b> or the <b>media</b> volume is zero: press the volume keys and raise «Media» (not «Ringtone»). If you hear the beep but <b>not the voice</b>, the phone voice is missing (see above).');
+    };
     var cv = D.getElementById('bsiOI-2d'); cv.addEventListener('click', tocco);
     D.addEventListener('keydown', function (e) { if (ST.aperto && e.key === 'Escape') chiudi(); });
     if (globale.ResizeObserver) new ResizeObserver(function () { disegna(); }).observe(D.getElementById('bsiOI-tela')); else globale.addEventListener('resize', disegna);

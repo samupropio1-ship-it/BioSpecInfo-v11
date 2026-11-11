@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v247` |
+| **Version described** | `bsi-v248` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -407,7 +407,7 @@ synthesis); the explanation of «🧠 Spiegamelo tutto», which depends on a mod
 (the path is the one of «🧠 Spiega», tested by `test_spectra_figura`); the
 didactic quality of the texts, which has to be judged by reading.
 
-**`test_spectra_olo` — 52 checks (15 in node, 19 at 412 px, 18 at 1280 px; v242).**
+**`test_spectra_olo` — 55 checks (15 in node, 21 at 412 px, 19 at 1280 px; v242, v248).**
 It comes from the author's request to select the hologram and interact with
 it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
 
@@ -417,6 +417,7 @@ it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
 | Universe (7, in node) | Earth: Kepler period 1 year, vis-viva **30.29 km/s** at perihelion and **29.29 km/s** at aphelion; Mars: speed ratio = (1+e)/(1−e), surface gravity **3.71 m/s²**; Earth escape velocity **11.19 km/s**; a written orbit with a = 4 AU → T = 8 years |
 | The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
 | Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
+| Reading on the phone and audio test (v248: 2 at 412 px, 1 at 1280 px) | On the phone **the whole window scrolls**: the last step reaches at least 70 px from the edge (above the Android keys), the header stays on top, the steps are at 15.5 px; «🔔 Prova audio» plays a beep, says a test sentence and explains what to do if nothing is heard (mute, «Media» volume, phone voice) |
 | Voice, tap and Spiega without a key (3 per width) | Once a trace is written, Spectra explains it **aloud on her own** after 1.4 s, without touching «🔊»; a tap **on the hologram itself** (the panel to Spectra's right, hit with a ray from the camera) opens it in interactive mode; «🧠 Spiega» **without a key** still answers the question (pH of 0.01 M HCl: the local assistant's full working) and says it aloud |
 | Universe, mathematics, physics (5 per width) | Mars with its six steps, in the 3D scene; «studia f(x)=x^3-3x» → zeros −√3, 0, √3 and stationary points ±1, with at least eight assistant steps; the projectile with range **35.31 m**; the 2 m pendulum with period **2.837 s** |
 | Voice, Spiega, return (3 per width) | «🔊 Spectra spiega i passaggi» says them all; «🧠 Approfondisci» opens «🧠 Spiega»; with the windows closed, Spectra returns to the section |
@@ -940,4 +941,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v247`._
+_Document updated to version `bsi-v248`._
