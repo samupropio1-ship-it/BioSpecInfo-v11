@@ -7,6 +7,40 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v249] — 2026-11-11
+
+**Il giro di controllo di tutta l'app: 197 sezioni e 14 pagine aperte una per una**
+
+Richiesta dell'autore: «deve essere controllato al massimo». I banchi provano
+a fondo le singole funzioni, ma nessuno apriva tutte le sezioni una per una.
+Fatto il giro, a misura di telefono e di computer, è emerso questo.
+
+### Corretto
+- **Sei sezioni aprivano la sezione sbagliata** quando le si chiedeva dal
+  navigatore di Spectra, da «🧠 Spiega» o dall'elenco dell'ologramma: «Orbitali
+  MO» apriva «Molecola», «Calcolatore» apriva «Calc. Avanz.», «Quiz» apriva
+  «Quiz Spettri», «Tutto su una molecola» apriva «Centro spettri», e così
+  «Diagrammi di distribuzione» e «Guida all'uso». La ricerca per somiglianza
+  del nome vinceva sull'identificativo: ora l'identificativo esatto viene
+  prima (`bsi-spectra-live.js`, `apriSezione`).
+- **36 reazioni della sezione «Sintesi Org.» comparivano come «undefined»**,
+  senza titolo e senza schema: erano scritte con un altro schema di campi. Ora
+  sono portate allo schema della banca (`bsiNormRXN`).
+- **Quattro pagine sbordavano in orizzontale sul telefono**: Chimica Organica
+  1+2 (155 px, per le tabelle larghe: ora scorrono nel loro riquadro), Guida
+  alla retrosintesi (107 px, la barra in alto), Accademia (12 px) e i due
+  eserciziari di sintesi (9 px, il campo di ricerca).
+
+### Aggiunto
+- Banco **`test_giro`** (24 controlli): rifà il giro a ogni versione.
+  Requisito STA-10; batteria a 89 banchi.
+
+### Onestà
+- Il giro controlla che ogni sezione si apra, non sia vuota e non mostri
+  valori mancanti; non giudica la correttezza scientifica del contenuto, che
+  resta ai banchi dedicati.
+
+---
 ## [bsi-v248] — 2026-11-11
 
 **L'ologramma interattivo mostra tutta l'app (197 sezioni e il menu ✨) e si legge bene sul telefono; corpo più leggero; voce ricontrollata per Android; PDF impaginati meglio**

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v249` |
-| Commit | `cd8df42654e3f9738a1e7582ddec35a630c3012f` |
-| Generato (UTC) | `2026-11-11T09:09:35.187Z` |
+| Commit | `309bf71be5ac81ef3db089aaca7a54ec618869c6` |
+| Generato (UTC) | `2026-11-11T11:42:49.017Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4702 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4703 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 446 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -147,7 +147,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 113 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 114 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
@@ -192,14 +192,14 @@ la dipendenza dalla disponibilità di terzi.
 | `sw.js` | 9 kB | Service Worker: funzionamento offline e strategia di rete. |
 | `rdkit_lab.html` | 260 kB | Laboratorio di chemioinformatica. |
 | `astro.html` | 2660 kB | Modulo di astrochimica. |
-| `chimorga.html` | 194 kB | Modulo di chimica organica. |
+| `chimorga.html` | 195 kB | Modulo di chimica organica. |
 | `proxy/spectra-proxy.js` | 10 kB | Proxy opzionale (Cloudflare Worker) per le chiamate all'AI. |
 
 ### Impronte
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `7935a1667d786d39240ff2cf4273a2aed5cdf6ed0b58c16f25755893932cf33b` |
+| `index.html` | `0166fdcb11668c4f81f326104ebf1b73329fa2af8d60dffdd64cf399405f8620` |
 | `bsi-ai-hub.js` | `c2db3c146724e49d9694cb3b34763012744752002908c289c79bab3259265f2b` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -284,7 +284,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `3b46a1d764b8804d46d444149e46eea9f0bfa292c2300f8dcbcaefe43b99879f` |
+| `bsi-spectra-live.js` | `c36ef98cfaf7abde37fda9cffb7c76c2730372ec97037c3ee63b5109c10f6c22` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
@@ -326,10 +326,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `5810a6ffb329157d7f644e129fe8c939f50deea8256ed2a443f0978ca4177090` |
+| `sw.js` | `b026536b0ca9b585f4eb2ae97f48f60cb11e02317b8d82628e505355d84f3f46` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
-| `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
+| `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
 | `proxy/spectra-proxy.js` | `808c0a12891ae9c6f45cf0c676b033075089e064df9047be844f03badf940962` |
 
 ---
@@ -379,4 +379,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-11T09:09:35.187Z._
+_Generato il 2026-11-11T11:42:49.017Z._
