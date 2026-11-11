@@ -180,6 +180,8 @@
     '#bsiOI-figura{height:170px;padding:6px 10px 0}#bsiOI-tela{height:min(46vh,340px);margin:4px 0}' +
     '#bsiOI-lato{overflow:visible;border-right:0;border-top:1px solid rgba(107,207,255,.15);padding:12px 12px calc(130px + env(safe-area-inset-bottom,0px))}' +
     '#bsiOI-passi .p{padding:11px 13px;font-size:15.5px;line-height:1.6}#bsiOI-passi .p h4{font-size:15px;margin-bottom:5px}}' +
+    '#bsiOI-ospite{display:none;position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;background:#060d1a;border:1px solid rgba(107,207,255,.45);border-radius:10px;padding:8px}#bsi-olo-ov.ospita #bsiOI-ospite{display:block}#bsi-olo-ov.ospita #bsiOI-2d{display:none}' +
+    '@media (max-width:820px){#bsi-olo-ov.ospita #bsiOI-tela{height:72vh}}' +
     '#bsiOI-audio{font-size:13px;color:#ffd166;display:none}#bsiOI-audio.si{display:block}';
   var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '', autoVoce: true };
   var el = {};
@@ -188,9 +190,9 @@
     var s = D.createElement('style'); s.textContent = CSS; D.head.appendChild(s);
     var b = el.box = D.createElement('div'); b.id = 'bsi-olo-ov';   /* l'app nasconde da sola i pulsanti flottanti quando una finestra «bsi-…-ov» e' aperta */ b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', t('Ologramma interattivo di Spectra', 'Spectra\'s interactive hologram'));
     b.innerHTML = '<div id="bsiOI-testa"><b>◈ ' + t('OLOGRAMMA INTERATTIVO', 'INTERACTIVE HOLOGRAM') + '</b>' +
-      [['spettri', '🧪 ' + t('Spettri', 'Spectra')], ['universo', '🪐 ' + t('Universo', 'Universe')], ['matematica', '📐 ' + t('Matematica', 'Mathematics')], ['fisica', '⚛️ ' + t('Fisica e chimica', 'Physics & chemistry')]].map(function (m) { return '<button type="button" class="tab" data-modo="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
+      [['spettri', '🧪 ' + t('Spettri', 'Spectra')], ['universo', '🪐 ' + t('Universo', 'Universe')], ['matematica', '📐 ' + t('Matematica', 'Mathematics')], ['fisica', '⚛️ ' + t('Fisica e chimica', 'Physics & chemistry')], ['app', '🗂️ ' + t('Tutta l\'app', 'Whole app')]].map(function (m) { return '<button type="button" class="tab" data-modo="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
       '<button type="button" class="b2" id="bsiOI-x" aria-label="' + t('Chiudi', 'Close') + '">✕</button></div>' +
-      '<div id="bsiOI-figura"></div><div id="bsiOI-tela"><canvas id="bsiOI-2d" aria-hidden="true"></canvas></div>' +
+      '<div id="bsiOI-figura"></div><div id="bsiOI-tela"><canvas id="bsiOI-2d" aria-hidden="true"></canvas><div id="bsiOI-ospite"></div></div>' +
       '<div id="bsiOI-lato"><div id="bsiOI-ctrl"></div><div class="ctrl"><button type="button" class="bt" id="bsiOI-voce">🔊 ' + t('Spectra spiega i passaggi', 'Spectra explains the steps') + '</button><button type="button" class="b2" id="bsiOI-ai">🧠 ' + t('Approfondisci', 'Go deeper') + '</button><button type="button" class="b2" id="bsiOI-bip" title="' + t('Suona un bip e una frase di prova: per capire se il telefono è in muto', 'Plays a beep and a test sentence: to find out whether the phone is muted') + '">🔔 ' + t('Prova audio', 'Test audio') + '</button></div><div id="bsiOI-audio" role="status"></div><div id="bsiOI-passi" aria-live="polite"></div></div>';
     D.body.appendChild(b);
     /* sul telefono la figura sta sopra l'ologramma (la griglia la mette nella sua area) */
@@ -218,11 +220,16 @@
     modo(m || ST.modo, txt);
     try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: true } })); } catch (e) {}
   }
-  function chiudi() { if (!el.box) return; clearTimeout(tVoce); fermaVoce(); el.box.classList.remove('aperto'); ST.aperto = false; fermaUniverso(); if (globale._bsiSyncFabs) globale._bsiSyncFabs(); try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: false } })); } catch (e) {} }
+  function chiudi() { if (!el.box) return; clearTimeout(tVoce); fermaVoce(); fermaApp();
+    /* (v248) «Tutta l'app»: chiusa la finestra si torna alla sezione da cui si era partiti (dove c'e' Spectra), a meno che si sia scelto «↗ Apri la sezione» */
+    if (APP.origine && !APP.resta) { try { var Lc = globale.BSISpectraLive; if (ST.app && (Lc.schermo() || {}).sezione !== APP.origine) Lc.calcolo.apriSezione(APP.origine); } catch (e) {} }
+    APP.origine = null; APP.resta = false; el.box.classList.remove('aperto'); ST.aperto = false; fermaUniverso(); if (globale._bsiSyncFabs) globale._bsiSyncFabs(); try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: false } })); } catch (e) {} }
   function modo(m, txt) {
     ST.modo = m; ST.sel = -1; fermaVoce();
     [].forEach.call(el.box.querySelectorAll('.tab'), function (x) { x.classList.toggle('on', x.getAttribute('data-modo') === m); });
     var c = D.getElementById('bsiOI-ctrl');
+    if (m !== 'app') fermaApp();
+    if (m === 'app') { modoApp(c, txt); return; }
     if (m === 'spettri') {
       c.innerHTML = '<div class="ctrl"><select id="bsiOI-tipo" aria-label="' + t('Tipo di spettro', 'Spectrum type') + '"><option value="ir">IR</option><option value="h1">¹H-NMR</option><option value="c13">¹³C-NMR</option><option value="ms">' + t('Massa (EI)', 'Mass (EI)') + '</option><option value="uv">UV-Vis</option></select>' +
         '<select id="bsiOI-mol" aria-label="' + t('Molecola', 'Molecule') + '">' + Object.keys(MOLECOLE).map(function (k) { return '<option value="' + k + '">' + MOLECOLE[k].nome + '</option>'; }).join('') + '<option value="">' + t('✍️ La mia traccia…', '✍️ My trace…') + '</option></select>' +
@@ -257,6 +264,103 @@
       [].forEach.call(c.querySelectorAll('.es'), function (b) { b.onclick = function () { q.value = b.textContent; via(); }; });
       q.value = txt || (ST.domanda && ST.modoDomanda === m ? ST.domanda : esempi[0]); ST.modoDomanda = m; via(); mostraTela('2d');
     }
+  }
+
+  /* ══ (v248) «🗂️ TUTTA L'APP»: OGNI SEZIONE, SCELTA DA CHI USA L'APP ══════════════════════════════════════════════
+     Richiesta dell'autore: «l'ologramma è impostato solo su alcuni argomenti: io voglio selezionare ogni cosa dell'app,
+     dalla Tavola Periodica ai pianeti, e devo selezionarle io». L'elenco non e' scritto a mano: e' il catalogo che
+     BSISpiega legge dalla barra dell'app (tutte le sezioni, con la loro materia), quindi una sezione aggiunta domani c'e'.
+     Scelta una sezione: si apre dietro la finestra; i suoi grafici e le sue scene 3D si vedono DAL VIVO nel riquadro
+     (ridisegnati 4 volte al secondo); i passaggi sono la lezione che l'app costruisce dalla sezione stessa (titolo,
+     schede, comandi, formule); Spectra li dice a voce. Una sezione fatta di testo e tabelle, senza grafici (la Tavola
+     Periodica), si mostra come scheda; «↗ Apri la sezione» porta alla sezione vera, per usarla. */
+  var APP = { timer: 0, origine: null, resta: false, ospite: null, segno: null };
+  function fermaApp() { clearInterval(APP.timer); APP.timer = 0; congeda(); }
+  /* UNA SEZIONE SENZA GRAFICI (la Tavola Periodica, un glossario, un calcolatore) non si puo' «filmare»: la si OSPITA.
+     La sezione vera, con i suoi pulsanti e i suoi tocchi, viene spostata dentro il riquadro dell'ologramma (un segnaposto
+     ne tiene il posto nella pagina) e rimessa dov'era quando si sceglie altro o si chiude: non e' una copia, quindi
+     funziona tutto (toccare un elemento della tavola ne apre la scheda), e la si scorre dentro il riquadro. */
+  function ospita(sez) {
+    congeda(); var box = D.getElementById('bsiOI-ospite'); if (!box || !sez || !sez.parentNode) return false;
+    APP.segno = D.createComment('bsi-olo-ospite'); sez.parentNode.insertBefore(APP.segno, sez);
+    box.appendChild(sez); APP.ospite = sez; box.scrollTop = 0; el.box.classList.add('ospita'); return true;
+  }
+  function congeda() {
+    if (APP.ospite && APP.segno && APP.segno.parentNode) { APP.segno.parentNode.insertBefore(APP.ospite, APP.segno); APP.segno.parentNode.removeChild(APP.segno); }
+    APP.ospite = null; APP.segno = null; if (el.box) el.box.classList.remove('ospita');
+  }
+  function catalogoApp() { var Sp = globale.BSISpiega; try { return Sp && Sp.catalogo ? Sp.catalogo() : []; } catch (e) { return []; } }
+  function normaApp(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  function modoApp(c, txt) {
+    var cat = catalogoApp(), MAT = [['', t('Tutte le materie', 'All subjects')], ['chimica', t('Chimica', 'Chemistry')], ['fisica', t('Fisica', 'Physics')], ['matematica', t('Matematica', 'Mathematics')], ['comune', t('Comuni', 'Shared')]];
+    c.innerHTML = '<div class="ctrl"><select id="bsiOI-amat" aria-label="' + t('Materia', 'Subject') + '">' + MAT.map(function (m) { return '<option value="' + m[0] + '">' + m[1] + '</option>'; }).join('') + '</select>' +
+      '<input type="text" id="bsiOI-acerca" aria-label="' + t('Cerca una sezione', 'Search a section') + '" placeholder="' + t('Cerca: tavola periodica, orbite, integrali…', 'Search: periodic table, orbits, integrals…') + '"></div>' +
+      '<select id="bsiOI-asez" size="6" aria-label="' + t('Sezione da mostrare', 'Section to show') + '" style="width:100%;height:auto;min-height:170px;padding:4px"></select>' +
+      '<div class="ctrl"><span class="nota" id="bsiOI-aquante"></span><button type="button" class="b2" id="bsiOI-avai">↗ ' + t('Apri la sezione', 'Open the section') + '</button></div>';
+    var mat = D.getElementById('bsiOI-amat'), cerca = D.getElementById('bsiOI-acerca'), sel = D.getElementById('bsiOI-asez');
+    function elenco() {
+      var q = normaApp(cerca.value).trim().split(/\s+/).filter(Boolean), gruppi = {}, ordine = [], n = 0;
+      cat.forEach(function (x) {
+        if (mat.value && x.materia !== mat.value) return;
+        var dove = normaApp(x.nome + ' ' + x.gruppo); if (q.some(function (w) { return dove.indexOf(w) < 0; })) return;
+        if (!gruppi[x.gruppo]) { gruppi[x.gruppo] = []; ordine.push(x.gruppo); } gruppi[x.gruppo].push(x); n++;
+      });
+      sel.innerHTML = ordine.map(function (g) { return '<optgroup label="' + esc(g) + '">' + gruppi[g].map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.nome) + '</option>'; }).join('') + '</optgroup>'; }).join('');
+      D.getElementById('bsiOI-aquante').textContent = n + ' ' + t('sezioni su', 'sections of') + ' ' + cat.length;
+      if (ST.app && sel.querySelector('option[value="' + ST.app + '"]')) sel.value = ST.app;
+    }
+    mat.onchange = elenco; cerca.oninput = elenco; sel.onchange = function () { if (sel.value) apriApp(sel.value); };
+    D.getElementById('bsiOI-avai').onclick = function () { if (!ST.app) return; APP.resta = true; chiudi(); };
+    if (txt) cerca.value = txt;
+    elenco(); mostraTela('2d');
+    if (txt && sel.options.length) { sel.selectedIndex = 0; apriApp(sel.value); }
+    else if (ST.app) apriApp(ST.app);
+    else { ST.dati = { tipo: 'app', id: null, nome: t('Scegli una sezione', 'Choose a section'), righe: [t('Tutte le sezioni dell\'app sono qui: sceglile dall\'elenco o cercale per nome.', 'Every section of the app is here: pick one from the list or search by name.')] }; ST.sel = -1; passi([{ tit: t('Scegli tu', 'You choose'), html: t('Dall\'elenco qui sopra puoi mostrare nell\'ologramma <b>ogni sezione dell\'app</b>, di chimica, fisica e matematica: dalla Tavola Periodica alle orbite dei pianeti.', 'From the list above you can show <b>every section of the app</b> in the hologram, in chemistry, physics and mathematics: from the Periodic Table to planetary orbits.') }]); disegna(); }
+  }
+  function apriApp(id) {
+    var cat = catalogoApp(), x = cat.filter(function (k) { return k.id === id; })[0]; if (!x) return false;
+    var L = globale.BSISpectraLive;
+    if (!APP.origine) { try { APP.origine = (L.schermo() || {}).sezione || null; } catch (e) {} }
+    ST.app = id; fermaApp(); fermaVoce();
+    ST.dati = { tipo: 'app', id: id, nome: x.nome, gruppo: x.gruppo, righe: [t('Apro la sezione…', 'Opening the section…')], vivo: null }; ST.sel = -1; disegna();
+    var r = null; try { r = L && L.calcolo && L.calcolo.apriSezione ? L.calcolo.apriSezione(id) : null; } catch (e) { r = null; }
+    if (!r || !r.ok) { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); }
+    setTimeout(function () {
+      if (!ST.aperto || ST.modo !== 'app' || ST.app !== id) return;
+      var sez = D.getElementById(id), P = [], righe = [];
+      try { var lez = globale.BSILezione && sez ? globale.BSILezione.costruisci(sez) : null;
+        if (lez && lez.passi && lez.passi.filter(function (p) { return p.testo && p.tipo !== 'titolo'; }).length >= 2) lez.passi.forEach(function (p) { if (!p.testo) return; P.push({ tit: p.titolo || (p.tipo === 'scheda' ? t('Scheda', 'Tab') : p.tipo === 'titolo' ? x.nome : t('Passaggio', 'Step')), html: esc(p.testo) }); }); } catch (e) {}
+      if (sez && P.length < 2) {   /* una sezione senza lezione: il suo testo, a pezzi */
+        var visti = {}; [].forEach.call(sez.querySelectorAll('h2,h3,h4,p,li,td,.section-title'), function (e2) { if (P.length >= 14 || e2.offsetParent === null) return; var tx = (e2.textContent || '').replace(/\s+/g, ' ').trim(); if (tx.length < 25 || tx.length > 420 || visti[tx]) return; visti[tx] = 1; P.push({ tit: /^H/.test(e2.tagName) ? tx.slice(0, 60) : t('Nella sezione', 'In the section'), html: esc(tx) }); });
+      }
+      if (!P.length) P.push({ tit: x.nome, html: t('Questa sezione si usa direttamente: tocca «↗ Apri la sezione».', 'This section is used directly: tap «↗ Open the section».') });
+      P.slice(0, 5).forEach(function (p) { righe.push(testo(p.html).slice(0, 110)); });
+      ST.dati.righe = righe; passi(P.slice(0, 24));
+      var tick = function () { if (!ST.aperto || ST.modo !== 'app') return fermaApp(); var cvv = null; try { cvv = L.cattura ? L.cattura() : null; } catch (e) { cvv = null; } ST.dati.vivo = cvv && cvv.width > 40 ? cvv : null; disegna(); };
+      var prima = null; try { prima = L.cattura ? L.cattura() : null; } catch (e) { prima = null; }
+      if (prima && prima.width > 40) { tick(); APP.timer = setInterval(tick, 250); }
+      else if (sez) { ST.dati.ospite = ospita(sez); disegna(); }
+      var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; try { F.olo.mostra('schermo'); } catch (e) {} }
+    }, 1300);
+    return true;
+  }
+  function disegnaApp(g, W, H) {
+    var d = ST.dati; g.shadowBlur = 0;
+    g.fillStyle = 'rgba(8,21,34,.9)'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(107,207,255,.45)'; g.lineWidth = 1; g.strokeRect(6.5, 6.5, W - 13, H - 13);
+    g.textBaseline = 'top'; g.textAlign = 'left'; g.fillStyle = '#6bcfff'; g.font = '800 11px ui-monospace,monospace'; g.fillText((d.gruppo || t('OLOGRAMMA', 'HOLOGRAM')).toUpperCase().slice(0, 44), 16, 14);
+    g.fillStyle = '#ffffff'; g.font = '800 17px system-ui'; g.fillText(String(d.nome).slice(0, Math.floor(W / 10)), 16, 30);
+    var y0 = 58;
+    if (d.vivo) {   /* la sezione dal vivo, intera, proporzionata */
+      var k = Math.min((W - 32) / d.vivo.width, (H - y0 - 14) / d.vivo.height), w = d.vivo.width * k, h = d.vivo.height * k;
+      try { g.drawImage(d.vivo, (W - w) / 2, y0 + (H - y0 - 14 - h) / 2, w, h); } catch (e) {}
+      g.fillStyle = '#5eead4'; g.font = '700 11px system-ui'; g.textAlign = 'right'; g.fillText('● ' + t('dal vivo', 'live'), W - 16, 16); return;
+    }
+    g.fillStyle = '#cfe2ff'; g.font = '500 14px system-ui'; var y = y0 + 4;
+    (d.righe || []).forEach(function (riga) {   /* la scheda: le prime righe della lezione, a capo */
+      var parole = String(riga).split(' '), cur = '• ';
+      parole.forEach(function (pw2) { if (g.measureText(cur + pw2).width > W - 36 && cur.length > 2) { if (y < H - 30) g.fillText(cur, 18, y); y += 20; cur = '  ' + pw2 + ' '; } else cur += pw2 + ' '; });
+      if (y < H - 30) g.fillText(cur, 18, y); y += 26;
+    });
   }
 
   /* ── i calcoli e i passaggi ── */
@@ -314,7 +418,8 @@
   }
   function fermaVoce() { ST.voce = false; var b = D.getElementById('bsiOI-voce'); if (b) b.textContent = '🔊 ' + t('Spectra spiega i passaggi', 'Spectra explains the steps'); var L = globale.BSISpectraLive; if (L && L.taci) try { L.taci(); } catch (e) {} }
   function approfondisci() {
-    var d = ST.dati, q = d && d.tipo === 'spettro' ? 'Interpreta in modo completo questo spettro ' + ({ ir: 'IR', h1: '¹H-NMR', c13: '¹³C-NMR', ms: 'di massa', uv: 'UV-Vis' })[ST.tipo] + ': ' + (MOLECOLE[ST.chi] ? MOLECOLE[ST.chi].nome : ST.chi) + '. Segnali: ' + d.S.passi.map(function (p) { return p.tit; }).join('; ')
+    var d = ST.dati; if (d && d.tipo === 'app' && d.id) { APP.resta = true; var qa = 'Spiegami in modo completo la sezione «' + d.nome + '» che ho sullo schermo: che cosa mostra, come si usa, la teoria che c\'è dietro.'; chiudi(); if (globale.bsiOpenAIHub && globale.BSISpiega) { globale.bsiOpenAIHub('spiega'); setTimeout(function () { globale.BSISpiega.chiedi(qa, { nonAprire: true }); }, 600); } return; }
+    var q = d && d.tipo === 'spettro' ? 'Interpreta in modo completo questo spettro ' + ({ ir: 'IR', h1: '¹H-NMR', c13: '¹³C-NMR', ms: 'di massa', uv: 'UV-Vis' })[ST.tipo] + ': ' + (MOLECOLE[ST.chi] ? MOLECOLE[ST.chi].nome : ST.chi) + '. Segnali: ' + d.S.passi.map(function (p) { return p.tit; }).join('; ')
       : d && d.tipo === 'universo' ? 'Spiegami tutto dell\'orbita: ' + d.P.nome + ' (a = ' + d.P.a + ' UA, e = ' + d.P.e + ')' : ST.domanda;
     chiudi(); if (globale.bsiOpenAIHub && globale.BSISpiega) { globale.bsiOpenAIHub('spiega'); setTimeout(function () { globale.BSISpiega.chiedi(q, { nonAprire: true }); }, 600); }
   }
@@ -327,6 +432,7 @@
     var cv = D.getElementById('bsiOI-2d'), W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
     var dpr = Math.min(2.5, globale.devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H); g.shadowColor = 'rgba(0,201,183,.6)';
+    if (ST.dati.tipo === 'app') { ST.mappa = []; disegnaApp(g, W, H); return; }
     var m = { l: 56, r: 18, t: 22, b: 46 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
     function assi(ax, ay, nx, ny) {
       g.strokeStyle = COL.griglia; g.lineWidth = 1; for (var i = 0; i <= 8; i++) { var x = m.l + pw * i / 8; g.beginPath(); g.moveTo(x, m.t); g.lineTo(x, m.t + ph); g.stroke(); }
@@ -430,5 +536,6 @@
   globale.BSIOloInterattivo = { apri: apri, chiudi: chiudi, modo: modo, SPETTRI: MOLECOLE, PIANETI: PIANETI, spettro: spettro, pianeta: pianeta, leggiTraccia: leggiTraccia, massa: massa, insaturazione: insaturazione,
     imposta: function (s) { var q = D.getElementById('bsiOI-traccia') || D.getElementById('bsiOI-q') || D.getElementById('bsiOI-orb'); if (q) { q.value = s; (q.oninput || function () {})(); var v = D.getElementById('bsiOI-vai'); if (v && q.id === 'bsiOI-q') v.click(); } },
     voceAutomatica: function (si) { ST.autoVoce = si !== false; if (!ST.autoVoce) { clearTimeout(tVoce); if (ST.voce) fermaVoce(); } },
+    apriApp: apriApp, catalogo: catalogoApp,
     scegli: scegli, stato: function () { return { aperto: ST.aperto, modo: ST.modo, tipo: ST.tipo, chi: ST.chi, MHz: ST.MHz, passi: (ST.passi || []).map(function (p) { return p.tit; }), sel: ST.sel, dati: ST.dati }; } };
 })(typeof window !== 'undefined' ? window : globalThis);

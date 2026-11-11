@@ -210,8 +210,12 @@
   function ricolora(mappa, T, opz2) {
     opz2 = opz2 || {};
     var im = mappa && mappa.image; if (!im || !im.width || typeof document === 'undefined') return null;
-    var w = im.width, h = im.height, c = document.createElement('canvas'); c.width = w; c.height = h;
-    var g = c.getContext('2d'); g.drawImage(im, 0, 0); var D = g.getImageData(0, 0, w, h), d = D.data;
+    var w = im.width, h = im.height;
+    /* (v248) il corpo leggero: con «lato» le tre mappe (colore, luce, rilievo) si fanno a quella misura invece che a quella
+       del file: a 1024 px invece di 2048 un quarto dei pixel da ricolorare e da tenere nella memoria grafica */
+    if (opz2.lato && Math.max(w, h) > opz2.lato) { var kL = opz2.lato / Math.max(w, h); w = Math.max(1, Math.round(w * kL)); h = Math.max(1, Math.round(h * kL)); }
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d'); g.drawImage(im, 0, 0, w, h); var D = g.getImageData(0, 0, w, h), d = D.data;
     /* il rilievo: la luminanza originale (prima della ricolorazione) fa da mappa d'altezza, cosi' cuciture, bordi delle
        piastre e pieghe della stoffa prendono luce e ombra vere a ogni angolo, non solo dipinte */
     var cb = document.createElement('canvas'); cb.width = w; cb.height = h; var gb = cb.getContext('2d'), B = gb.createImageData(w, h), bb = B.data;
@@ -393,7 +397,7 @@
     GERARCHIA.forEach(function (gg) { if (!pesa(gg[0])) lista.push(ossa[gg[0]]); });
     var mat0 = Array.isArray(sorgente.material) ? sorgente.material[0] : sorgente.material, mappa = mat0 && mat0.map;
     var mat = new T.MeshStandardMaterial({ color: 0xffffff, metalness: 0.45, roughness: 0.5, envMapIntensity: 0.55, skinning: true });
-    var col = opz.ricolora !== false && mappa ? ricolora(mappa, T, { anisotropia: opz.anisotropia }) : null;
+    var col = opz.ricolora !== false && mappa ? ricolora(mappa, T, { anisotropia: opz.anisotropia, lato: opz.trama }) : null;
     if (col) { mat.map = col.mappa; mat.emissiveMap = col.emissiva; mat.emissive = new T.Color(0xffffff); mat.emissiveIntensity = 1.1; if (col.rilievo) { mat.bumpMap = col.rilievo; mat.bumpScale = opz.rilievo != null ? opz.rilievo : 0.016; } }
     else if (mappa) mat.map = mappa; else mat.color.set(0x1a3050);
     if (opz.viso) {

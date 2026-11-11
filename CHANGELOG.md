@@ -9,7 +9,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 ---
 ## [bsi-v248] — 2026-11-11
 
-**L'ologramma interattivo si legge bene sul telefono; «🔔 Prova audio» per capire perché non si sente**
+**L'ologramma interattivo mostra ogni sezione dell'app e si legge bene sul telefono; corpo di Spectra più leggero; «🔔 Prova audio»**
 
 Schermata dell'autore dall'ologramma interattivo sul telefono: «non sento
 nulla» e «non c'è abbastanza spazio: fammi scorrere la sezione verso il basso
@@ -32,9 +32,30 @@ fondo, sotto i tasti di Android, e la barra di stato mostrava l'icona del
   muto o il volume «Multimedia» è a zero; se si sente il bip ma non la voce,
   manca la voce del telefono (`BSISpectraLive.provaAudio()`).
 
+- **«🗂️ Tutta l'app» nell'ologramma interattivo** (richiesta: «l'ologramma è
+  impostato solo su alcuni argomenti: voglio selezionare io ogni cosa
+  dell'app, dalla Tavola Periodica ai pianeti»). Un elenco di **tutte le 197
+  sezioni** (letto dal catalogo dell'app, non scritto a mano), filtrabile per
+  materia e per nome. Scelta una sezione: se ha grafici o scene 3D si vede
+  **dal vivo** nel riquadro (4 volte al secondo); se è fatta di testo e
+  tabelle (la Tavola Periodica) viene **ospitata** nel riquadro, cioè la
+  sezione vera viene spostata lì, con i suoi tocchi che funzionano, e rimessa
+  al suo posto dopo. I passaggi sono la lezione che l'app costruisce dalla
+  sezione; Spectra li dice a voce. «↗ Apri la sezione» porta alla sezione
+  vera; chiusa la finestra si torna da dove si era partiti.
+- **Il corpo di Spectra più leggero** su telefoni e tablet (richiesta:
+  «alleggerisci il corpo»): le tre mappe del corpo a 1024 px invece di 2048
+  (un quarto dei pixel da ricolorare all'apertura e da tenere in memoria
+  grafica), rapporto di pixel fino a 2 invece di 2,5, 30 fotogrammi al
+  secondo invece di 60. Sul computer e nello studio resta la definizione
+  piena. `test_spectra_figura` a 111 controlli.
+
 ### Onestà
 - L'app non può sapere se il telefono è in muto né alzare il volume: può solo
   suonare e dire che cosa controllare.
+- Il corpo leggero non è stato misurato su un telefono vero: il risparmio è
+  quello dei pixel (un quarto per le mappe, circa un terzo in meno a
+  fotogramma). Il calcolo dello scheletro all'apertura è rimasto com'era.
 
 ---
 ## [bsi-v247] — 2026-11-10

@@ -108,13 +108,24 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
         o.scorre = { alta: ov.scrollHeight > ov.clientHeight + 100, ultimo: Math.round(innerHeight - ul.bottom), sceso: ov.scrollTop > 100, testa: Math.round(document.getElementById('bsiOI-testa').getBoundingClientRect().top), font: parseFloat(getComputedStyle(document.querySelector('#bsiOI-passi .p')).fontSize) }; ov.scrollTop = sc0; }
       /* (v248) «🔔 Prova audio»: un bip e una frase, con la spiegazione */
       const provati = []; const ascolta = e => provati.push(e.detail && e.detail.testo || ''); document.addEventListener('bsi-spectra-dice', ascolta); document.getElementById('bsiOI-bip').click(); await pausa(1300); document.removeEventListener('bsi-spectra-dice', ascolta); BSISpectraLive.taci(); o.bip = { nota: document.getElementById('bsiOI-audio').textContent, frase: provati.join(' ') };
+      /* (v248) «🗂️ Tutta l'app»: ogni sezione, scelta da chi usa l'app */
+      { const prima = (BSISpectraLive.schermo() || {}).sezione; I.modo('app'); await pausa(400);
+        const nav = new Set([...document.querySelectorAll('.nav-group-panel [data-s]')].map(x => x.getAttribute('data-s'))).size, opz = document.querySelectorAll('#bsiOI-asez option').length;
+        const cerca = document.getElementById('bsiOI-acerca'), sel = document.getElementById('bsiOI-asez');
+        const mat = document.getElementById('bsiOI-amat'); mat.value = 'fisica'; mat.onchange(); const fis = sel.options.length; mat.value = ''; mat.onchange();
+        cerca.value = 'tavola periodica'; cerca.oninput(); const trovate = sel.options.length; sel.selectedIndex = 0; sel.onchange(); await pausa(2300);
+        const osp = document.getElementById('bsiOI-ospite'), pt = document.getElementById('spt'), cella = pt && pt.querySelector('[onclick], .el, .pt-el, td, button');
+        o.app = { nav, opz, fis, trovate, ospitata: !!pt && osp.contains(pt) && pt.offsetParent !== null, alta: Math.round(osp.getBoundingClientRect().height), passi: I.stato().passi.length };
+        cerca.value = 'sistema solare 3d'; cerca.oninput(); sel.selectedIndex = 0; sel.onchange(); await pausa(3200);
+        o.app.tornata = !!pt && !osp.contains(pt) && !!pt.parentNode && pt.parentNode.id !== 'bsiOI-ospite'; o.app.vivo = !!I.stato().dati.vivo; o.app.sez = (BSISpectraLive.schermo() || {}).sezione; o.app.passiSole = I.stato().passi.length;
+        I.modo('spettri'); await pausa(300); o.app.prima = prima; }
       /* (v242) la voce automatica: scritta una traccia, Spectra la spiega da sola, senza toccare «🔊» */
       I.voceAutomatica(true); I.modo('spettri'); await pausa(300); detti.length = 0;
       const tr2 = document.getElementById('bsiOI-traccia'); tr2.value = '1700 s'; tr2.oninput(); for (let k = 0; k < 40 && !detti.length; k++) await pausa(100);
       o.auto = detti.length > 0 && /1700/.test(detti.join(' ')); I.voceAutomatica(false); await pausa(200);
       /* approfondisci → Spiega; chiusa la finestra, Spectra torna */
       document.getElementById('bsiOI-ai').click(); await pausa(1200); o.spiega = document.getElementById('bsi-hub-ov').classList.contains('open') && !ov.classList.contains('aperto');
-      document.getElementById('bsi-hub-close').click(); await pausa(1500); o.torna = !!F.box.closest('.section');
+      document.getElementById('bsi-hub-close').click(); await pausa(1500); o.torna = !!F.box.closest('.section'); o.finale = (BSISpectraLive.schermo() || {}).sezione;
       /* (v242) un tocco SULL'OLOGRAMMA (il pannello alla destra di Spectra) lo apre interattivo */
       F.box.scrollIntoView({ block: 'center' }); await pausa(400); const cvF = F.box.querySelector('canvas'), pt = F.puntoOlogramma();
       const ev = (tipo) => cvF.dispatchEvent(new PointerEvent(tipo, { clientX: pt.x, clientY: pt.y, bubbles: true, pointerId: 1 }));
@@ -141,8 +152,12 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
     if (nome === 'telefono') att('a 412 px niente sborda', 0, r.sborda);
     vero('«🧠 Approfondisci» apre Spiega', r.spiega);
     vero('chiuse le finestre, Spectra torna nella sezione', r.torna);
+    att('e l\'app è di nuovo nella sezione da cui si era partiti', 'sareachim', r.finale);
     if (nome === 'telefono') vero('sul telefono la finestra scorre fino in fondo: l\'ultimo passaggio sta ' + r.scorre.ultimo + ' px sopra il bordo (tasti di Android), la testata resta in alto, caratteri da ' + r.scorre.font + ' px', r.scorre.alta && r.scorre.sceso && r.scorre.ultimo >= 70 && r.scorre.testa === 0 && r.scorre.font >= 15);
     vero('«🔔 Prova audio»: bip, frase di prova e che cosa fare se non si sente (' + r.bip.frase.slice(0, 40) + '…)', /muto/.test(r.bip.nota) && /Multimedia|multimediali/.test(r.bip.nota) && /voce di Spectra/.test(r.bip.frase));
+    vero('«🗂️ Tutta l\'app»: l\'elenco ha tutte le sezioni della barra (' + r.app.opz + '/' + r.app.nav + '), filtrabili per materia (Fisica: ' + r.app.fis + ') e per nome (' + r.app.trovate + ' per «tavola periodica»)', r.app.opz === r.app.nav && r.app.nav > 150 && r.app.fis > 20 && r.app.fis < r.app.opz && r.app.trovate >= 1);
+    vero('la Tavola Periodica (senza grafici) è ospitata davvero nel riquadro, viva e alta ' + r.app.alta + ' px, con i suoi passaggi (' + r.app.passi + ')', r.app.ospitata && r.app.alta > 250 && r.app.passi >= 1);
+    vero('scelta un\'altra sezione, la Tavola torna al suo posto e «Sistema solare 3D» si vede dal vivo con la sua lezione (' + r.app.passiSole + ' passaggi)', r.app.tornata && r.app.vivo && r.app.sez === 'sastrosole' && r.app.passiSole >= 3);
     vero('Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)', r.auto);
     vero('un tocco sull\'ologramma stesso lo apre interattivo', r.toccoOlo);
     vero('«🧠 Spiega» senza chiave: lo svolgimento locale per intero (' + r.spiegaLocale + ' passaggi) e detto a voce (' + r.spiegaVoce.slice(0, 60) + '…)', r.spiegaLocale >= 2 && /pH/i.test(r.spiegaVoce));

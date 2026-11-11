@@ -81,10 +81,24 @@
     var prima = this.radice; m.position.copy(prima.position); m.rotation.y = prima.rotation.y;
     this.sc.remove(prima); this.sc.add(m); this.radice = m;
   };
+  /* (v248) IL CORPO LEGGERO. Richiesta dell'autore: «alleggerisci il corpo». Su telefoni e tablet (schermo stretto o tocco,
+     o poca memoria) Spectra si prepara e si disegna con meno lavoro, senza cambiare aspetto alla misura in cui si vede:
+     · le tre mappe del corpo a 1024 px invece di 2048 (un quarto dei pixel da ricolorare all'apertura e in memoria);
+     · il rapporto di pixel del disegno fino a 2 invece di 2,5 (un terzo di pixel in meno a ogni fotogramma);
+     · 30 fotogrammi al secondo invece di 60.
+     Sul computer e nello studio (spectra-studio.html) resta tutto alla definizione piena. */
+  function leggero() {
+    try {
+      if (globale.BSISpectraFigura && globale.BSISpectraFigura.forzaLeggero != null) return !!globale.BSISpectraFigura.forzaLeggero;
+      var mm = globale.matchMedia;
+      return !!((mm && (mm('(max-width:900px)').matches || mm('(pointer:coarse)').matches)) || (navigator.deviceMemory && navigator.deviceMemory <= 4));
+    } catch (e) { return false; }
+  }
   /* un corpo senza scheletro (gltf.scene) → rig, viso «Noir» */
   Spectra.prototype.usa = function (g) {
     var T = this.T, o = {}; Object.keys(RIG).forEach(function (k) { o[k] = RIG[k]; }); o.T = T; o.anisotropia = this.ren.capabilities.getMaxAnisotropy();
     if (this.opz.suddividi != null) o.suddividi = this.opz.suddividi;
+    if (this.opz.leggero) o.trama = 1024;
     var R = globale.BSISpectraRig.rigga(g.scene, o); if (!R) return false;
     this.sostituisci(R.radice);
     this.corpo = globale.BSISpectraCorpo.crea(R.radice, { scalaOssa: 1 }); this.rig = R; R.viso = 0.065; this.modelloRiggato = this.corpo.rapporto();
@@ -344,7 +358,8 @@
     box.setAttribute('aria-label', t('Spectra, l\'assistente, in piedi: gesticola e cambia espressione mentre risponde', 'Spectra, the assistant, standing: gestures and changes expression while answering'));
     var ren = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     /* alta definizione: fino a 2,5 pixel per punto in un riquadro (sugli schermi 4K e sui telefoni recenti resta nitido) */
-    ren.setPixelRatio(Math.min(2.5, globale.devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping;
+    var LEGG = opz.leggero != null ? !!opz.leggero : leggero();
+    ren.setPixelRatio(Math.min(LEGG ? 2 : 2.5, globale.devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping;
     ren.domElement.setAttribute('aria-hidden', 'true'); box.appendChild(ren.domElement);
     var hud = D.createElement('div'); hud.className = 'bsiSF-hud'; hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + t('IN ASCOLTO', 'LISTENING') + '</b>'; box.appendChild(hud);
     var nota = D.createElement('div'); nota.className = 'bsiSF-nota'; box.appendChild(nota);
@@ -370,8 +385,8 @@
     var cam = new T.PerspectiveCamera(26, 1, 0.05, 40), bers = new T.Vector3(0.38, 0.98, 0), az0 = 0.12;
     function posCam(r) { cam.position.set(bers.x + r * Math.sin(az0), bers.y + 0.18, bers.z + r * Math.cos(az0)); cam.lookAt(bers); }
 
-    var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null };
-    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app solo il corpo incorporato: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
+    var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null, leggero: LEGG };
+    var S = F.spectra = new Spectra(T, sc, ren, { leggero: LEGG, manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app solo il corpo incorporato: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
     /* mentre il corpo incorporato arriva: «Spectra sta arrivando…»; se non arriva (rete assente al primo avvio): riprova */
     var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'status');
     inv.innerHTML = '<b>' + t('Spectra sta arrivando…', 'Spectra is on the way…') + '</b>';
@@ -498,6 +513,7 @@
       if (!F.attiva) return;
       requestAnimationFrame(giro);
       if (!visibile || D.hidden || !box.isConnected || !box.offsetParent) { prec = 0; return; }
+      if (LEGG && prec && ora - prec < 30) return;   /* (v248) corpo leggero: 30 fotogrammi al secondo */
       var dt = prec ? Math.min(0.1, (ora - prec) / 1000) : 0.016; prec = ora; quando += dt; idleT += dt;
       /* lo sguardo: verso chi guarda; ogni tanto un'occhiata altrove (vivo, non fisso) */
       occhi.copy(cam.position); if (idleT % 9 > 7.6) occhi.x += 1.2 * Math.sin(idleT * 0.7);

@@ -75,6 +75,10 @@ function vero(d, c) { att(d, true, !!c); }
     await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.rig && S.volto; }, null, { timeout: 120000 }).catch(() => {});
     const sempre = await pg.evaluate(() => { const F = BSISpectraFigura.figura, i = F.box.querySelector('.bsiSF-invito'); return { rig: !!F.spectra.rig, ossa: F.spectra.modelloRiggato && F.spectra.modelloRiggato.ossa, invito: !!i && !i.hidden, pulsanti: [...F.box.querySelectorAll('.bsiSF-az > *')].map(b => b.textContent.trim()), file: !!F.box.querySelector('input[type=file]') }; });
     vero('il corpo di Spectra c\'è sempre, senza caricarlo: incorporato nell\'app (ossa ' + sempre.ossa + ')', sempre.rig && !sempre.invito);
+    /* (v248) il corpo leggero: sul telefono mappe a 1024 px e rapporto di pixel fino a 2; sullo schermo grande definizione piena */
+    const legg = await pg.evaluate(() => { const F = BSISpectraFigura.figura; let lato = 0; F.spectra.sc.traverse(m => { if (m.isMesh && m.material && m.material.bumpMap && m.material.map && m.material.map.image) lato = Math.max(lato, m.material.map.image.width); }); return { leggero: F.leggero, lato }; });
+    if (nome === 'telefono') att('sul telefono il corpo è leggero: mappe a 1024 px', 'true 1024', legg.leggero + ' ' + legg.lato);
+    else att('sullo schermo grande il corpo resta a definizione piena: mappe a 2048 px', 'false 2048', legg.leggero + ' ' + legg.lato);
     vero('nessun pulsante «Corpo» né scelta di file (' + sempre.pulsanti.join(', ') + ')', !sempre.file && !sempre.pulsanti.some(x => /Corpo|Body/.test(x)));
     /* la figura si disegna (e si allinea) solo quando si vede: la si porta in vista */
     await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
