@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v248';
+window.BSI_APP_VERSION='bsi-v249';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -5253,6 +5253,19 @@ var RXN = [
 ,{c:"cc",n:"Knoevenagel",en:"Knoevenagel condensation",d:"Aldeide aromatica + CH₂ attivato (malonato, cianoacetato) + ammina → alchene α,β-insaturo.",svg:function(){return _w(_h(65,59,26,LN)+_l(91,59,112,59,LN,2)+_d(112,50,132,50,CO)+_t(132,42,"O",CO,9)+_plus(148,59)+_t(175,54,"CH₂(CN)₂",CA,9)+_a(225,368,59,"EtNH₂","EtOH 60°C")+_h(352,59,26,LN)+_l(378,59,404,59,LN,2)+_d(404,55,424,55,LN)+_t(440,55,"CN",CN,9)+_l(424,59,444,72,LN,2)+_t(452,76,"CN",CN,9)+_t(260,98,"Doebner (piridina): solo trans. Coloranti merocianine. Grinding: senza solvente.",CK,8)+"");},cond:"Ammina sec (pip 10%) o Et₃N · EtOH · 60-80°C · 30min"}
 ,{c:"cc",n:"Allilborazione Homoallilica",en:"Homoallylation Roush allylboration",d:"Aldeide + allil-boronato chirale (Roush) → omallilalcol. TS sedia Zimmermann-Traxler.",svg:function(){return _w(_d(52,50,72,50,CO)+_t(52,42,"O",CO,9)+_l(72,50,100,59,LN,2)+_plus(115,59)+_l(138,59,163,59,LN,2)+_l(163,59,183,45,LN,2)+_d(163,59,183,75,LN)+_t(195,59,"B(OR*)₂",CA,9)+_a(250,388,59,"Toluene","−78°C")+_ch(382,59,3)+_l(418,50,438,38,LN,2)+_l(418,50,438,66,LN,2)+_t(446,38,"OH",CO,9)+_t(260,98,"OR*=diisopropil tartrato. Ee 70-90%. TS sedia 6T Zimmermann-Traxler. Induiz. 1,2.",CK,8)+"");},cond:"Allilboronato Roush · Toluene −78°C · poi H₂O₂/NaOH · Ee 70-90%"}
 ];
+/* (v249) Trovato dal giro di controllo di tutte le sezioni: 36 reazioni aggiunte con un altro schema (n, en, d, svg invece
+   di t, it, d, fn, cond) comparivano nell'elenco come «undefined», senza titolo, senza schema e con «⚗ undefined» al posto
+   delle condizioni. Si portano allo schema della banca: il nome, i termini di ricerca, il disegno; le condizioni, che
+   quelle voci non hanno, non si stampano (vedi showRxns). */
+function bsiNormRXN(){
+  RXN.forEach(function(r){
+    if(r.t===undefined && r.n!==undefined) r.t=r.n;
+    if(r.it===undefined && r.en!==undefined) r.it=String(r.en).toLowerCase();
+    if(r.fn===undefined && typeof r.svg==='function') r.fn=r.svg;
+    if(r.d===undefined) r.d='';
+  });
+}
+bsiNormRXN();
 
 
 
@@ -5369,11 +5382,12 @@ function initSyn(){
 function activeSynCat(){var p=document.querySelector("#rxnFp button.on");return p?p.getAttribute("data-c"):"all";}
 function showRxns(cat,q){
   var el=id("rxnList");el.innerHTML="";
+  bsiNormRXN();   /* anche le reazioni aggiunte piu' avanti nel file */
   var ql=(q||"").toLowerCase();
   var filtered=RXN.filter(function(r){
     var catOk=(cat==="all"||r.c===cat);
     if(!ql)return catOk;
-    var haystack=(r.t+"|"+r.d+"|"+r.cond+(r.it?"|"+r.it:"")).toLowerCase();
+    var haystack=(r.t+"|"+r.d+"|"+(r.cond||"")+(r.it?"|"+r.it:"")).toLowerCase();
     return catOk&&haystack.indexOf(ql)!==-1;
   });
   id("rxnCount").textContent=filtered.length+" reazioni · frecce elettroni in giallo";
@@ -5381,7 +5395,7 @@ function showRxns(cat,q){
     var svgHtml="";
     try{svgHtml='<div class="rxn-sw">'+(r.fn?r.fn():"")+'</div>';}catch(e){}
     var d=document.createElement("div");d.className="rxn-card";
-    d.innerHTML='<div class="rxn-tt">'+r.t+'</div>'+svgHtml+'<div class="rxn-desc">'+r.d+'</div><div class="rxn-cond">⚗ '+r.cond+'</div>';
+    d.innerHTML='<div class="rxn-tt">'+r.t+'</div>'+svgHtml+'<div class="rxn-desc">'+r.d+'</div>'+(r.cond?'<div class="rxn-cond">⚗ '+r.cond+'</div>':'');
     try{window.bsiAddMolLinks(d,r.t);}catch(e){}
     el.appendChild(d);
   });
@@ -45079,6 +45093,7 @@ window.initSynTheater=function(){
    ============================================================ */
 function _synCatalog(host){
   var cont=host.querySelector('#synCatalog'); if(!cont)return;
+  try{ if(typeof bsiNormRXN==='function') bsiNormRXN(); }catch(e){}
   var RX=(typeof window.RXN!=='undefined'&&window.RXN)?window.RXN:(typeof RXN!=='undefined'?RXN:[]);
   if(!RX.length)return;
   var CATLAB={cc:'C–C',red:'Riduzioni',ox:'Ossidazioni',sub:'Sostituzioni',aro:'Aromatiche',rar:'Riarrangiamenti',per:'Periciclici',pg:'Gr. Protettori',bio:'Biosintesi',pep:'Peptidi',asy:'Asimmetrica',org:'Organometallici',het:'Eterocicli',carb:'Carboidrati',lip:'Lipidi',nuc:'Nucleofile',aa:'Amminoacidi',nt:'Nucleotidi'};

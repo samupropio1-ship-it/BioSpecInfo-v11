@@ -62,6 +62,8 @@ html,body{height:100%;background:#0a1b2e;font-family:-apple-system,Segoe UI,Robo
 #close-btn{margin-left:auto;background:none;border:1px solid rgba(255,107,107,.35);color:#ff6b6b;
   border-radius:8px;padding:4px 10px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap}
 #close-btn:hover{background:rgba(255,107,107,.12)}
+/* (v249) dal giro di controllo: sul telefono la pagina sbordava in orizzontale */
+@media(max-width:560px){#topbar{padding:0 6px}#topbar .logo{font-size:.8rem;margin-right:6px;white-space:normal;line-height:1.1;max-width:74px}.tab{padding:0 4px;font-size:.72rem;min-width:0}.badge{margin-left:3px;padding:1px 5px}#close-btn{padding:4px 7px;font-size:.72rem;flex-shrink:0}}
 #frames{flex:1;display:flex;overflow:hidden;position:relative}
 #fr1,#fr2{position:absolute;inset:0;width:100%;height:100%;border:none;background:#fff;transition:opacity .2s}
 #fr2{opacity:0;pointer-events:none}

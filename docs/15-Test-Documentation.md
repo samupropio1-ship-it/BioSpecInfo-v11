@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v248` |
+| **Versione descritta** | `bsi-v249` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**88 banchi**, raggruppati per ciò che dimostrano.
+**89 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -310,7 +310,7 @@ controlli già presenti prima della v238.
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
 `test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
 `test_guidaproxy` ·
-`test_fluidita` · `test_avvio` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
+`test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
 **`test_spectra238` — 66 controlli.** Nasce da segnalazioni fatte con una
 schermata dal telefono: con l'app installata la barra di stato e i tasti di
@@ -571,6 +571,18 @@ si costruisce; in Fisica e con «Risparmio dati» non parte nemmeno da fermi; in
 Chimica da fermi si scalda; l'archivio si costruisce aprendo «Linguaggi delle
 molecole» (283 molecole); chi lo chiede lo ottiene subito; nessun errore
 JavaScript.
+
+**`test_giro` — 24 controlli (v249).** Il giro di controllo di tutta l'app,
+nato dalla richiesta dell'autore di controllare tutto al massimo. Apre **una
+per una tutte le sezioni del catalogo** (197) a 412 e a 1280 px e per ognuna
+pretende: che la sezione chiesta per identificativo sia quella che si apre,
+che sia visibile e non vuota, che la pagina non sbordi in orizzontale, che nel
+testo non compaiano «undefined», «NaN» o «[object Object]», e nessun errore
+JavaScript. Poi apre le **14 pagine a parte** (Astrochimica, Accademia,
+Chimica Organica, RDKit Lab, PRO Hub, Simulazioni, le guide, lo Studio…) con
+gli stessi controlli. La rete esterna è chiusa. La prima volta ha trovato sei
+sezioni che ne aprivano un'altra dal nome simile, 36 reazioni stampate come
+«undefined» e quattro pagine che sbordavano sul telefono.
 
 **`test_lingue` — 64 controlli.** Sorveglia due funzioni nuove e due modi
 diversi di mentire senza accorgersene.
@@ -950,7 +962,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 580 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 581 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -970,4 +982,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v248`._
+_Documento aggiornato alla versione `bsi-v249`._

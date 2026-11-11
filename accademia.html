@@ -109,6 +109,8 @@ body {
 }
 #topbar .logo { font-size: 1.05rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 #topbar .tb-right { display: flex; align-items: center; gap: 12px; }
+/* (v249) dal giro di controllo: sul telefono la pagina sbordava in orizzontale */
+@media (max-width: 480px) { #topbar { padding: 8px 10px; gap: 6px; } #topbar .logo { font-size: .9rem; white-space: normal; line-height: 1.15; } #topbar .tb-right { gap: 6px; flex-shrink: 0; } }
 #streak-badge {
   display: flex; align-items: center; gap: 5px;
   background: var(--card); border: 1px solid var(--border);

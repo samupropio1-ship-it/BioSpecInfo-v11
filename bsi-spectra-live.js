@@ -136,7 +136,12 @@
     return [].map.call(document.querySelectorAll('.nav-btn[data-s]'), function (b) { return { id: b.getAttribute('data-s'), nome: b.textContent.trim() }; }).filter(function (s) { return s.nome && s.id !== 'sai'; });
   }
   function apriSezione(nome) {
-    var L = sezioni(), x = trovaPerNome(L, nome, function (s) { return s.nome + ' ' + s.id; });
+    /* (v249) L'IDENTIFICATIVO ESATTO VIENE PRIMA. Trovato dal giro di controllo di tutte le sezioni: chiedendo «smo»
+       (Orbitali MO) si apriva «smol» (Molecola), «scalc» → «scalcav», «squiz» → «squizspec», «scentro» →
+       «scentrospettri», e cosi' «sdistr» e «sguida»: la ricerca per somiglianza del nome vinceva sull'identificativo.
+       Dall'elenco dell'ologramma, da «🧠 Spiega» e dal navigatore quelle sei sezioni aprivano la sezione sbagliata. */
+    var L = sezioni(), esatta = L.filter(function (s) { return s.id === nome; })[0];
+    var x = esatta || trovaPerNome(L, nome, function (s) { return s.nome + ' ' + s.id; });
     if (!x) return { ok: false, errore: t('sezione non trovata: ', 'section not found: ') + nome };
     /* la sezione appartiene a una materia: se non e' quella corrente, prima si cambia materia,
        altrimenti la barra e il menu ✨ resterebbero di un'altra (il cambio fra gruppi lo fa da solo,
