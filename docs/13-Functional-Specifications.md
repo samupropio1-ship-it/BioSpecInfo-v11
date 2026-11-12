@@ -292,7 +292,7 @@ picchi producesse un nome farebbe un'affermazione che i dati non reggono.
 
 ### 3.8 Assistente «Spectra»
 
-Agente AI con **50 strumenti** che può interrogare l'applicazione stessa:
+Agente AI con **51 strumenti** che può interrogare l'applicazione stessa:
 calcolare descrittori, generare spettri, cercare costanti, bilanciare reazioni,
 aprire sezioni, leggere la scheda aperta e agire sui suoi controlli. Supporta
 dieci fornitori, e resta utilizzabile quando uno di essi si guasta (§5.2).

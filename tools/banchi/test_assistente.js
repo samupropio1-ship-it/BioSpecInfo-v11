@@ -260,8 +260,8 @@ function carica() {
       const S2 = r2.spectra;
       /* v237: Spectra Live aggiunge nove strumenti (leggi_schermo, imposta_controllo, scegli_scheda,
          premi_pulsante, cambia_materia, stato_studio, consulta_kit, disegna_grafico, apri_strumento_rapido) */
-      /* v251: l'agenda ne aggiunge tre (segna_impegno, leggi_agenda, chiudi_impegno) */
-      att('Spectra ha i tre strumenti nuovi, i nove di Spectra Live e i tre dell\'agenda (50 in tutto)', 50, S2.n);
+      /* v251: l'agenda ne aggiunge tre (segna_impegno, leggi_agenda, chiudi_impegno), il risveglio uno (meteo) */
+      att('Spectra ha i tre strumenti nuovi, i nove di Spectra Live, i tre dell\'agenda e il meteo (51 in tutto)', 51, S2.n);
       vero('risolvi_matematica: lim (1 − cos x)/x² = 1/2 con lo svolgimento', S2.mat && S2.mat.ok && S2.mat.risultato === '1/2' && S2.mat.svolgimento.length > 1);
       vero('risolvi_fisica con modello e dati espliciti: gittata v₀²/g', S2.fis && S2.fis.ok && Math.abs(S2.fis.risultati.filter(y => y.nome === 'R')[0].valore - 400 / 9.81) < 1e-6);
       vero('risolvi_chimica risolve il problema inverso (7,3 g di NaCl)', S2.chi && S2.chi.ok && Math.abs(S2.chi.dati.ms.valore - 7.305) < 0.01 && S2.chi.dati.ms.origine === 'calcolato');

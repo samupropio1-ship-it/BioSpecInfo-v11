@@ -1004,6 +1004,13 @@
     if (loc) {
       if (hud.volto && hud.volto.concentra) hud.volto.concentra(Math.min(0.3, hud.difficolta.valore));
       if (loc.muto) return;
+      /* (v251) una risposta che arriva dopo (il meteo, il punto della situazione): prima l'annuncio, poi la risposta */
+      if (loc.promessa && loc.promessa.then) {
+        dialogo(testo, loc.testo); stato('pensa');
+        loc.promessa.then(function (x) { ultima = x; dialogo(testo, x); parla(x, dopoLaRisposta); if (!voce.attiva) { stato('attesa'); dopoLaRisposta(); } },
+          function () { var e = t('Non ci sono riuscito.', 'I could not do it.'); ultima = e; dialogo(testo, e); stato('attesa'); dopoLaRisposta(); });
+        return;
+      }
       ultima = loc.testo; dialogo(testo, loc.testo, loc.html);
       parla(loc.testo, dopoLaRisposta); if (!voce.attiva) { stato('attesa'); dopoLaRisposta(); }
       return;

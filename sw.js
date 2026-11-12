@@ -147,6 +147,7 @@ var PRECACHE = [
   './bsi-spectra-androide.js',
   './bsi-spectra-mente.js',
   './bsi-spectra-agenda.js',
+  './bsi-spectra-risveglio.js',
   './bsi-spectra-voce.js',
   './bsi-spectra-corpo.js',
   './bsi-spectra-rig.js',

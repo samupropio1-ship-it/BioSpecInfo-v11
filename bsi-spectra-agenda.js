@@ -174,6 +174,8 @@
   }
   /** Restituisce {testo} se la frase riguarda l'agenda o la memoria da portare via; null se non e' cosa sua. */
   function comando(frase) {
+    /* prima il risveglio, il meteo, la rete neurale (bsi-spectra-risveglio.js) */
+    var R = g.BSISpectraRisveglio; if (R && R.comando) { var rr = R.comando(frase); if (rr) return rr; }
     var o = String(frase || '').trim(), t = senzaAccenti(o).replace(/^(ehi |hey |ok )?(spectra|spettra)[\s,]*/, '').replace(/^(per favore |puoi |potresti )/, '').replace(/[?!.]+$/, '').trim(), m;
     if ((m = /^(?:ricordami|ricorda mi|fammi ricordare|avvisami|avvertimi|metti un promemoria|segna un promemoria|promemoria)\b[\s,:]*(.*)$/.exec(t))) {
       if (!m[1]) return { testo: 'Che cosa devo ricordarti, e quando?' };
@@ -308,7 +310,7 @@
   }
 
   /* ── 7. la memoria che si porta via ──────────────────────────────────── */
-  var PORTATE = [CHIAVE, CHIAVE_MENTE, CHIAVE_RICORDI];
+  var PORTATE = [CHIAVE, CHIAVE_MENTE, CHIAVE_RICORDI, 'bsi-spectra-risveglio-v1'];
   function pacchetto() {
     var dati = {}; PORTATE.forEach(function (k) { try { var v = g.localStorage.getItem(k); if (v != null) dati[k] = v; } catch (e) {} });
     return { cosa: 'memoria-di-spectra', versione: 1, esportato: new Date().toISOString(), dati: dati };
@@ -432,7 +434,7 @@
   g.BSISpectraAgenda = {
     capisciQuando: capisciQuando, aggiungi: aggiungi, aperti: aperti, daAvvisare: daAvvisare, completa: completa, rimanda: rimanda, annulla: annulla, trova: trova, estratto: estratto,
     riga: riga, quandoATesto: quandoATesto, comando: comando, dividi: dividi, battito: battito, continuita: continuita, blocco: blocco, strumenti: STRUMENTI,
-    pacchetto: pacchetto, esporta: esporta, importa: importa, apri: apri, chiudi: chiudi, detti: function () { return detti.slice(); },
+    pacchetto: pacchetto, esporta: esporta, importa: importa, apri: apri, chiudi: chiudi, avviso: avviso, notifica: notifica, detti: function () { return detti.slice(); },
     azzera: function () { A = { voci: [], n: 0, visto: 0 }; salva(); }, ricarica: carica
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,293 @@
+#!/usr/bin/env node
+/* ═══════════════════════════════════════════════════════════════════════════
+   test_risveglio — «Svegliati, Spectra»: avvio, meteo, punto alle 8 e alle 20,
+   batteria, rete neurale, scorciatoie
+
+   PERCHE' QUESTO BANCO ESISTE
+
+   Richiesta dell'autore (v251): un Spectra che si comporti come il «Jarvis»
+   dei video che gli piacciono, ma senza installare nulla e senza costi: si
+   sveglia con una sequenza di avvio e dice il punto della situazione (meteo,
+   impegni di oggi e di domani), ti saluta quando torni a casa, fa il punto da
+   solo alle 8 e alle 20, cambia colore quando la batteria è bassa, mostra la
+   sua memoria come una rete di neuroni e si apre da Siri o dalla Home.
+
+   Il servizio del meteo è finto (le richieste a Open-Meteo sono intercettate
+   e ricevono numeri fissi), così il banco non dipende dalla rete né dal tempo
+   che fa. La sintesi vocale è finta e registra ogni frase.
+
+   NON PROVATO: Siri e il lanciatore di Android veri (si prova l'indirizzo che
+   aprono e il manifesto che li dichiara), il suono dell'allarme, la batteria
+   di un telefono vero (si prova la reazione ai livelli), Open-Meteo vero.
+
+   USO   node tools/banchi/test_risveglio.js    (serve un server su :8899)
+   ═══════════════════════════════════════════════════════════════════════════ */
+'use strict';
+const { chromium } = require('playwright-core');
+const BASE = process.env.BSI_URL_BASE || 'http://127.0.0.1:8899/';
+const CHROME = process.env.BSI_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+
+let ok = 0, ko = 0;
+function att(d, atteso, avuto) {
+  if (String(atteso) === String(avuto)) { ok++; console.log('  ✓ ' + d + '  → ' + avuto); }
+  else { ko++; console.log('  ✗ ' + d + '\n      atteso: ' + atteso + '\n      avuto:  ' + avuto); }
+}
+function vero(d, c) { att(d, true, !!c); }
+
+function sintesiFinta() {
+  const S = { speaking: false, pending: false, frasi: [], _t: 0, getVoices() { return [{ name: 'Luca', lang: 'it-IT' }]; }, addEventListener() {}, removeEventListener() {}, resume() {}, pause() {},
+    cancel() { clearTimeout(this._t); this.speaking = this.pending = false; },
+    speak(u) { this.frasi.push({ t: u.text, p: u.pitch, r: u.rate, v: u.volume }); if (u.volume === 0) return; const me = this; me.speaking = true; me._t = setTimeout(() => { me.speaking = false; if (u.onend) u.onend(); }, 20); } };
+  Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: S });
+  window.SpeechSynthesisUtterance = function (t) { this.text = t; this.pitch = 1; this.rate = 1; this.volume = 1; this.voice = null; this.lang = ''; };
+  try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {}
+}
+
+const CITTA = { milano: { name: 'Milano', latitude: 45.46, longitude: 9.19, country: 'Italia' }, roma: { name: 'Roma', latitude: 41.89, longitude: 12.48, country: 'Italia' } };
+const METEO = { '45.46': { t: 13.2, p: 11.1, u: 80, c: 3, v: 9, d: [[3, 15.4, 8.6, 40], [61, 12.2, 7.1, 85]] }, '41.89': { t: 18, p: 18, u: 60, c: 0, v: 12, d: [[1, 21, 12, 5], [2, 20, 11, 10]] } };
+async function meteoFinto(ctx, stato) {
+  await ctx.route(/open-meteo\.com/, async r => {
+    const u = new URL(r.request().url()); stato.chiamate.push(u.hostname + u.pathname + '?' + (u.searchParams.get('name') || u.searchParams.get('latitude')));
+    if (stato.giu) return r.abort('failed');
+    if (/geocoding/.test(u.hostname)) { const c = CITTA[(u.searchParams.get('name') || '').toLowerCase()]; return r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(c ? { results: [c] } : {}) }); }
+    const m = METEO[u.searchParams.get('latitude')];
+    return r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ current: { temperature_2m: m.t, apparent_temperature: m.p, relative_humidity_2m: m.u, precipitation: 0, weather_code: m.c, wind_speed_10m: m.v },
+      daily: { weather_code: m.d.map(x => x[0]), temperature_2m_max: m.d.map(x => x[1]), temperature_2m_min: m.d.map(x => x[2]), precipitation_probability_max: m.d.map(x => x[3]) } }) });
+  });
+}
+
+(async () => {
+  const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
+  const ctx = await b.newContext({ serviceWorkers: 'block', viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true, timezoneId: 'Europe/Rome', locale: 'it-IT' });
+  const stato = { chiamate: [], giu: false }; await meteoFinto(ctx, stato);
+  const pg = await ctx.newPage(), errs = [], ai = [];
+  pg.on('pageerror', e => errs.push(e.message));
+  pg.on('request', r => { if (/generativelanguage|anthropic|groq|openrouter|api\.x\.ai/.test(r.url())) ai.push(r.url()); });
+  await pg.addInitScript(sintesiFinta);
+  await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+  await pg.waitForFunction(() => !!(window.BSISpectraRisveglio && window.BSISpectraAgenda && window.BSISpectraLive && window.bsiOpenAIHub), null, { timeout: 60000 });
+
+  console.log('\n── Il meteo ──');
+  const m = await pg.evaluate(async () => {
+    const R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {}, risp = async f => { const r = A.comando(f); return r && r.promessa ? await r.promessa : r && r.testo; };
+    R.imposta({ citta: null, lat: null, lon: null, meteo: null });
+    o.senza = await risp('che tempo fa?');
+    o.citta = await risp('Spectra, abito a Milano');
+    o.oggi = await risp('che tempo fa');
+    o.domani = await risp('che tempo fa domani');
+    o.roma = await risp('che tempo fa a Roma?');
+    o.ignota = await risp('che tempo fa a Atlantide');
+    o.cieli = [0, 3, 45, 63, 75, 95, 1234].map(R.cielo).join('|');
+    o.stato = R.stato().citta;
+    return o;
+  });
+  vero('senza città la chiede: «' + m.senza + '»', /^Dimmi dove sei/.test(m.senza));
+  att('«abito a Milano»', 'Segnato: Milano, Italia. Ti dirò il meteo da lì.', m.citta);
+  att('«che tempo fa»: adesso e oggi, in gradi e a parole', 'A Milano ci sono 13 gradi, cielo coperto, percepiti 11 gradi. Oggi fra 9 gradi e 15 gradi, pioggia al 40 per cento.', m.oggi);
+  att('«che tempo fa domani»', 'Domani a Milano: pioggia debole, fra 7 gradi e 12 gradi, pioggia al 85 per cento.', m.domani);
+  att('un\'altra città, senza cambiare la propria', 'A Roma ci sono 18 gradi, cielo sereno. Oggi fra 12 gradi e 21 gradi.', m.roma);
+  att('una città che non esiste', 'Non trovo «atlantide».', m.ignota);
+  att('i codici del cielo (WMO) a parole', 'cielo sereno|cielo coperto|nebbia|pioggia|neve forte|temporale|condizioni non classificate', m.cieli);
+  att('la città resta la sua', 'Milano', m.stato);
+  const giu = await (async () => { stato.giu = true; const x = await pg.evaluate(async () => { BSISpectraRisveglio.imposta({ meteo: null }); const r = BSISpectraAgenda.comando('che tempo fa'); return await r.promessa; }); stato.giu = false; return x; })();
+  vero('senza rete lo dice, non inventa: «' + giu + '»', /non risponde/.test(giu));
+
+  console.log('\n── Il punto della situazione ──');
+  const p = await pg.evaluate(async () => {
+    const R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {}; A.azzera(); R.imposta({ meteo: null });
+    const ORA = new Date(2026, 10, 12, 8, 5).getTime();
+    o.vuoto = R.fraseImpegni('domani', ORA);
+    A.aggiungi('lezione di Organica 2', { genere: 'evento', quando: new Date(2026, 10, 12, 10, 30).getTime() });
+    A.aggiungi('chiamare il relatore', { quando: new Date(2026, 10, 12, 18, 0).getTime() });
+    A.aggiungi('esame di Spettroscopia', { genere: 'evento', quando: new Date(2026, 10, 13, 9, 0).getTime() });
+    o.oggi = R.fraseImpegni('oggi', ORA); o.domani = R.fraseImpegni('domani', ORA);
+    o.casa = await R.punto('casa', ORA);
+    /* alle 8 e alle 20, solo dopo il primo risveglio, una volta per fascia */
+    R.imposta({ armato: false, briefing: true, fatti: {} });
+    o.nonArmato = R.controllaPunto(ORA);
+    R.imposta({ armato: true });
+    const pm = R.controllaPunto(ORA); o.mattina = pm ? await pm : null;
+    o.ancora = R.controllaPunto(ORA + 30 * 60000);
+    o.pomeriggio = R.controllaPunto(new Date(2026, 10, 12, 15, 0).getTime());
+    const ps = R.controllaPunto(new Date(2026, 10, 12, 20, 10).getTime()); o.sera = ps ? await ps : null;
+    o.avviso = [...document.querySelectorAll('.bsiAG-avviso')].map(n => n.textContent).join(' || ');
+    await new Promise(r => setTimeout(r, 400));
+    o.detto = speechSynthesis.frasi.map(f => f.t).join(' ');
+    R.imposta({ briefing: false, fatti: {} }); o.spento = R.controllaPunto(ORA);
+    o.disattiva = A.comando('disattiva il punto').testo; o.attiva = A.comando('attiva il punto').testo; o.dopo = R.stato().briefing;
+    R.imposta({ fatti: {}, armato: false });
+    document.querySelectorAll('.bsiAG-avviso').forEach(n => n.remove()); A.azzera();
+    return o;
+  });
+  att('domani senza impegni', 'Domani non hai impegni segnati.', p.vuoto);
+  att('gli impegni di oggi', 'Oggi hai 2 impegni: lezione di Organica 2 alle 10:30; chiamare il relatore alle 18.', p.oggi);
+  att('e quelli di domani', 'Domani hai un impegno: esame di Spettroscopia alle 9.', p.domani);
+  vero('«sono a casa»: bentornato, meteo, oggi, domani — «' + p.casa.slice(0, 70) + '…»', /^Bentornato a casa\. Fuori, a Milano ci sono 13 gradi/.test(p.casa) && /Oggi hai 2 impegni/.test(p.casa) && /Domani hai un impegno/.test(p.casa));
+  att('prima del primo risveglio, nessun punto automatico', null, p.nonArmato);
+  vero('alle 8:05 il punto del mattino: «' + (p.mattina || '').slice(0, 60) + '…»', /^Buongiorno\. Fuori, a Milano/.test(p.mattina || '') && /Oggi hai 2 impegni/.test(p.mattina || '') && !/Domani/.test(p.mattina || ''));
+  att('una volta sola nella fascia', null, p.ancora);
+  att('il pomeriggio niente', null, p.pomeriggio);
+  vero('alle 20:10 il punto della sera, con domani e il meteo di domani', /^Buonasera\. Il punto della sera\. Domani hai un impegno: esame di Spettroscopia alle 9\. Domani a Milano: pioggia debole/.test(p.sera || ''));
+  vero('scritto sullo schermo', /🌅 Buongiorno/.test(p.avviso) && /🌙 Buonasera/.test(p.avviso));
+  /* il secondo punto interrompe il primo, come deve: di ciascuno si sente almeno l'inizio */
+  vero('e detto a voce («' + p.detto.slice(0, 60) + '…»)', /Buongiorno\./.test(p.detto) && /punto della sera/.test(p.detto));
+  att('spento, tace', null, p.spento);
+  vero('si spegne e si riaccende a parole', /niente punto/.test(p.disattiva) && /alle 8 il punto del mattino/.test(p.attiva) && p.dopo === true);
+
+  console.log('\n── Il risveglio ──');
+  const r = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {};
+    speechSynthesis.frasi.length = 0;
+    localStorage.setItem('bsi_ai_memory', JSON.stringify([{ fatto: 'Prepara l\'esame di Spettroscopia molecolare', categoria: 'esame' }]));
+    const x = A.comando('Spectra, svegliati!'); o.risposta = x && x.testo; o.muto = x && x.muto;
+    await pausa(150);
+    const P = document.getElementById('bsiRV'); o.aperto = !!P;
+    o.dialogo = P && P.getAttribute('role') === 'dialog';
+    o.righe = [...P.querySelectorAll('li')].map(li => [...li.children].map(s => s.textContent).join(' ').replace(/\s+/g, ' ').trim());
+    await pausa(4200);
+    o.visibili = P.querySelectorAll('li.vis').length;
+    o.messaggio = P.querySelector('.messaggio').textContent;
+    o.detto = speechSynthesis.frasi.map(f => f.t).join(' ');
+    o.parametri = [...new Set(speechSynthesis.frasi.map(f => f.p + '/' + f.r))].join(' ');
+    o.armato = R.stato().armato;
+    o.largo = document.documentElement.scrollWidth <= innerWidth + 1 && P.scrollWidth <= P.clientWidth + 1;
+    o.tasti = [...P.querySelectorAll('.azioni button')].every(b => b.getBoundingClientRect().height >= 40);
+    const bs = [...P.querySelectorAll('button')].filter(b => /Siri/.test(b.textContent))[0]; bs.click(); await pausa(50);
+    const sc = P.querySelector('.scorciatoie'); o.siri = !sc.hasAttribute('hidden') && /Ehi Siri, sveglia Spectra/.test(sc.textContent) && /index\.html\?spectra=sveglia$/.test(sc.querySelector('code').textContent);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); o.chiuso = !document.getElementById('bsiRV');
+    localStorage.removeItem('bsi_ai_memory');
+    return o;
+  });
+  att('il comando', 'Sequenza di risveglio avviata.', r.risposta);
+  vero('la schermata di avvio, come dialogo', r.aperto && r.dialogo);
+  vero('le righe: ' + r.righe.join(' / ').slice(0, 160), r.righe.length === 6 && /^Inizializzazione dei sistemi completata/.test(r.righe[0]) && /^Rete neurale online · \d+ neuron[ei], \d+ collegament[oi]/.test(r.righe[1]) && /^Memoria 1 ricordo · /.test(r.righe[3]) && /^Meteo Milano$/.test(r.righe[4]) && /^Sintesi vocale pronta$/.test(r.righe[5]));
+  vero('senza chiave lo dice: «' + r.righe[2] + '»', /in locale/.test(r.righe[2]));
+  att('le righe compaiono una dopo l\'altra', 6, r.visibili);
+  vero('il punto sullo schermo: «' + r.messaggio.slice(0, 70) + '…»', /^(Buongiorno|Buon pomeriggio|Buonasera|Ancora sveglio)\. Fuori, a Milano ci sono 13 gradi/.test(r.messaggio));
+  vero('e a voce, dall\'avvio: «' + r.detto.slice(0, 80) + '…»', /Inizializzazione dei sistemi completata\. Rete neurale online\. Lavoro in locale/.test(r.detto) && /Sintesi vocale pronta/.test(r.detto) && /13 gradi/.test(r.detto));
+  att('con la voce di Spectra', '0.58/0.88', r.parametri);
+  vero('da ora il punto delle 8 e delle 20 è attivo', r.armato);
+  vero('nessuno scorrimento orizzontale sul telefono', r.largo);
+  vero('pulsanti da un dito', r.tasti);
+  vero('le istruzioni per Siri e la Home, con il link giusto', r.siri);
+  vero('Esc chiude', r.chiuso);
+
+  console.log('\n── La batteria ──');
+  const t = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, o = {};
+    document.querySelectorAll('.bsiAG-avviso').forEach(n => n.remove());
+    R.batteria(0.42, false); o.normale = document.body.classList.contains('bsi-batteria-bassa');
+    R.risveglio({ rapido: true }); await pausa(100);
+    const icona = document.querySelector('#bsiRV .bsiRV-batt'); o.icona = icona.getAttribute('aria-label'); o.colore42 = icona.querySelector('.liv').style.background;
+    o.bassa = R.batteria(0.15, false).bassa; await pausa(50);
+    o.classe = document.body.classList.contains('bsi-batteria-bassa');
+    o.filtro = getComputedStyle(document.getElementById('bsiRV')).filter;
+    o.colore15 = document.querySelector('#bsiRV .bsiRV-batt .liv').style.background;
+    o.avvisi = [...document.querySelectorAll('.bsiAG-avviso')].map(n => n.textContent).filter(x => /Batteria/.test(x));
+    R.batteria(0.14, false); o.ripetuto = [...document.querySelectorAll('.bsiAG-avviso')].filter(n => /Batteria/.test(n.textContent)).length;
+    o.comando = BSISpectraAgenda.comando('quanta batteria ho?').testo;
+    R.batteria(0.16, true); o.inCarica = document.body.classList.contains('bsi-batteria-bassa');
+    R.chiudi(); document.querySelectorAll('.bsiAG-avviso').forEach(n => n.remove());
+    return o;
+  });
+  att('al 42% il tema resta ciano', false, t.normale);
+  att('l\'icona dice livello e stato', 'Batteria al 42 per cento', t.icona);
+  vero('e il colore cambia col livello (' + t.colore42 + ' → ' + t.colore15 + ')', t.colore42 !== t.colore15 && /rgb\((2\d\d|1\d\d), (\d\d|1\d\d)/.test(t.colore15));
+  vero('sotto il 20% senza caricatore: tema rosso', t.bassa && t.classe && /hue-rotate/.test(t.filtro));
+  vero('con un avviso: «' + (t.avvisi[0] || '') + '»', t.avvisi.length === 1 && /Batteria al 15 per cento\. Collega il caricatore\./.test(t.avvisi[0]));
+  att('l\'avviso non si ripete a ogni punto percentuale', 1, t.ripetuto);
+  att('«quanta batteria ho?»', 'Batteria al 14 per cento. Collega il caricatore.', t.comando);
+  att('col caricatore torna ciano', false, t.inCarica);
+
+  console.log('\n── La rete neurale ──');
+  const n = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {}, ora = Date.now();
+    const K = 'bsi-spectra-mente-v1', primaM = localStorage.getItem(K); A.azzera();
+    localStorage.setItem('bsi_ai_memory', JSON.stringify([{ fatto: 'Prepara l\'esame di Spettroscopia molecolare', categoria: 'esame' }, { fatto: 'Fatica con i meccanismi delle pericicliche', categoria: 'difficolta' }]));
+    localStorage.setItem(K, JSON.stringify({ nato: ora - 9e8, episodi: [
+      { t: ora - 3e6, m: 'chimica', s: 'sirvis', d: 'Come si legge uno spettro infrarosso del carbonile?', e: 'modello' },
+      { t: ora - 2.9e6, m: 'chimica', s: 'sirvis', d: 'E nello spettro infrarosso di un estere?', e: 'modello' },
+      { t: ora - 1e5, m: 'chimica', s: null, d: 'Spiegami le reazioni pericicliche e la regola di Woodward', e: 'modello' } ],
+      sezioni: { sirvis: { s: 900, n: 3, ultima: ora, materia: 'chimica' } }, ore: new Array(24).fill(0), materie: { chimica: 900, fisica: 0, matematica: 0 } }));
+    A.aggiungi('esame di Spettroscopia molecolare', { genere: 'evento', quando: 'domani alle 9' });
+    const G = R.grafo(); o.neuroni = G.neuroni.length; o.tipi = G.neuroni.map(x => x.tipo[0]).join('');
+    o.legami = G.collegamenti.map(l => G.neuroni[l.a].tipo[0] + G.neuroni[l.b].tipo[0]).sort().join(',');
+    o.esame = G.collegamenti.some(l => /Spettroscopia/.test(G.neuroni[l.a].testo) && /Spettroscopia/.test(G.neuroni[l.b].testo) && G.neuroni[l.a].tipo !== G.neuroni[l.b].tipo);
+    o.pericicliche = G.collegamenti.some(l => /pericicliche/i.test(G.neuroni[l.a].testo) && /pericicliche/i.test(G.neuroni[l.b].testo));
+    o.sezione = G.collegamenti.some(l => (G.neuroni[l.a].tipo === 'sezione') !== (G.neuroni[l.b].tipo === 'sezione'));
+    const x = A.comando('mostrami la tua rete neurale'); o.risposta = x.testo; await pausa(400);
+    const P = document.getElementById('bsiRN'), cv = P.querySelector('canvas'), rc = cv.getBoundingClientRect();
+    o.conta = P.querySelector('.conta').textContent; o.tela = rc.width > 300 && rc.height > 250 && cv.width >= rc.width;
+    const px = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let acceso = 0; for (let i = 3; i < px.length; i += 4) if (px[i] > 0) acceso++; o.disegnata = acceso > 200;
+    /* tocca il neurone più collegato */
+    const N = R.grafo().neuroni; let trovato = ''; for (let yy = 10; yy < rc.height && !trovato; yy += 6) for (let xx = 10; xx < rc.width && !trovato; xx += 6) {
+      cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: rc.left + xx, clientY: rc.top + yy, bubbles: true }));
+      const s = P.querySelector('.scelto').textContent; if (/—/.test(s)) trovato = s; }
+    o.tocco = trovato;
+    o.largo = document.documentElement.scrollWidth <= innerWidth + 1;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); o.chiusa = !document.getElementById('bsiRN');
+    localStorage.removeItem('bsi_ai_memory'); if (primaM == null) localStorage.removeItem(K); else localStorage.setItem(K, primaM); A.azzera();
+    const V = R.apriRete(); o.vuota = /ancora vuota/.test(V.el.querySelector('.scelto').textContent) || V.grafo.neuroni.length > 0; R.chiudiRete();
+    return o;
+  });
+  att('i neuroni sono i ricordi veri: 2 ricordi, 3 conversazioni, 1 impegno, 1 sezione', 'rrccciS'.toLowerCase(), n.tipi.toLowerCase().replace(/s$/, 's'));
+  vero('l\'esame (ricordo) e l\'impegno dell\'esame sono collegati', n.esame);
+  vero('le pericicliche (ricordo e domanda) sono collegate', n.pericicliche);
+  vero('le domande sull\'IR sono collegate alla sezione dove sono state fatte', n.sezione);
+  vero('«mostrami la tua rete neurale»: ' + n.risposta, /^La mia rete: 7 neuroni e \d+ collegament[oi]\./.test(n.risposta));
+  vero('il conteggio sullo schermo: ' + n.conta, /^7 neuroni · \d+ collegament[oi]$/.test(n.conta));
+  vero('la tela ha la sua misura ed è disegnata', n.tela && n.disegnata);
+  vero('toccando un neurone si legge il ricordo: «' + n.tocco.slice(0, 70) + '»', /^(🧠 Ricordo|💬 Conversazione|🗓️ Impegno|📚 Sezione) — /.test(n.tocco));
+  vero('nessuno scorrimento orizzontale', n.largo);
+  vero('Esc chiude; vuota, lo dice', n.chiusa && n.vuota);
+
+  console.log('\n── Per il modello, nella Chat e nella console ──');
+  const s = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, T = window.BSI_AI_TOOLS, o = {};
+    o.strumento = T.filter(x => x.name === 'meteo').length; o.totale = T.length;
+    o.esegui = await T.filter(x => x.name === 'meteo')[0].execute({ citta: 'Roma', giorno: 'domani' });
+    const c = R.stato(); R.imposta({ citta: null }); o.senza = await T.filter(x => x.name === 'meteo')[0].execute({}); R.imposta({ citta: c.citta });
+    localStorage.removeItem('bsi_api_keys');
+    bsiOpenAIHub('chat'); await pausa(1200);
+    const i = document.getElementById('bsi-hub-input'); i.value = 'che tempo fa a Roma?'; await _bsiHubChatInternal.send(); await pausa(300);
+    const msg = [...document.querySelectorAll('#bsi-hub-msgs .bsi-msg.assistant')].map(n => n.textContent.trim());
+    o.chat = msg[msg.length - 1] || '';
+    const ch = document.getElementById('bsi-hub-close'); if (ch) ch.click(); await pausa(200);
+    const L = BSISpectraLive.comando('Spectra, sono a casa'); o.console = L && L.testo; o.consolePromessa = L && L.promessa ? await L.promessa : null;
+    return o;
+  });
+  att('lo strumento «meteo» registrato una volta', 1, s.strumento);
+  att('51 strumenti in tutto', 51, s.totale);
+  vero('lo strumento risponde con dati e frase: ' + (s.esegui.frase || ''), s.esegui.ok && s.esegui.citta === 'Roma' && s.esegui.domani.max === 20 && /^Domani a Roma/.test(s.esegui.frase));
+  vero('senza città dice al modello di chiederla', s.senza.ok === false && /chiedigliela/.test(s.senza.error));
+  vero('nella Chat, senza chiave: «' + s.chat.slice(0, 60) + '»', /^A Roma ci sono 18 gradi/.test(s.chat));
+  att('nessuna chiamata a un fornitore di modelli', 0, ai.length);
+  vero('nella console: «' + s.console + '» poi «' + (s.consolePromessa || '').slice(0, 40) + '…»', s.console === 'Bentornato.' && /^Bentornato a casa\./.test(s.consolePromessa || ''));
+
+  console.log('\n── Dalla Home e da Siri ──');
+  const man = await pg.evaluate(async () => (await (await fetch('manifest.json')).json()).shortcuts || []);
+  att('il manifesto dichiara tre scorciatoie (le mostra Android tenendo premuta l\'icona)', 'Sveglia Spectra=./index.html?spectra=sveglia|Agenda di Spectra=./index.html?spectra=agenda|Rete neurale di Spectra=./index.html?spectra=rete', man.map(x => x.name + '=' + x.url).join('|'));
+  const pg2 = await ctx.newPage(); pg2.on('pageerror', e => errs.push(e.message)); await pg2.addInitScript(sintesiFinta);
+  /* aperta da Siri o dalla Home la pagina non ha ancora avuto un gesto dell'utente (il browser di prova invece lo segna sempre come avvenuto) */
+  await pg2.addInitScript(() => { try { Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { hasBeenActive: false, isActive: false } }); } catch (e) {} });
+  await pg2.addInitScript(() => localStorage.setItem('bsi-spectra-risveglio-v1', JSON.stringify({ citta: 'Milano', lat: 45.46, lon: 9.19, armato: true, briefing: false, fatti: {} })));
+  await pg2.goto(BASE + 'index.html?spectra=sveglia', { waitUntil: 'load', timeout: 120000 });
+  await pg2.waitForSelector('#bsiRV', { timeout: 30000 });
+  await pg2.waitForSelector('#bsiRV .tocca', { timeout: 15000 });
+  const u = await pg2.evaluate(() => ({ url: location.search, detto: speechSynthesis.frasi.length, testo: document.querySelector('#bsiRV .tocca').textContent }));
+  att('l\'indirizzo della scorciatoia apre il risveglio e si ripulisce', '', u.url);
+  vero('aperta da Siri la pagina non può parlare da sola: chiede un tocco («' + u.testo + '»)', u.detto === 0 && /Tocca per svegliare Spectra/.test(u.testo));
+  await pg2.click('#bsiRV .tocca'); await pg2.waitForFunction(() => speechSynthesis.frasi.length > 0, null, { timeout: 10000 });
+  vero('dopo il tocco parla', /Inizializzazione dei sistemi completata/.test(await pg2.evaluate(() => speechSynthesis.frasi.map(f => f.t).join(' '))));
+  const pg3 = await ctx.newPage(); pg3.on('pageerror', e => errs.push(e.message)); await pg3.addInitScript(sintesiFinta);
+  await pg3.goto(BASE + 'index.html?spectra=rete', { waitUntil: 'load', timeout: 120000 }); await pg3.waitForSelector('#bsiRN', { timeout: 30000 });
+  vero('?spectra=rete apre la rete neurale', true);
+  vero('il menu ✨ ha «Sveglia Spectra» e «Rete neurale di Spectra»', await pg.evaluate(() => /key==='sveglia'/.test(document.documentElement.innerHTML) && /Rete neurale di Spectra/.test(document.documentElement.innerHTML)));
+  vero('Open-Meteo è stato chiamato solo per le città chieste (' + stato.chiamate.length + ' richieste)', stato.chiamate.every(c => /geocoding-api\.open-meteo\.com\/v1\/search\?(Milano|Roma|Atlantide)$|api\.open-meteo\.com\/v1\/forecast\?(45\.46|41\.89)$/i.test(c)));
+
+  att('nessun errore JavaScript', 0, errs.length);
+  errs.slice(0, 3).forEach(x => console.log('      ! ' + x.slice(0, 200)));
+  await b.close();
+  console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
+  process.exit(ko ? 1 : 0);
+})().catch(e => { console.error(e.message); process.exit(1); });

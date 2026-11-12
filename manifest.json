@@ -22,5 +22,46 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sveglia Spectra",
+      "short_name": "Sveglia",
+      "description": "Sequenza di avvio, meteo e impegni di oggi",
+      "url": "./index.html?spectra=sveglia",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Agenda di Spectra",
+      "short_name": "Agenda",
+      "description": "Promemoria e impegni",
+      "url": "./index.html?spectra=agenda",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Rete neurale di Spectra",
+      "short_name": "Rete neurale",
+      "description": "La memoria di Spectra",
+      "url": "./index.html?spectra=rete",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

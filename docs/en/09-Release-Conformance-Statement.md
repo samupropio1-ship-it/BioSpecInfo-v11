@@ -271,6 +271,16 @@ written to IndexedDB; an old body stored by a previous version
 (`bsi-spectra-modelli`) is deleted on start, and «Clear data → Progress in the
 rest of the app» deletes that database.
 
+**Spectra's agenda and wake-up** (`bsi-spectra-agenda.js`,
+`bsi-spectra-risveglio.js`, since v251) stay in `localStorage`
+(`bsi-spectra-agenda-v1`, `bsi-spectra-risveglio-v1`: commitments, chosen city,
+last weather, briefing slots already done). The weather goes to Open-Meteo,
+free and keyless, and only when the user asks for it or at the 8:00 and 20:00
+briefing: the city name and its coordinates leave the device, nothing else.
+«Esporta la memoria» writes a file with memories, mind, agenda and city; API
+keys never go into it, and an imported file can write only those four
+entries. The battery is read from the browser and never leaves the device.
+
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker
 they own and not on the device.

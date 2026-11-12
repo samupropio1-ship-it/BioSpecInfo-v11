@@ -5603,7 +5603,7 @@ var DATI_CANCELLABILI = {
   memoria: {
     etichetta: 'Memoria persistente',
     dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
-    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-agenda-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-agenda-v1', 'bsi-spectra-risveglio-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',
@@ -7545,10 +7545,20 @@ function buildChatPane(){
       input.value = '';
       var dA = loadThreads(), tA = getActiveThread(dA);
       if(tA.title === 'Nuova chat') tA.title = text.slice(0, 40);
-      tA.messages.push({ role: 'user', content: text }); tA.messages.push({ role: 'assistant', content: rAg.testo });
+      var msgA = { role: 'assistant', content: rAg.testo };
+      tA.messages.push({ role: 'user', content: text }); tA.messages.push(msgA);
       saveThreads(dA); renderMessages();
       if(window.BSISpectraMente){ try{ window.BSISpectraMente.ricorda(text, 'locale'); }catch(eM){} }
-      try{ if(autoSpeakEnabled) speakRobotic(rAg.testo); }catch(eV){}
+      /* (v251) il meteo e il punto della situazione arrivano dopo: l'annuncio si sostituisce con la risposta */
+      if(rAg.promessa && rAg.promessa.then){
+        var finale = await rAg.promessa.catch(function(){ return 'Non ci sono riuscito.'; });
+        var dB = loadThreads(), tB = getActiveThread(dB), ultimo = tB.messages[tB.messages.length - 1];
+        if(ultimo && ultimo.role === 'assistant' && ultimo.content === rAg.testo) ultimo.content = finale; else tB.messages.push({ role: 'assistant', content: finale });
+        saveThreads(dB); renderMessages();
+        try{ if(autoSpeakEnabled) speakRobotic(finale); }catch(eV2){}
+        return;
+      }
+      try{ if(autoSpeakEnabled && !rAg.muto) speakRobotic(rAg.testo); }catch(eV){}
       return;
     }
     var provId = provSel.value;

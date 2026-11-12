@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 50 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 51 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (50 tools, all local except 2 network)     │
+│        └── tool executor (51 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 50 tools → receive the streamed response → if it
+prompt and the schema of all 51 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 50 tools
+## 3. The 51 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -1072,7 +1072,7 @@ search, turn suspension and resumption was simulated.
 | Metric | Value |
 |---|---|
 | Component size | 6,254 lines |
-| Tools | 50 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`) |
+| Tools | 51 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`) |
 | Model configurations | 10 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |

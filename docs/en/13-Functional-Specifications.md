@@ -292,7 +292,7 @@ produced a name from three peaks would make a claim the data cannot support.
 
 ### 3.8 The "Spectra" assistant
 
-An AI agent with **50 tools** that can interrogate the application itself:
+An AI agent with **51 tools** that can interrogate the application itself:
 compute descriptors, generate spectra, look up constants, balance reactions,
 open sections, read the open tab and act on its controls. It supports ten
 providers, and stays usable when one of them fails (§5.2).

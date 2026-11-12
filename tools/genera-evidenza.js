@@ -72,7 +72,7 @@ const FAMIGLIE = [
   { nome: 'Interfaccia',
     scopo: 'I pannelli e i comandi rispondono come documentato.',
     banchi: ['browser_reset', 'browser_proxy', 'browser_proxyui', 'browser_rdkit',
-             'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_controllaagg', 'test_spectra238', 'test_lezione', 'test_spectra_studio', 'test_spectra_rig', 'test_spectra_figura', 'test_spectra_esplora', 'test_spectra_olo', 'test_impronta', 'test_voce', 'test_agenda', 'test_avvio', 'test_giro', 'test_guidaproxy',
+             'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_controllaagg', 'test_spectra238', 'test_lezione', 'test_spectra_studio', 'test_spectra_rig', 'test_spectra_figura', 'test_spectra_esplora', 'test_spectra_olo', 'test_impronta', 'test_voce', 'test_agenda', 'test_risveglio', 'test_avvio', 'test_giro', 'test_guidaproxy',
              'test_fluidita', 'test_lingue', 'test_sellingua', 'test_mol3d', 'test_menu'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',

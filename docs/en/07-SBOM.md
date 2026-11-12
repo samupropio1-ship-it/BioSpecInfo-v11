@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v251` |
-| Commit | `092e640933be732a24ee3f286c3f78f28b6fc4a8` |
-| Generated (UTC) | `2026-11-12T14:52:31.231Z` |
+| Commit | `342538ce66d515efaecf739bf7989c0100877fbe` |
+| Generated (UTC) | `2026-11-12T17:20:30.369Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -62,8 +62,8 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4704 kB | Main application: interface, teaching sections, chemical data. |
-| `bsi-ai-hub.js` | 447 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
+| `index.html` | 4705 kB | Main application: interface, teaching sections, chemical data. |
+| `bsi-ai-hub.js` | 448 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 36 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
@@ -152,7 +152,8 @@ availability.
 | `bsi-spectra-live.js` | 114 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
 | `bsi-spectra-androide.js` | 45 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
 | `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
-| `bsi-spectra-agenda.js` | 35 kB | Spectra's agenda: reminders, tasks, events, dates said in words, continuity for the model, exportable memory. |
+| `bsi-spectra-agenda.js` | 36 kB | Spectra's agenda: reminders, tasks, events, dates said in words, continuity for the model, exportable memory. |
+| `bsi-spectra-risveglio.js` | 42 kB | Spectra's wake-up: start-up sequence, weather (Open-Meteo), briefing at 8 and 20, battery, neural network of the memory. |
 | `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Last-resort face: SVG vector portrait. |
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
@@ -202,8 +203,8 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `bd75bf053e35ca31e094452dd2711a81bef327ba2c8e4e72460b6889f0598e06` |
-| `bsi-ai-hub.js` | `22590d549b2a34aa1490d243c58b5f703900ff1e9d20e42f989de4fbca4d3182` |
+| `index.html` | `3398b9c6c4a5bd3d78a09735e0f243f435cf6acf10dc92f065f6939bb2539564` |
+| `bsi-ai-hub.js` | `813c4af640118ad3ba107f8afb099dc2420c66aaeb2f8f6a7c337ed279a0dbc6` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -289,10 +290,11 @@ availability.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `cbb0c1b35d23f009e02095a4c76e44ae19cccc6c2897a1db7a4967c9681a5a47` |
+| `bsi-spectra-live.js` | `c797a49afbeff00d04bdf5f783f2c0b6384f52889553e0a30eecc21bcf7f26fc` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
-| `bsi-spectra-agenda.js` | `16be2c85e6f9306c107cecc55ae917b9e7b91ef132ef8a0de7727a079f512b20` |
+| `bsi-spectra-agenda.js` | `5d4237282f688c52c634ccfac0c52c2d64158b3b4e550a34e4a79f5e0a9fc055` |
+| `bsi-spectra-risveglio.js` | `2603ddd04eed04542fc262c8d72474dcec2279e957996c810bea541104fa0902` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
@@ -332,7 +334,7 @@ availability.
 | `bsi-lingue.js` | `e31add1c339356b8c5ad24c9575acbae6841c6b1da1cc2ece8fbf7d56f7f698e` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `e7738ef5d654c94225d6290ea001889e10cc613419e80a6a6d63d984736e3c2a` |
+| `sw.js` | `b513835305870a9290bd860c0834aa5fe2719c6879bae32daa328ee6e9dacb61` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -361,6 +363,7 @@ go to documented public services:
 |---|---|---|
 | PubChem PUG-REST | IUPAC name, CAS, GHS pictograms, 3D conformers | the app uses local data and says so |
 | NASA / ESA | astronomical images and data | the module shows the tabulated data |
+| Open-Meteo (since v251) | Spectra's weather: it receives only the name of the city asked for and its coordinates, no key | Spectra says the service is not answering and invents nothing |
 | AI providers (user's choice) | assistant answers | the assistant reports it and offers alternatives |
 
 No personal data is transmitted: API keys, if entered, stay in the device's
@@ -385,4 +388,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-12T14:52:31.231Z._
+_Generated on 2026-11-12T17:20:30.369Z._

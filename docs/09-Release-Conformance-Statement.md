@@ -273,6 +273,16 @@ conservato da una versione precedente (`bsi-spectra-modelli`) si cancella
 all'avvio, e «Cancella dati → Progressi del resto dell'app» cancella quel
 database.
 
+**L'agenda e il risveglio di Spectra** (`bsi-spectra-agenda.js`,
+`bsi-spectra-risveglio.js`, dalla v251) restano nel `localStorage`
+(`bsi-spectra-agenda-v1`, `bsi-spectra-risveglio-v1`: impegni, città scelta,
+ultimo meteo, fasce del punto già fatte). Il meteo va a Open-Meteo, gratuito e
+senza chiave, e solo quando l'utente lo chiede o al punto delle 8 e delle 20:
+esce il nome della città e le sue coordinate, nient'altro. «Esporta la
+memoria» scrive un file con ricordi, mente, agenda e città; le chiavi API non
+vi entrano mai, e un file importato può scrivere solo quelle quattro voci. La
+batteria si legge dal browser e non esce dal dispositivo.
+
 Le chiamate di rete sono opzionali e dirette a servizi pubblici documentati
 (§4 di `07-SBOM.md`). Se l'utente configura il proxy, le chiavi API risiedono
 sul Worker di sua proprietà e non sul dispositivo.
