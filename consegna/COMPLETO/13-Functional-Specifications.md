@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v250` |
+| **Versione descritta** | `bsi-v251` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -292,7 +292,7 @@ picchi producesse un nome farebbe un'affermazione che i dati non reggono.
 
 ### 3.8 Assistente «Spectra»
 
-Agente AI con **47 strumenti** che può interrogare l'applicazione stessa:
+Agente AI con **51 strumenti** che può interrogare l'applicazione stessa:
 calcolare descrittori, generare spettri, cercare costanti, bilanciare reazioni,
 aprire sezioni, leggere la scheda aperta e agire sui suoi controlli. Supporta
 dieci fornitori, e resta utilizzabile quando uno di essi si guasta (§5.2).
@@ -725,4 +725,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v250`._
+_Documento aggiornato alla versione `bsi-v251`._

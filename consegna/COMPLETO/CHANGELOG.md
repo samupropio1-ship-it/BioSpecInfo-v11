@@ -7,6 +7,91 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v251] — 2026-11-12
+
+**Spectra assistente di ogni giorno, dentro l'app: si sveglia, dice meteo e impegni, ricorda, fa il punto alle 8 e alle 20, mostra la sua memoria come neuroni. Senza installare nulla**
+
+Richiesta dell'autore: una presenza continua e un assistente personale, ma
+senza i passaggi di installazione del servizio Spectra 2.0, che non gli
+riescono. Quindi ciò che il servizio fa su un computer sempre acceso è stato
+portato nel browser, dove l'app gira già.
+
+### Aggiunto
+- **🗓️ Agenda di Spectra** (`bsi-spectra-agenda.js`, menu ✨ → Agenda di
+  Spectra): promemoria, compiti, eventi. Si detta o si scrive come si parla:
+  «ricordami domani alle 18 di chiamare il relatore», «ricordami di comprare i
+  guanti fra due ore». Funziona **senza chiave e senza rete**: la data la
+  capisce l'app. Una data non capita non viene indovinata: Spectra la chiede.
+- **I promemoria arrivano**: all'ora giusta Spectra lo scrive in alto, lo dice
+  con la sua voce e, se le notifiche sono permesse, manda una notifica. Quelli
+  scaduti mentre l'app era chiusa vengono detti alla riapertura. Ricorrenze
+  (ogni giorno, settimana, mese), rinvio, annullamento.
+- **Continuità**: a ogni domanda il modello riceve quanto tempo è passato
+  dall'ultima conversazione, l'ultima cosa chiesta e l'agenda; dopo ore
+  riprende il filo invece di salutare da capo. Tre strumenti nuovi per il
+  modello: `segna_impegno`, `leggi_agenda`, `chiudi_impegno`.
+- **La memoria si porta via**: «esporta la memoria» scarica un file con
+  ricordi, episodi e agenda; «importa la memoria» lo carica su un altro
+  dispositivo. Un file qualunque non scrive nulla, e le chiavi API non
+  vengono mai né esportate né toccate.
+- **🌅 «Svegliati, Spectra»** (`bsi-spectra-risveglio.js`), sul modello dei
+  video «Jarvis» indicati dall'autore, ma senza installare nulla e senza costi:
+  una sequenza di avvio che dice lo stato **vero** (rete neurale, cervello
+  collegato o in locale, memoria, meteo, voce) e poi il punto della situazione
+  a voce: saluto, meteo, impegni di oggi e di domani. «Sono a casa» →
+  «Bentornato a casa», con lo stesso punto.
+- **Meteo reale e gratuito** (Open-Meteo, senza chiave): «abito a Milano»,
+  «che tempo fa», «che tempo fa domani a Roma». Anche come strumento del
+  modello (`meteo`). Senza rete lo dice e non inventa.
+- **Il punto alle 8 e alle 20**: dopo il primo risveglio, se l'app è aperta,
+  al mattino meteo e impegni di oggi, alla sera impegni e meteo di domani; una
+  volta per fascia. «Disattiva il punto» lo spegne.
+- **Batteria**: dove il browser la espone (Chrome su Android e computer), sotto
+  il 20% senza caricatore il tema di Spectra passa dal ciano al rosso, con un
+  avviso e un doppio segnale acustico. «Quanta batteria ho?».
+- **🧠 Rete neurale di Spectra**: la memoria disegnata come neuroni che
+  fluttuano (ricordi, conversazioni, impegni, sezioni studiate) e collegamenti
+  (parole e luoghi in comune). Ogni punto è un ricordo vero: si tocca per
+  leggerlo. «Mostrami la tua rete neurale», o menu ✨.
+- **👓 Modalità occhiali**: «Spectra, modalità occhiali» (o menu ✨ →
+  Occhiali e dispositivi). La pagina resta in ascolto del nome, anche dagli
+  occhiali Ray-Ban Meta collegati al telefono: «Spectra, che tempo fa?»,
+  «sveglia Spectra». La risposta esce dagli altoparlanti degli occhiali. Tiene
+  lo schermo acceso, non sente se stessa mentre parla, **riparte da sola** alla
+  riapertura e, se il browser ferma il microfono, mostra in basso «Tocca per
+  riprendere l'ascolto».
+- **«Sveglia Spectra» da ogni dispositivo**: su iPhone, iPad e Mac con un
+  comando di Siri; su Android con «Ok Google, apri BioSpecInfo» e l'opzione
+  «Sveglia Spectra a ogni apertura»; sul computer con la scheda in ascolto.
+  La guida passo per passo è in menu ✨ → Occhiali e dispositivi, o dicendo
+  «come ti sveglio?».
+- **Da Siri e dalla Home**: tenendo premuta l'icona dell'app su Android
+  compaiono «Sveglia Spectra», «Spectra in ascolto», «Agenda», «Rete neurale»; su iPhone, un comando
+  «Apri URL» con il link che Spectra mostra e copia → «Ehi Siri, sveglia
+  Spectra».
+- Banchi **`test_agenda`** (59 controlli) e **`test_risveglio`** (91);
+  requisiti AI-19 e AI-20; strumenti dell'agente da 47 a 51; batteria a 92
+  banchi.
+
+### Limiti dichiarati
+- **Ad app chiusa un promemoria non suona.** Una pagina web non può svegliarsi
+  da sola: servirebbe un server che manda la notifica, ed è ciò che fa Spectra
+  2.0. Alla riapertura, però, non si perde.
+- La memoria sta sul dispositivo: fra due dispositivi passa con il file, non
+  da sola.
+- La notifica di sistema e il suono su un telefono vero non sono provati qui.
+- **Ciò che dei video non si può fare in una pagina web**, e resta al servizio
+  Spectra 2.0 per quando ci sarà una macchina sempre accesa: la telefonata alle
+  8 e alle 20 ad app chiusa, la lettura della posta, Telegram, la domotica.
+- Su iPhone Safari non espone la batteria: lì il tema non cambia.
+- **Occhiali**: «Hey Meta» resta dell'assistente di Meta e non può aprire altre
+  app; Spectra ascolta dal telefono, con l'app aperta e lo schermo acceso. Il
+  microfono lo sceglie il telefono: su iPhone di solito quello degli occhiali,
+  su Android può restare quello del telefono. Non provato su occhiali veri.
+- Aperta da Siri o dalla Home, la pagina chiede un tocco prima di parlare: i
+  browser non lasciano parlare una pagina che non ha ancora ricevuto un gesto.
+
+---
 ## [bsi-v250] — 2026-11-11
 
 **Quattro sezioni nuove: mappa dello spazio chimico, deconvoluzione di picchi, chimica di una nube interstellare, Saha e classi spettrali. E Spectra 2.0, il cervello separato dall'app**

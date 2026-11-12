@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v250` |
-| Commit | `2c08fbcb6b0e7b4d5659a8a010c3ef62b4d69a94` |
-| Generato (UTC) | `2026-11-12T06:42:27.511Z` |
+| Versione applicazione | `bsi-v251` |
+| Commit | `4c38441da7a02c28532fe345c86df7c853f04444` |
+| Generato (UTC) | `2026-11-12T17:33:18.008Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,8 +62,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4704 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 446 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `index.html` | 4705 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `bsi-ai-hub.js` | 448 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
@@ -149,9 +149,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 114 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 115 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
+| `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
+| `bsi-spectra-risveglio.js` | 53 kB | Risveglio di Spectra: sequenza di avvio, meteo (Open-Meteo), punto alle 8 e alle 20, batteria, rete neurale della memoria. |
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
@@ -201,8 +203,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `1ae3cd538a35a2b8397d9dc967b60ff2852057d848cc5e78cf4291afae520a20` |
-| `bsi-ai-hub.js` | `c2db3c146724e49d9694cb3b34763012744752002908c289c79bab3259265f2b` |
+| `index.html` | `c2fc022408178009b5a449c16bc5a13ea6bb000c7198cfe692e053e6eebd51f2` |
+| `bsi-ai-hub.js` | `813c4af640118ad3ba107f8afb099dc2420c66aaeb2f8f6a7c337ed279a0dbc6` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -288,9 +290,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `c36ef98cfaf7abde37fda9cffb7c76c2730372ec97037c3ee63b5109c10f6c22` |
+| `bsi-spectra-live.js` | `83ffec2f73329c2dcf8d6e39618573accfbadb7ee30218add95d04eece102110` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
+| `bsi-spectra-agenda.js` | `5d4237282f688c52c634ccfac0c52c2d64158b3b4e550a34e4a79f5e0a9fc055` |
+| `bsi-spectra-risveglio.js` | `e203f05e46cab5bbd6441c446637c832e2730c4f9fdb6a95f58a7409b38e632a` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
@@ -330,7 +334,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `e31add1c339356b8c5ad24c9575acbae6841c6b1da1cc2ece8fbf7d56f7f698e` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `5f6e67c31c26c9643649de91ff8d6a49f31d201b60cce3b6a5985a129a03ba28` |
+| `sw.js` | `b513835305870a9290bd860c0834aa5fe2719c6879bae32daa328ee6e9dacb61` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -359,6 +363,7 @@ e dirette a servizi pubblici documentati:
 |---|---|---|
 | PubChem PUG-REST | nome IUPAC, CAS, pittogrammi GHS, conformeri 3D | l'app usa i dati locali e lo dichiara |
 | NASA / ESA | immagini e dati astronomici | il modulo mostra i dati tabulati |
+| Open-Meteo (dalla v251) | il meteo di Spectra: riceve solo il nome della città chiesta e le sue coordinate, senza chiave | Spectra dice che il servizio non risponde e non inventa |
 | Fornitori AI (a scelta dell'utente) | risposte dell'assistente | l'assistente lo segnala e propone alternative |
 
 Nessun dato personale viene trasmesso: le chiavi API, se inserite, restano nel
@@ -383,4 +388,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-12T06:42:27.511Z._
+_Generato il 2026-11-12T17:33:18.008Z._

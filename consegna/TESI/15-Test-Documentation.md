@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v250` |
+| **Versione descritta** | `bsi-v251` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**90 banchi**, raggruppati per ciò che dimostrano.
+**92 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -124,6 +124,8 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_v237` | Le **venti sezioni nuove** (dieci di astrofisica, cinque laboratori di fisica, cinque di matematica): esegue i loro venti script di `verifiche/` (705 controlli contro valori pubblicati o un secondo metodo, §3.1-bis) e quelli dei kit di studio e delle risorse; nel browser apre ogni scheda a **1280 e 390 px**; prova il volto, le emozioni e la mente di Spectra e i nomi delle sezioni in inglese. Pretende almeno 900 controlli | 1061 |
 | `test_3d238` | Le **schede 3D nuove di 29 sezioni** di chimica, fisica e matematica: esegue i loro 29 script di `verifiche/` (311 controlli contro valori noti, una forma chiusa o un secondo metodo, §3.1-ter); nel browser apre ogni scheda delle 29 sezioni a **1280 e 390 px** e pretende schede piene, senza ⚠, tele disegnate e con un nome, l'ultima scheda una scena 3D che disegna, lavoro sincrono al clic sotto i **250 ms**; a 390 px niente sborda; nessun errore JavaScript | 488 |
 | `test_potenzia250` | Le **quattro sezioni della v250**: Saha contro i manuali (metà ionizzazione, massimo di Balmer, Ca II nel Sole); la nube interstellare contro le soluzioni esatte e la struttura a strati; la deconvoluzione contro spettri di cui si conosce la verità; il t-SNE contro la PCA; e le pagine a 412 e 1280 px | 65 |
+| `test_agenda` | **Spectra assistente di ogni giorno, nell'app**: le date dette a parole capite come nel servizio e quelle non capite rifiutate; i comandi senza modello; il promemoria che arriva, scritto e detto una volta sola; ricorrenze; gli strumenti per il modello; il blocco di continuità; la memoria esportata e reimportata; il pannello sul telefono. |
+| `test_risveglio` | **«Svegliati, Spectra»** e la **modalità occhiali** (risponde al nome, schermo acceso, riparte da sola): la sequenza di avvio con lo stato vero e il punto della situazione; il meteo con un servizio finto (anche senza rete); il punto delle 8 e delle 20, una volta per fascia; la batteria bassa che fa diventare rosso il tema; la memoria come rete di neuroni; lo strumento meteo; le scorciatoie per Siri e la Home. |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
 | `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
@@ -309,7 +311,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -561,6 +563,51 @@ che è anche il difetto originario: subito dopo il ritorno del gestore del click
 il contesto WebGL **non deve esistere**, poco dopo **deve**. Misurato 0 e 1; e
 la misura non è vacua, perché al secondo click — quando la tela c'è già —
 restituisce 1.
+
+**`test_risveglio` — 91 controlli (v251).** Nasce dai video che l'autore ha
+indicato come modello: un assistente che si sveglia con una sequenza di avvio,
+dice il meteo e gli impegni, saluta quando si torna a casa, fa il punto alle 8
+e alle 20, cambia colore con la batteria scarica e mostra la sua memoria come
+neuroni. Il banco intercetta Open-Meteo e risponde con numeri fissi, così non
+dipende dal tempo che fa: pretende le frasi esatte («A Milano ci sono 13 gradi,
+cielo coperto, percepiti 11 gradi…»), una città inesistente riconosciuta come
+tale e, a rete giù, la frase che lo dice. Fissa l'ora (8:05, 15:00, 20:10) e
+pretende il punto giusto, una volta sola, e nessun punto prima del primo
+risveglio o con il punto spento. Apre la sequenza e controlla le sei righe di
+stato, la voce dall'avvio con tono 0,58 e velocità 0,88 e l'assenza di
+scorrimento orizzontale sul telefono. Porta la batteria al 42, al 15 e in
+carica e guarda tema, icona e avviso. Costruisce una memoria di prova e
+pretende sette neuroni con i collegamenti che hanno un senso (l'esame ricordato
+e l'esame in agenda, la domanda sull'IR e la sezione dove è stata fatta).
+Apre l'indirizzo della scorciatoia con una pagina che non ha ancora ricevuto un
+gesto e pretende il pulsante «Tocca per svegliare Spectra» prima della voce.
+Poi la **modalità occhiali**, con un riconoscimento vocale finto a cui il
+banco fa «sentire» le frasi: «sveglia Spectra» apre il risveglio, «Spectra,
+che tempo fa?» apre la console e risponde a voce, «domani vado a
+spettrometria» non lo chiama, una frase detta mentre Spectra parla non viene
+presa, il microfono negato fa comparire «Tocca per riprendere l'ascolto»,
+riaperta l'app la modalità riparte da sola con lo schermo tenuto acceso.
+Non prova Siri, il lanciatore di Android, Open-Meteo veri, il suono
+dell'allarme né quale microfono usi davvero un telefono con gli occhiali.
+
+**`test_agenda` — 59 controlli (v251).** Nasce da una richiesta precisa
+dell'autore: Spectra deve essere un assistente che ricorda e si fa vivo, e deve
+funzionare senza installare nulla, perché mettere in piedi un servizio su un
+computer non gli riesce. Il banco carica l'app su uno schermo da telefono, con
+una sintesi vocale finta che registra ogni frase, e pretende sette cose. Le
+date dette a parole («fra 2 ore», «venerdì alle 9:30», «il 12 febbraio alle 9»)
+danno lo stesso risultato del servizio Python, e «quando capita» o «il 31
+febbraio» vengono rifiutate. I comandi funzionano senza modello: l'ora può
+stare prima o dopo la cosa, senza un'ora Spectra la chiede, e «ricordami la
+formula del benzene» non diventa un promemoria. Il promemoria arriva dentro
+l'anticipo, compare sullo schermo, è detto con tono 0,58 e velocità 0,88, una
+volta sola; uno scaduto ad app chiusa viene detto alla riapertura con l'ora che
+aveva. Le ricorrenze avanzano, anche dal 31 gennaio a fine febbraio. I tre
+strumenti per il modello sono registrati una volta e una data sbagliata torna
+come errore. Il quadro che va al modello contiene il tempo passato, il filo e
+l'agenda. La memoria esportata si reimporta, e le chiavi estranee infilate nel
+file non entrano. Non prova la notifica di sistema né, per costruzione, un
+promemoria ad app chiusa: una pagina web non si sveglia da sola.
 
 **`test_avvio` — 9 controlli (v247).** Nasce dalla richiesta dell'autore di
 ottimizzare l'app. Il profilo dell'avvio su un telefono simulato lento (CPU ×4)
@@ -963,7 +1010,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 616 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 620 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -983,4 +1030,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v250`._
+_Documento aggiornato alla versione `bsi-v251`._
