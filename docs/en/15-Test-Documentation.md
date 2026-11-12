@@ -126,7 +126,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_3d238` | The **new 3D tabs of 29 sections** of chemistry, physics and mathematics: runs their 29 scripts in `verifiche/` (311 checks against known values, a closed form or a second method, §3.1-ter); in the browser opens every tab of the 29 sections at **1280 and 390 px** and requires full tabs, no ⚠, canvases drawn and named, the last tab a 3D scene that draws, synchronous work on click under **250 ms**; nothing overflows at 390 px; no JavaScript error | 488 |
 | `test_potenzia250` | The **four v250 sections**: Saha against the textbooks (half ionisation, Balmer maximum, Ca II in the Sun); the interstellar cloud against the exact solutions and the layered structure; deconvolution against spectra whose truth is known; t-SNE against PCA; and the pages at 412 and 1280 px | 65 |
 | `test_agenda` | **Spectra as an everyday assistant, in the app**: dates said in words understood as in the service, and those not understood refused; commands with no model; the reminder that arrives, written and spoken once only; recurrences; the tools for the model; the continuity block; the memory exported and re-imported; the panel on a phone. |
-| `test_risveglio` | **«Svegliati, Spectra»**: the start-up sequence with the real status and the briefing; the weather with a fake service (also without network); the 8:00 and 20:00 briefing, once per slot; low battery turning the theme red; the memory as a network of neurons; the weather tool; the shortcuts for Siri and the Home screen. |
+| `test_risveglio` | **«Svegliati, Spectra»** and **glasses mode** (answers to its name, screen kept on, restarts by itself): the start-up sequence with the real status and the briefing; the weather with a fake service (also without network); the 8:00 and 20:00 briefing, once per slot; low battery turning the theme red; the memory as a network of neurons; the weather tool; the shortcuts for Siri and the Home screen. |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -543,7 +543,7 @@ original defect: immediately after the click handler returns the WebGL context
 measurement is not vacuous, because on a second click — when the canvas is
 already there — it returns 1.
 
-**`test_risveglio` — 68 checks (v251).** It comes from the videos the
+**`test_risveglio` — 91 checks (v251).** It comes from the videos the
 author pointed to as a model: an assistant that wakes up with a start-up
 sequence, tells the weather and the commitments, greets you when you come home,
 gives a briefing at 8:00 and 20:00, changes colour on a low battery and shows
@@ -560,8 +560,14 @@ and warning. It builds a test memory and demands seven neurons with links that
 make sense (the remembered exam and the exam in the agenda, the IR question and
 the section where it was asked). It opens the shortcut address with a page that
 has not yet received a gesture and demands the «Tocca per svegliare Spectra»
-button before the voice. It does not test real Siri, the Android launcher, real
-Open-Meteo or the sound of the alarm.
+button before the voice. Then **glasses mode**, with a fake speech recogniser to which the bench makes
+the page «hear» sentences: «sveglia Spectra» opens the wake-up, «Spectra, che
+tempo fa?» opens the console and answers aloud, «domani vado a spettrometria»
+does not call it, a sentence said while Spectra speaks is not taken, a denied
+microphone brings up «Tocca per riprendere l'ascolto», and after reopening the
+app the mode restarts by itself with the screen kept on. It does not test real
+Siri, the Android launcher, real Open-Meteo, the sound of the alarm or which
+microphone a phone with the glasses really uses.
 
 **`test_agenda` — 59 checks (v251).** It comes from a precise request by
 the author: Spectra must be an assistant that remembers and speaks up, and it

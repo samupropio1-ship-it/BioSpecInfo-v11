@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v251` |
-| Commit | `342538ce66d515efaecf739bf7989c0100877fbe` |
-| Generato (UTC) | `2026-11-12T17:20:30.369Z` |
+| Commit | `4c38441da7a02c28532fe345c86df7c853f04444` |
+| Generato (UTC) | `2026-11-12T17:33:18.008Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -149,11 +149,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 114 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 115 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
-| `bsi-spectra-risveglio.js` | 42 kB | Risveglio di Spectra: sequenza di avvio, meteo (Open-Meteo), punto alle 8 e alle 20, batteria, rete neurale della memoria. |
+| `bsi-spectra-risveglio.js` | 53 kB | Risveglio di Spectra: sequenza di avvio, meteo (Open-Meteo), punto alle 8 e alle 20, batteria, rete neurale della memoria. |
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
@@ -203,7 +203,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3398b9c6c4a5bd3d78a09735e0f243f435cf6acf10dc92f065f6939bb2539564` |
+| `index.html` | `c2fc022408178009b5a449c16bc5a13ea6bb000c7198cfe692e053e6eebd51f2` |
 | `bsi-ai-hub.js` | `813c4af640118ad3ba107f8afb099dc2420c66aaeb2f8f6a7c337ed279a0dbc6` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -290,11 +290,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `c797a49afbeff00d04bdf5f783f2c0b6384f52889553e0a30eecc21bcf7f26fc` |
+| `bsi-spectra-live.js` | `83ffec2f73329c2dcf8d6e39618573accfbadb7ee30218add95d04eece102110` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `5d4237282f688c52c634ccfac0c52c2d64158b3b4e550a34e4a79f5e0a9fc055` |
-| `bsi-spectra-risveglio.js` | `2603ddd04eed04542fc262c8d72474dcec2279e957996c810bea541104fa0902` |
+| `bsi-spectra-risveglio.js` | `e203f05e46cab5bbd6441c446637c832e2730c4f9fdb6a95f58a7409b38e632a` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
@@ -388,4 +388,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-12T17:20:30.369Z._
+_Generato il 2026-11-12T17:33:18.008Z._

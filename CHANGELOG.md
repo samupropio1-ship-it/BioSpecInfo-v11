@@ -53,11 +53,23 @@ portato nel browser, dove l'app gira già.
   fluttuano (ricordi, conversazioni, impegni, sezioni studiate) e collegamenti
   (parole e luoghi in comune). Ogni punto è un ricordo vero: si tocca per
   leggerlo. «Mostrami la tua rete neurale», o menu ✨.
+- **👓 Modalità occhiali**: «Spectra, modalità occhiali» (o menu ✨ →
+  Occhiali e dispositivi). La pagina resta in ascolto del nome, anche dagli
+  occhiali Ray-Ban Meta collegati al telefono: «Spectra, che tempo fa?»,
+  «sveglia Spectra». La risposta esce dagli altoparlanti degli occhiali. Tiene
+  lo schermo acceso, non sente se stessa mentre parla, **riparte da sola** alla
+  riapertura e, se il browser ferma il microfono, mostra in basso «Tocca per
+  riprendere l'ascolto».
+- **«Sveglia Spectra» da ogni dispositivo**: su iPhone, iPad e Mac con un
+  comando di Siri; su Android con «Ok Google, apri BioSpecInfo» e l'opzione
+  «Sveglia Spectra a ogni apertura»; sul computer con la scheda in ascolto.
+  La guida passo per passo è in menu ✨ → Occhiali e dispositivi, o dicendo
+  «come ti sveglio?».
 - **Da Siri e dalla Home**: tenendo premuta l'icona dell'app su Android
-  compaiono «Sveglia Spectra», «Agenda», «Rete neurale»; su iPhone, un comando
+  compaiono «Sveglia Spectra», «Spectra in ascolto», «Agenda», «Rete neurale»; su iPhone, un comando
   «Apri URL» con il link che Spectra mostra e copia → «Ehi Siri, sveglia
   Spectra».
-- Banchi **`test_agenda`** (59 controlli) e **`test_risveglio`** (68);
+- Banchi **`test_agenda`** (59 controlli) e **`test_risveglio`** (91);
   requisiti AI-19 e AI-20; strumenti dell'agente da 47 a 51; batteria a 92
   banchi.
 
@@ -72,6 +84,10 @@ portato nel browser, dove l'app gira già.
   Spectra 2.0 per quando ci sarà una macchina sempre accesa: la telefonata alle
   8 e alle 20 ad app chiusa, la lettura della posta, Telegram, la domotica.
 - Su iPhone Safari non espone la batteria: lì il tema non cambia.
+- **Occhiali**: «Hey Meta» resta dell'assistente di Meta e non può aprire altre
+  app; Spectra ascolta dal telefono, con l'app aperta e lo schermo acceso. Il
+  microfono lo sceglie il telefono: su iPhone di solito quello degli occhiali,
+  su Android può restare quello del telefono. Non provato su occhiali veri.
 - Aperta da Siri o dalla Home, la pagina chiede un tocco prima di parlare: i
   browser non lasciano parlare una pagina che non ha ancora ricevuto un gesto.
 

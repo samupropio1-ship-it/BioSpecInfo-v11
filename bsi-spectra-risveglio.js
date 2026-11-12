@@ -25,7 +25,7 @@
 (function (g) {
   'use strict';
   var D = g.document, CHIAVE = 'bsi-spectra-risveglio-v1';
-  var S = { citta: null, lat: null, lon: null, armato: false, briefing: true, fatti: {}, meteo: null };
+  var S = { citta: null, lat: null, lon: null, armato: false, briefing: true, fatti: {}, meteo: null, ascolto: false, avvioSveglia: false };
 
   function adesso() { return Date.now(); }
   function carica() { try { var x = JSON.parse(g.localStorage.getItem(CHIAVE) || 'null'); if (x) for (var k in S) if (k in x) S[k] = x[k]; } catch (e) {} }
@@ -218,8 +218,8 @@
       '#bsiRV .reattore:before,#bsiRV .reattore:after{content:"";position:absolute;inset:12%;border-radius:50%;border:2px dashed #7fe7ffaa;animation:bsiRVgira 9s linear infinite}#bsiRV .reattore:after{inset:28%;border-style:solid;border-color:#bff3ff55;animation-duration:5s;animation-direction:reverse}' +
       '#bsiRV .nucleo{width:30%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#ffffff 0%,#7fe7ff 45%,#0aa6d6 100%);box-shadow:0 0 30px #7fe7ff;animation:bsiRVpulsa 1.6s ease-in-out infinite}' +
       '@keyframes bsiRVgira{to{transform:rotate(360deg)}}@keyframes bsiRVpulsa{50%{transform:scale(.86);opacity:.8}}' +
-      '#bsiRV ol{list-style:none;margin:6px 0 12px;padding:0;width:min(640px,100%);position:relative}#bsiRV li{opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s;padding:3px 0;border-bottom:1px solid #0f3a52;display:flex;justify-content:space-between;gap:12px}' +
-      '#bsiRV li.vis{opacity:1;transform:none}#bsiRV li span{min-width:0;overflow-wrap:anywhere}#bsiRV li .ok,#bsiRV li .no{flex:0 1 62%;text-align:right}#bsiRV li .ok{color:#6dffb0}#bsiRV li .no{color:#ffb86b}' +
+      '#bsiRV ol.stato{list-style:none;margin:6px 0 12px;padding:0;width:min(640px,100%);position:relative}#bsiRV ol.stato li{opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s;padding:3px 0;border-bottom:1px solid #0f3a52;display:flex;justify-content:space-between;gap:12px}' +
+      '#bsiRV ol.stato li.vis{opacity:1;transform:none}#bsiRV ol.stato li span{min-width:0;overflow-wrap:anywhere}#bsiRV ol.stato li .ok,#bsiRV ol.stato li .no{flex:0 1 62%;text-align:right}#bsiRV ol.stato li .ok{color:#6dffb0}#bsiRV ol.stato li .no{color:#ffb86b}' +
       '#bsiRV .messaggio{position:relative;width:min(640px,100%);min-height:3em;font:500 1.02rem/1.55 system-ui,sans-serif;color:#e8fbff;background:#05202f99;border:1px solid #1d6e94;border-radius:12px;padding:12px 14px;white-space:pre-wrap}' +
       '#bsiRV .azioni,#bsiRN .azioni{position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;width:min(640px,100%)}' +
       '#bsiRV button,#bsiRN button{min-height:42px;border-radius:10px;border:1px solid #2a8fbf;background:#082b40;color:#e8fbff;font:600 .9rem system-ui,sans-serif;padding:6px 14px;cursor:pointer}' +
@@ -230,6 +230,14 @@
       '#bsiRN .tela canvas{width:100%;height:100%}#bsiRN .conta{position:relative;width:min(900px,100%);margin-top:8px;color:#7fe7ff}' +
       '#bsiRN .leggenda{position:relative;width:min(900px,100%);display:flex;flex-wrap:wrap;gap:6px 14px;font:400 .82rem system-ui,sans-serif;margin-top:6px}#bsiRN .leggenda i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}' +
       '#bsiRN .scelto{position:relative;width:min(900px,100%);min-height:2.6em;margin-top:8px;font:400 .92rem/1.45 system-ui,sans-serif;color:#e8fbff;background:#05202f;border:1px solid #1d6e94;border-radius:10px;padding:8px 12px;overflow-wrap:anywhere}' +
+      '#bsiRD{position:fixed;inset:0;z-index:100060;background:radial-gradient(ellipse at center,#06263a 0%,#020a12 70%);color:#bff3ff;display:flex;flex-direction:column;align-items:center;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(22px + env(safe-area-inset-bottom,0px))}' +
+      '#bsiRD .testa{width:min(640px,100%);display:flex;justify-content:space-between;align-items:center;gap:10px}#bsiRD h2{margin:0;font:700 1rem/1.2 ui-monospace,Menlo,monospace;letter-spacing:.18em;color:#7fe7ff}' +
+      '#bsiRD button,.scorciatoie button{min-height:42px;border-radius:10px;border:1px solid #2a8fbf;background:#082b40;color:#e8fbff;font:600 .9rem system-ui,sans-serif;padding:6px 14px;cursor:pointer}.scorciatoie button.primo{background:#0b7fb8;border-color:#4cc7ff}' +
+      '#bsiRD .scorciatoie{width:min(640px,100%);font:400 .92rem/1.5 system-ui,sans-serif;color:#cfefff;background:#041a27;border:1px solid #13506e;border-radius:10px;padding:10px 14px;margin-top:12px}' +
+      '.scorciatoie h3{margin:12px 0 4px;font:700 .95rem system-ui,sans-serif;color:#7fe7ff}.scorciatoie h3:first-child{margin-top:2px}.scorciatoie ol{margin:0;padding-left:20px}.scorciatoie li{margin:2px 0}.scorciatoie .nota{font-size:.84rem;color:#9fc3e0;margin:6px 0}' +
+      '.scorciatoie code{overflow-wrap:anywhere;color:#7fe7ff}.scorciatoie .interruttori{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.scorciatoie .esito{min-height:1.3em;margin-top:6px;color:#9fe8c4;font-size:.86rem}' +
+      '#bsiRV-chip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:100055;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);background:#03141f;color:#bff3ff;border:1px solid #2a8fbf;border-radius:999px;padding:4px 6px 4px 14px;font:600 .82rem system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.4)}' +
+      '#bsiRV-chip.on{border-color:#1fb58f}#bsiRV-chip button{min-height:36px;min-width:36px;border-radius:999px;border:1px solid #2a8fbf;background:#082b40;color:#e8fbff;font:inherit;cursor:pointer;padding:4px 10px}#bsiRV-chip.fermo{padding-left:6px;border-color:#ffb86b}' +
       '@media (prefers-reduced-motion:reduce){#bsiRV .reattore:before,#bsiRV .reattore:after,#bsiRV .nucleo{animation:none}}';
     D.head.appendChild(s);
   }
@@ -310,6 +318,90 @@
   }
   function chiudiRete() { if (rete) { rete.anima.ferma(); if (rete.el.parentNode) rete.el.parentNode.removeChild(rete.el); rete = null; } }
 
+  /* ── 7 bis. la modalità occhiali: Spectra risponde al suo nome ───────────
+     Gli occhiali Ray-Ban Meta, per il telefono, sono cuffie Bluetooth: ciò che
+     Spectra dice esce dai loro altoparlanti. Con questa modalità la pagina
+     resta in ascolto del nome («Spectra, …», «sveglia Spectra»), tiene lo
+     schermo acceso (altrimenti il telefono si addormenta e l'ascolto si ferma)
+     e lo ricorda: alla prossima apertura riparte da sola. Se il browser non la
+     lascia ripartire senza un tocco, compare il pulsante per riprenderla. */
+  var wl = null, chip = null;
+  function riconoscimento() { return !!(g.SpeechRecognition || g.webkitSpeechRecognition); }
+  function tieniSveglio() {
+    try { if (!S.ascolto || D.hidden || wl || !g.navigator.wakeLock) return; g.navigator.wakeLock.request('screen').then(function (x) { wl = x; if (x.addEventListener) x.addEventListener('release', function () { wl = null; }); }).catch(function () {}); } catch (e) {}
+  }
+  function lasciaDormire() { try { if (wl) wl.release(); } catch (e) {} wl = null; }
+  function mostraChip(modo) {
+    stile();
+    if (!chip) { chip = el('div', { id: 'bsiRV-chip', role: 'status' }); D.body.appendChild(chip); }
+    chip.textContent = ''; chip.className = modo;
+    if (modo === 'on') chip.appendChild(el('span', {}, '👓 In ascolto: di\' «Spectra…»'));
+    else { var b = el('button', { type: 'button', class: 'riprendi' }, '👓 Tocca per riprendere l\'ascolto'); b.onclick = function () { occhiali(true); }; chip.appendChild(b); }
+    var x = el('button', { type: 'button', 'aria-label': 'Spegni la modalità occhiali' }, '✕'); x.onclick = function () { occhiali(false); }; chip.appendChild(x);
+  }
+  function togliChip() { if (chip && chip.parentNode) chip.parentNode.removeChild(chip); chip = null; }
+  /** Accende o spegne la modalità occhiali. Restituisce {attivo, motivo}. */
+  function occhiali(acceso) {
+    var L = g.BSISpectraLive, sen = L && L.sentinella;
+    if (!acceso) { S.ascolto = false; salva(); if (sen && sen.ferma) sen.ferma(); lasciaDormire(); togliChip(); aggiornaGuida(); return { attivo: false }; }
+    if (!riconoscimento() || !sen) { S.ascolto = false; salva(); aggiornaGuida(); return { attivo: false, motivo: 'senza riconoscimento' }; }
+    S.ascolto = true; salva();
+    var ok = (sen.attiva && sen.attiva()) || sen.avvia();
+    if (!ok) { mostraChip('fermo'); aggiornaGuida(); return { attivo: false, motivo: 'bloccato' }; }
+    tieniSveglio(); mostraChip('on'); aggiornaGuida();
+    return { attivo: true };
+  }
+  D.addEventListener('bsi-spectra-ascolto-negato', function () { if (S.ascolto) { lasciaDormire(); mostraChip('fermo'); } });
+  D.addEventListener('visibilitychange', function () {
+    if (D.hidden || !S.ascolto) return;
+    tieniSveglio();
+    var L = g.BSISpectraLive, sen = L && L.sentinella;
+    if (sen && sen.attiva && !sen.attiva()) { if (sen.avvia()) mostraChip('on'); else mostraChip('fermo'); }       // il telefono l'aveva fermata: riparte
+  });
+
+  /* la guida: come chiamarlo dagli occhiali e da ogni dispositivo */
+  var guide = [];
+  function aggiornaGuida() {
+    guide.forEach(function (G) {
+      G.o.textContent = S.ascolto ? '👓 Modalità occhiali: ACCESA' : '👓 Accendi la modalità occhiali'; G.o.setAttribute('aria-pressed', String(!!S.ascolto));
+      G.a.textContent = S.avvioSveglia ? '🌅 Sveglia all\'apertura: SÌ' : '🌅 Sveglia Spectra a ogni apertura'; G.a.setAttribute('aria-pressed', String(!!S.avvioSveglia));
+    });
+  }
+  function guidaDispositivi() {
+    stile();
+    var sc = el('div', { class: 'scorciatoie' });
+    sc.innerHTML =
+      '<h3>👓 Dagli occhiali Meta</h3><ol>' +
+      '<li>Gli occhiali restano collegati al telefono come sempre (app Meta AI).</li>' +
+      '<li>Sul telefono apri BioSpecInfo e tocca <b>Accendi la modalità occhiali</b> qui sotto; consenti il microfono.</li>' +
+      '<li>Parla: <b>«Spectra, che tempo fa?»</b>, <b>«Spectra, ricordami alle 18 di…»</b>, <b>«sveglia Spectra»</b>. La risposta arriva negli altoparlanti degli occhiali.</li></ol>' +
+      '<p class="nota">Da sapere: «Hey Meta» è dell\'assistente di Meta e non può aprire altre app; per questo Spectra ascolta dal telefono. L\'app deve restare aperta, e lo schermo lo tiene acceso Spectra. Il microfono lo sceglie il telefono: su iPhone di solito è quello degli occhiali, su Android può restare quello del telefono, quindi tienilo vicino.</p>' +
+      '<h3>📱 iPhone, iPad e Mac: «Ehi Siri, sveglia Spectra»</h3><ol>' +
+      '<li>App <b>Comandi</b> → <b>+</b> → «Apri URL».</li><li>Incolla il link qui sotto (c\'è il pulsante per copiarlo).</li><li>Chiama il comando <b>Sveglia Spectra</b>. Da quel momento basta dirlo a Siri.</li></ol>' +
+      '<h3>🤖 Android: «Ok Google, apri BioSpecInfo»</h3><ol>' +
+      '<li>Installa l\'app sulla Home (menu ✨ → Aggiungi a Home).</li><li>Accendi qui sotto <b>Sveglia Spectra a ogni apertura</b>.</li><li>«Ok Google, apri BioSpecInfo»: si apre e Spectra si sveglia. In più, tenendo premuta l\'icona compare «Sveglia Spectra».</li></ol>' +
+      '<h3>💻 Computer</h3><p>Lascia aperta la scheda con la modalità occhiali accesa: dalla stanza basta «sveglia Spectra» o «Spectra, …». Sul Mac funziona anche il comando di Siri.</p>' +
+      '<p class="link">Link: <code></code></p>';
+    sc.querySelector('code').textContent = linkScorciatoia();
+    var riga = el('div', { class: 'interruttori' });
+    var o = el('button', { type: 'button', class: 'primo', 'aria-pressed': 'false' }); o.onclick = function () { var r = occhiali(!S.ascolto); if (r.motivo === 'senza riconoscimento') esito.textContent = 'Questo browser non riconosce la voce in continuo: usa Chrome (Android, computer) o Safari (iPhone).'; else if (r.motivo === 'bloccato') esito.textContent = 'Il browser ha fermato il microfono: tocca «riprendi» in alto, e consenti il microfono a questa pagina.'; else esito.textContent = r.attivo ? 'Sono in ascolto. Di\' «Spectra» e poi la domanda.' : 'Ascolto spento.'; };
+    var a = el('button', { type: 'button', 'aria-pressed': 'false' }); a.onclick = function () { S.avvioSveglia = !S.avvioSveglia; salva(); aggiornaGuida(); esito.textContent = S.avvioSveglia ? 'Da ora, ogni volta che apri l\'app, Spectra si sveglia.' : 'All\'apertura Spectra non si sveglierà più da solo.'; };
+    var cp = el('button', { type: 'button' }, 'Copia il link'); cp.onclick = function () { try { g.navigator.clipboard.writeText(linkScorciatoia()).then(function () { cp.textContent = 'Copiato ✓'; }, function () { cp.textContent = 'Copia a mano il link sopra'; }); } catch (e) { cp.textContent = 'Copia a mano il link sopra'; } };
+    [o, a, cp].forEach(function (b) { riga.appendChild(b); }); sc.appendChild(riga);
+    var esito = el('div', { class: 'esito', role: 'status' }); sc.appendChild(esito);
+    guide.push({ o: o, a: a }); guide = guide.filter(function (G) { return G.o.isConnected || G.o === o; }); aggiornaGuida();
+    return sc;
+  }
+  var dispositivi = null;
+  function apriGuida() {
+    chiudiGuida(); stile();
+    var P = el('div', { id: 'bsiRD', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Chiama Spectra da occhiali e dispositivi' });
+    var testa = el('div', { class: 'testa' }); testa.appendChild(el('h2', {}, 'CHIAMA SPECTRA'));
+    var x = el('button', { type: 'button' }, 'Chiudi'); x.onclick = chiudiGuida; testa.appendChild(x); P.appendChild(testa);
+    P.appendChild(guidaDispositivi()); D.body.appendChild(P); dispositivi = P; return P;
+  }
+  function chiudiGuida() { if (dispositivi && dispositivi.parentNode) dispositivi.parentNode.removeChild(dispositivi); dispositivi = null; }
+
   /* ── 8. la sequenza di risveglio ─────────────────────────────────────── */
   var sv = null;
   function cervello() {
@@ -339,7 +431,7 @@
       ['Meteo', S.citta ? S.citta : 'nessuna città: «abito a …»', !!S.citta],
       ['Sintesi vocale', voceOk ? 'pronta' : 'non disponibile in questo browser', voceOk]
     ];
-    var ol = el('ol', { 'aria-live': 'polite' });
+    var ol = el('ol', { class: 'stato', 'aria-live': 'polite' });
     righe.forEach(function (r) { var li = el('li'); li.appendChild(el('span', {}, r[0])); li.appendChild(el('span', { class: r[2] ? 'ok' : 'no' }, r[1])); ol.appendChild(li); });
     P.appendChild(ol);
     var msg = el('div', { class: 'messaggio', role: 'status' }, '…'); P.appendChild(msg);
@@ -347,15 +439,10 @@
     var bc = el('button', { type: 'button', class: 'primo' }, '🎙️ Parla con Spectra'); bc.onclick = function () { chiudiRisveglio(); var L = g.BSISpectraLive; if (L && L.apri) L.apri({ briefing: false }); };
     var ba = el('button', { type: 'button' }, '🗓️ Agenda'); ba.onclick = function () { chiudiRisveglio(); if (A) A.apri(); };
     var br = el('button', { type: 'button' }, '🧠 Rete neurale'); br.onclick = function () { chiudiRisveglio(); apriRete(); };
-    var bs = el('button', { type: 'button', 'aria-expanded': 'false' }, '📱 Chiamalo con Siri o dalla Home');
+    var bs = el('button', { type: 'button', 'aria-expanded': 'false' }, '👓 Occhiali, Siri e altri dispositivi');
     var bx = el('button', { type: 'button' }, 'Chiudi'); bx.onclick = chiudiRisveglio;
     [bc, ba, br, bs, bx].forEach(function (b) { az.appendChild(b); }); P.appendChild(az);
-    var sc = el('div', { class: 'scorciatoie', hidden: '' });
-    sc.innerHTML = '<b>iPhone, con Siri:</b> app <b>Comandi</b> → <b>+</b> → «Apri URL» → incolla il link qui sotto → chiama il comando <b>Sveglia Spectra</b>. Da quel momento: «Ehi Siri, sveglia Spectra».<br>' +
-      '<b>Android:</b> con BioSpecInfo installata, tieni premuta la sua icona: c\'è «Sveglia Spectra». Trascinala sulla Home per averla a un tocco.<br>Link: <code></code> ';
-    sc.querySelector('code').textContent = linkScorciatoia();
-    var cp = el('button', { type: 'button' }, 'Copia il link'); cp.onclick = function () { try { g.navigator.clipboard.writeText(linkScorciatoia()).then(function () { cp.textContent = 'Copiato ✓'; }, function () { cp.textContent = 'Copia a mano il link sopra'; }); } catch (e) { cp.textContent = 'Copia a mano il link sopra'; } };
-    sc.appendChild(cp); P.appendChild(sc);
+    var sc = guidaDispositivi(); sc.setAttribute('hidden', ''); P.appendChild(sc);
     bs.onclick = function () { var h = sc.hasAttribute('hidden'); if (h) sc.removeAttribute('hidden'); else sc.setAttribute('hidden', ''); bs.setAttribute('aria-expanded', String(h)); };
     D.body.appendChild(P); iconaBatteria(bt);
     sv = { el: P, timer: [], anima: null, testo: null };
@@ -380,7 +467,7 @@
       }, passo * (lis.length + 1)));
     });
   }
-  D.addEventListener('keydown', function (e) { if (e.key !== 'Escape') return; if (sv) chiudiRisveglio(); if (rete) chiudiRete(); });
+  D.addEventListener('keydown', function (e) { if (e.key !== 'Escape') return; if (sv) chiudiRisveglio(); if (rete) chiudiRete(); if (dispositivi) chiudiGuida(); });
 
   /* ── 9. il punto alle 8 e alle 20 ────────────────────────────────────── */
   var FASCE = [{ h: 8, tipo: 'mattina', fino: 12 }, { h: 20, tipo: 'sera', fino: 24 }];
@@ -429,6 +516,15 @@
     if (/^(mostrami |fammi vedere |apri )?(la )?(tua )?(rete neurale|il tuo cervello|i tuoi neuroni|la tua mente|il cervello)$/.test(t)) {
       var R = apriRete(); return { testo: 'La mia rete: ' + plur(R.grafo.neuroni.length, 'neurone', 'neuroni') + ' e ' + plur(R.grafo.collegamenti.length, 'collegamento', 'collegamenti') + '. Ogni punto è un ricordo: toccalo per leggerlo.' };
     }
+    if (/^(modalita occhiali|attiva (la )?modalita occhiali|accendi (la )?modalita occhiali|ascoltami sempre|resta in ascolto|sempre in ascolto|ascolta sempre)$/.test(t)) {
+      var ro = occhiali(true);
+      return { testo: ro.attivo ? 'Modalità occhiali accesa: resto in ascolto e tengo lo schermo acceso. Di\' «Spectra» e poi la domanda, oppure «sveglia Spectra».'
+        : ro.motivo === 'senza riconoscimento' ? 'Questo browser non riconosce la voce in continuo: usa Chrome su Android o sul computer, Safari su iPhone.' : 'Il browser ha fermato il microfono: tocca «riprendi l\'ascolto» in basso e consenti il microfono.' };
+    }
+    if (/^(smetti di ascoltare|basta ascoltare|non ascoltare piu|spegni (la )?modalita occhiali|disattiva (la )?modalita occhiali)$/.test(t)) { occhiali(false); return { testo: 'Ascolto spento. Lo schermo può tornare a spegnersi.' }; }
+    if (/^(attiva|accendi) (la )?sveglia all'?apertura$/.test(t)) { S.avvioSveglia = true; salva(); aggiornaGuida(); return { testo: 'Da ora, ogni volta che apri l\'app, mi sveglio.' }; }
+    if (/^(disattiva|spegni) (la )?sveglia all'?apertura$/.test(t)) { S.avvioSveglia = false; salva(); aggiornaGuida(); return { testo: 'All\'apertura non mi sveglierò più da solo.' }; }
+    if (/^(come ti chiamo|come ti chiamo dagli occhiali|collega (gli )?occhiali|collegati agli occhiali|occhiali meta|come ti sveglio)$/.test(t)) { apriGuida(); return { testo: 'Ti mostro come chiamarmi dagli occhiali, con Siri e dagli altri dispositivi.' }; }
     if (/^(disattiva|spegni|niente) (il |i )?(punto|briefing|punti)( delle 8 e delle 20)?$/.test(t)) { S.briefing = false; salva(); return { testo: 'Va bene: niente punto alle 8 e alle 20. Dimmi «attiva il punto» per riaverlo.' }; }
     if (/^(attiva|accendi|riattiva) (il |i )?(punto|briefing|punti)( delle 8 e delle 20)?$/.test(t)) { S.briefing = true; S.armato = true; salva(); return { testo: 'Attivo: alle 8 il punto del mattino, alle 20 quello della sera, quando l\'app è aperta.' }; }
     return null;
@@ -448,18 +544,23 @@
 
   /* ── avvio ───────────────────────────────────────────────────────────── */
   function daUrl() {
-    var q = /[?&]spectra=([a-z]+)/.exec(g.location.search || ''); if (!q) return;
+    var q = /[?&]spectra=([a-z]+)/.exec(g.location.search || ''); if (!q) return false;
     try { g.history.replaceState(null, '', g.location.pathname + g.location.hash); } catch (e) {}
     setTimeout(function () {
       if (q[1] === 'sveglia') risveglio({ tocca: true });
       else if (q[1] === 'agenda' && g.BSISpectraAgenda) g.BSISpectraAgenda.apri();
       else if (q[1] === 'rete') apriRete();
+      else if (q[1] === 'ascolto') occhiali(true);
     }, 900);
+    return true;
   }
   function avvia() {
     carica();
     if (!registraStrumento()) { var k = 0, t = setInterval(function () { if (registraStrumento() || ++k > 40) clearInterval(t); }, 500); }
-    seguiBatteria(); daUrl();
+    seguiBatteria();
+    var daScorciatoia = daUrl();
+    if (!daScorciatoia && S.avvioSveglia) setTimeout(function () { risveglio({ tocca: true }); }, 1200);       // «Ok Google, apri BioSpecInfo» → Spectra si sveglia
+    if (S.ascolto) setTimeout(function () { occhiali(true); }, 1500);                                         // la modalità occhiali riparte da sola
     setTimeout(function () { if (!D.hidden) controllaPunto(); }, 6000);
     setInterval(function () { if (!D.hidden) controllaPunto(); }, 30000);
     D.addEventListener('visibilitychange', function () { if (!D.hidden) controllaPunto(); });
@@ -467,7 +568,7 @@
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', avvia); else avvia();
 
   g.BSISpectraRisveglio = {
-    comando: comando, risveglio: risveglio, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
+    comando: comando, risveglio: risveglio, occhiali: occhiali, apriGuida: apriGuida, chiudiGuida: chiudiGuida, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
     cielo: cielo, fraseImpegni: fraseImpegni, grafo: grafo, apriRete: apriRete, chiudiRete: chiudiRete, batteria: batteria, strumento: STRUMENTO, link: linkScorciatoia,
     stato: function () { return JSON.parse(JSON.stringify(S)); }, imposta: function (o) { for (var k in o) if (k in S) S[k] = o[k]; salva(); }, ricarica: carica
   };

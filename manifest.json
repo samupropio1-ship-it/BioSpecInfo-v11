@@ -38,6 +38,19 @@
       ]
     },
     {
+      "name": "Spectra in ascolto",
+      "short_name": "In ascolto",
+      "description": "Modalità occhiali: Spectra risponde al suo nome",
+      "url": "./index.html?spectra=ascolto",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
       "name": "Agenda di Spectra",
       "short_name": "Agenda",
       "description": "Promemoria e impegni",

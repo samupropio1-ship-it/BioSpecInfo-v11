@@ -143,9 +143,10 @@ async function meteoFinto(ctx, stato) {
     await pausa(150);
     const P = document.getElementById('bsiRV'); o.aperto = !!P;
     o.dialogo = P && P.getAttribute('role') === 'dialog';
-    o.righe = [...P.querySelectorAll('li')].map(li => [...li.children].map(s => s.textContent).join(' ').replace(/\s+/g, ' ').trim());
+    o.righe = [...P.querySelectorAll('ol.stato li')].map(li => [...li.children].map(s => s.textContent).join(' ').replace(/\s+/g, ' ').trim());
     await pausa(4200);
-    o.visibili = P.querySelectorAll('li.vis').length;
+    o.visibili = P.querySelectorAll('ol.stato li.vis').length;
+    o.guidaVisibile = [...P.querySelectorAll('.scorciatoie li')].every(li => getComputedStyle(li).opacity === '1');
     o.messaggio = P.querySelector('.messaggio').textContent;
     o.detto = speechSynthesis.frasi.map(f => f.t).join(' ');
     o.parametri = [...new Set(speechSynthesis.frasi.map(f => f.p + '/' + f.r))].join(' ');
@@ -160,9 +161,10 @@ async function meteoFinto(ctx, stato) {
   });
   att('il comando', 'Sequenza di risveglio avviata.', r.risposta);
   vero('la schermata di avvio, come dialogo', r.aperto && r.dialogo);
-  vero('le righe: ' + r.righe.join(' / ').slice(0, 160), r.righe.length === 6 && /^Inizializzazione dei sistemi completata/.test(r.righe[0]) && /^Rete neurale online · \d+ neuron[ei], \d+ collegament[oi]/.test(r.righe[1]) && /^Memoria 1 ricordo · /.test(r.righe[3]) && /^Meteo Milano$/.test(r.righe[4]) && /^Sintesi vocale pronta$/.test(r.righe[5]));
+  vero('le righe: ' + r.righe.join(' / '), r.righe.length === 6 && /^Inizializzazione dei sistemi completata/.test(r.righe[0]) && /^Rete neurale online · \d+ neuron[ei], \d+ collegament[oi]/.test(r.righe[1]) && /^Memoria 1 ricordo · /.test(r.righe[3]) && /^Meteo Milano$/.test(r.righe[4]) && /^Sintesi vocale pronta$/.test(r.righe[5]));
   vero('senza chiave lo dice: «' + r.righe[2] + '»', /in locale/.test(r.righe[2]));
   att('le righe compaiono una dopo l\'altra', 6, r.visibili);
+  vero('e lo stile delle righe non nasconde gli elenchi della guida', r.guidaVisibile);
   vero('il punto sullo schermo: «' + r.messaggio.slice(0, 70) + '…»', /^(Buongiorno|Buon pomeriggio|Buonasera|Ancora sveglio)\. Fuori, a Milano ci sono 13 gradi/.test(r.messaggio));
   vero('e a voce, dall\'avvio: «' + r.detto.slice(0, 80) + '…»', /Inizializzazione dei sistemi completata\. Rete neurale online\. Lavoro in locale/.test(r.detto) && /Sintesi vocale pronta/.test(r.detto) && /13 gradi/.test(r.detto));
   att('con la voce di Spectra', '0.58/0.88', r.parametri);
@@ -266,7 +268,7 @@ async function meteoFinto(ctx, stato) {
 
   console.log('\n── Dalla Home e da Siri ──');
   const man = await pg.evaluate(async () => (await (await fetch('manifest.json')).json()).shortcuts || []);
-  att('il manifesto dichiara tre scorciatoie (le mostra Android tenendo premuta l\'icona)', 'Sveglia Spectra=./index.html?spectra=sveglia|Agenda di Spectra=./index.html?spectra=agenda|Rete neurale di Spectra=./index.html?spectra=rete', man.map(x => x.name + '=' + x.url).join('|'));
+  att('il manifesto dichiara quattro scorciatoie (le mostra Android tenendo premuta l\'icona)', 'Sveglia Spectra=./index.html?spectra=sveglia|Spectra in ascolto=./index.html?spectra=ascolto|Agenda di Spectra=./index.html?spectra=agenda|Rete neurale di Spectra=./index.html?spectra=rete', man.map(x => x.name + '=' + x.url).join('|'));
   const pg2 = await ctx.newPage(); pg2.on('pageerror', e => errs.push(e.message)); await pg2.addInitScript(sintesiFinta);
   /* aperta da Siri o dalla Home la pagina non ha ancora avuto un gesto dell'utente (il browser di prova invece lo segna sempre come avvenuto) */
   await pg2.addInitScript(() => { try { Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { hasBeenActive: false, isActive: false } }); } catch (e) {} });
@@ -284,6 +286,104 @@ async function meteoFinto(ctx, stato) {
   vero('?spectra=rete apre la rete neurale', true);
   vero('il menu ✨ ha «Sveglia Spectra» e «Rete neurale di Spectra»', await pg.evaluate(() => /key==='sveglia'/.test(document.documentElement.innerHTML) && /Rete neurale di Spectra/.test(document.documentElement.innerHTML)));
   vero('Open-Meteo è stato chiamato solo per le città chieste (' + stato.chiamate.length + ' richieste)', stato.chiamate.every(c => /geocoding-api\.open-meteo\.com\/v1\/search\?(Milano|Roma|Atlantide)$|api\.open-meteo\.com\/v1\/forecast\?(45\.46|41\.89)$/i.test(c)));
+
+
+  console.log('\n── Gli occhiali e il nome «Spectra» ──');
+  /* il riconoscimento vocale e il blocco dello schermo, finti: si registra ciò che la pagina chiede e le si fa «sentire» una frase */
+  const finti = () => {
+    window._ric = []; window._wl = { chieste: 0, rilasciate: 0 };
+    window.SpeechRecognition = window.webkitSpeechRecognition = function () { window._ric.push(this); this.start = () => { this.attivo = true; }; this.abort = () => { this.attivo = false; }; this.stop = () => { this.attivo = false; }; };
+    window._senti = frase => { const r = window._ric.filter(x => x.attivo && x.continuous).pop(); if (!r) return false; r.onresult({ resultIndex: 0, results: [Object.assign([{ transcript: frase }], { isFinal: true })] }); return true; };
+    window._nega = () => { const r = window._ric.filter(x => x.attivo && x.continuous).pop(); if (r) { r.attivo = false; r.onerror({ error: 'not-allowed' }); } };
+    try { Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: () => { window._wl.chieste++; return Promise.resolve({ release() { window._wl.rilasciate++; return Promise.resolve(); }, addEventListener() {} }); } } }); } catch (e) {}
+  };
+  const pg4 = await ctx.newPage(); pg4.on('pageerror', e => errs.push(e.message)); await pg4.addInitScript(sintesiFinta); await pg4.addInitScript(finti);
+  await pg4.addInitScript(() => { if (!sessionStorage.getItem('fatto')) { sessionStorage.setItem('fatto', '1'); localStorage.setItem('bsi-spectra-risveglio-v1', JSON.stringify({ citta: 'Milano', lat: 45.46, lon: 9.19, armato: false, briefing: false, fatti: {} })); } });
+  await pg4.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+  await pg4.waitForFunction(() => !!(window.BSISpectraRisveglio && window.BSISpectraLive && window.BSISpectraAgenda), null, { timeout: 60000 });
+  const o = await pg4.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, A = BSISpectraAgenda, L = BSISpectraLive, o = {};
+    o.accesa = A.comando('Spectra, modalità occhiali').testo; await pausa(100);
+    const rec = window._ric.filter(x => x.attivo && x.continuous).pop();
+    o.ascolta = !!rec && rec.continuous === true && rec.lang === 'it-IT';
+    o.chip = (document.querySelector('#bsiRV-chip.on') || {}).textContent || '';
+    o.schermo = window._wl.chieste; o.ricordata = R.stato().ascolto;
+    /* «sveglia Spectra», detto agli occhiali */
+    window._senti('sveglia Spectra'); await pausa(150); o.sveglia = !!document.getElementById('bsiRV'); R.chiudi(); L.taci && L.taci(); await pausa(100);
+    window._senti('Spectra svegliati'); await pausa(150); o.sveglia2 = !!document.getElementById('bsiRV'); R.chiudi(); L.taci && L.taci(); await pausa(100);
+    /* una frase senza il nome non fa niente; con il nome, la domanda */
+    speechSynthesis.frasi.length = 0; window._senti('domani vado a spettrometria di massa'); await pausa(300);
+    o.ignorata = !document.getElementById('bsiJV') || !document.getElementById('bsiJV').classList.contains('aperto');
+    window._senti('Spectra, che tempo fa?'); for (let k = 0; k < 60 && !speechSynthesis.frasi.some(f => /13 gradi/.test(f.t)); k++) await pausa(100);
+    o.console = document.getElementById('bsiJV') && document.getElementById('bsiJV').classList.contains('aperto');
+    o.risposta = speechSynthesis.frasi.map(f => f.t).join(' ');
+    L.taci && L.taci(); L.chiudi && L.chiudi(); await pausa(200);
+    /* mentre parla non ascolta: non sente se stesso */
+    L.parla('Questa è una frase lunga. E questa è la seconda. E la terza. E la quarta. E la quinta.');
+    window._senti('Spectra, cosa ho da fare?'); await pausa(200); o.seStesso = !document.getElementById('bsiAG');
+    L.taci && L.taci(); await pausa(200);
+    /* il browser ferma il microfono: compare il pulsante per riprendere */
+    window._nega(); await pausa(100);
+    o.fermo = !!document.querySelector('#bsiRV-chip.fermo .riprendi');
+    document.querySelector('#bsiRV-chip.fermo .riprendi').click(); await pausa(100); o.ripresa = !!document.querySelector('#bsiRV-chip.on') && window._ric.some(x => x.attivo && x.continuous);
+    o.largo = document.documentElement.scrollWidth <= innerWidth + 1; const cr = document.getElementById('bsiRV-chip').getBoundingClientRect(); o.chipDentro = cr.left >= 0 && cr.right <= innerWidth && cr.bottom <= innerHeight;
+    return o;
+  });
+  vero('«modalità occhiali»: ' + o.accesa.slice(0, 70) + '…', /^Modalità occhiali accesa/.test(o.accesa));
+  vero('ascolta in continuo, in italiano', o.ascolta);
+  vero('lo dice in basso: «' + o.chip + '»', /In ascolto: di' «Spectra…»/.test(o.chip));
+  vero('tiene lo schermo acceso (blocco dello schermo chiesto)', o.schermo >= 1);
+  vero('e se lo ricorda', o.ricordata === true);
+  vero('«sveglia Spectra» detto agli occhiali apre il risveglio', o.sveglia);
+  vero('anche «Spectra svegliati»', o.sveglia2);
+  vero('«domani vado a spettrometria» non lo chiama', o.ignorata);
+  vero('«Spectra, che tempo fa?» apre la console e risponde a voce: «' + o.risposta.slice(0, 50) + '…»', o.console && /A Milano ci sono 13 gradi/.test(o.risposta));
+  vero('mentre parla non sente se stesso', o.seStesso);
+  vero('se il browser ferma il microfono compare «Tocca per riprendere l\'ascolto», e il tocco lo riprende', o.fermo && o.ripresa);
+  vero('il segnale in basso sta nello schermo del telefono', o.largo && o.chipDentro);
+
+  /* riaperta l'app, la modalità riparte da sola */
+  await pg4.reload({ waitUntil: 'load' }); await pg4.waitForFunction(() => !!window.BSISpectraRisveglio, null, { timeout: 60000 });
+  await pg4.waitForSelector('#bsiRV-chip.on', { timeout: 15000 });
+  const q = await pg4.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {};
+    o.riparte = window._ric.some(x => x.attivo && x.continuous) && window._wl.chieste >= 1;
+    o.spenta = A.comando('smetti di ascoltare').testo; await pausa(100);
+    o.dopo = !document.getElementById('bsiRV-chip') && !window._ric.some(x => x.attivo && x.continuous) && window._wl.rilasciate >= 1 && R.stato().ascolto === false;
+    /* la guida */
+    o.guida = A.comando('come ti sveglio?').testo; await pausa(100);
+    const G = document.getElementById('bsiRD'); o.sezioni = [...G.querySelectorAll('h3')].map(h => h.textContent).join(' | ');
+    o.link = /index\.html\?spectra=sveglia$/.test(G.querySelector('code').textContent);
+    const [bo, ba] = G.querySelectorAll('.interruttori button');
+    bo.click(); await pausa(100); o.toggleOcchiali = bo.getAttribute('aria-pressed') === 'true' && !!document.querySelector('#bsiRV-chip.on');
+    bo.click(); await pausa(100); o.toggleOcchiali2 = bo.getAttribute('aria-pressed') === 'false' && !document.getElementById('bsiRV-chip');
+    ba.click(); await pausa(50); o.apertura = ba.getAttribute('aria-pressed') === 'true' && R.stato().avvioSveglia === true;
+    o.largo = document.documentElement.scrollWidth <= innerWidth + 1 && G.scrollWidth <= G.clientWidth + 1;
+    o.tasti = [...G.querySelectorAll('button')].every(b => b.getBoundingClientRect().height >= 40);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); o.chiusa = !document.getElementById('bsiRD');
+    return o;
+  });
+  vero('riaperta l\'app, la modalità occhiali riparte da sola (ascolto e schermo)', q.riparte);
+  vero('«smetti di ascoltare» spegne tutto: ' + q.spenta, /^Ascolto spento/.test(q.spenta) && q.dopo);
+  vero('«come ti sveglio?» apre la guida: ' + q.sezioni, /Dagli occhiali Meta/.test(q.sezioni) && /Ehi Siri, sveglia Spectra/.test(q.sezioni) && /Ok Google, apri BioSpecInfo/.test(q.sezioni) && /Computer/.test(q.sezioni) && q.link);
+  vero('l\'interruttore della modalità occhiali accende e spegne davvero', q.toggleOcchiali && q.toggleOcchiali2);
+  vero('«Sveglia Spectra a ogni apertura» si accende', q.apertura);
+  vero('la guida sta nel telefono, con pulsanti da un dito', q.largo && q.tasti);
+  vero('Esc chiude la guida', q.chiusa);
+
+  /* con «sveglia all'apertura»: «Ok Google, apri BioSpecInfo» → Spectra si sveglia */
+  await pg4.addInitScript(() => { try { Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { hasBeenActive: false, isActive: false } }); } catch (e) {} });
+  await pg4.reload({ waitUntil: 'load' });
+  await pg4.waitForSelector('#bsiRV .tocca', { timeout: 20000 });
+  vero('con «sveglia a ogni apertura», aprire l\'app sveglia Spectra (e chiede un tocco per parlare)', true);
+  const pg5 = await ctx.newPage(); pg5.on('pageerror', e => errs.push(e.message)); await pg5.addInitScript(sintesiFinta); await pg5.addInitScript(finti);
+  await pg5.goto(BASE + 'index.html?spectra=ascolto', { waitUntil: 'load', timeout: 120000 }); await pg5.waitForSelector('#bsiRV-chip', { timeout: 20000 });
+  vero('la scorciatoia «Spectra in ascolto» (?spectra=ascolto) accende la modalità occhiali', await pg5.evaluate(() => window._ric.some(x => x.continuous)));
+  const pg6 = await ctx.newPage(); pg6.on('pageerror', e => errs.push(e.message)); await pg6.addInitScript(sintesiFinta);
+  await pg6.addInitScript(() => { try { delete window.SpeechRecognition; delete window.webkitSpeechRecognition; } catch (e) {} window.SpeechRecognition = undefined; window.webkitSpeechRecognition = undefined; });
+  await pg6.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 }); await pg6.waitForFunction(() => !!window.BSISpectraAgenda, null, { timeout: 60000 });
+  const senza = await pg6.evaluate(() => BSISpectraAgenda.comando('modalità occhiali').testo);
+  vero('un browser senza riconoscimento vocale lo dice: «' + senza.slice(0, 60) + '…»', /non riconosce la voce in continuo/.test(senza));
 
   att('nessun errore JavaScript', 0, errs.length);
   errs.slice(0, 3).forEach(x => console.log('      ! ' + x.slice(0, 200)));

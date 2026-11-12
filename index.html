@@ -36209,6 +36209,7 @@ var SHEET_ITEMS=[
   {ic:'🗓️',nm:'Agenda di Spectra',ds:'Promemoria, impegni e memoria da portare su un altro dispositivo',key:'agenda'},
   {ic:'🌅',nm:'Sveglia Spectra',ds:'Sequenza di avvio, meteo e impegni di oggi; scorciatoia per Siri e la Home',key:'sveglia'},
   {ic:'🧠',nm:'Rete neurale di Spectra',ds:'La memoria di Spectra come neuroni e collegamenti',key:'rete'},
+  {ic:'👓',nm:'Occhiali e dispositivi',ds:'Chiama Spectra dagli occhiali Meta, con Siri e da ogni dispositivo',key:'occhiali'},
   // Lingua e linguaggi molecolari: questa lista è cablata, quindi una voce
   // nuova nel menu ✨ non ci arriva da sola — ed è proprio su telefono che
   // il menu ✨ è nascosto e questo pannello lo sostituisce.
@@ -36254,6 +36255,7 @@ function doAction13(key){
     if(key==='agenda')   { if(window.BSISpectraAgenda) window.BSISpectraAgenda.apri(); return; }
     if(key==='sveglia')  { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.risveglio(); return; }
     if(key==='rete')     { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.apriRete(); return; }
+    if(key==='occhiali') { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.apriGuida(); return; }
   }, 60);
 }
 
@@ -37820,6 +37822,7 @@ function _act(key){
     if(key==='agenda')   { if(window.BSISpectraAgenda) window.BSISpectraAgenda.apri(); return; }
     if(key==='sveglia')  { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.risveglio(); return; }
     if(key==='rete')     { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.apriRete(); return; }
+    if(key==='occhiali') { if(window.BSISpectraRisveglio) window.BSISpectraRisveglio.apriGuida(); return; }
     if(key==='settings') { if(typeof window.bsiOpenSettings==='function') window.bsiOpenSettings(); return; }
     if(key==='aihub')    { if(typeof window.bsiOpenAIHub==='function') window.bsiOpenAIHub('chat'); return; }
   }, 60);

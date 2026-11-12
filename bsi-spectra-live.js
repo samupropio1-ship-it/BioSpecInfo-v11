@@ -908,13 +908,17 @@
     r.onresult = function (ev) {
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         if (!ev.results[i].isFinal) continue;
-        var c = comandoDaSentinella(ev.results[i][0].transcript); if (c === null) continue;
+        var detto = ev.results[i][0].transcript;
+        if (voce.inCorso) continue;                                                    /* (v251) mentre parla non ascolta: sentirebbe se stesso, dagli occhiali o dall'altoparlante */
+        /* (v251) «sveglia Spectra», «Spectra svegliati»: la sequenza di risveglio */
+        if (/\b(sveglia|svegliati|risvegliati)\b/.test(norm(detto)) && /\b(spectra|spettra|spektra|spetra)\b/.test(norm(detto)) && globale.BSISpectraRisveglio) { globale.BSISpectraRisveglio.risveglio(); continue; }
+        var c = comandoDaSentinella(detto); if (c === null) continue;
         if (hud.el && hud.el.classList.contains('aperto') && hud.ascolto) continue;   /* la console sta gia' ascoltando */
         apriHud({ briefing: !c }); if (c) elabora(c);
       }
     };
     r.onend = function () { if (sentinella.attiva) { try { r.start(); } catch (e) {} } };
-    r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); } };
+    r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); try { document.dispatchEvent(new CustomEvent('bsi-spectra-ascolto-negato', { detail: { errore: ev.error } })); } catch (e) {} } };
     sentinella.rec = r; sentinella.attiva = true;
     try { r.start(); } catch (e) { sentinella.attiva = false; return false; }
     return true;
@@ -1176,7 +1180,7 @@
   globale.BSISpectraLive = {
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
-    guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
+    guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella, attiva: function () { return sentinella.attiva; } },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
     apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, provaAudio: provaAudio, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
