@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**92 benches**, grouped by what they demonstrate.
+**93 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -127,6 +127,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_potenzia250` | The **four v250 sections**: Saha against the textbooks (half ionisation, Balmer maximum, Ca II in the Sun); the interstellar cloud against the exact solutions and the layered structure; deconvolution against spectra whose truth is known; t-SNE against PCA; and the pages at 412 and 1280 px | 65 |
 | `test_agenda` | **Spectra as an everyday assistant, in the app**: dates said in words understood as in the service, and those not understood refused; commands with no model; the reminder that arrives, written and spoken once only; recurrences; the tools for the model; the continuity block; the memory exported and re-imported; the panel on a phone. |
 | `test_risveglio` | **«Svegliati, Spectra»** and **glasses mode** (answers to its name, screen kept on, restarts by itself): the start-up sequence with the real status and the briefing; the weather with a fake service (also without network); the 8:00 and 20:00 briefing, once per slot; low battery turning the theme red; the memory as a network of neurons; the weather tool; the shortcuts for Siri and the Home screen. |
+| `test_potenzia252` | The **three v252 sections** against literature and exact values (Hammett: pKa of benzoic acids and phenols, ρ fitted to data; Foucault: precession periods, Runge–Kutta, Coriolis; Frenet: helix, twisted cubic, Frenet–Serret, safe interpreter), the pages at 412 and 1280 px, the subjects' **3D icons** visible and animated and **Spectra's head** moving (still with «reduce motion»). |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -297,7 +298,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -376,7 +377,7 @@ section, Spectra with the body, «and nothing else». It tests
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → Spectra first points at the hologram («indica» gesture), then accompanies the explanation with the hands («spiega»), joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
 | «🧠 Spiega» (14 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG graphs as an image (since v242 the bench inserts a known SVG spectrum into the open section, deterministically, instead of relying on the spectra quiz, which is random); reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image); with that scene open behind «🧠 Spiega» the hologram shows it live; privacy: with «Includi lo schermo» unchecked, the named section opens but the model receives only the question, with no screen text or image |
 | Hologram (7 per width) | It is **to Spectra's right** (screen x); there are **six live scenes**; Kepler: the ratio of perihelion to aphelion speed equals (1+e)/(1−e) = 1.94 within 8 %; **the subject follows the conversation** (an IR answer → spectrum, an orbit question → planets); the label leads to the section; a tap on the label opens «Sistema solare 3D» **behind** the «🧠 Spiega» window: Spectra stays visible in front and the hologram shows the section live; once the window is closed, the app returns to Spectra's section and the figure is there |
-| Catalogue (5 per width) | The catalogue has **every** section of the bar (201/201 since v250: chemistry 78, physics 63, mathematics 31, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
+| Catalogue (5 per width) | The catalogue has **every** section of the bar (204/204 since v250: chemistry 79, physics 64, mathematics 32, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 
@@ -421,7 +422,7 @@ it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
 | The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
 | Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
 | The ✨ menu in the hologram (v248: 3 per width) | The list also has the **19 ✨ menu entries** (8 pages and 11 windows, among them since v252 Sveglia Spectra, Occhiali e dispositivi, Agenda and Rete neurale: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) and the Centro spettri; «Astrochimica 3D PRO» opens **inside the frame** (its real page) and is removed on changing mode; for a window (Lab Quantistico) «↗ Apri la sezione» closes the hologram and opens it |
-| «🗂️ Tutta l'app» (v248: 4 per width) | The list has **all** the sections of the bar (201/201, read from the catalogue, not hand-written), filterable by subject and by name; the Periodic Table, with no graphs, is **really hosted** in the frame (the real section, moved and alive); choosing another section puts it back and «Sistema solare 3D» is shown **live** with its lesson; once the window is closed the app is back in the starting section |
+| «🗂️ Tutta l'app» (v248: 4 per width) | The list has **all** the sections of the bar (204/204, read from the catalogue, not hand-written), filterable by subject and by name; the Periodic Table, with no graphs, is **really hosted** in the frame (the real section, moved and alive); choosing another section puts it back and «Sistema solare 3D» is shown **live** with its lesson; once the window is closed the app is back in the starting section |
 | Reading on the phone and audio test (v248: 2 at 412 px, 1 at 1280 px) | On the phone **the whole window scrolls**: the last step reaches at least 70 px from the edge (above the Android keys), the header stays on top, the steps are at 15.5 px; «🔔 Prova audio» plays a beep, says a test sentence and explains what to do if nothing is heard (mute, «Media» volume, phone voice) |
 | Voice, tap and Spiega without a key (3 per width) | Once a trace is written, Spectra explains it **aloud on her own** after 1.4 s, without touching «🔊»; a tap **on the hologram itself** (the panel to Spectra's right, hit with a ray from the camera) opens it in interactive mode; «🧠 Spiega» **without a key** still answers the question (pH of 0.01 M HCl: the local assistant's full working) and says it aloud |
 | Universe, mathematics, physics (5 per width) | Mars with its six steps, in the 3D scene; «studia f(x)=x^3-3x» → zeros −√3, 0, √3 and stationary points ±1, with at least eight assistant steps; the projectile with range **35.31 m**; the 2 m pendulum with period **2.837 s** |
@@ -543,6 +544,20 @@ original defect: immediately after the click handler returns the WebGL context
 measurement is not vacuous, because on a second click — when the canvas is
 already there — it returns 1.
 
+**`test_potenzia252` — 80 checks (v252).** It comes from two requests made
+together by the author: richer sections and a more lively app to look at
+(Spectra's head moving, the subjects' icons in 3D). For the sections it
+compares the numbers with measurements and exact solutions: the pKa of
+substituted benzoic acids and phenols, ρ fitted to the real pKa of ten acids,
+the pendulum's precession periods in Paris, Milan, at the pole and at the
+equator, the angle numerical integration turns the plane by, the deflection of
+a falling body, curvature and torsion of the helix and the twisted cubic. Then
+it opens the three sections at 412 and 1280 px, tab by tab. For the icons it
+does not trust their presence in the code: it measures real opacity and size,
+because in the first draft an existing style rule made them invisible (the
+bench would have caught it). Finally it reopens the app with «reduce motion»
+and demands that everything stays still but visible.
+
 **`test_risveglio` — 99 checks (v251, v252).** Since v252 it opens the real ✨ menu, the one tapped on a phone, and demands the «🤖 Spectra» section as the first section, with the four entries really opening their window: in v251 the entries sat in a list that is not shown, and the bench, which looked for the text in the page, had not noticed. It also demands the news panel, once only and only for those who have already talked to Spectra. It comes from the videos the
 author pointed to as a model: an assistant that wakes up with a start-up
 sequence, tells the weather and the commitments, greets you when you come home,
@@ -602,7 +617,7 @@ at once; no JavaScript errors.
 
 **`test_giro` — 24 checks (v249).** The inspection round of the whole app,
 born from the author's request to check everything to the utmost. It opens
-**every catalogue section one by one** (201) at 412 and 1280 px and for each
+**every catalogue section one by one** (204) at 412 and 1280 px and for each
 requires: that the section asked for by identifier is the one that opens, that
 it is visible and not empty, that the page does not overflow horizontally, that
 the text shows no «undefined», «NaN» or «[object Object]», and no JavaScript
@@ -985,7 +1000,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 620 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 624 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |

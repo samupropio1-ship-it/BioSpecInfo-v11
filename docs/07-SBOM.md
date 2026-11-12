@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v252` |
-| Commit | `2ce22b2f660e640ced01b53a88e0d6c127adc87a` |
-| Generato (UTC) | `2026-11-12T19:56:24.438Z` |
+| Commit | `cd716dca241277dac61d2456051d5c5ef30092b6` |
+| Generato (UTC) | `2026-11-12T21:50:41.933Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4706 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4707 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 448 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -118,7 +118,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-chi-pes.js` | 33 kB | Superficie di energia potenziale LEPS di H + H2 e traiettorie. |
 | `bsi-articoli-nobel-fisica.js` | 118 kB | Spiegazioni per argomento dei Nobel per la fisica (nessun dato). |
 | `bsi-articoli-premi-matematica.js` | 123 kB | Spiegazioni per argomento dei premi Abel e Fields (nessun dato). |
-| `bsi-materie.js` | 11 kB | Pulsanti per cambiare materia: chimica, fisica, matematica. |
+| `bsi-materie.js` | 15 kB | Pulsanti per cambiare materia: chimica, fisica, matematica. |
 | `bsi-fis-astro.js` | 36 kB | Astrofisica: diagramma H-R, corpo nero, sistema solare, esopianeti, cosmologia. |
 | `bsi-fis-relativita.js` | 30 kB | Relatività ristretta: Minkowski, gemelli, dinamica. |
 | `bsi-materie-app.js` | 15 kB | Tre app in una: la materia scelta adatta menu ✨, Spectra, Studio e Utility. |
@@ -137,6 +137,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-astro-cosmo.js` | 70 kB | Cosmologia 3D: Friedmann-Lemaître, distanze, CMB, storia termica. |
 | `bsi-astro-cielo.js` | 75 kB | Planetario 3D: cielo da un luogo e un'ora, coordinate, precessione, analemma. |
 | `bsi-astro-esopianeti.js` | 57 kB | Esopianeti 3D: zona abitabile, transito, velocità radiale, immagine diretta. |
+| `bsi-chim-hammett.js` | 19 kB | Equazione di Hammett: costanti σ (Hansch, Leo, Taft 1991), cinque reazioni con ρ, previsioni di k/k₀ e pKa, ρ ricavato dai dati. |
+| `bsi-fis-foucault.js` | 15 kB | Pendolo di Foucault (Runge–Kutta nel riferimento terrestre), precessione per latitudine, deviazione di Coriolis. |
+| `bsi-mat-frenet.js` | 23 kB | Curve nello spazio: curvatura, torsione, triedro di Frenet, cerchio osculatore, lunghezza d'arco; curve scritte dall'utente. |
 | `bsi-astro-chimica.js` | 28 kB | Chimica di una nube interstellare (formazione e fotodissociazione di H₂ e CO) e equazione di Saha con le classi spettrali. |
 | `bsi-chem-mappe.js` | 47 kB | Mappa dello spazio chimico (t-SNE esatto sulle distanze di Tanimoto) e deconvoluzione di picchi (Levenberg–Marquardt). |
 | `bsi-fis-spin.js` | 55 kB | Spin, qubit ed entanglement: Stern-Gerlach, sfera di Bloch, CHSH, BB84. |
@@ -149,7 +152,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 115 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 117 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
@@ -190,7 +193,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 262 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 264 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 9 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -203,7 +206,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `fcdf08790ecc351352d486d6e8ee15ab4016e80e1c81f6081d151719f98f95b2` |
+| `index.html` | `66a234b7a0f7e883a7ec774e85e09389906329690d853761704001d8f4c8d102` |
 | `bsi-ai-hub.js` | `813c4af640118ad3ba107f8afb099dc2420c66aaeb2f8f6a7c337ed279a0dbc6` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -259,7 +262,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-chi-pes.js` | `c4e74b909e7987275930b05c0c25cdc0968bcf338ea78a144bc7ff949a821e36` |
 | `bsi-articoli-nobel-fisica.js` | `afc22b073e64168605b3d792cd83bcdf7d838e0c80548a0a58caae98456d7d30` |
 | `bsi-articoli-premi-matematica.js` | `d62f01d66783d7fb558684959abd1cda2f81ee6885c8cdc0879559f2b64cbf43` |
-| `bsi-materie.js` | `763063fb3d3c1e43da8066c6febab6309f889a6550e7da1f45ce1d001c27c314` |
+| `bsi-materie.js` | `077f0f39435df36bcf9180d689ab8b23059ef0d684d51881692adee881778967` |
 | `bsi-fis-astro.js` | `64901258a641c54ee99a862990a7e5d86acc5c2367408bb38db9371a39c7363e` |
 | `bsi-fis-relativita.js` | `d90cb347a69e668fde69df4805815938f8da8b9a5f288ce7a16914aa0fec32bd` |
 | `bsi-materie-app.js` | `a9d57912a69bf7c599a6c4d16be815be4e654ab424daeca0e12f02c00904911f` |
@@ -278,6 +281,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-astro-cosmo.js` | `356152c5251593c68e8dd66b1182f5ee3f7c5f4f1cb26c722bdd384f8fe66d47` |
 | `bsi-astro-cielo.js` | `26b3e33cefe7d1606d0abf8d47be6d7d9b412891ab193d386835d4e40f9fdcf6` |
 | `bsi-astro-esopianeti.js` | `5a540d026927fc13f0081f3ba4cbfcb6de4c44056530571c77574e71f9003a49` |
+| `bsi-chim-hammett.js` | `2a2a7077ed6d6e8026d10c68a69b7227835c857e697f650d5d83567701e3b351` |
+| `bsi-fis-foucault.js` | `1504e733dc6d0fcf7c9504c8bb05bdb9f00d7a239fcf6992d5a100e28268f9f1` |
+| `bsi-mat-frenet.js` | `dbe8adb45f7c3b0a4f103ce335ff68c89a2e15e921ace94b010457c6c17b7e4f` |
 | `bsi-astro-chimica.js` | `7b56d2acb2d7b1805a9873397043006d5b419f0278c78ccbde286c6130ad1c13` |
 | `bsi-chem-mappe.js` | `594d53b5a6675791d66df42d0d3dead84e670b4672f962392f9241c5ce8b8add` |
 | `bsi-fis-spin.js` | `a24dc05385fbff4826a02f95315ae1d8c57c8ee555da868a08620f24127fe3ad` |
@@ -290,7 +296,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `83ffec2f73329c2dcf8d6e39618573accfbadb7ee30218add95d04eece102110` |
+| `bsi-spectra-live.js` | `b7c94bf98f5a79391934cb5084eae41351267fa21b25062aad1a52626fdead83` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `5d4237282f688c52c634ccfac0c52c2d64158b3b4e550a34e4a79f5e0a9fc055` |
@@ -331,10 +337,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `e31add1c339356b8c5ad24c9575acbae6841c6b1da1cc2ece8fbf7d56f7f698e` |
+| `bsi-lingue.js` | `79ec010e46e8f8b559fe2b7d7603d782a56057615cf80c2970d6dd370f263f4e` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `2e31ef4770a5befb083e93e86457afe3cdad2c0476b12e3f8f5166d55cac7725` |
+| `sw.js` | `754f02ec789bb33381be13125bdc3fbd76a52b6343e3a8ae1cdd5091ce81c582` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -388,4 +394,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-12T19:56:24.438Z._
+_Generato il 2026-11-12T21:50:41.933Z._

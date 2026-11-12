@@ -9,7 +9,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 ---
 ## [bsi-v252] — 2026-11-12
 
-**Correzione: le funzioni nuove di Spectra non si vedevano nel menu ✨**
+**Le funzioni di Spectra nel menu ✨ vero, la sua testa che si muove, le icone delle materie in 3D e tre sezioni nuove: Hammett, Foucault, Frenet**
 
 Segnalazione dell'autore dal telefono: «non c'è nulla». Aveva ragione. Le voci
 Sveglia, Agenda e Rete neurale della v251 erano state aggiunte a un elenco del
@@ -26,6 +26,36 @@ per questo non se n'era accorto.
   sola, un riquadro in basso con i quattro pulsanti.
 - `test_risveglio` ora apre il menu vero e tocca le voci (99 controlli);
   `test_spectra_olo` conta 19 voci.
+
+### Aggiunto
+Richiesta dell'autore, con lo screenshot del telefono: la testa dell'icona di
+Spectra che si muove, le icone di matematica, chimica e fisica in 3D o
+comunque molto più particolari, e ancora più sezioni con dati.
+- **La testa di Spectra si muove**: nel pulsante tondo gira a destra e a
+  sinistra, si inclina, annuisce, con un riflesso metallico che le passa
+  sopra; quando parla annuisce più in fretta. Solo CSS: nessun peso in più.
+- **Icone 3D delle materie**: ⚛️ un atomo con tre orbite inclinate che
+  ruotano nello spazio e un elettrone che corre su ognuna; Σ in rilievo, dorata,
+  che oscilla; 🧪 una beuta di vetro con il liquido che ondeggia e le
+  bollicine che salgono. Con «riduci movimento» restano ferme.
+- **σ Hammett e sostituenti** (chimica, gruppo 🔬): 24 sostituenti con σm,
+  σp, σp⁺, σp⁻ (Hansch, Leo, Taft 1991); cinque reazioni con ρ (acidi
+  benzoici, fenoli, ioni anilinio, idrolisi dei benzoati, solvolisi dei
+  cloruri di cumile); previsione di k/k₀ e del pKa; ρ ricavato dai tuoi dati.
+- **🌍 Pendolo di Foucault e Coriolis** (fisica): le equazioni nel
+  riferimento terrestre integrate con Runge–Kutta, la rosetta disegnata sul
+  pavimento con i punti cardinali, quattordici città, la deviazione di un corpo
+  che cade e l'accelerazione laterale di uno che corre.
+- **🌀 Curve nello spazio** (matematica): curvatura, torsione, triedro T, N, B
+  e cerchio osculatore su una curva che si ruota con il dito; elica, cubica
+  gobba, nodo trifoglio, Viviani, spirale conica, o la curva che scrivi tu.
+- Le sezioni passano da 201 a **204**. Banco **`test_potenzia252`** (80
+  controlli); requisiti SCI-64…66 e UI-34; batteria a 93 banchi.
+
+### Corretto (trovato facendo le icone)
+- Una regola di stile già esistente per l'etichetta dei pulsanti delle materie
+  colpiva ogni elemento al loro interno: le icone nuove sarebbero state
+  invisibili. Ora vale solo per l'etichetta.
 
 ---
 ## [bsi-v251] — 2026-11-12

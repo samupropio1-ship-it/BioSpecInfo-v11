@@ -944,6 +944,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="ssyn">🧪 Sintesi Org.</button>
     <button class="nav-btn" data-s="sretro">🔄 Retrosintesi</button>
     <button class="nav-btn" data-s="sanimmech">🎬 Meccanismi</button>
+    <button class="nav-btn" data-s="shammett" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">σ Hammett e sostituenti</button>
     <button class="nav-btn" data-s="smolprop">🧮 Proprietà Mol.</button>
     <button class="nav-btn" data-s="sform">📐 Formule</button>
     <button class="nav-btn" data-s="sconst">⚛️ Costanti</button>
@@ -1056,6 +1057,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sfisising" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧲 Modello di Ising</button>
     <button class="nav-btn" data-s="sfispart" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚛️ Fisica delle particelle</button>
     <button class="nav-btn" data-s="sfisanalitica" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎡 Meccanica analitica</button>
+    <button class="nav-btn" data-s="sfoucault" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌍 Pendolo di Foucault</button>
     <button class="nav-btn" data-s="sfislaser" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔦 Laser e ottica quantistica</button>
     <button class="nav-btn" data-s="sfisclima" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌍 Fisica del clima</button>
     <button class="nav-btn" data-s="sschrod" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Schrödinger</button>
@@ -1105,6 +1107,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatnum" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🧮 Metodi numerici</button>
     <button class="nav-btn" data-s="smatgeo" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📐 Geometria analitica e vettori</button>
     <button class="nav-btn" data-s="smatvett" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∇ Calcolo vettoriale</button>
+    <button class="nav-btn" data-s="smatfrenet" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🌀 Curve nello spazio</button>
     <button class="nav-btn" data-s="smatprob" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎲 Probabilità in movimento</button>
     <button class="nav-btn" data-s="smatvis" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎞️ Matematica visiva</button>
     <button class="nav-btn" data-s="smatnumeri" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔐 Numeri e crittografia</button>
@@ -29687,6 +29690,9 @@ window.calcMolProps = function() {
 <div id="sastroeso" class="section"></div>
 <div id="snubeism" class="section"></div>
 <div id="ssaha" class="section"></div>
+<div id="shammett" class="section"></div>
+<div id="sfoucault" class="section"></div>
+<div id="smatfrenet" class="section"></div>
 <div id="sspaziochim" class="section"></div>
 <div id="sdeconv" class="section"></div>
 <div id="sfisspin" class="section"></div>
@@ -32115,6 +32121,9 @@ window.addEventListener('load', init);
 <script src="./bsi-astro-cielo.js" defer></script>
 <script src="./bsi-astro-esopianeti.js" defer></script>
 <script src="./bsi-astro-chimica.js" defer></script>
+<script src="./bsi-chim-hammett.js" defer></script>
+<script src="./bsi-fis-foucault.js" defer></script>
+<script src="./bsi-mat-frenet.js" defer></script>
 <script src="./bsi-chem-mappe.js" defer></script>
 <script src="./bsi-fis-spin.js" defer></script>
 <script src="./bsi-fis-statistica.js" defer></script>

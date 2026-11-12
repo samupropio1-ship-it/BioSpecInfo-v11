@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **201 sections**, grouped by area of study.
+The application has **204 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -433,8 +433,8 @@ and mathematics must be there, nothing may be missing from this hologram:
 everything must be explainable and showable). The catalogue is not written by
 hand: it is read from the app bar (every section button, with its group —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — and its subject): 201 sections
-(chemistry 78, physics 63, mathematics 31, shared 29, since v242); a new section appears by
+Utility, Fisica, Matematica, Astrofisica — and its subject): 204 sections
+(chemistry 79, physics 64, mathematics 32, shared 29, since v242); a new section appears by
 itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
 nell'ologramma»** lists them by group, with a search box and a subject
 filter; one tap opens the section behind the Spectra window (switching subject

@@ -978,8 +978,8 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 201 sezioni dalla v242 (chimica 78, fisica 63,
-  matematica 31, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
+  (`BSIMaterie.materiaDi`), 204 sezioni dalla v242 (chimica 79, fisica 64,
+  matematica 32, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
   (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),

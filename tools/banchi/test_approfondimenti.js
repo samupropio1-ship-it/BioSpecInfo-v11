@@ -270,7 +270,7 @@ function carica() {
     const stato = () => pg.evaluate(() => ({
       tabs: [...document.querySelectorAll('.nav-group-tab')].filter(t => t.offsetParent).map(t => t.dataset.group).sort().join(','),
       fab: [...document.querySelectorAll('.bsi-mat-fab')].filter(b => b.offsetParent).map(b => b.dataset.materia).join(','),
-      icone: [...document.querySelectorAll('.bsi-mat-fab svg')].length,
+      icone: [...document.querySelectorAll('.bsi-mat-fab .ico3d')].length,          /* v252: icone in 3D (atomo, Σ, beuta) */
       nomi: [...document.querySelectorAll('.bsi-mat-fab')].every(b => (b.getAttribute('aria-label') || '').length > 5),
       sopraSpectra: (() => { const b = document.getElementById('bsi-materie'), sp = document.getElementById('bsi-spectra-fab'); if (!b || !sp) return false; return b.getBoundingClientRect().bottom <= sp.getBoundingClientRect().top + 1; })()
     }));

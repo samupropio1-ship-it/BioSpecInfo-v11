@@ -1118,6 +1118,16 @@
     var slot = document.querySelector('#bsi-spectra-fab .sp-ico'); if (slot) slot.innerHTML = icona(22);
     var mini = document.getElementById('bsiJV-mini'); if (mini) { mini.innerHTML = icona(44); mini.style.overflow = 'hidden'; mini.style.padding = '0'; }
   }
+  /* (v252) mentre Spectra parla, la testa nel pulsante si muove di più */
+  var parlaTimer = null;
+  function testaParla() {
+    document.body.classList.add('bsiJV-parla'); clearInterval(parlaTimer); var inizio = Date.now();
+    parlaTimer = setInterval(function () {
+      var va = voce.inCorso; try { va = va || speechSynthesis.speaking; } catch (e) {}
+      if ((!va && Date.now() - inizio > 600) || Date.now() - inizio > 120000) { document.body.classList.remove('bsiJV-parla'); clearInterval(parlaTimer); }
+    }, 250);
+  }
+  document.addEventListener('bsi-spectra-dice', testaParla);
   function avvia() {
     registraStrumenti();
     /* il ritratto e' un'immagine: chiederla durante il caricamento allunga l'apertura dell'app con la
@@ -1159,7 +1169,15 @@
       b.onclick = function () { if (!apriAssistente()) apriHud(); };
       document.body.appendChild(b);
       var st = document.createElement('style'); st.id = 'bsiJV-fab-stile';
-      st.textContent = '.nav-btn[data-s="sareachim"],.nav-btn[data-s="sareafis"],.nav-btn[data-s="sareamat"]{display:none!important}body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}';
+      st.textContent = '.nav-btn[data-s="sareachim"],.nav-btn[data-s="sareafis"],.nav-btn[data-s="sareamat"]{display:none!important}body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}' +
+        /* (v252) la testa si muove: gira, si inclina, annuisce; un riflesso metallico le passa sopra; quando parla annuisce più in fretta */
+        '#bsiJV-fab .bsiVO-ico,#bsiJV-mini .bsiVO-ico{position:relative}' +
+        '@media (prefers-reduced-motion:no-preference){#bsiJV-fab .bsiVO-ico>*,#bsiJV-mini .bsiVO-ico>*{transform-origin:50% 62%;animation:bsiJVtesta 9s ease-in-out infinite;will-change:transform}' +
+        'body.bsiJV-parla #bsiJV-fab .bsiVO-ico>*,body.bsiJV-parla #bsiJV-mini .bsiVO-ico>*{animation:bsiJVparla .5s ease-in-out infinite alternate}' +
+        '#bsiJV-fab .bsiVO-ico:after,#bsiJV-mini .bsiVO-ico:after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(190,225,255,.38) 50%,transparent 62%);background-size:260% 100%;animation:bsiJVriflesso 7s linear infinite}}' +
+        '@keyframes bsiJVtesta{0%,100%{transform:perspective(90px) rotateY(0) rotateX(0) scale(1.14)}14%,30%{transform:perspective(90px) rotateY(18deg) rotateX(-3deg) scale(1.14)}46%,62%{transform:perspective(90px) rotateY(-16deg) rotateX(2deg) scale(1.14)}74%{transform:perspective(90px) rotateY(0) rotateX(9deg) scale(1.14)}80%{transform:perspective(90px) rotateY(0) rotateX(-4deg) scale(1.14)}87%{transform:perspective(90px) rotateY(0) rotateX(5deg) scale(1.14)}}' +
+        '@keyframes bsiJVparla{from{transform:perspective(90px) rotateX(-5deg) rotateY(-5deg) scale(1.14)}to{transform:perspective(90px) rotateX(7deg) rotateY(6deg) scale(1.17)}}' +
+        '@keyframes bsiJVriflesso{0%{background-position:160% 0}55%,100%{background-position:-110% 0}}';
       document.head.appendChild(st);
     }
     document.body.classList.add('bsiJV-solo-volto');
