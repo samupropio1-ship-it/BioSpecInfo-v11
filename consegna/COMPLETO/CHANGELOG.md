@@ -7,6 +7,93 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v250] — 2026-11-11
+
+**Quattro sezioni nuove: mappa dello spazio chimico, deconvoluzione di picchi, chimica di una nube interstellare, Saha e classi spettrali. E Spectra 2.0, il cervello separato dall'app**
+
+Richiesta dell'autore: i potenziamenti maggiori per chemioinformatica, RDKit e
+data science, spettri, astrochimica e astrofisica. Prima l'inventario di ciò
+che c'era (la chemioinformatica aveva già similarità, raggruppamenti, QSAR,
+foreste casuali; gli spettri previsione, lettura, elucidazione), poi le lacune
+vere. Le sezioni passano da 197 a **201**.
+
+### Aggiunto — nell'app
+- **🗺️ Mappa dello spazio chimico** (`bsi-chem-mappe.js`, sezione
+  `sspaziochim`, in Chimica Fisica accanto a Chemioinformatica): le molecole
+  su un piano, vicine se si somigliano. t-SNE esatto sulle distanze di
+  Tanimoto fra impronte di Morgan (RDKit), a confronto con la PCA; seme fisso,
+  quindi la stessa mappa a ogni apertura; accanto, quanto la mappa conserva i
+  vicinati. Tre schede: la mappa di 55 molecole di sette famiglie (un tocco su
+  un punto dice la molecola e le tre più simili), «Capire il t-SNE» su gruppi
+  sintetici con la perplessità e la curva della divergenza KL, e «Le tue
+  molecole» (SMILES incollati, colorati per gruppo di Butina).
+- **📈 Deconvoluzione di picchi** (stesso file, sezione `sdeconv`, in
+  Spettroscopia): bande sovrapposte separate in componenti gaussiane,
+  lorentziane o pseudo-Voigt con Levenberg–Marquardt; per ogni componente
+  centro, larghezza, altezza, area in forma chiusa e quota; il residuo sotto.
+  Tre esempi (l'ammide I di una proteina, due carbonili vicini, un picco con
+  una spalla nascosta) e i dati incollati dall'utente. Una scheda sulle forme
+  di riga.
+- **☁️ Chimica di una nube interstellare** (`bsi-astro-chimica.js`, sezione
+  `snubeism`, in Astrofisica): la formazione di H₂ sui grani contro la
+  fotodissociazione con l'autoschermatura, e la formazione del CO, nel tempo e
+  attraverso la nube. Ne escono il tempo «10⁹/n anni» e la struttura a strati
+  H / H₂ / C⁺ / CO; la tabella delle reazioni con i coefficienti.
+- **🌡️ Saha e le classi spettrali** (stesso file, sezione `ssaha`): la
+  ionizzazione dell'idrogeno, perché le righe di Balmer sono massime a 9900 K
+  (classe A), e perché nel Sole il calcio batte l'idrogeno.
+- Le quattro sezioni entrano da sole nel catalogo di «🧠 Spiega» e
+  nell'ologramma («Tutta l'app»: 216 voci), con la lezione guidata e i nomi
+  tradotti nelle 13 lingue.
+- Banco **`test_potenzia250`** (65 controlli); requisiti SCI-60…63; batteria a
+  90 banchi.
+
+### Onestà
+- La nube è un modello didattico a zero dimensioni: dà la struttura e gli
+  ordini di grandezza, non le abbondanze di una nube vera.
+- Saha vale all'equilibrio termodinamico locale e per idrogeno puro.
+- Una deconvoluzione non è unica: la sezione lo dice e mostra che con meno
+  componenti il fit peggiora, ma con più componenti migliora sempre.
+- Una mappa t-SNE non ha assi con un significato: conta chi sta vicino a chi.
+
+## Spectra 2.0, il cervello separato dall'app (cartella `spectra2/`)
+
+Richiesta dell'autore: un sistema personale con memoria cognitiva, continuità
+di identità, obiettivi di lungo periodo, raggiungibile sempre e integrato con i
+Ray-Ban Meta. È un progetto a sé nella cartella **`spectra2/`**: un servizio in
+Python, non parte dell'applicazione statica: nessun file dell'app dipende da
+esso.
+
+### Aggiunto (`spectra2/`)
+- **Memoria** (`spectra/memoria/`): un archivio SQLite con cinque tipi di
+  ricordo (episodio, fatto, procedura, autobiografia, riflessione), memoria di
+  lavoro, grafo dei legami, entità; recupero su sei segnali (rilevanza,
+  recenza, importanza, emozione, obiettivi, fiducia) con attivazione diffusa,
+  diversità e rinforzo al richiamo; cura notturna (consolidamento,
+  riconciliazione, oblio, riflessione, diario), che funziona anche senza un
+  modello linguistico.
+- **Modello di sé, obiettivi, lacune** (`se.py`): sfaccettature con fiducia e
+  storia; il nucleo (identità, valori, stile) lo cambia solo l'utente;
+  capacità misurate dagli esiti; «non lo so» diventa una lacuna con un piano.
+- **Ciclo principale** (`cervello.py`), **fornitori** (`fornitori.py`: Claude
+  con l'SDK ufficiale, protocollo chat/completions, Gemini, con riserva),
+  **voce** (`voce.py`), **servizio** sempre attivo con gettone e relè degli
+  strumenti (`servizio.py`), **prompt di sistema** (`prompt/sistema.md`).
+- **Ponte** (`ponte/`): gli strumenti di BioSpecInfo esposti via WebMCP e via
+  relè (`biospecinfo-strumenti.js`); il progetto dell'app Android per gli
+  occhiali (`android/PonteOcchiali.kt`).
+- **47 prove** (`prove/`), senza rete e senza chiavi.
+
+### Onestà
+- Nessuna chiamata a un modello vero è stata fatta: i fornitori sono scritti
+  secondo la documentazione, da provare con una chiave.
+- Il ponte Android **non è compilato**; l'adattatore del toolkit degli occhiali
+  è da completare sul riferimento della versione installata.
+- WebMCP è un'anteprima dietro un'opzione di Chrome: qui è provato contro un
+  oggetto finto con la forma documentata.
+- Il dettaglio, voce per voce, è in `spectra2/README.md`, sezione 7.
+
+---
 ## [bsi-v249] — 2026-11-11
 
 **Il giro di controllo di tutta l'app: 197 sezioni e 14 pagine aperte una per una**
