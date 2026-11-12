@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v250` |
+| **Version described** | `bsi-v251` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -292,7 +292,7 @@ produced a name from three peaks would make a claim the data cannot support.
 
 ### 3.8 The "Spectra" assistant
 
-An AI agent with **47 tools** that can interrogate the application itself:
+An AI agent with **50 tools** that can interrogate the application itself:
 compute descriptors, generate spectra, look up constants, balance reactions,
 open sections, read the open tab and act on its controls. It supports ten
 providers, and stays usable when one of them fails (§5.2).
@@ -725,4 +725,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v250`._
+_Document updated to version `bsi-v251`._

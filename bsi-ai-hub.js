@@ -5603,7 +5603,7 @@ var DATI_CANCELLABILI = {
   memoria: {
     etichetta: 'Memoria persistente',
     dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
-    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-agenda-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',
@@ -7535,6 +7535,20 @@ function buildChatPane(){
       /* la console sta sotto la finestra dell'AI: si chiude la finestra, poi si apre la console */
       var chC = document.getElementById('bsi-hub-close'); if(chC) chC.click();
       setTimeout(function(){ try{ Lv.apri({ briefing: false }); }catch(e){} setTimeout(function(){ try{ Lv.elabora(text); }catch(e){} }, 450); }, 250);
+      return;
+    }
+    /* (v251) L'agenda: «ricordami domani alle 18 di…», «cosa ho da fare», «esporta la memoria». La capisce
+       bsi-spectra-agenda.js da sola, senza modello: funziona anche senza chiave e senza rete. */
+    var Ag = window.BSISpectraAgenda, rAg = null;
+    if(Ag && Ag.comando){ try{ rAg = Ag.comando(text); }catch(eAg){ rAg = { testo: eAg && eAg.message || 'Non sono riuscito a segnarlo.' }; } }
+    if(rAg && rAg.testo){
+      input.value = '';
+      var dA = loadThreads(), tA = getActiveThread(dA);
+      if(tA.title === 'Nuova chat') tA.title = text.slice(0, 40);
+      tA.messages.push({ role: 'user', content: text }); tA.messages.push({ role: 'assistant', content: rAg.testo });
+      saveThreads(dA); renderMessages();
+      if(window.BSISpectraMente){ try{ window.BSISpectraMente.ricorda(text, 'locale'); }catch(eM){} }
+      try{ if(autoSpeakEnabled) speakRobotic(rAg.testo); }catch(eV){}
       return;
     }
     var provId = provSel.value;

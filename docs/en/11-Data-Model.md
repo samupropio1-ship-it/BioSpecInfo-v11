@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v250` |
+| **Version described** | `bsi-v251` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -154,6 +154,7 @@ the kit stays usable without remembering progress.
 | Key | Content | Lifecycle |
 |---|---|---|
 | `bsi-spectra-mente-v1` | JSON: `episodi` (at most 300: time, subject, section, question cut to 160 characters, outcome), `sezioni` (time and visits per section), `ore` (24 counters), `materie` (seconds per subject), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, between 0 and 1), `emozioni` (at most 60) | Until the user says «forget everything», which resets the object and removes the key |
+| `bsi-spectra-agenda-v1` | JSON: `voci` (reminders, tasks, events: `id`, `genere`, `testo` up to 240 characters, `quando` in milliseconds or null, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; at most 60 closed entries), `n` (counter) | Written by `bsi-spectra-agenda.js`; stays in the browser; deleted with the «memoria» group and exported with «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
@@ -338,4 +339,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v250`._
+_Document updated to version `bsi-v251`._

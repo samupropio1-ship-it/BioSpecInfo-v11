@@ -36,8 +36,16 @@ Il codice è nella cartella `spectra2/` del repository BioSpecInfo.
 | Ponte BioSpecInfo (`ponte/biospecinfo-strumenti.js`) | fatto, provato in Node; **non ancora inserito nell'app** |
 | Ponte occhiali (`ponte/android/PonteOcchiali.kt`) | scritto, **mai compilato**; `OcchialiMeta` ha tre punti da completare |
 | Un turno con un modello vero | **mai fatto** (nessuna chiave nell'ambiente di sviluppo) |
+| **La via senza installazione** (BioSpecInfo v251, `bsi-spectra-agenda.js`): agenda, promemoria, continuità e memoria esportabile dentro l'app | fatta, provata (`test_agenda`, 59 controlli). È la via che Samuele usa: il servizio qui sopra resta per quando ci sarà una macchina sempre accesa |
 
 Prove: 60, con `python3 -m unittest discover -s prove` dalla cartella `spectra2/`.
+
+## Una cosa da sapere prima
+
+Samuele non riesce a seguire i passi di installazione del servizio. Non
+riproporglieli: ciò che serve va fatto dentro l'app BioSpecInfo, che apre già
+dal telefono. I passi qui sotto valgono solo se e quando ci sarà qualcuno che
+può accendere il servizio su un computer.
 
 ## I prossimi passi, in ordine
 

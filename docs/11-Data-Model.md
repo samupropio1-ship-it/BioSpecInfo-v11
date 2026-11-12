@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v250` |
+| **Versione descritta** | `bsi-v251` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -150,6 +150,7 @@ e il kit resta usabile senza ricordare i progressi.
 | Chiave | Contenuto | Ciclo di vita |
 |---|---|---|
 | `bsi-spectra-mente-v1` | JSON: `episodi` (al massimo 300: ora, materia, sezione, domanda troncata a 160 caratteri, esito), `sezioni` (tempo e visite per sezione), `ore` (24 contatori), `materie` (secondi per materia), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, fra 0 e 1), `emozioni` (al massimo 60) | Finché l'utente non dice «dimentica tutto», che azzera l'oggetto e rimuove la chiave |
+| `bsi-spectra-agenda-v1` | JSON: `voci` (promemoria, compiti, eventi: `id`, `genere`, `testo` fino a 240 caratteri, `quando` in millisecondi o nullo, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; al massimo 60 voci chiuse), `n` (contatore) | Scritta da `bsi-spectra-agenda.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
 | `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (millisecondi): il creatore è stato riconosciuto su questo dispositivo. **Non contiene la frase segreta né la sua impronta** | Scritta quando la prova riesce; rimossa con «dimentica che sono il tuo creatore» o con «Cancella dati → Memoria persistente» |
@@ -330,4 +331,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v250`._
+_Documento aggiornato alla versione `bsi-v251`._

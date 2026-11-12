@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v251] — 2026-11-12
+
+**Spectra assistente di ogni giorno, dentro l'app: promemoria, agenda, continuità, memoria che si porta via. Senza installare nulla**
+
+Richiesta dell'autore: una presenza continua e un assistente personale, ma
+senza i passaggi di installazione del servizio Spectra 2.0, che non gli
+riescono. Quindi ciò che il servizio fa su un computer sempre acceso è stato
+portato nel browser, dove l'app gira già.
+
+### Aggiunto
+- **🗓️ Agenda di Spectra** (`bsi-spectra-agenda.js`, menu ✨ → Agenda di
+  Spectra): promemoria, compiti, eventi. Si detta o si scrive come si parla:
+  «ricordami domani alle 18 di chiamare il relatore», «ricordami di comprare i
+  guanti fra due ore». Funziona **senza chiave e senza rete**: la data la
+  capisce l'app. Una data non capita non viene indovinata: Spectra la chiede.
+- **I promemoria arrivano**: all'ora giusta Spectra lo scrive in alto, lo dice
+  con la sua voce e, se le notifiche sono permesse, manda una notifica. Quelli
+  scaduti mentre l'app era chiusa vengono detti alla riapertura. Ricorrenze
+  (ogni giorno, settimana, mese), rinvio, annullamento.
+- **Continuità**: a ogni domanda il modello riceve quanto tempo è passato
+  dall'ultima conversazione, l'ultima cosa chiesta e l'agenda; dopo ore
+  riprende il filo invece di salutare da capo. Tre strumenti nuovi per il
+  modello: `segna_impegno`, `leggi_agenda`, `chiudi_impegno`.
+- **La memoria si porta via**: «esporta la memoria» scarica un file con
+  ricordi, episodi e agenda; «importa la memoria» lo carica su un altro
+  dispositivo. Un file qualunque non scrive nulla, e le chiavi API non
+  vengono mai né esportate né toccate.
+- Banco **`test_agenda`** (59 controlli); requisito AI-19; batteria a 91 banchi.
+
+### Limiti dichiarati
+- **Ad app chiusa un promemoria non suona.** Una pagina web non può svegliarsi
+  da sola: servirebbe un server che manda la notifica, ed è ciò che fa Spectra
+  2.0. Alla riapertura, però, non si perde.
+- La memoria sta sul dispositivo: fra due dispositivi passa con il file, non
+  da sola.
+- La notifica di sistema e il suono su un telefono vero non sono provati qui.
+
+---
 ## [bsi-v250] — 2026-11-11
 
 **Quattro sezioni nuove: mappa dello spazio chimico, deconvoluzione di picchi, chimica di una nube interstellare, Saha e classi spettrali. E Spectra 2.0, il cervello separato dall'app**

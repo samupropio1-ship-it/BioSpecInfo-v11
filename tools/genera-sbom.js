@@ -264,6 +264,8 @@ const PROPRI = [
     ruoloEn: 'Spectra\'s face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields.' },
   { file: 'bsi-spectra-mente.js', ruolo: 'Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento).',
     ruoloEn: 'Spectra\'s mind: local memory, internal state, thoughts (a simulation of behaviour).' },
+  { file: 'bsi-spectra-agenda.js', ruolo: 'Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile.',
+    ruoloEn: 'Spectra\'s agenda: reminders, tasks, events, dates said in words, continuity for the model, exportable memory.' },
   { file: 'bsi-spectra-robot.js', ruolo: 'Volto di ripiego: testa di androide costruita in three.js.',
     ruoloEn: 'Fallback face: android head built in three.js.' },
   { file: 'bsi-spectra-volto.js', ruolo: 'Volto di ultimo ripiego: ritratto vettoriale SVG.',

@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v250';
+window.BSI_APP_VERSION='bsi-v251';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -32145,6 +32145,7 @@ window.addEventListener('load', init);
 <script src="./bsi-spectra-robot.js" defer></script>
 <script src="./bsi-spectra-androide.js" defer></script>
 <script src="./bsi-spectra-mente.js" defer></script>
+<script src="./bsi-spectra-agenda.js" defer></script>
 <script src="./bsi-spectra-voce.js" defer></script>
 <script src="./bsi-spectra-creatore.js" defer></script>
 <script src="./bsi-lezione.js" defer></script>
@@ -36204,6 +36205,7 @@ var SHEET_ITEMS=[
   {ic:'⬇️',nm:'Scarica BioSpecInfo',ds:'Download file HTML per uso offline',key:'dl'},
   {ic:'📲',nm:'Aggiungi a Home',ds:'Installa come app sul tuo dispositivo',key:'install'},
   {ic:'🔄',nm:'Aggiornamenti',ds:'Verifica nuove versioni disponibili',key:'update'},
+  {ic:'🗓️',nm:'Agenda di Spectra',ds:'Promemoria, impegni e memoria da portare su un altro dispositivo',key:'agenda'},
   // Lingua e linguaggi molecolari: questa lista è cablata, quindi una voce
   // nuova nel menu ✨ non ci arriva da sola — ed è proprio su telefono che
   // il menu ✨ è nascosto e questo pannello lo sostituisce.
@@ -36246,6 +36248,7 @@ function doAction13(key){
     if(key==='dl')       { if(typeof downloadBioSpecInfo==='function')downloadBioSpecInfo(); return; }
     if(key==='install')  { window.showAddToHome(); return; }
     if(key==='update')   { if(typeof window.bsiOpenUpdate==='function')window.bsiOpenUpdate(); return; }
+    if(key==='agenda')   { if(window.BSISpectraAgenda) window.BSISpectraAgenda.apri(); return; }
   }, 60);
 }
 
@@ -37809,6 +37812,7 @@ function _act(key){
     if(key==='dl')       { if(typeof downloadBioSpecInfo==='function') downloadBioSpecInfo(); return; }
     if(key==='install')  { window.showAddToHome(); return; }
     if(key==='update')   { if(typeof window.bsiOpenUpdate==='function') window.bsiOpenUpdate(); return; }
+    if(key==='agenda')   { if(window.BSISpectraAgenda) window.BSISpectraAgenda.apri(); return; }
     if(key==='settings') { if(typeof window.bsiOpenSettings==='function') window.bsiOpenSettings(); return; }
     if(key==='aihub')    { if(typeof window.bsiOpenAIHub==='function') window.bsiOpenAIHub('chat'); return; }
   }, 60);

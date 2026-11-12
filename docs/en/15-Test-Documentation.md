@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v250` |
+| **Version described** | `bsi-v251` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**90 benches**, grouped by what they demonstrate.
+**91 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -125,6 +125,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_v237` | The **twenty new sections** (ten astrophysics, five physics laboratories, five mathematics laboratories): runs their twenty scripts in `verifiche/` (705 checks against published values or a second method, §3.1-bis) and those of the study kits and resources; in the browser opens every tab at **1280 and 390 px**; tests Spectra's face, emotions and mind and the section names in English. Requires at least 900 checks | 1061 |
 | `test_3d238` | The **new 3D tabs of 29 sections** of chemistry, physics and mathematics: runs their 29 scripts in `verifiche/` (311 checks against known values, a closed form or a second method, §3.1-ter); in the browser opens every tab of the 29 sections at **1280 and 390 px** and requires full tabs, no ⚠, canvases drawn and named, the last tab a 3D scene that draws, synchronous work on click under **250 ms**; nothing overflows at 390 px; no JavaScript error | 488 |
 | `test_potenzia250` | The **four v250 sections**: Saha against the textbooks (half ionisation, Balmer maximum, Ca II in the Sun); the interstellar cloud against the exact solutions and the layered structure; deconvolution against spectra whose truth is known; t-SNE against PCA; and the pages at 412 and 1280 px | 65 |
+| `test_agenda` | **Spectra as an everyday assistant, in the app**: dates said in words understood as in the service, and those not understood refused; commands with no model; the reminder that arrives, written and spoken once only; recurrences; the tools for the model; the continuity block; the memory exported and re-imported; the panel on a phone. |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -295,7 +296,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -540,6 +541,26 @@ original defect: immediately after the click handler returns the WebGL context
 **must not exist**, shortly after it **must**. Measured 0 and 1; and the
 measurement is not vacuous, because on a second click — when the canvas is
 already there — it returns 1.
+
+**`test_agenda` — 59 checks (v251).** It comes from a precise request by
+the author: Spectra must be an assistant that remembers and speaks up, and it
+must work with nothing to install, because setting up a service on a computer
+is beyond him. The bench loads the app on a phone-sized screen, with a fake
+speech synthesiser that records every sentence, and demands seven things. Dates
+said in words («fra 2 ore», «venerdì alle 9:30», «il 12 febbraio alle 9») give
+the same result as the Python service, and «quando capita» or «il 31 febbraio»
+are refused. Commands work with no model: the time may come before or after the
+thing, without a time Spectra asks for it, and «ricordami la formula del
+benzene» does not become a reminder. The reminder arrives within its advance
+notice, appears on screen, is spoken at pitch 0.58 and rate 0.88, once only;
+one that expired while the app was closed is spoken on reopening with the time
+it had. Recurrences advance, including from 31 January to the end of February.
+The three tools for the model are registered once and a wrong date comes back
+as an error. The picture sent to the model contains the time elapsed, the
+thread and the agenda. The exported memory is re-imported, and foreign keys
+slipped into the file do not get in. It does not test the system notification
+nor, by construction, a reminder with the app closed: a web page does not wake
+up by itself.
 
 **`test_avvio` — 9 checks (v247).** It comes from the author's request to
 optimise the app. The start-up profile on a simulated slow phone (CPU ×4)
@@ -937,7 +958,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 616 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 618 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -957,4 +978,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v250`._
+_Document updated to version `bsi-v251`._

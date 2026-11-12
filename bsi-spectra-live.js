@@ -476,6 +476,8 @@
   ];
   function comandoLocale(testo) {
     comandoLocale.originale = testo;
+    /* (v251) l'agenda capisce le sue frasi dal testo originale: le servono i due punti delle ore («alle 9:30») */
+    var Ag = globale.BSISpectraAgenda; if (Ag && Ag.comando) { try { var rAg = Ag.comando(testo); if (rAg) return rAg; } catch (e) { return { testo: (e && e.message) || t('Non sono riuscito a segnarlo.', 'I could not save it.') }; } }
     var q = norm(testo).replace(/^(ehi |hey |ok )?(spectra|spettra)[ ,]*/, '').replace(/^(per favore |puoi |potresti |please |can you )/, '');
     for (var i = 0; i < COMANDI.length; i++) {
       var m = q.match(COMANDI[i].re); if (!m) continue;
