@@ -284,7 +284,42 @@ async function meteoFinto(ctx, stato) {
   const pg3 = await ctx.newPage(); pg3.on('pageerror', e => errs.push(e.message)); await pg3.addInitScript(sintesiFinta);
   await pg3.goto(BASE + 'index.html?spectra=rete', { waitUntil: 'load', timeout: 120000 }); await pg3.waitForSelector('#bsiRN', { timeout: 30000 });
   vero('?spectra=rete apre la rete neurale', true);
-  vero('il menu ✨ ha «Sveglia Spectra» e «Rete neurale di Spectra»', await pg.evaluate(() => /key==='sveglia'/.test(document.documentElement.innerHTML) && /Rete neurale di Spectra/.test(document.documentElement.innerHTML)));
+  /* (v252) il menu ✨ VERO, quello che si apre dal pulsante sul telefono: prima le voci stavano in un elenco che non si vedeva */
+  const mn = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {}, apri = async () => { document.getElementById('bsi14-fab').click(); await pausa(250); return document.getElementById('bsi14-sheet'); };
+    const sh = await apri(); o.aperto = sh.classList.contains('open');
+    /* in testa ci sono gli strumenti rapidi della materia aperta; poi le sezioni del menu, e la prima è Spectra */
+    const secs = [...sh.querySelectorAll('.bsi14-sec')], sp = secs.filter(x => x.textContent === '🤖 Spectra')[0];
+    o.sezione = sp ? sp.textContent : ''; o.primaSezione = sp && secs.filter(x => x.getBoundingClientRect().height > 0 && !/al volo/.test(x.textContent))[0] === sp;      // le sezioni «al volo» sono gli strumenti della materia, le altre nascoste
+    const dopo = []; for (let n = sp && sp.nextElementSibling; n && !n.classList.contains('bsi14-sec'); n = n.nextElementSibling) dopo.push(n);
+    o.prime = dopo.map(r => r.getAttribute('data-key')).join(',');
+    o.visibili = dopo.length === 4 && dopo.every(r => { const b = r.getBoundingClientRect(); return b.height >= 40 && b.width > 200; });
+    const tocca = async (k, sel) => { const s2 = await apri(); s2.querySelector('.bsi14-row[data-key="' + k + '"]').click(); await pausa(500); const x = !!document.querySelector(sel); document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); BSISpectraAgenda.chiudi(); BSISpectraRisveglio.chiudi(); BSISpectraRisveglio.chiudiRete(); BSISpectraRisveglio.chiudiGuida(); await pausa(150); return x; };
+    o.sveglia = await tocca('sveglia', '#bsiRV'); o.occhiali = await tocca('occhiali', '#bsiRD'); o.agenda = await tocca('agenda', '#bsiAG'); o.rete = await tocca('rete', '#bsiRN');
+    return o;
+  });
+  vero('il menu ✨ vero si apre dal suo pulsante', mn.aperto);
+  att('la sezione «🤖 Spectra» con le quattro voci', '🤖 Spectra|sveglia,occhiali,agenda,rete', mn.sezione + '|' + mn.prime);
+  vero('ed è la prima sezione del menu, prima delle funzioni chimiche', mn.primaSezione);
+  vero('righe grandi abbastanza da toccare', mn.visibili);
+  vero('toccandole si aprono davvero: risveglio, occhiali, agenda, rete neurale', mn.sveglia && mn.occhiali && mn.agenda && mn.rete);
+  /* le novità: a chi ha già parlato con Spectra, una volta sola */
+  const nv = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, o = {}, K = 'bsi-spectra-mente-v1', prima = localStorage.getItem(K);
+    localStorage.removeItem('bsi-spectra-novita-v252'); localStorage.setItem(K, JSON.stringify({ nato: 1, episodi: [] }));
+    o.nuovo = R.novita() === null;
+    localStorage.setItem(K, JSON.stringify({ nato: 1, episodi: [{ t: 1, d: 'a' }, { t: 2, d: 'b' }, { t: 3, d: 'c' }] }));
+    const P = R.novita(); o.mostrate = !!P && P.querySelectorAll('.tasti button').length === 4;
+    const r = P.getBoundingClientRect(); o.dentro = r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+    P.querySelectorAll('.tasti button')[1].click(); await pausa(150); o.guida = !!document.getElementById('bsiRD') && !document.getElementById('bsiRV-novita'); R.chiudiGuida();
+    o.unaVolta = R.novita() === null;
+    if (prima == null) localStorage.removeItem(K); else localStorage.setItem(K, prima);
+    return o;
+  });
+  vero('le novità non disturbano chi apre l\'app per la prima volta', nv.nuovo);
+  vero('a chi ha già parlato con Spectra compaiono, con i quattro pulsanti, dentro lo schermo', nv.mostrate && nv.dentro);
+  vero('un pulsante delle novità apre la sua finestra e le chiude', nv.guida);
+  vero('e compaiono una volta sola', nv.unaVolta);
   vero('Open-Meteo è stato chiamato solo per le città chieste (' + stato.chiamate.length + ' richieste)', stato.chiamate.every(c => /geocoding-api\.open-meteo\.com\/v1\/search\?(Milano|Roma|Atlantide)$|api\.open-meteo\.com\/v1\/forecast\?(45\.46|41\.89)$/i.test(c)));
 
 

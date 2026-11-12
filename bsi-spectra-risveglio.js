@@ -238,6 +238,9 @@
       '.scorciatoie code{overflow-wrap:anywhere;color:#7fe7ff}.scorciatoie .interruttori{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.scorciatoie .esito{min-height:1.3em;margin-top:6px;color:#9fe8c4;font-size:.86rem}' +
       '#bsiRV-chip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:100055;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);background:#03141f;color:#bff3ff;border:1px solid #2a8fbf;border-radius:999px;padding:4px 6px 4px 14px;font:600 .82rem system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.4)}' +
       '#bsiRV-chip.on{border-color:#1fb58f}#bsiRV-chip button{min-height:36px;min-width:36px;border-radius:999px;border:1px solid #2a8fbf;background:#082b40;color:#e8fbff;font:inherit;cursor:pointer;padding:4px 10px}#bsiRV-chip.fermo{padding-left:6px;border-color:#ffb86b}' +
+      '#bsiRV-novita{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:100058;width:min(560px,calc(100vw - 24px));box-sizing:border-box;background:#04182a;color:#e8fbff;border:1px solid #2fa8e0;border-radius:14px;padding:12px 44px 12px 14px;font:400 .9rem/1.45 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)}' +
+      '#bsiRV-novita b{color:#7fe7ff}#bsiRV-novita p{margin:4px 0 8px}#bsiRV-novita .tasti{display:flex;flex-wrap:wrap;gap:6px}#bsiRV-novita button{min-height:40px;border-radius:9px;border:1px solid #2a8fbf;background:#082b40;color:#e8fbff;font:600 .85rem system-ui,sans-serif;padding:4px 10px;cursor:pointer}' +
+      '#bsiRV-novita .chiudi{position:absolute;top:6px;right:6px;min-width:36px;min-height:36px;padding:0}' +
       '@media (prefers-reduced-motion:reduce){#bsiRV .reattore:before,#bsiRV .reattore:after,#bsiRV .nucleo{animation:none}}';
     D.head.appendChild(s);
   }
@@ -542,6 +545,29 @@
     } };
   function registraStrumento() { var T = g.BSI_AI_TOOLS; if (!T || !T.push) return false; if (!T.some(function (x) { return x.name === 'meteo'; })) T.push(STRUMENTO); return true; }
 
+  /* ── le novità: chi usa già l'app le vede una volta, a portata di dito ─── */
+  var NOVITA = 'bsi-spectra-novita-v252';
+  function novita(forza) {
+    var gia = false; try { gia = !!g.localStorage.getItem(NOVITA); } catch (e) {}
+    if (gia && !forza) return null;
+    if (!forza) { var M = leggiJSON('bsi-spectra-mente-v1', {}) || {}; if (!M.episodi || M.episodi.length < 3) return null; }      // solo a chi ha già parlato con Spectra
+    try { g.localStorage.setItem(NOVITA, '1'); } catch (e) {}
+    stile();
+    var vecchio = D.getElementById('bsiRV-novita'); if (vecchio) vecchio.parentNode.removeChild(vecchio);
+    var P = el('div', { id: 'bsiRV-novita', role: 'dialog', 'aria-label': 'Novità di Spectra' });
+    P.appendChild(el('b', {}, 'Novità di Spectra'));
+    P.appendChild(el('p', {}, 'Si sveglia e ti dice meteo e impegni, ascolta dagli occhiali Meta, ricorda i promemoria, mostra la sua memoria. Sono anche nel menu ✨, in cima.'));
+    var riga = el('div', { class: 'tasti' });
+    [['🌅 Sveglia Spectra', function () { risveglio(); }], ['👓 Occhiali e dispositivi', apriGuida], ['🗓️ Agenda', function () { if (g.BSISpectraAgenda) g.BSISpectraAgenda.apri(); }], ['🧠 Rete neurale', apriRete]].forEach(function (x) {
+      var b = el('button', { type: 'button' }, x[0]); b.onclick = function () { chiudiN(); x[1](); }; riga.appendChild(b);
+    });
+    P.appendChild(riga);
+    var c = el('button', { type: 'button', class: 'chiudi', 'aria-label': 'Chiudi le novità' }, '✕'); c.onclick = chiudiN; P.appendChild(c);
+    function chiudiN() { if (P.parentNode) P.parentNode.removeChild(P); }
+    D.body.appendChild(P);
+    return P;
+  }
+
   /* ── avvio ───────────────────────────────────────────────────────────── */
   function daUrl() {
     var q = /[?&]spectra=([a-z]+)/.exec(g.location.search || ''); if (!q) return false;
@@ -561,6 +587,7 @@
     var daScorciatoia = daUrl();
     if (!daScorciatoia && S.avvioSveglia) setTimeout(function () { risveglio({ tocca: true }); }, 1200);       // «Ok Google, apri BioSpecInfo» → Spectra si sveglia
     if (S.ascolto) setTimeout(function () { occhiali(true); }, 1500);                                         // la modalità occhiali riparte da sola
+    if (!daScorciatoia && !S.avvioSveglia) setTimeout(function () { novita(); }, 2500);
     setTimeout(function () { if (!D.hidden) controllaPunto(); }, 6000);
     setInterval(function () { if (!D.hidden) controllaPunto(); }, 30000);
     D.addEventListener('visibilitychange', function () { if (!D.hidden) controllaPunto(); });
@@ -568,7 +595,7 @@
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', avvia); else avvia();
 
   g.BSISpectraRisveglio = {
-    comando: comando, risveglio: risveglio, occhiali: occhiali, apriGuida: apriGuida, chiudiGuida: chiudiGuida, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
+    comando: comando, risveglio: risveglio, occhiali: occhiali, novita: novita, apriGuida: apriGuida, chiudiGuida: chiudiGuida, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
     cielo: cielo, fraseImpegni: fraseImpegni, grafo: grafo, apriRete: apriRete, chiudiRete: chiudiRete, batteria: batteria, strumento: STRUMENTO, link: linkScorciatoia,
     stato: function () { return JSON.parse(JSON.stringify(S)); }, imposta: function (o) { for (var k in o) if (k in S) S[k] = o[k]; salva(); }, ricarica: carica
   };

@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v251';
+window.BSI_APP_VERSION='bsi-v252';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -37720,6 +37720,12 @@ window.openSR14=function(){
 
 // ══ 10. Bottom Sheet ═════════════════════════════════════════════════════════
 var _ITEMS=[
+  /* (v252) Spectra assistente: le voci stavano solo nell'elenco del vecchio menu, che non si vede. Il menu vivo è questo. */
+  {sec:'🤖 Spectra'},
+  {ic:'🌅',nm:'Sveglia Spectra',ds:'Avvio, meteo e impegni di oggi detti a voce',key:'sveglia',hl:true},
+  {ic:'👓',nm:'Occhiali e dispositivi',ds:'Chiamalo dagli occhiali Meta, con Siri, con «Ok Google» e dal computer',key:'occhiali',hl:true},
+  {ic:'🗓️',nm:'Agenda di Spectra',ds:'Promemoria e impegni; esporta la memoria su un altro dispositivo',key:'agenda',hl:true},
+  {ic:'🧠',nm:'Rete neurale di Spectra',ds:'La sua memoria come neuroni e collegamenti',key:'rete',hl:true},
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Qualsiasi molecola via PubChem',key:'sr',hl:true},
   {ic:'📋',nm:'Guida Retrosintesi',ds:'98 esercizi + 24 percorso essenziale',key:'guidaret',hl:true},

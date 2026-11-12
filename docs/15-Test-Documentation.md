@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v251` |
+| **Versione descritta** | `bsi-v252` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -437,7 +437,7 @@ ogni passaggio spiegato. Prova `bsi-spectra-olointerattivo.js`.
 | Universo (7, in node) | Terra: periodo di Keplero 1 anno, vis-viva **30,29 km/s** al perielio e **29,29 km/s** all'afelio; Marte: rapporto delle velocità = (1+e)/(1−e), gravità in superficie **3,71 m/s²**; velocità di fuga della Terra **11,19 km/s**; un'orbita scritta con a = 4 UA → T = 8 anni |
 | La finestra (3 per larghezza) | Il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra in «spettri» (perché l'ologramma mostrava uno spettro); Spectra col corpo ci si sposta; i pulsanti flottanti dell'app spariscono |
 | Spettri dal vivo (3 per larghezza) | Cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 e 2950 cm⁻¹ fra i passaggi); una traccia di massa con due picchi dà due passaggi; toccando il picco a m/z 43 si sceglie il suo passaggio e Spectra lo dice |
-| Il menu ✨ nell'ologramma (v248: 3 per larghezza) | Nell'elenco ci sono anche le **15 voci del menu ✨** (8 pagine e 7 finestre: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) e il Centro spettri; «Astrochimica 3D PRO» si apre **dentro il riquadro** (la sua pagina vera) e cambiando modo si toglie; per una finestra (Lab Quantistico) «↗ Apri la sezione» chiude l'ologramma e la apre |
+| Il menu ✨ nell'ologramma (v248: 3 per larghezza) | Nell'elenco ci sono anche le **19 voci del menu ✨** (8 pagine e 11 finestre, fra cui dalla v252 Sveglia Spectra, Occhiali e dispositivi, Agenda e Rete neurale: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) e il Centro spettri; «Astrochimica 3D PRO» si apre **dentro il riquadro** (la sua pagina vera) e cambiando modo si toglie; per una finestra (Lab Quantistico) «↗ Apri la sezione» chiude l'ologramma e la apre |
 | «🗂️ Tutta l'app» (v248: 4 per larghezza) | L'elenco ha **tutte** le sezioni della barra (201/201, letto dal catalogo, non scritto a mano), filtrabile per materia e per nome; la Tavola Periodica, senza grafici, è **ospitata davvero** nel riquadro (la sezione vera, spostata e viva); scelta un'altra sezione torna al suo posto e «Sistema solare 3D» si vede **dal vivo** con la sua lezione; chiusa la finestra l'app è di nuovo nella sezione di partenza |
 | Lettura sul telefono e prova audio (v248: 2 a 412 px, 1 a 1280 px) | Sul telefono **tutta la finestra scorre**: l'ultimo passaggio arriva ad almeno 70 px dal bordo (sopra i tasti di Android), la testata resta in alto, i passaggi sono a 15,5 px; «🔔 Prova audio» suona un bip, dice una frase di prova e spiega che cosa fare se non si sente (muto, volume «Multimedia», voce del telefono) |
 | Voce, tocco e Spiega senza chiave (3 per larghezza) | Scritta una traccia, Spectra la spiega **da sola a voce** dopo 1,4 s, senza toccare «🔊»; un tocco **sull'ologramma stesso** (il pannello alla destra di Spectra, colpito con un raggio dalla telecamera) lo apre interattivo; «🧠 Spiega» **senza chiave** risponde comunque alla domanda (pH di HCl 0,01 M: lo svolgimento dell'assistente locale per intero) e lo dice a voce |
@@ -564,7 +564,7 @@ il contesto WebGL **non deve esistere**, poco dopo **deve**. Misurato 0 e 1; e
 la misura non è vacua, perché al secondo click — quando la tela c'è già —
 restituisce 1.
 
-**`test_risveglio` — 91 controlli (v251).** Nasce dai video che l'autore ha
+**`test_risveglio` — 99 controlli (v251, v252).** Dalla v252 apre il menu ✨ vero, quello che si tocca sul telefono, e pretende la sezione «🤖 Spectra» come prima sezione, con le quattro voci che aprono davvero la loro finestra: nella v251 le voci stavano in un elenco che non si vede, e il banco, che cercava il testo nella pagina, non se n'era accorto. Pretende anche il riquadro delle novità, una volta sola e solo a chi ha già parlato con Spectra. Nasce dai video che l'autore ha
 indicato come modello: un assistente che si sveglia con una sequenza di avvio,
 dice il meteo e gli impegni, saluta quando si torna a casa, fa il punto alle 8
 e alle 20, cambia colore con la batteria scarica e mostra la sua memoria come
@@ -1030,4 +1030,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v251`._
+_Documento aggiornato alla versione `bsi-v252`._

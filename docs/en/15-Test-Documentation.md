@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v251` |
+| **Version described** | `bsi-v252` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -420,7 +420,7 @@ it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
 | Universe (7, in node) | Earth: Kepler period 1 year, vis-viva **30.29 km/s** at perihelion and **29.29 km/s** at aphelion; Mars: speed ratio = (1+e)/(1−e), surface gravity **3.71 m/s²**; Earth escape velocity **11.19 km/s**; a written orbit with a = 4 AU → T = 8 years |
 | The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
 | Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
-| The ✨ menu in the hologram (v248: 3 per width) | The list also has the **15 ✨ menu entries** (8 pages and 7 windows: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) and the Centro spettri; «Astrochimica 3D PRO» opens **inside the frame** (its real page) and is removed on changing mode; for a window (Lab Quantistico) «↗ Apri la sezione» closes the hologram and opens it |
+| The ✨ menu in the hologram (v248: 3 per width) | The list also has the **19 ✨ menu entries** (8 pages and 11 windows, among them since v252 Sveglia Spectra, Occhiali e dispositivi, Agenda and Rete neurale: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) and the Centro spettri; «Astrochimica 3D PRO» opens **inside the frame** (its real page) and is removed on changing mode; for a window (Lab Quantistico) «↗ Apri la sezione» closes the hologram and opens it |
 | «🗂️ Tutta l'app» (v248: 4 per width) | The list has **all** the sections of the bar (201/201, read from the catalogue, not hand-written), filterable by subject and by name; the Periodic Table, with no graphs, is **really hosted** in the frame (the real section, moved and alive); choosing another section puts it back and «Sistema solare 3D» is shown **live** with its lesson; once the window is closed the app is back in the starting section |
 | Reading on the phone and audio test (v248: 2 at 412 px, 1 at 1280 px) | On the phone **the whole window scrolls**: the last step reaches at least 70 px from the edge (above the Android keys), the header stays on top, the steps are at 15.5 px; «🔔 Prova audio» plays a beep, says a test sentence and explains what to do if nothing is heard (mute, «Media» volume, phone voice) |
 | Voice, tap and Spiega without a key (3 per width) | Once a trace is written, Spectra explains it **aloud on her own** after 1.4 s, without touching «🔊»; a tap **on the hologram itself** (the panel to Spectra's right, hit with a ray from the camera) opens it in interactive mode; «🧠 Spiega» **without a key** still answers the question (pH of 0.01 M HCl: the local assistant's full working) and says it aloud |
@@ -543,7 +543,7 @@ original defect: immediately after the click handler returns the WebGL context
 measurement is not vacuous, because on a second click — when the canvas is
 already there — it returns 1.
 
-**`test_risveglio` — 91 checks (v251).** It comes from the videos the
+**`test_risveglio` — 99 checks (v251, v252).** Since v252 it opens the real ✨ menu, the one tapped on a phone, and demands the «🤖 Spectra» section as the first section, with the four entries really opening their window: in v251 the entries sat in a list that is not shown, and the bench, which looked for the text in the page, had not noticed. It also demands the news panel, once only and only for those who have already talked to Spectra. It comes from the videos the
 author pointed to as a model: an assistant that wakes up with a start-up
 sequence, tells the weather and the commitments, greets you when you come home,
 gives a briefing at 8:00 and 20:00, changes colour on a low battery and shows
@@ -1005,4 +1005,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v251`._
+_Document updated to version `bsi-v252`._

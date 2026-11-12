@@ -7,6 +7,27 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v252] — 2026-11-12
+
+**Correzione: le funzioni nuove di Spectra non si vedevano nel menu ✨**
+
+Segnalazione dell'autore dal telefono: «non c'è nulla». Aveva ragione. Le voci
+Sveglia, Agenda e Rete neurale della v251 erano state aggiunte a un elenco del
+menu che l'app non mostra più; il menu che si apre dal pulsante ✨ è un altro.
+Il banco di prova cercava il testo nella pagina invece di aprire il menu, e
+per questo non se n'era accorto.
+
+### Corretto
+- **Menu ✨**: nuova sezione **🤖 Spectra**, la prima, con 🌅 Sveglia Spectra,
+  👓 Occhiali e dispositivi, 🗓️ Agenda di Spectra, 🧠 Rete neurale di Spectra.
+- **Ologramma → Tutta l'app**: anche lì le quattro voci (da 15 a 19 voci del
+  menu).
+- **Novità di Spectra**: a chi ha già parlato con Spectra compare, una volta
+  sola, un riquadro in basso con i quattro pulsanti.
+- `test_risveglio` ora apre il menu vero e tocca le voci (99 controlli);
+  `test_spectra_olo` conta 19 voci.
+
+---
 ## [bsi-v251] — 2026-11-12
 
 **Spectra assistente di ogni giorno, dentro l'app: si sveglia, dice meteo e impegni, ricorda, fa il punto alle 8 e alle 20, mostra la sua memoria come neuroni. Senza installare nulla**
