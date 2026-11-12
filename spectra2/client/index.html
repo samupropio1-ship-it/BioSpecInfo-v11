@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04070f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Spectra</title>
+<link rel="manifest" href="/client/manifest.json">
+<link rel="icon" href="data:,">
+<!--
+  Il client di Spectra: UNA pagina, la stessa su computer, Android e iPhone.
+  Non ha memoria ne' chiavi dei modelli: parla con il servizio (spectra/servizio.py).
+  · scrivi o parla; Spectra risponde con la sua voce (tono 0,58 · velocita' 0,88)
+  · «Ascolto continuo»: la pagina ascolta e reagisce quando sente «Spectra, …»
+  · cio' che succede su un altro dispositivo compare anche qui; a parlare e' un dispositivo solo
+  Si installa: «Aggiungi a schermata Home» (iPhone, Android) o «Installa» (computer).
+-->
+<style>
+  :root { --sfondo:#04070f; --carta:#0b1322; --bordo:#1a2a44; --testo:#dfe8f5; --tenue:#8296b5; --luce:#6bcfff; --acqua:#00c9b7; --oro:#ffd27a; --rosso:#ff7a8a; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--sfondo); color: var(--testo); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { display: flex; flex-direction: column; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--bordo); }
+  #nucleo { width: 38px; height: 38px; border-radius: 50%; flex: none; border: 2px solid var(--luce); box-shadow: 0 0 14px rgba(107,207,255,.45), inset 0 0 12px rgba(107,207,255,.35); transition: all .25s; }
+  #nucleo.ascolta { border-color: var(--acqua); box-shadow: 0 0 22px rgba(0,201,183,.8), inset 0 0 14px rgba(0,201,183,.6); animation: battito 1.1s ease-in-out infinite; }
+  #nucleo.pensa { border-color: var(--oro); box-shadow: 0 0 20px rgba(255,210,122,.7); animation: battito .7s ease-in-out infinite; }
+  #nucleo.parla { border-color: #fff; box-shadow: 0 0 26px rgba(255,255,255,.75), inset 0 0 16px rgba(107,207,255,.7); animation: battito .45s ease-in-out infinite; }
+  #nucleo.assente { border-color: #45556e; box-shadow: none; }
+  @keyframes battito { 50% { transform: scale(1.12); } }
+  @media (prefers-reduced-motion: reduce) { #nucleo { animation: none !important; } }
+  header h1 { font: 800 15px/1 ui-monospace, monospace; letter-spacing: .28em; margin: 0; color: var(--luce); }
+  #stato { font-size: 12.5px; color: var(--tenue); margin-top: 3px; }
+  header button { margin-left: auto; }
+  button { font: 600 14px system-ui; color: var(--testo); background: var(--carta); border: 1px solid var(--bordo); border-radius: 10px; padding: 9px 12px; min-height: 42px; cursor: pointer; }
+  button.primario { background: linear-gradient(135deg, #1d4ed8, #0e7490); border-color: transparent; color: #fff; }
+  button[aria-pressed="true"] { border-color: var(--acqua); color: var(--acqua); }
+  main { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
+  .m { max-width: 88%; padding: 10px 13px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .m.io { align-self: flex-end; background: #12305a; border: 1px solid #1f4a86; }
+  .m.lui { align-self: flex-start; background: var(--carta); border: 1px solid var(--bordo); border-left: 3px solid var(--luce); }
+  .m.nota { align-self: center; background: none; border: 1px dashed var(--bordo); color: var(--tenue); font-size: 13px; text-align: center; }
+  .m.promemoria { align-self: flex-start; background: rgba(255,210,122,.08); border: 1px solid rgba(255,210,122,.5); color: var(--oro); }
+  .m small { display: block; color: var(--tenue); font-size: 11.5px; margin-top: 4px; }
+  footer { border-top: 1px solid var(--bordo); padding: 10px 12px; display: flex; gap: 8px; align-items: flex-end; }
+  textarea { flex: 1; min-height: 44px; max-height: 140px; resize: none; background: var(--carta); color: var(--testo); border: 1px solid var(--bordo); border-radius: 12px; padding: 10px 12px; font: inherit; }
+  input, select { width: 100%; background: var(--carta); color: var(--testo); border: 1px solid var(--bordo); border-radius: 10px; padding: 11px 12px; font: inherit; min-height: 44px; }
+  #impostazioni { position: fixed; inset: 0; background: rgba(2,5,12,.92); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 10; }
+  #impostazioni.aperto { display: flex; }
+  #impostazioni form { width: min(460px, 100%); background: var(--carta); border: 1px solid var(--bordo); border-radius: 16px; padding: 18px; display: grid; gap: 12px; }
+  #impostazioni h2 { margin: 0; font-size: 18px; } label { display: grid; gap: 5px; font-size: 13.5px; color: var(--tenue); }
+  .riga { display: flex; gap: 8px; } .riga > * { flex: 1; }
+  #errore { color: var(--rosso); font-size: 13.5px; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<header>
+  <div id="nucleo" class="assente" role="img" aria-label="Lo stato di Spectra"></div>
+  <div><h1>SPECTRA</h1><div id="stato" role="status">non collegato</div></div>
+  <button type="button" id="b-continuo" aria-pressed="false" title="La pagina ascolta e risponde quando dici «Spectra, …»">👂 Ascolto continuo</button>
+  <button type="button" id="b-imposta" aria-label="Impostazioni">⚙︎</button>
+</header>
+<main id="dialogo" aria-live="polite"></main>
+<footer>
+  <button type="button" id="b-mic" aria-label="Parla">🎙</button>
+  <textarea id="testo" rows="1" placeholder="Scrivi a Spectra…" aria-label="Messaggio"></textarea>
+  <button type="button" id="b-invia" class="primario">Invia</button>
+</footer>
+
+<div id="impostazioni" role="dialog" aria-modal="true" aria-labelledby="t-imp">
+  <form id="f-imp">
+    <h2 id="t-imp">Collega Spectra</h2>
+    <label>Indirizzo del servizio<input id="i-url" type="url" inputmode="url" placeholder="https://spectra.tua-rete.ts.net" autocomplete="off"></label>
+    <label>Gettone<input id="i-gettone" type="password" autocomplete="off" placeholder="quello scelto all'avvio del servizio"></label>
+    <div class="riga">
+      <label>Nome di questo dispositivo<input id="i-nome" autocomplete="off"></label>
+      <label>Tipo<select id="i-tipo"><option value="computer">computer</option><option value="android">Android</option><option value="iphone">iPhone</option><option value="browser">browser</option></select></label>
+    </div>
+    <label class="riga" style="align-items:center;grid-auto-flow:column"><input id="i-voce" type="checkbox" style="width:22px;min-height:22px;flex:none" checked> <span>Spectra parla su questo dispositivo</span></label>
+    <div id="errore" role="alert"></div>
+    <div class="riga"><button type="button" id="b-chiudi">Annulla</button><button type="submit" class="primario">Collega</button></div>
+  </form>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var D = document, $ = function (id) { return D.getElementById(id); };
+  var CHIAVE = 'spectra-client-v1';
+  var VOCE = { pitch: 0.58, rate: 0.88, volume: 1 };          // i parametri fissati per Spectra
+  var S = { url: '', gettone: '', id: '', nome: '', tipo: 'browser', voce: true, ultimo: -1, continuo: false, occupato: false, inAttesaDiComando: 0 };
+
+  /* ── impostazioni: restano su questo dispositivo ── */
+  function tipoDi(ua) { return /iPhone|iPad|iPod/.test(ua) ? 'iphone' : /Android/.test(ua) ? 'android' : /Windows|Macintosh|Linux/.test(ua) ? 'computer' : 'browser'; }
+  function leggi() {
+    try { var o = JSON.parse(localStorage.getItem(CHIAVE) || '{}'); for (var k in o) if (k in S) S[k] = o[k]; } catch (e) {}
+    if (!S.id) S.id = (S.tipo = tipoDi(navigator.userAgent)) + '-' + Math.random().toString(36).slice(2, 8);
+    if (!S.nome) S.nome = { iphone: 'iPhone', android: 'telefono', computer: 'computer', browser: 'browser' }[S.tipo];
+    if (!S.url) S.url = location.protocol.indexOf('http') === 0 ? location.origin : '';
+  }
+  function salva() { try { localStorage.setItem(CHIAVE, JSON.stringify({ url: S.url, gettone: S.gettone, id: S.id, nome: S.nome, tipo: S.tipo, voce: S.voce })); } catch (e) {} }
+
+  /* ── il servizio ── */
+  function chiama(metodo, strada, corpo, attesaMs) {
+    var ctl = new AbortController(), t = setTimeout(function () { ctl.abort(); }, attesaMs || 130000);
+    return fetch(S.url.replace(/\/+$/, '') + strada, { method: metodo, signal: ctl.signal, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + S.gettone }, body: corpo ? JSON.stringify(corpo) : undefined })
+      .then(function (r) { clearTimeout(t); return r.json().then(function (d) { if (!r.ok) { var e = new Error(d.errore || ('HTTP ' + r.status)); e.stato = r.status; throw e; } return d; }); },
+            function (e) { clearTimeout(t); throw e; });
+  }
+
+  /* ── lo schermo ── */
+  function stato(classe, testo) { $('nucleo').className = classe; if (testo != null) $('stato').textContent = testo; }
+  function ora() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+  function scrivi(classe, testo, nota) {
+    var m = D.createElement('div'); m.className = 'm ' + classe; m.textContent = testo;
+    if (nota) { var s = D.createElement('small'); s.textContent = nota; m.appendChild(s); }
+    var d = $('dialogo'); d.appendChild(m); d.scrollTop = d.scrollHeight; return m;
+  }
+
+  /* ── la voce di Spectra: la sintesi del dispositivo, frase per frase ── */
+  var giro = 0;
+  function zitto() { giro++; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {} }
+  function di(testo, fatto) {
+    if (!S.voce || !('speechSynthesis' in window) || !testo) { if (fatto) fatto(); return; }
+    var cera = false; try { cera = speechSynthesis.speaking || speechSynthesis.pending; } catch (e) {}
+    zitto(); var mio = giro, frasi = (String(testo).match(/[^.!?;:\n]+[.!?;:]*/g) || [testo]).map(function (x) { return x.trim(); }).filter(Boolean), i = 0;
+    var android = /Android/i.test(navigator.userAgent), voci = []; try { voci = speechSynthesis.getVoices() || []; } catch (e) {}
+    var it = voci.filter(function (v) { return /^it/i.test(v.lang); }), preferita = it.filter(function (v) { return /luca|diego|giorgio|cosimo|male|uomo/i.test(v.name); })[0] || it[0] || null;
+    stato('parla', 'parla');
+    var prossima = function () {
+      if (mio !== giro) return;
+      if (i >= frasi.length) { stato(S.continuo ? 'ascolta' : '', S.continuo ? 'in ascolto: di’ «Spectra, …»' : 'presente'); if (fatto) fatto(); return; }
+      var u = new SpeechSynthesisUtterance(frasi[i++]); u.pitch = VOCE.pitch; u.rate = VOCE.rate; u.volume = VOCE.volume; u.lang = 'it-IT';
+      if (preferita && !android) u.voice = preferita;      // su Android si dichiara solo la lingua: la voce predefinita e' la piu' affidabile
+      window._spectraFrase = u;                             // tenuta in vita finche' parla
+      var finita = false, avanti = function () { if (finita) return; finita = true; prossima(); };
+      u.onend = avanti; u.onerror = function (e) { if (e && (e.error === 'interrupted' || e.error === 'canceled')) return; avanti(); };
+      try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { avanti(); }
+    };
+    if (cera) setTimeout(prossima, 160); else prossima();     // parlare subito dopo un annullamento, su Android, fa cadere la frase
+  }
+
+  /* ── un turno ── */
+  function invia(testo, canale) {
+    testo = String(testo || '').trim(); if (!testo || S.occupato) return Promise.resolve(null);
+    if (!S.gettone && !/^(http:\/\/)?(127\.0\.0\.1|localhost)/.test(S.url)) { apriImpostazioni(); return Promise.resolve(null); }
+    S.occupato = true; zitto(); scrivi('io', testo, ora() + (canale === 'voce' ? ' · a voce' : ''));
+    stato('pensa', 'pensa');
+    return chiama('POST', '/turno', { testo: testo, canale: canale || 'testo', dispositivo: S.id, tipo: S.tipo })
+      .then(function (d) {
+        S.occupato = false;
+        scrivi('lui', d.testo, ora() + (d.strumenti && d.strumenti.length ? ' · ha usato: ' + d.strumenti.join(', ') : ''));
+        di(d.voce || d.testo); if (!S.voce) stato(S.continuo ? 'ascolta' : '', 'presente'); return d;
+      }, function (e) {
+        S.occupato = false; stato('assente', 'non raggiungibile');
+        scrivi('nota', e.stato === 401 ? 'Gettone non valido: controlla le impostazioni.' : 'Non riesco a raggiungere Spectra (' + (e.message || e) + ').'); return null;
+      });
+  }
+
+  /* ── gli eventi dagli altri dispositivi: un'attesa lunga, sempre aperta ── */
+  var errori = 0;
+  function ascoltaEventi() {
+    if (!S.url) return;
+    chiama('GET', '/eventi?dispositivo=' + encodeURIComponent(S.id) + '&tipo=' + S.tipo + '&dopo=' + S.ultimo + '&attesa=20', null, 30000)
+      .then(function (d) {
+        errori = 0; S.ultimo = d.ultimo; if ($('nucleo').className === 'assente') stato(S.continuo ? 'ascolta' : '', 'presente');
+        (d.eventi || []).forEach(function (ev) {
+          if (ev.tipo === 'turno') { scrivi('io', ev.dati.utente, 'da un altro dispositivo · ' + ev.dati.canale); scrivi('lui', ev.dati.spectra, ora()); }   // si mostra, non si dice: lo ha gia' detto la'
+          else if (ev.tipo === 'promemoria' || ev.tipo === 'iniziativa') {
+            scrivi(ev.tipo === 'promemoria' ? 'promemoria' : 'lui', ev.dati.frase, ora());
+            if (!ev.dati.parla_su || ev.dati.parla_su === S.id) di(ev.dati.frase);      // parla UN dispositivo solo
+          }
+        });
+      }, function (e) { errori++; if (e.stato === 401) { stato('assente', 'gettone non valido'); errori = 6; } else stato('assente', 'non raggiungibile'); })
+      .then(function () { setTimeout(ascoltaEventi, errori ? Math.min(60000, 1000 * Math.pow(2, errori)) : 30); });
+  }
+
+  /* ── il nome «Spectra» come parola di attivazione ───────────────────────────────────────────────
+     Dalla trascrizione si prende cio' che segue il nome. Il riconoscimento vocale lo scrive in molti modi
+     (spettra, spectre, spetra, spektra, «spectra» attaccato a una virgola): si accettano tutti.
+       «Spectra, che ore sono?»          → «che ore sono?»
+       «ehi Spectra»                     → '' (ha detto solo il nome: la frase dopo e' il comando)
+       «domani vado a spettrometria»     → null (non lo sta chiamando) */
+  var NOME = /(?:^|[\s,.;:!?¿¡«"'(])(?:ehi\s+|hey\s+|ok\s+|senti\s+)?(spectra|spettra|spectre|spetra|spektra|spekt?tra|specter)(?=$|[\s,.;:!?»"')])[\s,.;:!?]*/i;
+  function estraiComando(trascrizione) {
+    var t = String(trascrizione || '').trim(), m = NOME.exec(t);
+    if (!m) return null;
+    return t.slice(m.index + m[0].length).trim();
+  }
+
+  var Riconoscimento = window.SpeechRecognition || window.webkitSpeechRecognition, ric = null;
+  function ascoltaUnaVolta() {
+    if (!Riconoscimento) { scrivi('nota', 'Questo browser non ha il riconoscimento vocale: scrivi, oppure usa Chrome o Safari.'); return; }
+    zitto(); if (ric) { try { ric.abort(); } catch (e) {} }
+    var r = ric = new Riconoscimento(); r.lang = 'it-IT'; r.interimResults = false; r.maxAlternatives = 1;
+    stato('ascolta', 'ti ascolto');
+    r.onresult = function (e) { var t = e.results[0][0].transcript; invia(estraiComando(t) || t, 'voce'); };
+    r.onerror = function () { stato(S.continuo ? 'ascolta' : '', 'presente'); };
+    r.onend = function () { if ($('nucleo').className === 'ascolta' && !S.continuo) stato('', 'presente'); if (S.continuo) setTimeout(continuo, 300); };
+    try { r.start(); } catch (e) {}
+  }
+  function continuo() {
+    if (!S.continuo || !Riconoscimento) return;
+    if (S.occupato || $('nucleo').className === 'parla') { setTimeout(continuo, 500); return; }   // mentre pensa o parla non ascolta: sentirebbe se stesso
+    var r = ric = new Riconoscimento(); r.lang = 'it-IT'; r.continuous = true; r.interimResults = false;
+    stato('ascolta', 'in ascolto: di’ «Spectra, …»');
+    r.onresult = function (e) {
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (!e.results[i].isFinal) continue;
+        var t = e.results[i][0].transcript, c = estraiComando(t);
+        if (c === null && Date.now() < S.inAttesaDiComando) c = t.trim();      // ha detto «Spectra», pausa, poi la frase
+        if (c === null) continue;
+        if (c === '') { S.inAttesaDiComando = Date.now() + 8000; stato('ascolta', 'dimmi'); di('Sì.'); continue; }
+        S.inAttesaDiComando = 0; try { r.abort(); } catch (x) {}
+        invia(c, 'voce'); return;
+      }
+    };
+    r.onend = function () { if (S.continuo) setTimeout(continuo, 400); };      // il browser chiude l'ascolto ogni tanto: si riapre
+    r.onerror = function (e) { if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) { S.continuo = false; $('b-continuo').setAttribute('aria-pressed', 'false'); scrivi('nota', 'Il microfono non è permesso: consentilo per questa pagina.'); stato('', 'presente'); } };
+    try { r.start(); } catch (e) {}
+  }
+
+  /* ── i comandi dell'interfaccia ── */
+  function apriImpostazioni() { $('i-url').value = S.url; $('i-gettone').value = S.gettone; $('i-nome').value = S.nome; $('i-tipo').value = S.tipo; $('i-voce').checked = S.voce; $('errore').textContent = ''; $('impostazioni').classList.add('aperto'); }
+  $('b-imposta').onclick = apriImpostazioni;
+  $('b-chiudi').onclick = function () { $('impostazioni').classList.remove('aperto'); };
+  $('f-imp').onsubmit = function (e) {
+    e.preventDefault();
+    S.url = $('i-url').value.trim() || location.origin; S.gettone = $('i-gettone').value.trim(); S.nome = $('i-nome').value.trim() || S.nome; S.tipo = $('i-tipo').value; S.voce = $('i-voce').checked;
+    $('errore').textContent = 'Provo…';
+    chiama('GET', '/stato', null, 15000).then(function (d) {
+      salva(); $('impostazioni').classList.remove('aperto'); stato('', 'presente');
+      var n = 0; for (var k in d.memoria) n += d.memoria[k];
+      scrivi('nota', 'Collegato. Ricordi: ' + n + ' · impegni aperti: ' + d.agenda + ' · dispositivi: ' + d.dispositivi.length + '.');
+      S.ultimo = -1; errori = 0;
+    }, function (er) { $('errore').textContent = er.stato === 401 ? 'Gettone non valido.' : 'Servizio non raggiungibile a questo indirizzo.'; });
+  };
+  $('b-invia').onclick = function () { var t = $('testo'); invia(t.value, 'testo'); t.value = ''; t.style.height = ''; };
+  $('testo').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('b-invia').click(); } });
+  $('testo').addEventListener('input', function () { this.style.height = ''; this.style.height = Math.min(140, this.scrollHeight) + 'px'; });
+  $('b-mic').onclick = ascoltaUnaVolta;
+  $('b-continuo').onclick = function () {
+    S.continuo = !S.continuo; this.setAttribute('aria-pressed', String(S.continuo));
+    if (S.continuo) { if (!Riconoscimento) { S.continuo = false; this.setAttribute('aria-pressed', 'false'); scrivi('nota', 'Questo browser non ha il riconoscimento vocale continuo.'); return; } di(''); continuo(); }
+    else { try { if (ric) ric.abort(); } catch (e) {} stato('', 'presente'); }
+  };
+  $('nucleo').onclick = function () { if (this.className === 'parla') { zitto(); stato(S.continuo ? 'ascolta' : '', 'presente'); } };
+
+  leggi(); salva();
+  window.SpectraClient = { estraiComando: estraiComando, invia: invia, stato: function () { return { id: S.id, tipo: S.tipo, url: S.url, continuo: S.continuo, ultimo: S.ultimo }; }, tipoDi: tipoDi, VOCE: VOCE };
+  if (!S.gettone && !/^https?:\/\/(127\.0\.0\.1|localhost)/.test(S.url)) apriImpostazioni();
+  ascoltaEventi();
+})();
+</script>
+</body>
+</html>

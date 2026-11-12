@@ -25,7 +25,9 @@ from typing import Any, Callable, Sequence
 
 from .fornitori import Orchestratore, PensatoreLLM, Risposta, Strumento
 from .memoria import Archivio, Cura, Lacune, Obiettivi, Recupero, SeStesso, stima
+from .memoria.agenda import Agenda
 from .memoria.archivio import adesso
+from .presenza import Presenza
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 
@@ -72,6 +74,8 @@ class Spectra:
         self.lacune = Lacune(archivio)
         self.recupero = Recupero(archivio)
         self.cura = Cura(archivio, PensatoreLLM(orchestratore))
+        self.agenda = Agenda(archivio)
+        self.presenza = Presenza(archivio)
         self.sistema = sistema or prompt_di_sistema()
         self.esterni = list(strumenti_esterni)
         self.esegui_esterno = esegui_esterno
@@ -101,6 +105,15 @@ class Spectra:
               ogg({"domanda": {"type": "string"}, "argomento": {"type": "string"}, "piano": {"type": "array", "items": {"type": "string"}}}, ["domanda", "piano"])),
             S("dimentica", "Cancella davvero dalla memoria i ricordi che corrispondono alla descrizione. Solo su richiesta dell'utente.",
               ogg({"cosa": {"type": "string"}}, ["cosa"])),
+            # ── l'agenda: l'assistente personale ──
+            S("segna_impegno", "Segna in agenda un promemoria (a un'ora precisa), un compito (da fare, con o senza scadenza) o un evento. «quando» in ISO (2026-02-12T09:00) "
+              "oppure a parole: «fra 2 ore», «domani alle 18», «venerdì alle 9». Usalo ogni volta che l'utente dice che deve fare o ricordare qualcosa.",
+              ogg({"testo": {"type": "string"}, "genere": {"type": "string", "enum": ["promemoria", "compito", "evento"]}, "quando": {"type": "string"},
+                   "anticipo_minuti": {"type": "number", "description": "quanto prima avvisare"}, "ripeti": {"type": "string", "enum": ["giorno", "settimana", "mese"]}}, ["testo", "genere"])),
+            S("leggi_agenda", "Elenca gli impegni aperti, i più vicini prima. Usalo per rispondere a «cosa devo fare oggi/domani/questa settimana».",
+              ogg({"giorni": {"type": "number", "description": "solo quelli entro tanti giorni; ometti per tutti"}}, [])),
+            S("chiudi_impegno", "Chiude, annulla o rimanda un impegno, indicato con qualche parola del suo testo.",
+              ogg({"cosa": {"type": "string"}, "azione": {"type": "string", "enum": ["fatto", "annulla", "rimanda"]}, "quando": {"type": "string", "description": "per «rimanda»: a quando"}}, ["cosa", "azione"])),
         ]
 
     def _esegui(self, sessione: str) -> Callable[[str, dict], str]:
@@ -142,6 +155,32 @@ class Spectra:
                 for x in tr:
                     self.a.cancella(x.ricordo.id, "richiesta dell'utente")
                 return f"cancellati {len(tr)} ricordi" if tr else "non ho trovato ricordi che corrispondano"
+            if nome == "segna_impegno":
+                try:
+                    i = self.agenda.aggiungi(arg["testo"], genere=arg["genere"], quando=arg.get("quando"), anticipo_minuti=float(arg.get("anticipo_minuti", 0)), ripeti=arg.get("ripeti"))
+                except ValueError as e:                # una data non capita torna al modello, che la chiede all'utente: non si inventa
+                    return str(e)
+                return "segnato: " + i.riga()
+            if nome == "leggi_agenda":
+                g = arg.get("giorni")
+                voci = self.agenda.aperti(entro=float(g) * 86400 if g else None)
+                return "\n".join(i.riga() for i in voci[:20]) or "niente in agenda"
+            if nome == "chiudi_impegno":
+                cand = self.agenda.trova(arg["cosa"])
+                if len(cand) != 1:
+                    return "impegno non trovato" if not cand else "più impegni corrispondono: " + "; ".join(i.testo for i in cand[:5])
+                if arg["azione"] == "fatto":
+                    seguente = self.agenda.completa(cand[0].id)
+                    return "fatto: " + cand[0].testo + (". Il prossimo: " + seguente.riga() if seguente else "")
+                if arg["azione"] == "annulla":
+                    self.agenda.annulla(cand[0].id)
+                    return "annullato: " + cand[0].testo
+                if not arg.get("quando"):
+                    return "per rimandare serve «quando»"
+                try:
+                    return "rimandato: " + self.agenda.rimanda(cand[0].id, arg["quando"]).riga()
+                except ValueError as e:
+                    return str(e)
             if self.esegui_esterno:
                 return self.esegui_esterno(nome, arg)
             raise ValueError(f"strumento sconosciuto: {nome}")
@@ -152,8 +191,10 @@ class Spectra:
         """La parte del turno che cambia ogni volta. Sta nel messaggio dell'utente, DOPO la storia stabile, per non rompere la cache del prompt."""
         ora = time.strftime("%A %d %B %Y, %H:%M", time.localtime())
         lacune = self.lacune.aperte(5)
-        parti = ["[IO]\n" + self.se.estratto(),
+        parti = [self.presenza.blocco(sessione, canale),
+                 "[IO]\n" + self.se.estratto(),
                  "[OBIETTIVI]\n" + self.obiettivi.estratto(),
+                 "[AGENDA]\n" + self.agenda.estratto(),
                  "[RICORDI]\n" + (self.recupero.contesto(trovati) or "(nessun ricordo pertinente: se serve, cerca_nella_memoria)")]
         if lacune:
             parti.append("[LACUNE]\n" + "\n".join(f"- {l['domanda']}" for l in lacune))
@@ -163,13 +204,16 @@ class Spectra:
         parti.append(adesso_)
         return "\n\n".join(parti) + "\n\n[MESSAGGIO]\n" + testo
 
-    def turno(self, testo: str, *, sessione: str = "principale", canale: str = "testo", immagini: Sequence[dict] = (), contesto: dict | None = None) -> Esito:
+    def turno(self, testo: str, *, sessione: str = "principale", canale: str = "testo", immagini: Sequence[dict] = (), contesto: dict | None = None,
+              dispositivo: str | None = None, tipo_dispositivo: str = "browser") -> Esito:
         testo = (testo or "").strip()
         if not testo and not immagini:
             raise ValueError("un turno vuoto non si elabora")
         # «non ora»: l'iniziativa tace per il resto della sessione
         if re.search(r"\b(non ora|dopo|lasciami stare|non adesso)\b", testo, re.I):
             self._silenzio[sessione] = adesso() + 3 * 3600
+        if dispositivo:
+            self.presenza.tocca(dispositivo, tipo_dispositivo, uso=True)
         modo = modo_di(testo)
         obi = [o.testo() for o in self.obiettivi.attivi()]
         trovati = self.recupero.cerca(testo or "ciò che sto guardando", k=8, modo=modo, obiettivi=obi)
@@ -190,6 +234,8 @@ class Spectra:
         lacuna = None
         if _NON_SO.search(detto) and not any(u["nome"] == "registra_lacuna" for u in risposta.strumenti_usati):
             lacuna = self.lacune.apri(testo[:300], argomento=modo, piano=["cercare nella memoria e nell'app", "verificare su una fonte", "chiedere all'utente se resta il dubbio"])
+        # la presenza: il turno compare anche sugli altri dispositivi (che mostrano, non parlano)
+        self.presenza.pubblica("turno", {"utente": testo, "spectra": detto, "canale": canale, "sessione": sessione}, origine=dispositivo)
         return Esito(detto, per_la_voce(detto), risposta, [t.ricordo.id for t in trovati], modo, lacuna)
 
     # ── l'iniziativa ─────────────────────────────────────────────────────
@@ -200,6 +246,15 @@ class Spectra:
         Restituisce la frase da dire, oppure None (che e' la risposta giusta quasi sempre).
         """
         t = adesso()
+        # i promemoria non sono un'iniziativa di Spectra: li ha chiesti l'utente, arrivano all'ora giusta anche dopo un «non ora»
+        dovuti = self.agenda.da_avvisare(t)
+        if dovuti:
+            i = dovuti[0]
+            self.agenda.segna_avvisato(i.id)
+            quando = "adesso" if abs(i.quando - t) < 120 else ("fra " + _durata_breve(i.quando - t) if i.quando > t else "da " + _durata_breve(t - i.quando))
+            frase = {"promemoria": "Promemoria", "compito": "Scadenza", "evento": "Evento"}[i.genere] + f": {i.testo} — {quando}."
+            self.a.annota("promemoria", id=i.id, frase=frase)
+            return frase
         if t < self._silenzio.get(sessione, 0) or t - self._ultima_iniziativa.get(sessione, 0) < intervallo:
             return None
         frase = None
@@ -234,8 +289,13 @@ class Spectra:
         return self.cura.ciclo_notturno()
 
     def stato(self) -> dict[str, Any]:
-        return {"memoria": self.a.conta(), "obiettivi": [o.titolo for o in self.obiettivi.attivi()], "lacune": len(self.lacune.aperte()),
+        return {"dispositivi": [{k: d[k] for k in ("id", "tipo", "collegato")} for d in self.presenza.dispositivi()], "agenda": len(self.agenda.aperti()),
+                "memoria": self.a.conta(), "obiettivi": [o.titolo for o in self.obiettivi.attivi()], "lacune": len(self.lacune.aperte()),
                 "capacita": {k: v["fiducia"] for k, v in (self.se.leggi("capacita") or {}).items()}}
+
+
+def _durata_breve(s: float) -> str:
+    return f"{max(1, round(s / 60))} minuti" if s < 5400 else f"{round(s / 3600)} ore" if s < 129600 else f"{round(s / 86400)} giorni"
 
 
 _SIMBOLI = [(r"\*\*|__|`|#+\s", ""), (r"\[(.*?)\]\([^)]*\)", r"\1"), (r"→", " dà "), (r"⇌", " in equilibrio con "), (r"≈", " circa "), (r"°C", " gradi Celsius"),

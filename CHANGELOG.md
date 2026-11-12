@@ -93,6 +93,38 @@ esso.
   oggetto finto con la forma documentata.
 - Il dettaglio, voce per voce, è in `spectra2/README.md`, sezione 7.
 
+### Aggiunto dopo la v250 (`spectra2/`): continuità, assistente personale, più dispositivi
+Richiesta dell'autore: non un assistente ma una presenza continua, la stessa su
+computer, Android, iPhone e occhiali, che risponde al nome «Spectra» e fa anche
+da assistente di ogni giorno. L'app BioSpecInfo non cambia.
+- **Continuità** (`spectra/presenza.py`): a ogni turno il blocco `[CONTINUITÀ]`
+  dice quanto tempo è passato, da quale dispositivo parlava e da quale parla
+  ora, e che cosa Spectra ha fatto da solo nel frattempo, letto dal registro.
+- **Una conversazione, più dispositivi**: la sessione è una; ogni turno diventa
+  un evento che gli altri dispositivi mostrano; ciò che Spectra dice di sua
+  iniziativa lo dice **un solo** dispositivo, l'ultimo usato.
+- **Battito**: ogni 30 secondi il servizio controlla se un promemoria è giunto
+  all'ora o se c'è un'iniziativa che vale l'interruzione.
+- **Agenda** (`spectra/memoria/agenda.py`): promemoria, compiti, eventi; date
+  dette a parole («domani alle 18», «fra due ore»); ricorrenze, rinvii. Una
+  data non capita viene rifiutata e chiesta, non indovinata.
+- **Client web** (`client/index.html`), servito dal servizio stesso: testo,
+  voce, e l'ascolto del nome «Spectra» come parola di attivazione.
+- **Ponte per gli occhiali**: ascolto del nome sul telefono, stessa
+  conversazione degli altri dispositivi, promemoria detti negli occhiali.
+- **Documenti**: `IDENTITA.md`, `GUIDA.md` (passo per passo, per chi non
+  programma), `PROMEMORIA.md` (per riprendere il lavoro in una nuova
+  conversazione).
+- Prove: da 47 a **60**, fra cui il client in un browser vero con un computer
+  e un iPhone emulato.
+
+### Limiti dichiarati
+- Nessun turno con un modello vero è stato ancora eseguito.
+- Il ponte Android non è mai stato compilato; «Hey Meta» resta di Meta, e
+  Spectra risponde al suo nome solo con l'ascolto acceso sul telefono.
+- Una pagina web non ascolta con lo schermo spento: è un limite di Android e
+  iOS. Voce e microfono veri non sono stati provati su un telefono.
+
 ---
 ## [bsi-v249] — 2026-11-11
 

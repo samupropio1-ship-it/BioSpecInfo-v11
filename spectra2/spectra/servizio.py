@@ -10,6 +10,9 @@ sono CLIENT: non hanno la memoria ne' le chiavi, parlano con questo servizio.
     GET  /stato                           → memoria, obiettivi, lacune, capacita'
     GET  /memoria      ?q=…               → i ricordi che corrispondono, con la spiegazione del punteggio (l'utente puo' sempre guardare)
     DELETE /memoria/<id>                  → cancella un ricordo
+    GET  /eventi       ?dispositivo=…&dopo=N → (attesa lunga) cio' che e' successo altrove: un turno su un altro dispositivo,
+                                             un promemoria, un'iniziativa. Ogni evento dice su quale dispositivo PARLARE.
+    GET  /             → il client web (una pagina sola: funziona su computer, Android e iPhone)
     GET  /strumenti/attesa ?client=…      → (attesa lunga) la prossima chiamata a uno strumento che deve eseguire il CLIENT
     POST /strumenti/esito {id, esito}     → il risultato di quella chiamata
 
@@ -122,6 +125,21 @@ def crea_gestore(spectra: Spectra, rele: Rele, voce: Voce, gettone: str | None, 
             pass
 
         # ── aiuti ──
+        def _statico(self, nome: str) -> None:
+            """Il client web: file fissi, senza gettone (non contengono segreti; il gettone lo inserisce l'utente nella pagina)."""
+            tipi = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png"}
+            radice = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "client")
+            percorso = os.path.normpath(os.path.join(radice, nome))
+            est = os.path.splitext(percorso)[1]
+            if not percorso.startswith(radice + os.sep) or est not in tipi or not os.path.isfile(percorso):
+                return self._rispondi(404, {"errore": "non trovato"})
+            with open(percorso, "rb") as f:
+                corpo = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", tipi[est]); self.send_header("Content-Length", str(len(corpo))); self.send_header("Cache-Control", "no-cache")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers(); self.wfile.write(corpo)
+
         def _autorizzato(self) -> bool:
             if not gettone:
                 return self.client_address[0] in ("127.0.0.1", "::1")
@@ -161,6 +179,9 @@ def crea_gestore(spectra: Spectra, rele: Rele, voce: Voce, gettone: str | None, 
 
         # ── le strade ──
         def _instrada(self, metodo: str) -> None:
+            strada = urlparse(self.path).path
+            if metodo == "GET" and (strada == "/" or strada.startswith("/client/")):
+                return self._statico("index.html" if strada == "/" else strada[len("/client/"):])
             if not self._autorizzato():
                 return self._rispondi(401, {"errore": "non autorizzato"})
             u = urlparse(self.path); q = {k: v[0] for k, v in parse_qs(u.query).items()}
@@ -173,6 +194,13 @@ def crea_gestore(spectra: Spectra, rele: Rele, voce: Voce, gettone: str | None, 
                     tr = spectra.recupero.cerca(q.get("q", ""), k=min(30, int(q.get("k", 10))), rinforza=False)
                     return self._rispondi(200, {"ricordi": [{"id": t.ricordo.id, "tipo": t.ricordo.tipo, "testo": t.ricordo.mostra(), "creato": t.ricordo.creato,
                                                              "fiducia": t.ricordo.fiducia, "punteggio": round(t.punteggio, 3), "perche": {k: round(v, 3) for k, v in t.parti.items()}, "via": t.via} for t in tr]})
+                if metodo == "GET" and u.path == "/eventi":
+                    disp = q.get("dispositivo", "anonimo")
+                    dopo = int(q["dopo"]) if q.get("dopo", "").lstrip("-").isdigit() and int(q["dopo"]) >= 0 else spectra.presenza.ultimo()
+                    ev = spectra.presenza.attendi(disp, dopo, min(25.0, float(q.get("attesa", 20))), q.get("tipo", "browser"))
+                    return self._rispondi(200, {"eventi": ev, "ultimo": ev[-1]["n"] if ev else dopo, "parla": spectra.presenza.dove_parlare() == disp})
+                if metodo == "GET" and u.path == "/agenda":
+                    return self._rispondi(200, {"impegni": [{"id": i.id, "genere": i.genere, "testo": i.testo, "quando": i.quando, "stato": i.stato, "ripeti": i.ripeti} for i in spectra.agenda.aperti()]})
                 if metodo == "GET" and u.path == "/strumenti/attesa":
                     return self._rispondi(200, {"chiamata": rele.prossima(q.get("client", "app"), min(25.0, float(q.get("attesa", 20))))})
                 d = self._corpo() if metodo == "POST" else {}
@@ -183,7 +211,8 @@ def crea_gestore(spectra: Spectra, rele: Rele, voce: Voce, gettone: str | None, 
                     spectra.esterni = rele.disponibili()
                     with blocco_turni:
                         e = spectra.turno(str(d.get("testo", "")), sessione=str(d.get("sessione", "principale")), canale=str(d.get("canale", "testo")),
-                                          immagini=immagini, contesto=d.get("contesto") if isinstance(d.get("contesto"), dict) else None)
+                                          immagini=immagini, contesto=d.get("contesto") if isinstance(d.get("contesto"), dict) else None,
+                                          dispositivo=str(d["dispositivo"])[:80] if d.get("dispositivo") else None, tipo_dispositivo=str(d.get("tipo", "browser")))
                     out = {"testo": e.testo, "voce": e.per_la_voce, "modo": e.modo, "lacuna": bool(e.lacuna), "fornitore": e.risposta.fornitore,
                            "strumenti": [x["nome"] for x in e.risposta.strumenti_usati], "parametri_voce": PARAMETRI_CLIENT}
                     if d.get("audio"):
@@ -231,7 +260,26 @@ def avvia_notturno(spectra: Spectra, ora: int = 3) -> threading.Thread:
     return f
 
 
-def servi(spectra: Spectra, *, porta: int = 8787, gettone: str | None = None, origini: tuple[str, ...] = (), notturno: bool = True) -> ThreadingHTTPServer:
+def avvia_battito(spectra: Spectra, ogni: float = 30.0) -> threading.Thread:
+    """Il battito: ogni mezzo minuto Spectra si chiede se c'e' qualcosa da dire (un promemoria giunto all'ora, un'iniziativa).
+    Se si', lo pubblica come evento: arriva a tutti i dispositivi collegati, e UNO solo lo dice a voce. E' cio' che lo fa esistere
+    anche quando nessuno gli sta parlando."""
+    def giro():
+        while True:
+            time.sleep(ogni)
+            try:
+                frase = spectra.iniziativa("principale")
+                if frase:
+                    spectra.presenza.pubblica("promemoria" if frase.split(":")[0] in ("Promemoria", "Scadenza", "Evento") else "iniziativa",
+                                              {"frase": frase, "parla_su": spectra.presenza.dove_parlare()})
+            except Exception as e:      # il battito non si ferma per un errore
+                spectra.a.annota("battito_fallito", errore=str(e)[:300])
+    f = threading.Thread(target=giro, name="spectra-battito", daemon=True)
+    f.start()
+    return f
+
+
+def servi(spectra: Spectra, *, porta: int = 8787, gettone: str | None = None, origini: tuple[str, ...] = (), notturno: bool = True, battito: float | None = None) -> ThreadingHTTPServer:
     rele = Rele()
     spectra.esegui_esterno = rele.esegui
     indirizzo = "0.0.0.0" if gettone else "127.0.0.1"      # senza gettone, solo dalla macchina stessa
@@ -239,6 +287,8 @@ def servi(spectra: Spectra, *, porta: int = 8787, gettone: str | None = None, or
     srv.rele = rele
     if notturno:
         avvia_notturno(spectra)
+    if battito:
+        avvia_battito(spectra, battito)
     return srv
 
 
@@ -249,7 +299,7 @@ def principale() -> None:
     spectra = Spectra(archivio, orchestratore_dall_ambiente(annota=archivio.annota))
     gettone = os.environ.get("SPECTRA_GETTONE") or None
     origini = tuple(o.strip() for o in os.environ.get("SPECTRA_ORIGINI", "").split(",") if o.strip())
-    srv = servi(spectra, porta=int(os.environ.get("SPECTRA_PORTA", "8787")), gettone=gettone, origini=origini)
+    srv = servi(spectra, porta=int(os.environ.get("SPECTRA_PORTA", "8787")), gettone=gettone, origini=origini, battito=30.0)
     print(f"Spectra in ascolto su {srv.server_address[0]}:{srv.server_address[1]}" + ("" if gettone else " (solo locale: nessun gettone impostato)"))
     try:
         srv.serve_forever()

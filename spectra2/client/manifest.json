@@ -1,0 +1,11 @@
+{
+  "name": "Spectra",
+  "short_name": "Spectra",
+  "description": "Il client di Spectra: la stessa presenza su computer, Android e iPhone.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04070f",
+  "theme_color": "#04070f",
+  "lang": "it",
+  "icons": [{ "src": "/client/icona.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

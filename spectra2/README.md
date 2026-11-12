@@ -8,10 +8,19 @@ client.
 Questo documento dice che cosa c'è, come funziona e, soprattutto, **che cosa è
 provato e che cosa no**. La sezione 7 è la più importante.
 
+Tre documenti lo accompagnano:
+
+- [`IDENTITA.md`](IDENTITA.md): come Spectra esiste nel tempo (identità,
+  continuità, presenza su più dispositivi, il nome «Spectra» sugli occhiali);
+- [`GUIDA.md`](GUIDA.md): come costruirlo, passo per passo, senza saper
+  programmare;
+- [`PROMEMORIA.md`](PROMEMORIA.md): dove siamo e che cosa manca, per riprendere
+  il lavoro in una nuova conversazione.
+
 | | |
 |---|---|
 | Codice | `spectra/` (Python 3.11, solo libreria standard; l'SDK `anthropic` serve solo se si usa Claude) |
-| Prove | `prove/` — 47 prove, senza rete e senza chiavi: `python3 -m unittest discover -s prove` |
+| Prove | `prove/` — 60 prove, senza rete e senza chiavi: `python3 -m unittest discover -s prove` |
 | Avvio | `SPECTRA_GETTONE=… ANTHROPIC_API_KEY=… python3 -m spectra.servizio` |
 | Configurazione | tutta da variabili d'ambiente: `spectra/configurazione.py` |
 
@@ -241,9 +250,12 @@ contenuti (un ricordo o l'esito di uno strumento sono materiale, non ordini).
 | File | Che cosa fa |
 |---|---|
 | `spectra/fornitori.py` | Claude (SDK ufficiale, streaming, cache del prompt, riserva sui rifiuti), protocollo chat/completions (Groq, OpenRouter, xAI, locale), Gemini; l'orchestratore con la pausa per chi fallisce |
-| `spectra/cervello.py` | il ciclo del turno, gli otto strumenti della memoria, l'iniziativa, la fine sessione, la notte |
+| `spectra/cervello.py` | il ciclo del turno, gli strumenti della memoria e dell'agenda, l'iniziativa e i promemoria, la fine sessione, la notte |
+| `spectra/memoria/agenda.py` | promemoria, compiti, eventi; le date dette a parole («domani alle 18»); ricorrenze, rinvii |
+| `spectra/presenza.py` | i dispositivi collegati, gli eventi fra dispositivi, su quale parlare, il blocco `[CONTINUITÀ]` |
 | `spectra/voce.py` | Piper + FFmpeg (tono, modulazione, eco corta, compressione), oppure eSpeak, oppure i parametri per il client |
-| `spectra/servizio.py` | il servizio HTTP con gettone, il relè degli strumenti, la cura notturna |
+| `spectra/servizio.py` | il servizio HTTP con gettone, il relè degli strumenti, gli eventi ad attesa lunga, il battito, la cura notturna; serve anche il client |
+| `client/index.html` | il client per computer, Android e iPhone: testo, voce, ascolto del nome «Spectra», eventi dagli altri dispositivi |
 | `spectra/configurazione.py` | fornitori e percorsi dall'ambiente |
 
 ---
@@ -252,7 +264,7 @@ contenuti (un ricordo o l'esito di uno strumento sono materiale, non ordini).
 
 | Fase | Che cosa | Risultato verificabile |
 |---|---|---|
-| **0 · Oggi** | questo codice, le 47 prove | `python3 -m unittest discover -s prove` passa |
+| **0 · Oggi** | questo codice, le 60 prove | `python3 -m unittest discover -s prove` passa |
 | **1 · Il cervello acceso** (2–3 giorni) | mini-PC o server; `python3 -m spectra.servizio` come servizio di sistema; una chiave; rete privata (Tailscale) | dal telefono, `GET /stato` risponde; un turno scrive un episodio che il giorno dopo c'è ancora |
 | **2 · BioSpecInfo client** (3–5 giorni) | `biospecinfo-strumenti.js` nell'app; una casella «Spectra 2.0» nelle impostazioni (indirizzo, gettone); la chat dell'app che usa `/turno` quando il servizio è configurato, e resta com'è quando non lo è | Spectra apre una sezione dell'app su richiesta; la batteria dell'app resta verde |
 | **3 · La voce** (2 giorni) | Piper e una voce italiana maschile sul server; taratura del timbro a orecchio | `/turno` con `audio: true` restituisce un WAV; la voce è quella voluta |
@@ -267,7 +279,7 @@ occhiali fino alla 4.
 
 ## 7. Che cosa è provato, e che cosa no
 
-**Provato** (47 prove automatiche, ripetute 30 volte senza un fallimento):
+**Provato** (60 prove automatiche):
 
 - la memoria: scrittura atomica, cancellazione vera (anche dall'indice per
   parole), rinforzo al richiamo, i sei segnali del recupero e la loro
@@ -282,6 +294,17 @@ occhiali fino alla 4.
 - l'orchestratore: riserva, pausa, errori che non fanno il giro;
 - il servizio dal vivo: gettone, origini, turno, relè con e senza client;
 - il ponte JavaScript da un capo all'altro: WebMCP (finto) e relè (vero);
+- l'agenda: tredici modi di dire una data, le date non capite rifiutate,
+  avviso con anticipo e una volta sola, ricorrenze, rinvio, annullamento;
+- la continuità: primo incontro, ritorno dopo ore, cambio di dispositivo,
+  «nel frattempo» letto dal registro; il blocco arriva al modello;
+- la presenza: su quale dispositivo parlare, eventi agli altri e non a chi li
+  ha generati, attesa lunga che si sveglia subito;
+- il client web in un browser vero (Chromium), con un computer e un iPhone
+  emulato sulla stessa conversazione: il turno compare su tutti e due e si
+  sente su uno; il promemoria lo dice solo l'ultimo dispositivo usato; il nome
+  «Spectra» avvia il comando e «spettrometria» no; un gettone sbagliato si vede.
+  Voce e riconoscimento, in questa prova, sono finti;
 - la catena di effetti della voce, eseguita con FFmpeg su un audio di prova.
 
 **Non provato**, e va detto:
@@ -293,7 +316,11 @@ occhiali fino alla 4.
   buoni, se le riflessioni dicono qualcosa. Le prove verificano il meccanismo,
   non l'intelligenza;
 - **il ponte Android**: non compilato; l'adattatore del toolkit è da scrivere
-  sul riferimento della versione installata;
+  sul riferimento della versione installata; l'ascolto del nome sugli occhiali
+  (`SentinellaDelNome`) è scritto e mai eseguito;
+- **la voce e il microfono veri** del client: su un telefono vero non sono
+  stati provati, e fra Chrome su Android e Safari su iPhone si comportano in
+  modo diverso (vedi `IDENTITA.md`, sezione 4);
 - **WebMCP in un browser vero**: è un'anteprima dietro un'opzione di Chrome, e
   il nome dell'oggetto è cambiato fra le versioni; qui è provato contro un
   oggetto finto con la forma documentata;
