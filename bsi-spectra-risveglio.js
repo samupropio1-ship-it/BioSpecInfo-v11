@@ -142,6 +142,8 @@
     if (A) A.aperti().slice(0, 30).forEach(function (v) { N.push({ tipo: 'impegno', testo: v.testo, p: parole(v.testo), q: v.quando }); });
     var sez = mente.sezioni || {}; Object.keys(sez).filter(function (k) { return sez[k].s >= 30; }).sort(function (a, b) { return sez[b].s - sez[a].s; }).slice(0, 18)
       .forEach(function (k) { var tt = titoloSezione(k); N.push({ tipo: 'sezione', testo: tt + ' (' + Math.round(sez[k].s / 60) + ' min)', p: parole(tt), id: k }); });
+    /* (v254) dall'archivio a cinque livelli: ciò che solo lui sa (fatti dedotti, procedure, pagine di diario) */
+    try { if (g.BSIMemoria) g.BSIMemoria.elenco().filter(function (r) { return r.tipo === 'procedura' || r.tipo === 'autobiografia' || (r.tipo === 'fatto' && r.fonte === 'dedotto'); }).slice(0, 40).forEach(function (r) { N.push({ tipo: r.tipo === 'fatto' ? 'ricordo' : r.tipo, testo: r.testo, p: parole(r.testo) }); }); } catch (e) {}
     N.forEach(function (n, i) { n.i = i; n.peso = 0; });
     var L = [], visto = {};
     function lega(a, b, forza) { var k = a < b ? a + '-' + b : b + '-' + a; if (a === b || visto[k]) return; visto[k] = 1; L.push({ a: a, b: b, f: forza }); N[a].peso++; N[b].peso++; }
@@ -247,7 +249,7 @@
   function el(tag, attr, testo) { var e = D.createElement(tag); for (var k in attr || {}) e.setAttribute(k, attr[k]); if (testo != null) e.textContent = testo; return e; }
 
   /* ── 7. il disegno della rete ────────────────────────────────────────── */
-  var COLORI = { ricordo: '#34d0ff', conversazione: '#ff9f43', impegno: '#ff5d73', sezione: '#7cf29a' };
+  var COLORI = { ricordo: '#34d0ff', conversazione: '#ff9f43', impegno: '#ff5d73', sezione: '#7cf29a', procedura: '#c792ff', autobiografia: '#ffd24a' };
   /** Anima la rete in una tela. Restituisce {ferma, scegli(x,y)}. */
   function animaRete(tela, G, opz) {
     opz = opz || {};
@@ -301,10 +303,10 @@
     var testa = el('div', { class: 'testa' }); testa.appendChild(el('h2', {}, 'RETE NEURALE'));
     var dx = el('div', {}); var bt = el('span', { class: 'bsiRV-batt' }); dx.appendChild(bt);
     var x = el('button', { type: 'button' }, 'Chiudi'); x.onclick = chiudiRete; dx.appendChild(x); testa.appendChild(dx); P.appendChild(testa);
-    var per = { ricordo: 0, conversazione: 0, impegno: 0, sezione: 0 }; G.neuroni.forEach(function (n) { per[n.tipo]++; });
+    var per = { ricordo: 0, conversazione: 0, impegno: 0, sezione: 0, procedura: 0, autobiografia: 0 }; G.neuroni.forEach(function (n) { per[n.tipo]++; });
     P.appendChild(el('div', { class: 'conta', role: 'status' }, plur(G.neuroni.length, 'neurone', 'neuroni') + ' · ' + plur(G.collegamenti.length, 'collegamento', 'collegamenti')));
     var leg = el('div', { class: 'leggenda' });
-    [['ricordo', 'ricordi'], ['conversazione', 'conversazioni'], ['impegno', 'impegni'], ['sezione', 'sezioni studiate']].forEach(function (c) { var s = el('span'); var i = el('i'); i.style.background = COLORI[c[0]]; s.appendChild(i); s.appendChild(D.createTextNode(per[c[0]] + ' ' + c[1])); leg.appendChild(s); });
+    [['ricordo', 'ricordi'], ['conversazione', 'conversazioni'], ['impegno', 'impegni'], ['sezione', 'sezioni studiate'], ['procedura', 'procedure'], ['autobiografia', 'pagine di diario']].filter(function (c) { return c[0] !== 'procedura' && c[0] !== 'autobiografia' || per[c[0]]; }).forEach(function (c) { var s = el('span'); var i = el('i'); i.style.background = COLORI[c[0]]; s.appendChild(i); s.appendChild(D.createTextNode(per[c[0]] + ' ' + c[1])); leg.appendChild(s); });
     P.appendChild(leg);
     var box = el('div', { class: 'tela' }), cv = el('canvas', { role: 'img', 'aria-label': 'La rete della memoria di Spectra: ' + G.neuroni.length + ' neuroni e ' + G.collegamenti.length + ' collegamenti' });
     box.appendChild(cv); P.appendChild(box);
@@ -314,7 +316,7 @@
     var A = animaRete(cv, G);
     cv.addEventListener('pointerdown', function (e) {
       var r = cv.getBoundingClientRect(), n = A.scegli(e.clientX - r.left, e.clientY - r.top);
-      info.textContent = n ? ({ ricordo: '🧠 Ricordo', conversazione: '💬 Conversazione', impegno: '🗓️ Impegno', sezione: '📚 Sezione' }[n.tipo]) + ' — ' + n.testo + (n.peso ? ' · ' + n.peso + (n.peso === 1 ? ' collegamento' : ' collegamenti') : '') : 'Nessun neurone qui.';
+      info.textContent = n ? ({ ricordo: '🧠 Ricordo', conversazione: '💬 Conversazione', impegno: '🗓️ Impegno', sezione: '📚 Sezione', procedura: '🧭 Procedura', autobiografia: '📔 Diario' }[n.tipo]) + ' — ' + n.testo + (n.peso ? ' · ' + n.peso + (n.peso === 1 ? ' collegamento' : ' collegamenti') : '') : 'Nessun neurone qui.';
     });
     rete = { el: P, anima: A, grafo: G };
     return rete;

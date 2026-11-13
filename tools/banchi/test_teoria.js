@@ -129,7 +129,7 @@ const ESCLUSE = /^(sarea|sespl|sdashboard|slab3d)|(riass|quiz|flash|form|gloss|r
   vero('«teoria della curvatura dello spaziotempo» apre «' + s.cmd1aperta + '»', /Spaziotempo/i.test(s.cmd1aperta || ''));
   vero('«indice della teoria» apre l\'indice', s.cmd2aperta && /indice/.test(s.cmd2));
   vero('«spiegami la teoria» apre quella della sezione aperta (' + s.cmd3aperta + ')', /pKa|Tamponi/i.test(s.cmd3aperta || ''));
-  att('lo strumento leggi_teoria registrato una volta, 52 strumenti in tutto', '1 52', s.strumento + ' ' + s.totale);
+  att('lo strumento leggi_teoria registrato una volta, 53 strumenti in tutto', '1 53', s.strumento + ' ' + s.totale);
   vero('leggi_teoria passa al modello la teoria con formule e fonti (' + s.tool.sez + ', ' + s.tool.lung + ' caratteri)', s.tool.ok && s.tool.lung > 1500 && s.tool.formule && s.tool.fonti);
   att('e dice quando non c\'è', false, s.toolNo);
   vero('nel menu ✨ c\'è «📖 Teoria di tutte le sezioni» e apre l\'indice', s.menu && s.menuApre);

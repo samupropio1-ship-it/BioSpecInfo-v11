@@ -5603,7 +5603,7 @@ var DATI_CANCELLABILI = {
   memoria: {
     etichetta: 'Memoria persistente',
     dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
-    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-agenda-v1', 'bsi-spectra-risveglio-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-agenda-v1', 'bsi-spectra-risveglio-v1', 'bsi-spectra-memoria-stato', 'bsi-spectra-memoria-riserva', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',
@@ -7638,7 +7638,7 @@ function buildChatPane(){
     // cambia: cambiare materia non deve invalidare la cache della prima.
     var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
                (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') +
-               (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + (window._bsiMente ? window._bsiMente() : '') + memoryPrompt() + buildGrounding(text)];
+               (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + (window._bsiMente ? window._bsiMente(text) : '') + memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });

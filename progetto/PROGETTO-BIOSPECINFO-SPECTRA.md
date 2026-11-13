@@ -684,6 +684,13 @@ nell'app.
 Le fasi 1–5, 8 e 9 dipendono solo dall'app. La 6 e la 7 dipendono da passi
 esterni: si possono fare quando ci sono, senza bloccare le altre.
 
+**Stato alla `bsi-v254`.** Fase 1 fatta: `bsi-spectra-memoria.js`, banco
+`test_memoria` (29 controlli). Fase 2 fatta: `bsi-orbitali.js`, banco
+`test_orbitali` (48 controlli: energie, raggi, nodi, normalizzazione,
+battimento e H₂⁺ contro le formule esatte). Le frequenze di fotogramma (60/30
+fps) non sono ancora misurate su telefoni veri: il banco gira in un browser
+senza scheda grafica, dove non dicono niente.
+
 ---
 
 ## 9. Componenti e scelte tecniche critiche

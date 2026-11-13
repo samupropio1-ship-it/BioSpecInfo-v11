@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v253` |
+| **Versione documentata** | Service Worker `bsi-v254` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 52 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 53 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -53,7 +53,7 @@ una demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── esecutore strumenti (52, tutti locali salvo 2 di rete)   │
+│        └── esecutore strumenti (53, tutti locali salvo 2 di rete)   │
 │               ├── motore di calcolo (parser proprio, no eval)       │
 │               ├── risolutori di dominio (13 aree scientifiche)      │
 │               ├── dataset interni dell'app (9 basi dati)            │
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 52 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 53 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 52 strumenti
+## 3. I 53 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -978,7 +978,7 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 205 sezioni dalla v242 (chimica 79, fisica 65,
+  (`BSIMaterie.materiaDi`), 206 sezioni dalla v242 (chimica 80, fisica 65,
   matematica 32, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
@@ -1057,6 +1057,43 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
 Come la mente e il volto, il corpo è una **simulazione di comportamento, non
 una coscienza**.
 
+### 4.16 La memoria a cinque livelli (v254)
+
+Fase 1 del progetto (`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md` §2). Prima la
+memoria era in tre posti che non si parlavano: i fatti salvati dal modello
+(`bsi_ai_memory`, al massimo 40, tutti nel prompt), la mente (episodi e tempo
+per sezione) e l'agenda. `bsi-spectra-memoria.js` (`BSIMemoria`) li riunisce in
+un archivio IndexedDB solo, con lo schema del servizio Spectra 2.0.
+
+- **I livelli**: lavoro (la conversazione in corso, che resta della Chat),
+  episodi, fatti, procedure (come preferisce studiare), autobiografia (una
+  pagina al giorno, un capitolo al mese).
+- **Il recupero** (`cerca`): sei segnali pesati — significato 0,34 (coseno su
+  un incorporamento locale di 256 componenti da radici e trigrammi), parole in
+  comune 0,20, recenza 0,14 con oblio R = e^(−Δt/S), importanza 0,12, sezione
+  aperta 0,12, obiettivi 0,08 — più la diffusione ai ricordi collegati e la
+  diversità (scarta i quasi doppioni, coseno > 0,92). Senza parole in comune e
+  con significato < 0,3 il punteggio si riduce a un terzo: un ricordo estraneo
+  non arriva al modello. Soglia 0,2.
+- **Il prompt**: la catena `window._bsiMente(testo)` (mente → agenda →
+  memoria) aggiunge i blocchi `[RICORDI]`, `[PROCEDURE]` e `[STORIA]` con i soli
+  ricordi pertinenti alla domanda.
+- **La cura** (`consolida`, alla prima apertura del giorno): importa gli
+  episodi nuovi della mente e i fatti di `bsi_ai_memory`; un concetto che torna
+  almeno 3 volte in 14 giorni, su almeno 2 giorni, diventa un fatto; impara la
+  fascia oraria preferita e le sezioni più usate come procedure; archivia gli
+  episodi sbiaditi (R < 0,02, importanza < 0,6, più vecchi di 60 giorni, non
+  fissati); scrive la pagina di diario del giorno prima e, a mese nuovo, il
+  capitolo. Regole dichiarate, nessun modello linguistico.
+- **A parole**: «preferisco…», «consolida la memoria», «cosa ricordi di me»,
+  «dimentica X». Lo strumento `cerca_nella_memoria` permette al modello di
+  cercare da sé; `ricorda` e `ricordi` scrivono anche qui.
+- **Portabilità**: ogni ricordo porta il dispositivo e un orologio, pronti per
+  la sincronizzazione (fase 6); la memoria viaggia con «esporta» dell'agenda.
+
+L'incorporamento locale riconosce le parole, non i sinonimi: per questo il
+recupero pesa anche le parole in comune.
+
 ---
 
 ## 5. Verifica
@@ -1109,7 +1146,7 @@ del turno.
 | Metrica | Valore |
 |---|---|
 | Righe del componente | 6.254 |
-| Strumenti | 52 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`) |
+| Strumenti | 53 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`, 1 in `bsi-spectra-memoria.js`) |
 | Configurazioni di modello | 10 (3 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |

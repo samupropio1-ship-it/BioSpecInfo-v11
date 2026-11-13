@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v253` |
-| Commit | `c94e562005320830ee96c01aafa55b06c2a941a2` |
-| Generated (UTC) | `2026-11-13T10:51:04.207Z` |
+| Application version | `bsi-v254` |
+| Commit | `7d08b750cca9e7b261086b346a6847f8ac5e83db` |
+| Generated (UTC) | `2026-11-13T11:15:23.630Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -138,6 +138,7 @@ availability.
 | `bsi-astro-cielo.js` | 75 kB | Planetarium 3D: the sky from any place and time, coordinates, precession, analemma. |
 | `bsi-astro-esopianeti.js` | 57 kB | Exoplanets 3D: habitable zone, transit, radial velocity, direct imaging. |
 | `bsi-astro-wormhole.js` | 33 kB | Curved spacetime and wormholes: curvature and tides, Morris–Thorne metric, exotic matter, Casimir, time dilation. |
+| `bsi-orbitali.js` | 38 kB | Orbital laboratory: exact hydrogen-like wavefunctions, 90 % isosurface, phase as colour, time-dependent superpositions, probability current, H₂⁺ LCAO. |
 | `bsi-teoria-a.js` | 174 kB | Per-section theory data: chimica, spettroscopia, farmacologia. |
 | `bsi-teoria-b.js` | 138 kB | Per-section theory data: biochimica e chimica fisica. |
 | `bsi-teoria-c.js` | 174 kB | Per-section theory data: fisica. |
@@ -166,6 +167,7 @@ availability.
 | `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
 | `bsi-spectra-agenda.js` | 36 kB | Spectra's agenda: reminders, tasks, events, dates said in words, continuity for the model, exportable memory. |
 | `bsi-spectra-risveglio.js` | 56 kB | Spectra's wake-up: start-up sequence, weather (Open-Meteo), briefing at 8 and 20, battery, neural network of the memory. |
+| `bsi-spectra-memoria.js` | 27 kB | Spectra's five-level memory (IndexedDB): six-signal retrieval, daily consolidation, procedures, diary, cerca_nella_memoria tool. |
 | `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Last-resort face: SVG vector portrait. |
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
@@ -202,7 +204,7 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 265 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 266 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
 | `sw.js` | 9 kB | Service Worker: offline operation and network strategy. |
@@ -215,8 +217,8 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `f6779bfd40317293507397244ed4446587a29406a800eab7df401e2c5e068cc3` |
-| `bsi-ai-hub.js` | `813c4af640118ad3ba107f8afb099dc2420c66aaeb2f8f6a7c337ed279a0dbc6` |
+| `index.html` | `17abde640659a80628d100dc1a7765d841fdbfa52b0f1eae27af02a443636343` |
+| `bsi-ai-hub.js` | `8d15300f4035066e0c9819f02dcc9724310560533d6e71ec6b8c22aee445240f` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -291,6 +293,7 @@ availability.
 | `bsi-astro-cielo.js` | `26b3e33cefe7d1606d0abf8d47be6d7d9b412891ab193d386835d4e40f9fdcf6` |
 | `bsi-astro-esopianeti.js` | `5a540d026927fc13f0081f3ba4cbfcb6de4c44056530571c77574e71f9003a49` |
 | `bsi-astro-wormhole.js` | `3df1dd15aef1d8e5a64a2e88597d2e1b707391c9e2218efb0e75bca8b7ee650b` |
+| `bsi-orbitali.js` | `f35b9633b302ba9b19c3739232d6a402b6d95b22c951c7a824b087c4e5368607` |
 | `bsi-teoria-a.js` | `0ba0332aeffec0436d33cf12c9e27954ac214233efc1c50068f06eaabb208e84` |
 | `bsi-teoria-b.js` | `90d286234ee20a7196d12716bab1b33d636af950051dfbf93ee859285124396e` |
 | `bsi-teoria-c.js` | `727e6d0c7df27adc70a0230a9f9d8fe24c576ebcccf359aea06572ec166259c6` |
@@ -317,8 +320,9 @@ availability.
 | `bsi-spectra-live.js` | `b7c94bf98f5a79391934cb5084eae41351267fa21b25062aad1a52626fdead83` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
-| `bsi-spectra-agenda.js` | `ab3f97cfa805af371ad86eae5f46a1f8776d60e56d15c9bfebae2b9637581efb` |
-| `bsi-spectra-risveglio.js` | `648c54afac647ce7532bda97f241fd6670b992d5dee789438df780ff26311f72` |
+| `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
+| `bsi-spectra-risveglio.js` | `8547e904ed73c2838e87deebb823fb7e3830c5c4ffa576b61c34d449a0ebd120` |
+| `bsi-spectra-memoria.js` | `9f7adbba260e7f4ffa565c3e4293b4a87e21ae1b2de97352ab6e09c2b0472d58` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
@@ -355,10 +359,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `98add0ff05d3f70641358f2eb2eedc3ac5aaefcb06c104db7c350c5ada8e8958` |
+| `bsi-lingue.js` | `78797703e09b8d25f643d0298959a9d8141fe0deb392d939e1d1ccf818ba618b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `caf174465065e12b885dd42cf25b98b1989ab583a95579d564c9c90580e6d01c` |
+| `sw.js` | `9ce555a47c85362daaf53e4594df56fcb7fa68588e65d2d9b3ad279396db1077` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -412,4 +416,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-13T10:51:04.207Z._
+_Generated on 2026-11-13T11:15:23.630Z._

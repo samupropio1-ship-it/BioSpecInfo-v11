@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v253` |
+| **Versione descritta** | `bsi-v254` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -22,6 +22,7 @@ documentato. Si articola su tre livelli:
 | **Preferenze e progressi** | `localStorage` | Impostazioni, chiavi API, cronologia AI, avanzamento nello studio | Browser dell'utente |
 | **Archivio documenti** | IndexedDB | Foto, documenti, sezioni HTML, note, registro attività | Browser dell'utente |
 | **Corpo di Spectra Studio** | IndexedDB (`bsi-spectra-modelli`) | Dalla v241 non si scrive più: il corpo è incorporato nell'app; il database si legge solo per cancellare un vecchio corpo | Browser dell'utente |
+| **Memoria di Spectra** | IndexedDB (`bsi-spectra-memoria`, store `ricordi`) | Ricordi a cinque livelli (v254): `id`, `tipo` (episodio, fatto, procedura, autobiografia, riflessione), `testo` fino a 600 caratteri, `chiave` contro i doppioni, `creato`, `ultimo_accesso`, `accessi`, `importanza`, `fiducia`, `stabilita` in giorni (oblio R = e^(−Δt/S)), `fonte`, `sezione`, `concetti`, `legami`, `vettore` (256 componenti, incorporamento locale), `dispositivo`, `orologio`, `fissato`, `archiviato` | Browser dell'utente; esce solo con «esporta la memoria» |
 | **Dataset didattici** | SQLite via `sql.js` | Tabelle di esercitazione, create in memoria a ogni sessione | Memoria, non persistito |
 
 **Tutti i dati restano sul dispositivo.** Non vengono trasmessi, non esiste un
@@ -151,6 +152,8 @@ e il kit resta usabile senza ricordare i progressi.
 |---|---|---|
 | `bsi-spectra-mente-v1` | JSON: `episodi` (al massimo 300: ora, materia, sezione, domanda troncata a 160 caratteri, esito), `sezioni` (tempo e visite per sezione), `ore` (24 contatori), `materie` (secondi per materia), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, fra 0 e 1), `emozioni` (al massimo 60) | Finché l'utente non dice «dimentica tutto», che azzera l'oggetto e rimuove la chiave |
 | `bsi-spectra-agenda-v1` | JSON: `voci` (promemoria, compiti, eventi: `id`, `genere`, `testo` fino a 240 caratteri, `quando` in millisecondi o nullo, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; al massimo 60 voci chiuse), `n` (contatore) | Scritta da `bsi-spectra-agenda.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
+| `bsi-spectra-memoria-stato` | JSON: `dispositivo` (identificativo casuale del dispositivo), `ultimaCura` (ora dell'ultimo consolidamento), `ultimoEpisodio` (l'ultimo episodio della mente già importato), `capitoli` (i mesi già scritti) | Scritta da `bsi-spectra-memoria.js` (v254); il consolidamento parte alla prima apertura del giorno |
+| `bsi-spectra-memoria-riserva` | JSON: copia dei ricordi quando IndexedDB non è disponibile | Usata solo come riserva; cancellata con i dati dell'app |
 | `bsi-spectra-novita-v252` | `"1"` quando il riquadro «Novità di Spectra» è stato mostrato | Scritta da `bsi-spectra-risveglio.js`; serve a mostrarlo una volta sola |
 | `bsi-spectra-risveglio-v1` | JSON: `citta`, `lat`, `lon` (la città scelta con «abito a…»), `armato` (vero dopo il primo risveglio), `briefing` (il punto delle 8 e delle 20 acceso o spento), `fatti` (le ultime dieci fasce già fatte), `meteo` (l'ultimo meteo, tenuto 15 minuti), `ascolto` (modalità occhiali accesa: riparte all'apertura), `avvioSveglia` (Spectra si sveglia a ogni apertura) | Scritta da `bsi-spectra-risveglio.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
@@ -333,4 +336,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v253`._
+_Documento aggiornato alla versione `bsi-v254`._

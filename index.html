@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v253';
+window.BSI_APP_VERSION='bsi-v254';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -980,6 +980,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
   <div id="navGroup4" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="smo">🔵 Orbitali MO</button>
+    <button class="nav-btn" data-s="sorbitali" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔮 Laboratorio degli orbitali</button>
     <button class="nav-btn" data-s="spka">🧪 pKa/Tamponi</button>
     <button class="nav-btn" data-s="smm">⚗️ Cinetica Enz.</button>
     <button class="nav-btn" data-s="snernst">⚡ Elettrochimica</button>
@@ -29732,6 +29733,7 @@ window.calcMolProps = function() {
 <div id="sfoucault" class="section"></div>
 <div id="smatfrenet" class="section"></div>
 <div id="sastrowh" class="section"></div>
+<div id="sorbitali" class="section"></div>
 <div id="sspaziochim" class="section"></div>
 <div id="sdeconv" class="section"></div>
 <div id="sfisspin" class="section"></div>
@@ -32164,6 +32166,7 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-foucault.js" defer></script>
 <script src="./bsi-mat-frenet.js" defer></script>
 <script src="./bsi-astro-wormhole.js" defer></script>
+<script src="./bsi-orbitali.js" defer></script>
 <script src="./bsi-teoria-a.js" defer></script>
 <script src="./bsi-teoria-b.js" defer></script>
 <script src="./bsi-teoria-c.js" defer></script>
@@ -32204,6 +32207,7 @@ window.addEventListener('load', init);
 <script src="./bsi-spectra-mente.js" defer></script>
 <script src="./bsi-spectra-agenda.js" defer></script>
 <script src="./bsi-spectra-risveglio.js" defer></script>
+<script src="./bsi-spectra-memoria.js" defer></script>
 <script src="./bsi-spectra-voce.js" defer></script>
 <script src="./bsi-spectra-creatore.js" defer></script>
 <script src="./bsi-lezione.js" defer></script>

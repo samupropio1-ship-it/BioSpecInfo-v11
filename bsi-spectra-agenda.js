@@ -176,7 +176,8 @@
   function comando(frase) {
     /* prima il risveglio, il meteo, la rete neurale (bsi-spectra-risveglio.js) */
     var R = g.BSISpectraRisveglio; if (R && R.comando) { var rr = R.comando(frase); if (rr) return rr; }
-    var Te = g.BSITeoria; if (Te && Te.comando) { var rt = Te.comando(frase); if (rt) return rt; }      /* (v253) «teoria di…», «indice della teoria» */
+    var Te = g.BSITeoria; if (Te && Te.comando) { var rt = Te.comando(frase); if (rt) return rt; }
+    var Me = g.BSIMemoria; if (Me && Me.comando) { var rm = Me.comando(frase); if (rm) return rm; }      /* (v254) «preferisco…», «cosa ricordi di me», «dimentica…» */      /* (v253) «teoria di…», «indice della teoria» */
     var o = String(frase || '').trim(), t = senzaAccenti(o).replace(/^(ehi |hey |ok )?(spectra|spettra)[\s,]*/, '').replace(/^(per favore |puoi |potresti )/, '').replace(/[?!.]+$/, '').trim(), m;
     if ((m = /^(?:ricordami|ricorda mi|fammi ricordare|avvisami|avvertimi|metti un promemoria|segna un promemoria|promemoria)\b[\s,:]*(.*)$/.exec(t))) {
       if (!m[1]) return { testo: 'Che cosa devo ricordarti, e quando?' };
@@ -314,6 +315,7 @@
   var PORTATE = [CHIAVE, CHIAVE_MENTE, CHIAVE_RICORDI, 'bsi-spectra-risveglio-v1'];
   function pacchetto() {
     var dati = {}; PORTATE.forEach(function (k) { try { var v = g.localStorage.getItem(k); if (v != null) dati[k] = v; } catch (e) {} });
+    try { if (g.BSIMemoria) dati['bsi-spectra-memoria'] = g.BSIMemoria.esportaTesto(); } catch (e) {}      /* (v254) l'archivio a cinque livelli */
     return { cosa: 'memoria-di-spectra', versione: 1, esportato: new Date().toISOString(), dati: dati };
   }
   function esporta() {
@@ -333,6 +335,7 @@
       try { JSON.parse(v); } catch (e) { return; }
       g.localStorage.setItem(k, v); n++;
     });
+    if (typeof p.dati['bsi-spectra-memoria'] === 'string' && g.BSIMemoria) { try { if (g.BSIMemoria.importaTesto(p.dati['bsi-spectra-memoria']) > 0) n++; } catch (e) {} }
     if (!n) throw new Error('il file non contiene nulla da caricare');
     carica(); if (pannello) disegna();
     return { chiavi: n, impegni: aperti().length, del: p.esportato || null };

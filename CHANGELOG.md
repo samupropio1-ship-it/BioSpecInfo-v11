@@ -7,6 +7,54 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v254] — 2026-11-13
+
+**La memoria di Spectra a cinque livelli e il laboratorio degli orbitali**
+
+Richiesta dell'autore: «procedi su ogni cosa» del progetto
+(`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md`). Questa versione porta le fasi 1
+e 2, le due che si fanno dentro l'app senza servizi esterni.
+
+### Aggiunto
+- **🧠 Memoria a cinque livelli** (`bsi-spectra-memoria.js`, `BSIMemoria`):
+  un archivio IndexedDB solo per episodi, fatti, procedure e autobiografia
+  (prima tre posti che non si parlavano). A ogni domanda il modello riceve i
+  pochi ricordi pertinenti, scelti con sei segnali (significato, parole in
+  comune, recenza con oblio R = e^(−Δt/S), importanza, sezione aperta,
+  obiettivi), la diffusione ai ricordi collegati e la diversità; un ricordo
+  estraneo alla domanda non arriva. Alla prima apertura del giorno Spectra
+  consolida: i concetti che tornano diventano fatti, impara come si preferisce
+  studiare, archivia ciò che è sbiadito, scrive una pagina di diario al giorno
+  e un capitolo al mese. A parole: «preferisco…», «cosa ricordi di me»,
+  «dimentica…», «consolida la memoria». Strumento `cerca_nella_memoria`
+  (53 strumenti). La rete neurale mostra anche procedure, diario e fatti
+  dedotti. La memoria viaggia con «esporta».
+- **🔮 Laboratorio degli orbitali** (`bsi-orbitali.js`, Chimica Fisica):
+  gli orbitali dell'idrogeno dalla soluzione esatta (R_nl con i polinomi di
+  Laguerre, armoniche sferiche reali e complesse), con lo standard del
+  progetto: isosuperficie al 90 % di probabilità calcolata con i tetraedri
+  marcianti, nuvola di 22 000 punti campionati da |ψ|², nodi radiali, spaccato
+  colorato, fase complessa come colore che ruota nel tempo mentre la densità
+  resta ferma, corrente di probabilità attorno all'asse z per m ≠ 0. I grafici
+  collegati (P(r), R(r), |Y|² polare) con la normalizzazione numerica; le
+  sovrapposizioni che oscillano davvero (1s + 2p a 2,467×10¹⁵ Hz: la riga
+  Lyman-α a 121,5 nm) con la regola di dipolo; l'orbitale molecolare di H₂⁺
+  come interferenza delle due 1s, con S(R) e il piano nodale dell'antilegante.
+  Ioni idrogenoidi fino a Z = 10, dichiarati come tali.
+- Banchi **`test_memoria`** (29) e **`test_orbitali`** (48); requisiti AI-22,
+  SCI-69; 206 sezioni (chimica 80); batteria a 98 banchi.
+
+### Limiti dichiarati
+- L'incorporamento della memoria è locale (parole e sillabe): riconosce le
+  parole, non i sinonimi.
+- Le animazioni degli orbitali sono rallentate di circa 10¹⁶ volte e la
+  velocità della corrente è esagerata per renderla visibile; è scritto sulla
+  figura. Per Z > 1 gli orbitali sono di uno ione con un solo elettrone.
+- Le fasi 6 (servizio sempre acceso) e 7 (occhiali Ray-Ban Meta con
+  l'applicazione Android) richiedono un computer ospite, una chiave API e il
+  kit di Meta: restano descritte nel progetto.
+
+---
 ## [bsi-v253] — 2026-11-13
 
 **La teoria di ogni sezione, lo spaziotempo curvo e i wormhole, e trenta errori scientifici corretti**

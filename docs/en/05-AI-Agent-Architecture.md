@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v253` |
+| **Documented version** | Service Worker `bsi-v254` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 52 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 53 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (52 tools, all local except 2 network)     │
+│        └── tool executor (53 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 52 tools → receive the streamed response → if it
+prompt and the schema of all 53 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 52 tools
+## 3. The 53 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -945,8 +945,8 @@ summarised here.
   screen data as text). With the screen included, text and image go to the
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
-  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 205
-  sections since v242 (chemistry 79, physics 65, mathematics 32, shared 29), read from
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 206
+  sections since v242 (chemistry 80, physics 65, mathematics 32, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window
@@ -1022,6 +1022,44 @@ summarised here.
 Like the mind and the face, the body is a **simulation of behaviour, not
 consciousness**.
 
+### 4.16 The five-level memory (v254)
+
+Phase 1 of the project (`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md` §2). Before,
+memory lived in three places that did not talk to each other: the facts saved
+by the model (`bsi_ai_memory`, at most 40, all in the prompt), the mind
+(episodes and time per section) and the agenda. `bsi-spectra-memoria.js`
+(`BSIMemoria`) joins them in a single IndexedDB store, with the schema of the
+Spectra 2.0 service.
+
+- **Levels**: working (the current conversation, which stays in the Chat),
+  episodes, facts, procedures (how the user prefers to study), autobiography (a page
+  a day, a chapter a month).
+- **Retrieval** (`cerca`): six weighted signals — meaning 0.34 (cosine on a
+  local 256-component embedding from stems and trigrams), shared words 0.20,
+  recency 0.14 with forgetting R = e^(−Δt/S), importance 0.12, open section
+  0.12, goals 0.08 — plus spreading to linked memories and diversity (near
+  duplicates dropped, cosine > 0.92). With no shared word and meaning < 0.3 the
+  score drops to a third: an unrelated memory does not reach the model.
+  Threshold 0.2.
+- **The prompt**: the chain `window._bsiMente(text)` (mind → agenda → memory)
+  adds the `[RICORDI]`, `[PROCEDURE]` and `[STORIA]` blocks with only the
+  memories relevant to the question.
+- **Care** (`consolida`, at the first opening of the day): imports new mind
+  episodes and `bsi_ai_memory` facts; a concept that returns at least 3 times
+  in 14 days, on at least 2 days, becomes a fact; learns the preferred time of
+  day and the most used sections as procedures; archives faded episodes
+  (R < 0.02, importance < 0.6, older than 60 days, not pinned); writes the
+  diary page for the previous day and, at a new month, the chapter. Declared
+  rules, no language model.
+- **In words**: «preferisco…», «consolida la memoria», «cosa ricordi di me»,
+  «dimentica X». The `cerca_nella_memoria` tool lets the model search by
+  itself; `ricorda` and `ricordi` also write here.
+- **Portability**: each memory carries the device and a clock, ready for
+  synchronisation (phase 6); the memory travels with the agenda's «export».
+
+The local embedding recognises words, not synonyms: that is why retrieval also
+weighs shared words.
+
 ---
 
 ## 5. Verification
@@ -1072,7 +1110,7 @@ search, turn suspension and resumption was simulated.
 | Metric | Value |
 |---|---|
 | Component size | 6,254 lines |
-| Tools | 52 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`) |
+| Tools | 53 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`, 1 in `bsi-spectra-memoria.js`) |
 | Model configurations | 10 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
