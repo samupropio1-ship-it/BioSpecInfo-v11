@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 206 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 210 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right, the face in a circle | The assistant that answers questions: a tap opens the console, and from there 💬 the chat |
 | **🎓 Guided lesson** | Under the title of every section | A lesson in chapters on the section, led by Spectra |
@@ -645,8 +645,8 @@ conversation is not saved.
 
 **Every section in the hologram.** In the «🧠 Spiega» tab open the
 **«🗂️ Tutte le sezioni nell'ologramma»** card (in English «Every section in the
-hologram»): it lists every section of the app (206: 80 chemistry, 65 physics,
-32 mathematics and 29 shared), grouped as in the bar. Search for one in the box
+hologram»): it lists every section of the app (210: 82 chemistry, 66 physics,
+33 mathematics and 29 shared), grouped as in the bar. Search for one in the box
 (for example «titration», «Schrödinger», «integrals») or filter by subject;
 tap it and Spectra opens it behind the window, shows it live in the hologram
 and checks «📺 Includi lo schermo», so the explanation uses its data (if you
@@ -871,4 +871,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v254`._
+_Guide updated to version `bsi-v255`._

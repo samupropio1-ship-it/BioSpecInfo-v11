@@ -99,6 +99,8 @@
     if (globale.IntersectionObserver) { new IntersectionObserver(function (v) { self.visibile = v[0].isIntersecting; if (self.visibile) { if (self.ren.domElement.width < 2 || Math.abs(self.ren.domElement.clientWidth - self.box.clientWidth) > 2) self.adatta(); self.sporca = true; self.avvia(); } }).observe(box); }
     else this.visibile = true;
     scene.push(this);
+    /* v254: il pulsante «AR» (bsi-ar.js) anche nelle scene create qui dentro */
+    if (globale.BSIAR) try { globale.BSIAR.aggancia(this); } catch (e) { }
   }
   Scena.prototype.adatta = function () {
     var fs = D.fullscreenElement === this.box;

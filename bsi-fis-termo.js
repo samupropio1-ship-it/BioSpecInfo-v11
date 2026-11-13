@@ -388,7 +388,8 @@
       { nome: ['♻️ Cicli termodinamici', '♻️ Thermodynamic cycles'], costruisci: schedaCicli },
       { nome: ['🫧 Gas di particelle', '🫧 Gas of particles'], costruisci: schedaGas },
       { nome: ['🚶 Moto browniano', '🚶 Brownian motion'], costruisci: schedaBrowniano },
-      { nome: ['🗻 Superficie p-V-T 3D', '🗻 3D p-V-T surface'], costruisci: scheda3D(schedaPVT) }
+      { nome: ['🗻 Superficie p-V-T 3D', '🗻 3D p-V-T surface'], costruisci: scheda3D(schedaPVT) },
+      { nome: ['🔧 Il motore in spaccato', '🔧 The engine in cutaway'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.motore) F.schedeExtra.motore(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo del motore non è caricato.', 'The engine module is not loaded.') })); } }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

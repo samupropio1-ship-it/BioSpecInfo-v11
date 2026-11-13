@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v254` |
+| **Version described** | `bsi-v255` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**98 benches**, grouped by what they demonstrate.
+**104 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -133,6 +133,12 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_correzioni` | **The errors fixed in v253**: titrations, isoelectric point, formulas from SMILES, dose, Nernst, sugars (stereochemistry with RDKit), lysine, symmetry, respiratory chain, texts. |
 | `test_memoria` | **Spectra's five-level memory** (v254): writing without duplicates, retrieval of only the relevant memories with the six signals and forgetting, unrelated memories excluded, consolidation (recurring concepts, procedures, diary, monthly chapter, archiving what has faded), spoken commands, export and import, blocks sent to the model from the real Chat. |
 | `test_orbitali` | The **orbital laboratory** (v254) against the exact solution: radial and angular normalisation, most probable radii, nodes at the exact positions, ⟨r⟩, energies, orthogonality, signs of the real forms, phase of the complex form, sampled cloud, isosurface, 1s + 2p beat (Lyman-α), dipole rules, H₂⁺; the page with its four tabs. |
+| `test_ar` | **Unified augmented reality** (v255): scene conversion (y up, 30 cm, points as octahedra, mirrors), valid GLB and USDZ, the three routes in the page (download, simulated Quick Look and WebXR), the button in every 3D scene. |
+| `test_eliosfera` | **The heliosphere** (v255): Parker, pressure and shock, Rankine, ecliptic coordinates, Voyagers against the published measurements; the page with status labels. |
+| `test_medfarm` | **Physiology as a system and quantitative pharmacology** (v255): cardiac cycle, acid–base on textbook cases, Bergman, gases; two compartments against integration, repeated dosing, Hill, quantal, Rowland–Matin; the clinical caution in every tab. |
+| `test_matmappa` | **The mathematics prerequisite map** (v255): acyclic graph, consistent levels, topological-order path for all 41 goals, cited sections present in the bar, the page. |
+| `test_motore` | **The engine in cutaway** (v255): Otto cycle against the formulas, work from the balance equal to ∮p dV, slider-crank, «reduce motion». |
+| `test_cinema` | **The «cinematic» animations** (v255): the streaks' probability current against finite differences of ψ, the wireframe, the plane of maximum density; the Galaxy in its true orientation, the Rankine flow; the two tabs with the overlaid formulas and «reduce motion». |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -303,7 +309,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` · `test_ar` · `test_eliosfera` · `test_medfarm` · `test_matmappa` · `test_motore` · `test_cinema` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -382,7 +388,7 @@ section, Spectra with the body, «and nothing else». It tests
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → Spectra first points at the hologram («indica» gesture), then accompanies the explanation with the hands («spiega»), joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
 | «🧠 Spiega» (14 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG graphs as an image (since v242 the bench inserts a known SVG spectrum into the open section, deterministically, instead of relying on the spectra quiz, which is random); reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image); with that scene open behind «🧠 Spiega» the hologram shows it live; privacy: with «Includi lo schermo» unchecked, the named section opens but the model receives only the question, with no screen text or image |
 | Hologram (7 per width) | It is **to Spectra's right** (screen x); there are **six live scenes**; Kepler: the ratio of perihelion to aphelion speed equals (1+e)/(1−e) = 1.94 within 8 %; **the subject follows the conversation** (an IR answer → spectrum, an orbit question → planets); the label leads to the section; a tap on the label opens «Sistema solare 3D» **behind** the «🧠 Spiega» window: Spectra stays visible in front and the hologram shows the section live; once the window is closed, the app returns to Spectra's section and the figure is there |
-| Catalogue (5 per width) | The catalogue has **every** section of the bar (206/206 since v250: chemistry 80, physics 65, mathematics 32, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
+| Catalogue (5 per width) | The catalogue has **every** section of the bar (210/210 since v250: chemistry 82, physics 66, mathematics 33, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 
@@ -427,7 +433,7 @@ it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
 | The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
 | Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
 | The ✨ menu in the hologram (v248: 3 per width) | The list also has the **19 ✨ menu entries** (8 pages and 11 windows, among them since v252 Sveglia Spectra, Occhiali e dispositivi, Agenda and Rete neurale: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) and the Centro spettri; «Astrochimica 3D PRO» opens **inside the frame** (its real page) and is removed on changing mode; for a window (Lab Quantistico) «↗ Apri la sezione» closes the hologram and opens it |
-| «🗂️ Tutta l'app» (v248: 4 per width) | The list has **all** the sections of the bar (206/206, read from the catalogue, not hand-written), filterable by subject and by name; the Periodic Table, with no graphs, is **really hosted** in the frame (the real section, moved and alive); choosing another section puts it back and «Sistema solare 3D» is shown **live** with its lesson; once the window is closed the app is back in the starting section |
+| «🗂️ Tutta l'app» (v248: 4 per width) | The list has **all** the sections of the bar (210/210, read from the catalogue, not hand-written), filterable by subject and by name; the Periodic Table, with no graphs, is **really hosted** in the frame (the real section, moved and alive); choosing another section puts it back and «Sistema solare 3D» is shown **live** with its lesson; once the window is closed the app is back in the starting section |
 | Reading on the phone and audio test (v248: 2 at 412 px, 1 at 1280 px) | On the phone **the whole window scrolls**: the last step reaches at least 70 px from the edge (above the Android keys), the header stays on top, the steps are at 15.5 px; «🔔 Prova audio» plays a beep, says a test sentence and explains what to do if nothing is heard (mute, «Media» volume, phone voice) |
 | Voice, tap and Spiega without a key (3 per width) | Once a trace is written, Spectra explains it **aloud on her own** after 1.4 s, without touching «🔊»; a tap **on the hologram itself** (the panel to Spectra's right, hit with a ray from the camera) opens it in interactive mode; «🧠 Spiega» **without a key** still answers the question (pH of 0.01 M HCl: the local assistant's full working) and says it aloud |
 | Universe, mathematics, physics (5 per width) | Mars with its six steps, in the 3D scene; «studia f(x)=x^3-3x» → zeros −√3, 0, √3 and stationary points ±1, with at least eight assistant steps; the projectile with range **35.31 m**; the 2 m pendulum with period **2.837 s** |
@@ -642,7 +648,7 @@ at once; no JavaScript errors.
 
 **`test_giro` — 24 checks (v249).** The inspection round of the whole app,
 born from the author's request to check everything to the utmost. It opens
-**every catalogue section one by one** (206) at 412 and 1280 px and for each
+**every catalogue section one by one** (210) at 412 and 1280 px and for each
 requires: that the section asked for by identifier is the one that opens, that
 it is visible and not empty, that the page does not overflow horizontally, that
 the text shows no «undefined», «NaN» or «[object Object]», and no JavaScript
@@ -1025,7 +1031,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 641 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 655 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -1045,4 +1051,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v254`._
+_Document updated to version `bsi-v255`._

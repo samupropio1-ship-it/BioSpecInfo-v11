@@ -324,6 +324,7 @@
     sotto: ['Gli orbitali dell\'idrogeno dalla soluzione esatta: isosuperficie al 90 %, fase complessa come colore, nodi, spaccato, corrente di probabilità; le sovrapposizioni che oscillano davvero e la luce che ne nasce; l\'orbitale molecolare di H₂⁺ come interferenza di due onde.',
             'Hydrogen orbitals from the exact solution: 90 % isosurface, complex phase as colour, nodes, cutaway, probability current; superpositions that really oscillate and the light they give; the molecular orbital of H₂⁺ as interference of two waves.'],
     schede: [
+      { nome: ['🌌 Onde di fase e correnti', '🌌 Phase waves and currents'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.orbitaliCinema) F.schedeExtra.orbitaliCinema(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo non è caricato.', 'The module is not loaded.') })); } },
       { nome: ['L\'orbitale in 3D', 'The orbital in 3D'], costruisci: schedaOrbitale },
       { nome: ['I grafici', 'The graphs'], costruisci: schedaGrafici },
       { nome: ['Sovrapposizioni', 'Superpositions'], costruisci: schedaSovrapposizione },

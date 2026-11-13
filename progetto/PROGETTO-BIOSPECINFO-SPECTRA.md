@@ -691,6 +691,14 @@ battimento e H₂⁺ contro le formule esatte). Le frequenze di fotogramma (60/3
 fps) non sono ancora misurate su telefoni veri: il banco gira in un browser
 senza scheda grafica, dove non dicono niente.
 
+**Stato alla `bsi-v255`.** Fase 3 fatta per la parte nell'app: `bsi-ar.js`
+(GLB, USDZ, WebXR, Quick Look; prove manuali sui telefoni ancora da fare).
+Fase 4: nuova sezione 🌞 L'eliosfera e il viaggio dal Sole alla Galassia; la
+revisione delle altre sezioni di astronomia resta. Fase 5: cominciata con 🔧 il
+motore in spaccato; le altre sezioni di fisica restano. Fase 8: 🫀 Fisiologia
+come sistema e 💉 Farmacologia quantitativa. Fase 9: 🧭 la mappa dei
+prerequisiti. Più le animazioni di 🌌 onde di fase e correnti degli orbitali.
+
 ---
 
 ## 9. Componenti e scelte tecniche critiche

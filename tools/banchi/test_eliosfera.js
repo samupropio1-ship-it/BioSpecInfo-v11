@@ -101,15 +101,15 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       }
       o.stati = [...o.stati].sort().join(',');
       o.t3d = /eliopausa a/.test(testi[0]) && /121,6/.test(testi[0]) && /Rankine/.test(testi[0]);
-      o.parker = /ψ = 47,0°/.test(testi[1]) && /5,13 nT/.test(testi[1]);
-      o.press = /1,34 nPa/.test(testi[2]) && /r_TS = 94 UA/.test(testi[2]);
-      o.voy = /94,0 UA/.test(testi[3]) && /119,0 UA/.test(testi[3]) && /onda di prua/.test(testi[3]);
+      o.parker = /ψ = 47,0°/.test(testi[2]) && /5,13 nT/.test(testi[2]);
+      o.press = /1,34 nPa/.test(testi[3]) && /r_TS = 94 UA/.test(testi[3]);
+      o.voy = /94,0 UA/.test(testi[4]) && /119,0 UA/.test(testi[4]) && /onda di prua/.test(testi[4]);
       /* la scala lineare ricostruisce la scena senza errori */
       schede[0].click(); await pausa(400); const s = [...el.querySelectorAll('select')].filter(x => x.offsetParent)[0]; s.value = 'lin'; s.dispatchEvent(new Event('change')); await pausa(500); o.lin = /Scala lineare/.test(el.innerText);
       o.ar = !!el.querySelector('.bsiAR-tasto');
       return o;
     });
-    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sastroelio' && r.schede === 4 && r.tele.every(n => n >= 1));
+    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sastroelio' && r.schede === 5 && r.tele.every(n => n >= 1));
     att(nome + ' · non sborda e non mostra valori mancanti', '0 null', r.sb + ' ' + r.strano);
     att(nome + ' · le tre etichette di stato ci sono', 'DIBATTUTO,MISURATO,MODELLO', r.stati);
     vero(nome + ' · 3D: modello di Rankine confrontato con la misura di Voyager 1', r.t3d);

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v254` |
+| **Version described** | `bsi-v255` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -158,6 +158,7 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-agenda-v1` | JSON: `voci` (reminders, tasks, events: `id`, `genere`, `testo` up to 240 characters, `quando` in milliseconds or null, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; at most 60 closed entries), `n` (counter) | Written by `bsi-spectra-agenda.js`; stays in the browser; deleted with the «memoria» group and exported with «esporta la memoria» |
 | `bsi-spectra-memoria-stato` | JSON: `dispositivo` (random device identifier), `ultimaCura` (time of the last consolidation), `ultimoEpisodio` (the last mind episode already imported), `capitoli` (the months already written) | Written by `bsi-spectra-memoria.js` (v254); consolidation runs at the first opening of the day |
 | `bsi-spectra-memoria-riserva` | JSON: copy of the memories when IndexedDB is unavailable | Used only as a fallback; deleted with the app data |
+| `bsi-mat-mappa-noti` | JSON: the mathematics topics ticked «I already know it» in the prerequisite map | Written by `bsi-mat-mappa.js` (v255); «Reset what I already know» empties it |
 | `bsi-spectra-novita-v252` | `"1"` once the «Novità di Spectra» panel has been shown | Written by `bsi-spectra-risveglio.js`; used to show it once only |
 | `bsi-spectra-risveglio-v1` | JSON: `citta`, `lat`, `lon` (the city chosen with «abito a…»), `armato` (true after the first wake-up), `briefing` (the 8:00 and 20:00 briefing on or off), `fatti` (the last ten slots already done), `meteo` (the last weather, kept 15 minutes), `ascolto` (glasses mode on: restarts on opening), `avvioSveglia` (Spectra wakes up at every opening) | Written by `bsi-spectra-risveglio.js`; stays in the browser; deleted with the «memoria» group and exported with «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
@@ -344,4 +345,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v254`._
+_Document updated to version `bsi-v255`._

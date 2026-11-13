@@ -116,12 +116,12 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
         o.strano = o.strano || (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b|Infinity).{0,20}/) || [null])[0];
         testi.push(el.innerText);
       }
-      o.t3d = /3dz²/.test(testi[0]) && /isosuperficie al 90 %/.test(testi[0]) && /−1,512 eV/.test(testi[0]) && /2 angolari/.test(testi[0]);
-      o.graf = /Normalizzazione numerica ∫P\(r\)dr = 1,0000/.test(testi[1]);
-      o.sovr = /2,467×10¹⁵ Hz/.test(testi[2]) && /121,5 nm/.test(testi[2]) && /Lyman-α/.test(testi[2]) && /permessa/.test(testi[2]);
-      o.h2 = /S = 0,5865/.test(testi[3]);
+      o.t3d = /3dz²/.test(testi[1]) && /isosuperficie al 90 %/.test(testi[1]) && /−1,512 eV/.test(testi[1]) && /2 angolari/.test(testi[1]);
+      o.graf = /Normalizzazione numerica ∫P\(r\)dr = 1,0000/.test(testi[2]);
+      o.sovr = /2,467×10¹⁵ Hz/.test(testi[3]) && /121,5 nm/.test(testi[3]) && /Lyman-α/.test(testi[3]) && /permessa/.test(testi[3]);
+      o.h2 = /S = 0,5865/.test(testi[4]);
       /* la scheda 3D: si cambia orbitale e si passa alla forma complessa */
-      schede[0].click(); await pausa(300);
+      schede[1].click(); await pausa(300);
       const s = vis(); s[2].value = '-2'; s[2].dispatchEvent(new Event('change')); await pausa(600); o.dxy = /3dxy/.test(el.innerText);
       s[3].value = 'c'; s[3].dispatchEvent(new Event('change')); await pausa(600); s[2] = vis()[2]; vis()[2].value = '1'; vis()[2].dispatchEvent(new Event('change')); await pausa(600);
       o.complessa = /colore è la fase/.test(el.innerText) && /m = \+1/.test(el.innerText);
@@ -130,7 +130,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       o.strano = o.strano || (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b).{0,20}/) || [null])[0];
       return o;
     });
-    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sorbitali' && r.schede === 4 && r.tele.every(n => n >= 1));
+    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sorbitali' && r.schede === 5 && r.tele.every(n => n >= 1));
     att(nome + ' · non sborda e non mostra valori mancanti', '0 null', r.sb + ' ' + r.strano);
     vero(nome + ' · 3D: 3dz², E = −1,512 eV, 2 nodi angolari, isosuperficie al 90 %', r.t3d);
     vero(nome + ' · grafici: la normalizzazione numerica è 1', r.graf);

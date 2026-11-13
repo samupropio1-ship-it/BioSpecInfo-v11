@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v254` |
+| **Versione descritta** | `bsi-v255` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -154,6 +154,7 @@ e il kit resta usabile senza ricordare i progressi.
 | `bsi-spectra-agenda-v1` | JSON: `voci` (promemoria, compiti, eventi: `id`, `genere`, `testo` fino a 240 caratteri, `quando` in millisecondi o nullo, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; al massimo 60 voci chiuse), `n` (contatore) | Scritta da `bsi-spectra-agenda.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
 | `bsi-spectra-memoria-stato` | JSON: `dispositivo` (identificativo casuale del dispositivo), `ultimaCura` (ora dell'ultimo consolidamento), `ultimoEpisodio` (l'ultimo episodio della mente già importato), `capitoli` (i mesi già scritti) | Scritta da `bsi-spectra-memoria.js` (v254); il consolidamento parte alla prima apertura del giorno |
 | `bsi-spectra-memoria-riserva` | JSON: copia dei ricordi quando IndexedDB non è disponibile | Usata solo come riserva; cancellata con i dati dell'app |
+| `bsi-mat-mappa-noti` | JSON: gli argomenti di matematica segnati «lo so già» nella mappa dei prerequisiti | Scritta da `bsi-mat-mappa.js` (v255); «Azzera ciò che so già» la svuota |
 | `bsi-spectra-novita-v252` | `"1"` quando il riquadro «Novità di Spectra» è stato mostrato | Scritta da `bsi-spectra-risveglio.js`; serve a mostrarlo una volta sola |
 | `bsi-spectra-risveglio-v1` | JSON: `citta`, `lat`, `lon` (la città scelta con «abito a…»), `armato` (vero dopo il primo risveglio), `briefing` (il punto delle 8 e delle 20 acceso o spento), `fatti` (le ultime dieci fasce già fatte), `meteo` (l'ultimo meteo, tenuto 15 minuti), `ascolto` (modalità occhiali accesa: riparte all'apertura), `avvioSveglia` (Spectra si sveglia a ogni apertura) | Scritta da `bsi-spectra-risveglio.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
@@ -336,4 +337,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v254`._
+_Documento aggiornato alla versione `bsi-v255`._

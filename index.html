@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v254';
+window.BSI_APP_VERSION='bsi-v255';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -975,7 +975,9 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
     <button class="nav-btn" data-s="spkcalc">📐 Farmacocin.</button><button class="nav-btn" data-s="spkcurve" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">📉 Curve PK</button>
+    <button class="nav-btn" data-s="sfarmquant" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💉 Farmacologia quantitativa</button>
     <button class="nav-btn" data-s="sclinical">🏥 Casi Clinici</button>
+    <button class="nav-btn" data-s="smedfisio" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🫀 Fisiologia come sistema</button>
     <button class="nav-btn" data-s="smorb">🏥 Patologie</button>
   </div>
   <div id="navGroup4" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
@@ -1097,6 +1099,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <div id="navGroup8" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareamat" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">📐 Area Matematica · assistente</button>
     <button class="nav-btn" data-s="sesplmat" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la matematica con Spectra</button>
+    <button class="nav-btn" data-s="smatmappa" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧭 Mappa dei prerequisiti</button>
     <button class="nav-btn" data-s="smatbasi" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔢 Basi di matematica</button>
     <button class="nav-btn" data-s="smatfunz" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📈 Studio di funzione</button>
     <button class="nav-btn" data-s="smatcalc" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∫ Derivate, integrali e serie</button>
@@ -1136,6 +1139,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sastromat" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">📐 Matematica celeste</button>
     <button class="nav-btn" data-s="sastrostelle" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⭐ Vita delle stelle 3D</button>
     <button class="nav-btn" data-s="sastrobh" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🕳️ Buchi neri e relatività generale</button>
+    <button class="nav-btn" data-s="sastroelio" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌞 L'eliosfera</button>
     <button class="nav-btn" data-s="sastrowh" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌀 Spaziotempo e wormhole</button>
     <button class="nav-btn" data-s="sastrogw" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">〰️ Onde gravitazionali</button>
     <button class="nav-btn" data-s="sastrogal" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌌 Galassie 3D</button>
@@ -29734,6 +29738,10 @@ window.calcMolProps = function() {
 <div id="smatfrenet" class="section"></div>
 <div id="sastrowh" class="section"></div>
 <div id="sorbitali" class="section"></div>
+<div id="smatmappa" class="section"></div>
+<div id="sfarmquant" class="section"></div>
+<div id="smedfisio" class="section"></div>
+<div id="sastroelio" class="section"></div>
 <div id="sspaziochim" class="section"></div>
 <div id="sdeconv" class="section"></div>
 <div id="sfisspin" class="section"></div>
@@ -32116,6 +32124,7 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-meccanica.js" defer></script>
 <script src="./bsi-fis-onde.js" defer></script>
 <script src="./bsi-fis-circuiti.js" defer></script>
+<script src="./bsi-fis-motore.js" defer></script>
 <script src="./bsi-fis-termo.js" defer></script>
 <script src="./bsi-mat-numerici.js" defer></script>
 <script src="./bsi-mat-geometria.js" defer></script>
@@ -32166,7 +32175,14 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-foucault.js" defer></script>
 <script src="./bsi-mat-frenet.js" defer></script>
 <script src="./bsi-astro-wormhole.js" defer></script>
+<script src="./bsi-orbitali-cinema.js" defer></script>
 <script src="./bsi-orbitali.js" defer></script>
+<script src="./bsi-mat-mappa.js" defer></script>
+<script src="./bsi-ar.js" defer></script>
+<script src="./bsi-farm-quantitativa.js" defer></script>
+<script src="./bsi-med-fisiologia.js" defer></script>
+<script src="./bsi-astro-viaggio.js" defer></script>
+<script src="./bsi-astro-eliosfera.js" defer></script>
 <script src="./bsi-teoria-a.js" defer></script>
 <script src="./bsi-teoria-b.js" defer></script>
 <script src="./bsi-teoria-c.js" defer></script>
