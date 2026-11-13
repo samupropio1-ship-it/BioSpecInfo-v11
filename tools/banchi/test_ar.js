@@ -76,7 +76,7 @@ function controllaUSDZ(buf) {
   testo.split('def Mesh ').slice(1).forEach(b => {
     parti++;
     const conta = (b.match(/faceVertexCounts = \[([^\]]*)\]/) || [])[1].split(',').length, ind = (b.match(/faceVertexIndices = \[([^\]]*)\]/) || [])[1].split(',').map(Number), punti = (b.match(/point3f\[\] points = \[([^\]]*)\]/) || [])[1].split('),').length;
-    if (ind.length !== conta * 3) err.push('facce ≠ indici'); if (Math.max(...ind) >= punti) err.push('indice oltre i punti');
+    if (ind.length !== conta * 3) err.push('facce ≠ indici'); let mx = 0; for (const v of ind) if (v > mx) mx = v; if (mx >= punti) err.push('indice oltre i punti');
   });
   materiali = (testo.match(/def Material /g) || []).length;
   if (materiali !== parti) err.push('materiali ≠ parti'); if (materiali > 64) err.push('più di 64 materiali');
