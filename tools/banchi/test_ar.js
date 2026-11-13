@@ -14,6 +14,9 @@
      sviluppo i file della scena vera degli orbitali sono passati dal
      validatore glTF di Khronos (0 errori, 0 avvisi) e dai 30 validatori di
      USD (0 problemi).
+   · la semplificazione (v255): sopra 60 000 triangoli i vertici si
+     raggruppano su una griglia; la forma resta entro la cella e i file restano
+     validi; lo USDZ della scena degli orbitali scende sotto 4 MB.
    · la conversione: z in alto diventa y in alto, la scena è di 30 cm e posa
      sul piano, i punti diventano ottaedri (al massimo 4000), le linee restano
      fuori, uno specchio non rovescia le facce.
@@ -119,6 +122,14 @@ function controllaUSDZ(buf) {
   vero('al massimo 64 materiali (' + U.materiali + ')', U.materiali >= 2 && U.materiali <= 64);
   vero('ogni parte ha il suo materiale con UsdPreviewSurface', /UsdPreviewSurface/.test(U.testo) && /MaterialBindingAPI/.test(U.testo));
   att('una scena vuota (solo linee) non produce niente', 0, A.raccogli(new T.AxesHelper(2)).mesh.length);
+  /* la semplificazione: una sfera fittissima scende sotto il tetto, mantiene la forma entro la cella */
+  const fitta = new T.Group(); fitta.add(new T.Mesh(new T.SphereGeometry(1, 400, 300), new T.MeshStandardMaterial({ color: 0x88aaff })));
+  const ds = A.raccogli(fitta, { zSu: true }), trs = ds.mesh.reduce((q, m) => q + m.idx.length / 3, 0);
+  vero('una scena di ' + ds.triangoliPrima + ' triangoli scende a ' + trs + ' (tetto 60 000), cella ' + (ds.cella * 1000).toFixed(2) + ' mm', trs <= 60000 && trs < ds.triangoliPrima / 2);
+  let devMax = 0; const cS = 0.15; for (let i = 0; i < ds.mesh[0].pos.length; i += 3) { const x = ds.mesh[0].pos[i], y = ds.mesh[0].pos[i + 1] - cS, z = ds.mesh[0].pos[i + 2]; devMax = Math.max(devMax, Math.abs(Math.hypot(x, y, z) - cS)); }
+  vero('dopo la semplificazione ogni vertice resta sulla sfera entro la cella (scarto ' + (devMax * 1000).toFixed(2) + ' mm)', devMax <= ds.cella);
+  const Gs = controllaGLB(A.glb(ds, 'sfera')), Us = controllaUSDZ(A.usdz(ds, 'sfera'));
+  att('la scena semplificata dà file validi', '', Gs.err.concat(Us.err).join(', '));
   att('CRC32 di «123456789» (valore di riferimento CBF43926)', 'cbf43926', A.crc32(new TextEncoder().encode('123456789')).toString(16));
 
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
@@ -161,7 +172,7 @@ function controllaUSDZ(buf) {
       return { esito, preso, byte };
     });
     const U2 = ql.byte ? controllaUSDZ(Uint8Array.from(ql.byte)) : { err: ['niente'] };
-    vero(nome + ' · con Quick Look apre un USDZ valido con rel="ar" (' + (ql.byte ? (ql.byte.length / 1e6).toFixed(1) + ' MB, ' + U2.materiali + ' materiali' : '—') + ')', ql.esito === 'quicklook' && ql.preso && ql.preso.img && /^blob:/.test(ql.preso.href) && !U2.err.length);
+    vero(nome + ' · con Quick Look apre un USDZ valido con rel="ar" (' + (ql.byte ? (ql.byte.length / 1e6).toFixed(1) + ' MB, ' + U2.materiali + ' materiali' : '—') + ')', ql.esito === 'quicklook' && ql.preso && ql.preso.img && /^blob:/.test(ql.preso.href) && !U2.err.length && ql.byte.length < 4e6);
     /* strada 3: WebXR simulato, che rifiuta */
     const xr = await pg.evaluate(async () => {
       let chiesto = null;

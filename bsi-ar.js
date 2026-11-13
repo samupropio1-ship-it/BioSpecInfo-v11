@@ -39,7 +39,7 @@
   'use strict';
   var D = g.document;
   function t(it, en) { var F = g.BSIFisica; return F && F.t ? F.t(it, en) : it; }
-  var LATO = 0.30, MAX_PUNTI = 4000, MAX_MAT_USD = 64;
+  var LATO = 0.30, MAX_PUNTI = 4000, MAX_MAT_USD = 64, MAX_TRI = 60000;
 
   /* ═══ 1. DALLA SCENA AI DATI ═════════════════════════════════════════════ */
   /** Raccoglie le mesh di un oggetto three.js in coordinate «y in alto», scalate a `lato` metri e posate sul piano y = 0.
@@ -84,7 +84,7 @@
           for (var e = 0; e < 6; e++) { var V = ottaedro.v[e]; pos2[h * 18 + e * 3] = w.x + V[0] * r; pos2[h * 18 + e * 3 + 1] = w.y + V[1] * r; pos2[h * 18 + e * 3 + 2] = w.z + V[2] * r; nor2.set(V, h * 18 + e * 3); col2[h * 18 + e * 3] = cr; col2[h * 18 + e * 3 + 1] = cg; col2[h * 18 + e * 3 + 2] = cb; }
           for (var f = 0; f < 24; f++) idx2[h * 24 + f] = h * 6 + ottaedro.f[f];
         });
-        out.push({ pos: pos2, nor: nor2, col: col2, idx: idx2, colore: [1, 1, 1], opacita: 1, nome: o.name || 'punti' });
+        out.push({ pos: pos2, nor: nor2, col: col2, idx: idx2, colore: [1, 1, 1], opacita: 1, nome: o.name || 'punti', punti: true });
       }
     });
     /* scala a `lato` metri e posa sul piano */
@@ -93,7 +93,41 @@
     if (!out.length) return { mesh: [], lato: 0, scala: 1 };
     var lato = opz.lato || LATO, dim = Math.max(mx2[0] - mn[0], mx2[1] - mn[1], mx2[2] - mn[2]) || 1, sc = lato / dim, cx = (mn[0] + mx2[0]) / 2, cz = (mn[2] + mx2[2]) / 2;
     out.forEach(function (x) { for (var i = 0; i < x.pos.length; i += 3) { x.pos[i] = (x.pos[i] - cx) * sc; x.pos[i + 1] = (x.pos[i + 1] - mn[1]) * sc; x.pos[i + 2] = (x.pos[i + 2] - cz) * sc; } });
-    return { mesh: out, lato: lato, scala: sc };
+    /* oltre MAX_TRI triangoli la scena si semplifica raggruppando i vertici su una griglia di CELLA metri:
+       lo scarto massimo è mezza diagonale della cella (sotto il millimetro), invisibile su un modello di 30 cm */
+    var tot = out.reduce(function (s, x) { return s + x.idx.length / 3; }, 0), cella = opz.cella || 0;
+    if (cella) out = out.map(function (x) { return x.punti ? x : semplifica(x, cella); }).filter(function (x) { return x.idx.length; });
+    else if (tot > MAX_TRI) {
+      var orig = out; cella = lato / 300;
+      for (var giro = 0; giro < 6; giro++) {
+        out = orig.map(function (x) { return x.punti ? x : semplifica(x, cella); }).filter(function (x) { return x.idx.length; });
+        if (out.reduce(function (s, x) { return s + x.idx.length / 3; }, 0) <= MAX_TRI || cella >= lato / 75) break;
+        cella *= 1.4;
+      }
+    }
+    return { mesh: out, lato: lato, scala: sc, cella: cella, triangoliPrima: tot };
+  }
+  /** Raggruppa i vertici che cadono nella stessa cella (media di posizione, normale e colore), toglie i triangoli degeneri e i doppioni. */
+  function semplifica(m, cella) {
+    var mappa = new Map(), nuovo = [], n = m.pos.length / 3, rim = new Uint32Array(n);
+    for (var i = 0; i < n; i++) {
+      var k = Math.round(m.pos[i * 3] / cella) + ',' + Math.round(m.pos[i * 3 + 1] / cella) + ',' + Math.round(m.pos[i * 3 + 2] / cella), j = mappa.get(k);
+      if (j == null) { j = nuovo.length; mappa.set(k, j); nuovo.push({ p: [0, 0, 0], n: [0, 0, 0], c: [0, 0, 0], q: 0 }); }
+      var v = nuovo[j]; v.q++; for (var c = 0; c < 3; c++) { v.p[c] += m.pos[i * 3 + c]; v.n[c] += m.nor[i * 3 + c]; if (m.col) v.c[c] += m.col[i * 3 + c]; }
+      rim[i] = j;
+    }
+    var visti = new Set(), idx = [];
+    for (var t2 = 0; t2 + 2 < m.idx.length; t2 += 3) {
+      var a = rim[m.idx[t2]], b = rim[m.idx[t2 + 1]], d = rim[m.idx[t2 + 2]];
+      if (a === b || b === d || a === d) continue;
+      var ch = [a, b, d].sort(function (x, y) { return x - y; }).join(',') + (((b - a) * (d - a) > 0) ? '+' : '-');
+      if (visti.has(ch)) continue; visti.add(ch); idx.push(a, b, d);
+    }
+    var N = nuovo.length, pos = new Float32Array(N * 3), nor = new Float32Array(N * 3), col = m.col ? new Float32Array(N * 3) : null;
+    nuovo.forEach(function (v, i) { var l = Math.hypot(v.n[0], v.n[1], v.n[2]) || 1; for (var c = 0; c < 3; c++) { pos[i * 3 + c] = v.p[c] / v.q; nor[i * 3 + c] = l > 1e-9 ? v.n[c] / l : (c === 1 ? 1 : 0); if (col) col[i * 3 + c] = v.c[c] / v.q; } if (Math.hypot(nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]) < 0.5) { nor[i * 3] = 0; nor[i * 3 + 1] = 1; nor[i * 3 + 2] = 0; } });
+    var out = { pos: pos, nor: nor, col: col, idx: new Uint32Array(idx), colore: m.colore, opacita: m.opacita, nome: m.nome };
+    out.idx = senzaDegeneri(out.pos, out.idx);
+    return out;
   }
   function forma8() { return { v: [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]], f: [0, 2, 4, 2, 1, 4, 1, 3, 4, 3, 0, 4, 2, 0, 5, 1, 2, 5, 3, 1, 5, 0, 3, 5] }; }
   /** Toglie i triangoli di area nulla (l'isosuperficie ne produce dove la superficie tocca un vertice della griglia). */
@@ -150,6 +184,8 @@
 
   /* ═══ 3. USDZ (zip con una scena USDA) ═══════════════════════════════════ */
   function f6(x) { return (Math.round(x * 1e6) / 1e6).toString(); }
+  function f4(x) { return (Math.round(x * 1e4) / 1e4).toString(); }
+  function f3(x) { return (Math.round(x * 1e3) / 1e3).toString(); }
   function usda(dati, nome) {
     /* i triangoli si raggruppano per colore (al massimo 64 materiali) */
     var gruppi = {}, nG = 0, L = ['#usda 1.0', '(', '    defaultPrim = "Radice"', '    metersPerUnit = 1', '    upAxis = "Y"', '    doc = "' + String(nome || 'BioSpecInfo').replace(/["\\]/g, '') + ' — BioSpecInfo"', ')', '', 'def Xform "Radice" (', '    kind = "component"', ')', '{'];
@@ -167,13 +203,13 @@
     var mats = [];
     Object.keys(gruppi).forEach(function (k, gi) {
       var G = gruppi[k], mappa = new Map(), punti = [], normali = [], ind = [];
-      G.tri.forEach(function (x) { var m = x[0]; for (var j = 0; j < 3; j++) { var vi = m.idx[x[1] + j], ch = m.nome + '/' + vi + '/' + dati.mesh.indexOf(m), n = mappa.get(ch); if (n == null) { n = punti.length; mappa.set(ch, n); punti.push('(' + f6(m.pos[vi * 3]) + ', ' + f6(m.pos[vi * 3 + 1]) + ', ' + f6(m.pos[vi * 3 + 2]) + ')'); normali.push('(' + f6(m.nor[vi * 3]) + ', ' + f6(m.nor[vi * 3 + 1]) + ', ' + f6(m.nor[vi * 3 + 2]) + ')'); } ind.push(n); } });
+      G.tri.forEach(function (x) { var m = x[0]; for (var j = 0; j < 3; j++) { var vi = m.idx[x[1] + j], ch = m.nome + '/' + vi + '/' + dati.mesh.indexOf(m), n = mappa.get(ch); if (n == null) { n = punti.length; mappa.set(ch, n); punti.push('(' + f4(m.pos[vi * 3]) + ',' + f4(m.pos[vi * 3 + 1]) + ',' + f4(m.pos[vi * 3 + 2]) + ')'); normali.push('(' + f3(m.nor[vi * 3]) + ',' + f3(m.nor[vi * 3 + 1]) + ',' + f3(m.nor[vi * 3 + 2]) + ')'); } ind.push(n); } });
       var nt = ind.length / 3;
       L.push('    def Mesh "parte' + gi + '" (', '        prepend apiSchemas = ["MaterialBindingAPI"]', '    )', '    {',
-        '        int[] faceVertexCounts = [' + new Array(nt).fill(3).join(', ') + ']',
-        '        int[] faceVertexIndices = [' + ind.join(', ') + ']',
-        '        point3f[] points = [' + punti.join(', ') + ']',
-        '        normal3f[] normals = [' + normali.join(', ') + '] (', '            interpolation = "vertex"', '        )',
+        '        int[] faceVertexCounts = [' + new Array(nt).fill(3).join(',') + ']',
+        '        int[] faceVertexIndices = [' + ind.join(',') + ']',
+        '        point3f[] points = [' + punti.join(',') + ']',
+        '        normal3f[] normals = [' + normali.join(',') + '] (', '            interpolation = "vertex"', '        )',
         '        uniform token subdivisionScheme = "none"', '        uniform bool doubleSided = 1',
         '        rel material:binding = </Radice/Materiali/materiale' + gi + '>', '    }');
       mats.push('        def Material "materiale' + gi + '"', '        {', '            token outputs:surface.connect = </Radice/Materiali/materiale' + gi + '/Superficie.outputs:surface>',
@@ -324,6 +360,6 @@
     (L3.scene ? L3.scene() : []).forEach(function (S) { try { aggancia(S); } catch (e) {} });
   }
 
-  g.BSIAR = { raccogli: raccogli, glb: glb, usda: usda, usdz: usdz, zip64: zip64, crc32: crc32, supporto: supporto, apri: apri, aggancia: aggancia, costruisci: costruisci, quickLook: quickLook, LATO: LATO };
+  g.BSIAR = { semplifica: semplifica, raccogli: raccogli, glb: glb, usda: usda, usdz: usdz, zip64: zip64, crc32: crc32, supporto: supporto, apri: apri, aggancia: aggancia, costruisci: costruisci, quickLook: quickLook, LATO: LATO };
   if (D) innesta(0);
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -73,6 +73,21 @@
   function raggioCoda(alfa, R0) { return eliopausa(alfa, R0) * Math.sin(alfa * RAD); }
   /** Forma indicativa dello shock (non misurata fuori dai due punti delle Voyager). */
   function formaShock(alfa, R) { return R * (1 + 0.45 * (1 - Math.cos(alfa * RAD))); }
+  /** Modello asimmetrico vincolato alle due misure: R₀ efficace = R₀ + k·sin(latitudine eclittica della direzione), sia per
+      l'eliopausa (semicorpo di Rankine) sia per lo shock. Due misure, due incognite: il sistema 2×2 si risolve esattamente, così il
+      modello passa per gli attraversamenti di Voyager 1 (nord) e Voyager 2 (sud). L'asimmetria nord–sud è quella che le sonde hanno
+      trovato e che i modelli attribuiscono al campo magnetico interstellare (Opher et al. 2009). */
+  function modelloAsimmetrico() {
+    if (modelloAsimmetrico._m) return modelloAsimmetrico._m;
+    var n = versore(NASO.lon, NASO.lat), v1 = versore(SONDE.v1.lon, SONDE.v1.lat), v2 = versore(SONDE.v2.lon, SONDE.v2.lat), a1 = angolo(n, v1), a2 = angolo(n, v2);
+    function risolvi(f1, z1, r1, f2, z2, r2) { /* r = (R + k z)·f */ var A1 = r1 / f1, A2 = r2 / f2, k = (A1 - A2) / (z1 - z2); return { R: A1 - k * z1, k: k }; }
+    var hp = risolvi(1 / Math.cos(a1 * RAD / 2), v1[2], 121.6, 1 / Math.cos(a2 * RAD / 2), v2[2], 119.0);
+    var ts = risolvi(1 + 0.45 * (1 - Math.cos(a1 * RAD)), v1[2], 94.0, 1 + 0.45 * (1 - Math.cos(a2 * RAD)), v2[2], 83.7);
+    return (modelloAsimmetrico._m = { R0: hp.R, kHP: hp.k, RTS: ts.R, kTS: ts.k, n: n });
+  }
+  /** Distanza dell'eliopausa e dello shock nella direzione d (versore eclittico), modello asimmetrico. */
+  function eliopausaDir(d) { var M = modelloAsimmetrico(); return eliopausa(angolo(M.n, d), M.R0 + M.kHP * d[2]); }
+  function shockDir(d) { var M = modelloAsimmetrico(); return formaShock(angolo(M.n, d), M.RTS + M.kTS * d[2]); }
   function versore(lon, lat) { return [Math.cos(lat * RAD) * Math.cos(lon * RAD), Math.cos(lat * RAD) * Math.sin(lon * RAD), Math.sin(lat * RAD)]; }
   function angolo(a, b) { return Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]))) / RAD; }
   /** Da coordinate equatoriali (gradi) a eclittiche (gradi). */
@@ -98,7 +113,7 @@
   /** Tempo di viaggio della luce (ore) per r UA. */
   function luceOre(r) { return r * UA / 299792458 / 3600; }
 
-  F.calcolo.eliosfera = { angoloParker: angoloParker, avvolgimento: avvolgimento, campo: campo, pressioneVento: pressioneVento, shock: shock, pressionePer: pressionePer, eliopausa: eliopausa, raggioCoda: raggioCoda, formaShock: formaShock, versore: versore, angolo: angolo, eclittiche: eclittiche, distanza: distanza, luceOre: luceOre, NASO: NASO, NASTRO: NASTRO, SONDE: SONDE, OMEGA: OMEGA };
+  F.calcolo.eliosfera = { modelloAsimmetrico: modelloAsimmetrico, eliopausaDir: eliopausaDir, shockDir: shockDir, angoloParker: angoloParker, avvolgimento: avvolgimento, campo: campo, pressioneVento: pressioneVento, shock: shock, pressionePer: pressionePer, eliopausa: eliopausa, raggioCoda: raggioCoda, formaShock: formaShock, versore: versore, angolo: angolo, eclittiche: eclittiche, distanza: distanza, luceOre: luceOre, NASO: NASO, NASTRO: NASTRO, SONDE: SONDE, OMEGA: OMEGA };
 
   /* ═══ 2. LE ETICHETTE DI STATO ══════════════════════════════════════════ */
   var STATI = { misurato: ['MISURATO', '#5eead4'], modello: ['MODELLO', '#6bb7ff'], dibattuto: ['DIBATTUTO', '#ffd24a'] };
@@ -109,8 +124,9 @@
 
   /* ═══ 3. LA SCENA 3D ═══════════════════════════════════════════════════ */
   function schedaTre(div) {
-    var g = griglia(div), o = { scala: 'log', R0: 112, RTS: 85, v: 400, nastro: true }, S = null, T = null, L3 = null;
+    var g = griglia(div), o = { scala: 'log', R0: 112, RTS: 85, v: 400, nastro: true, forma: 'asim' }, S = null, T = null, L3 = null;
     F.scelta(g.pan, ['Scala delle distanze', 'Distance scale'], [['log', ['Logaritmica (dal Sole all\'eliopausa)', 'Logarithmic (Sun to heliopause)']], ['lin', ['Lineare (vera)', 'Linear (true)']]], o.scala, function (v) { o.scala = v; costruisci(); });
+    F.scelta(g.pan, ['Forma', 'Shape'], [['asim', ['Asimmetrica, vincolata alle due Voyager', 'Asymmetric, constrained by the two Voyagers']], ['sim', ['Simmetrica (Rankine puro, con i cursori)', 'Symmetric (pure Rankine, with the sliders)']]], 'asim', function (v) { o.forma = v; costruisci(); });
     F.cursore(g.pan, ['Eliopausa al naso R₀ (UA)', 'Heliopause at the nose R₀ (AU)'], 100, 130, 1, o.R0, function (v) { o.R0 = v; costruisci(); }, function (v) { return v + ' UA'; });
     F.cursore(g.pan, ['Shock di terminazione al naso (UA)', 'Termination shock at the nose (AU)'], 70, 100, 1, o.RTS, function (v) { o.RTS = v; costruisci(); }, function (v) { return v + ' UA'; });
     F.cursore(g.pan, ['Velocità del vento solare (km/s)', 'Solar wind speed (km/s)'], 300, 800, 10, o.v, function (v) { o.v = v; costruisci(); }, function (v) { return v + ' km/s'; });
@@ -121,9 +137,14 @@
     function punto(dir, r) { var k = s(r); return [dir[0] * k, dir[1] * k, dir[2] * k]; }
     function costruisci() {
       var n = versore(NASO.lon, NASO.lat), v1 = versore(SONDE.v1.lon, SONDE.v1.lat), v2 = versore(SONDE.v2.lon, SONDE.v2.lat), a1 = angolo(n, v1), a2 = angolo(n, v2);
-      info.innerHTML = stato('modello') + t('Superfici: eliopausa come semicorpo di Rankine r = R₀/cos(α/2), shock di forma indicativa. ', 'Surfaces: heliopause as a Rankine half-body r = R₀/cos(α/2), shock of indicative shape. ') +
-        t('Nella direzione di Voyager 1 (', 'Along Voyager 1 (') + num(a1, 0) + t('° dal naso) il modello dà l\'eliopausa a ', '° from the nose) the model puts the heliopause at ') + '<b class="bsiFX-num">' + num(eliopausa(a1, o.R0)) + ' UA</b>' + t(', misurata a 121,6; per Voyager 2 (', ', measured at 121.6; for Voyager 2 (') + num(a2, 0) + '°) <b class="bsiFX-num">' + num(eliopausa(a2, o.R0)) + ' UA</b>' + t(', misurata a 119,0. Un modello simmetrico non riproduce l\'asimmetria vera.', ', measured at 119.0. A symmetric model cannot reproduce the real asymmetry.') +
-        '<br>' + stato('misurato') + t('I punti gialli e verdi sulle traiettorie sono gli attraversamenti misurati.', 'The yellow and green dots on the trajectories are the measured crossings.') +
+      var MA = modelloAsimmetrico();
+      info.innerHTML = o.forma === 'asim' ? stato('modello') + t('Forma asimmetrica vincolata alle misure: eliopausa come semicorpo di Rankine r = R₀/cos(α/2) con R₀ efficace = R₀ + k·sin β (β = latitudine eclittica della direzione): ', 'Asymmetric shape constrained by the measurements: heliopause as a Rankine half-body r = R₀/cos(α/2) with effective R₀ = R₀ + k·sin β (β = ecliptic latitude of the direction): ') +
+        'R₀ = <b class="bsiFX-num">' + num(MA.R0) + ' UA</b>, k = <b class="bsiFX-num">' + num(MA.kHP) + ' UA</b>; ' + t('shock: ', 'shock: ') + num(MA.RTS) + ' ' + t('e', 'and') + ' ' + num(MA.kTS) + ' UA. ' +
+        t('Due misure, due incognite, risolte esattamente: il modello passa per l\'eliopausa a ', 'Two measurements, two unknowns, solved exactly: the model passes through the heliopause at ') + '<b class="bsiFX-num">' + num(eliopausaDir(v1)) + '</b> ' + t('(Voyager 1, misurata a 121,6) e ', '(Voyager 1, measured at 121.6) and ') + '<b class="bsiFX-num">' + num(eliopausaDir(v2)) + ' UA</b> ' + t('(Voyager 2, 119,0), e per lo shock a ', '(Voyager 2, 119.0), and for the shock at ') + num(shockDir(v1)) + ' ' + t('e', 'and') + ' ' + num(shockDir(v2)) + ' UA. ' +
+        t('Al naso prevede l\'eliopausa a ', 'At the nose it predicts the heliopause at ') + num(eliopausaDir(n)) + ' UA: ' + t('una previsione, non una misura. Il sud più vicino del nord è l\'asimmetria trovata dalle sonde, attribuita al campo magnetico interstellare.', 'a prediction, not a measurement. The south closer than the north is the asymmetry found by the probes, attributed to the interstellar magnetic field.')
+        : stato('modello') + t('Superfici: eliopausa come semicorpo di Rankine r = R₀/cos(α/2), shock di forma indicativa. ', 'Surfaces: heliopause as a Rankine half-body r = R₀/cos(α/2), shock of indicative shape. ') +
+        t('Nella direzione di Voyager 1 (', 'Along Voyager 1 (') + num(a1, 0) + t('° dal naso) il modello dà l\'eliopausa a ', '° from the nose) the model puts the heliopause at ') + '<b class="bsiFX-num">' + num(eliopausa(a1, o.R0)) + ' UA</b>' + t(', misurata a 121,6; per Voyager 2 (', ', measured at 121.6; for Voyager 2 (') + num(a2, 0) + '°) <b class="bsiFX-num">' + num(eliopausa(a2, o.R0)) + ' UA</b>' + t(', misurata a 119,0. Un modello simmetrico non riproduce l\'asimmetria vera.', ', measured at 119.0. A symmetric model cannot reproduce the real asymmetry.');
+      info.innerHTML += '<br>' + stato('misurato') + t('I punti gialli e verdi sulle traiettorie sono gli attraversamenti misurati.', 'The yellow and green dots on the trajectories are the measured crossings.') +
         (o.scala === 'log' ? '<br><small>' + t('Scala logaritmica: distanza disegnata ∝ log(1 + r/UA). Il Sole non è in scala. Colori convenzionali.', 'Logarithmic scale: drawn distance ∝ log(1 + r/AU). The Sun is not to scale. Conventional colours.') + '</small>' : '<br><small>' + t('Scala lineare: la Terra sta a 1 UA, quasi nel Sole a questa scala. Colori convenzionali.', 'Linear scale: the Earth is at 1 AU, almost inside the Sun at this scale. Conventional colours.') + '</small>');
       if (!S) return;
       S.pulisci(); var gr = new T.Group(); S.aggiungi(gr);
@@ -132,14 +153,14 @@
       function dirAlfa(al, be) { var ca = Math.cos(al * RAD), sa = Math.sin(al * RAD), cb = Math.cos(be), sb = Math.sin(be); return [e1[0] * ca + (e2[0] * cb + e3[0] * sb) * sa, e1[1] * ca + (e2[1] * cb + e3[1] * sb) * sa, e1[2] * ca + (e2[2] * cb + e3[2] * sb) * sa]; }
       function superficie(fr, amax, col, op, nome) {
         var NA = 60, NB = 48, pos = [], idx = [];
-        for (var i = 0; i <= NA; i++) { var al = amax * i / NA; for (var j = 0; j <= NB; j++) { var d = dirAlfa(al, 2 * PI * j / NB), p = punto(d, fr(al)); pos.push(p[0], p[1], p[2]); } }
+        for (var i = 0; i <= NA; i++) { var al = amax * i / NA; for (var j = 0; j <= NB; j++) { var d = dirAlfa(al, 2 * PI * j / NB), p = punto(d, fr(al, d)); pos.push(p[0], p[1], p[2]); } }
         for (var a = 0; a < NA; a++) for (var b = 0; b < NB; b++) { var p0 = a * (NB + 1) + b, p1 = p0 + NB + 1; idx.push(p0, p1, p0 + 1, p0 + 1, p1, p1 + 1); }
         var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
         var m = new T.Mesh(geo, new T.MeshPhongMaterial({ color: col, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false, shininess: 40 })); m.name = nome; gr.add(m);
         var bordi = []; for (var a2 = 0; a2 <= NA; a2 += 10) { var anello = []; for (var b2 = 0; b2 <= NB; b2++) { var k2 = (a2 * (NB + 1) + b2) * 3; anello.push([pos[k2], pos[k2 + 1], pos[k2 + 2]]); } gr.add(L3.linea(T, anello, col, Math.min(0.5, op * 2.2))); }
       }
-      superficie(function (al) { return formaShock(al, o.RTS); }, 180, 0xff9a3c, 0.16, 'shock di terminazione');
-      superficie(function (al) { return eliopausa(al, o.R0); }, 150, 0x4aa8ff, 0.13, 'eliopausa');
+      superficie(function (al, d) { return o.forma === 'asim' ? shockDir(d) : formaShock(al, o.RTS); }, 180, 0xff9a3c, 0.16, 'shock di terminazione');
+      superficie(function (al, d) { return o.forma === 'asim' ? eliopausaDir(d) : eliopausa(al, o.R0); }, 150, 0x4aa8ff, 0.13, 'eliopausa');
       /* il Sole e le orbite dei pianeti */
       gr.add(L3.sfera(T, o.scala === 'log' ? 0.25 : 0.35, 0xffd27a, 0, 0, 0, true));
       [[1, 'Terra'], [5.2, 'Giove'], [9.58, 'Saturno'], [19.2, 'Urano'], [30.07, 'Nettuno']].forEach(function (p) {

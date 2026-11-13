@@ -63,7 +63,12 @@
     q.fillStyle = '#9fb3c8'; q.beginPath(); q.arc(xp, yp, 2.2, 0, 2 * PI); q.fill();
     q.fillStyle = '#dbe8f5'; q.font = '12px system-ui,sans-serif'; q.textBaseline = 'middle'; q.textAlign = xt < xp ? 'right' : 'left'; q.fillText(testo, xt + (xt < xp ? -4 : 4), yt); q.textAlign = 'left';
   }
-  function tratteggio(q, x, y, w, h) { q.save(); q.beginPath(); q.rect(x, y, w, h); q.clip(); q.fillStyle = '#2a3b4d'; q.fillRect(x, y, w, h); q.strokeStyle = '#4a6078'; q.lineWidth = 1; for (var k = -h; k < w; k += 6) { q.beginPath(); q.moveTo(x + k, y + h); q.lineTo(x + k + h, y); q.stroke(); } q.restore(); }
+  var MOTIVO = null;
+  /** Il tratteggio della sezione: un motivo di 6 px calcolato una volta e riusato (prima: una linea per volta a ogni fotogramma). */
+  function tratteggio(q, x, y, w, h) {
+    if (!MOTIVO) { var c = globale.document.createElement('canvas'); c.width = c.height = 6; var p = c.getContext('2d'); p.fillStyle = '#2a3b4d'; p.fillRect(0, 0, 6, 6); p.strokeStyle = '#4a6078'; p.lineWidth = 1; p.beginPath(); p.moveTo(0, 6); p.lineTo(6, 0); p.moveTo(-3, 3); p.lineTo(3, -3); p.moveTo(3, 9); p.lineTo(9, 3); p.stroke(); MOTIVO = q.createPattern(c, 'repeat'); }
+    q.fillStyle = MOTIVO; q.fillRect(x, y, w, h);
+  }
 
   function schedaMotore(div) {
     var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div', { style: 'min-width:0' }); G.appendChild(pan); G.appendChild(dx); div.appendChild(G);

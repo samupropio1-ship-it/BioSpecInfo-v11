@@ -15,7 +15,8 @@
      23,4393°): il piano galattico risulta inclinato di circa 60° sull'eclittica,
      come in cielo. Il centro galattico sta a 8,18 kpc (GRAVITY 2019) in
      direzione (l, b) = (0°, 0°).
-   · Eliosfera: shock, eliopausa (semicorpo di Rankine, R₀ = 112 UA), muro di
+   · Eliosfera: shock ed eliopausa nella forma asimmetrica vincolata alle due
+     Voyager (vedi bsi-astro-eliosfera.js, modelloAsimmetrico), muro di
      idrogeno (MODELLO, guscio a 1,35 R₀) e onda di prua (DIBATTUTA, 1,9 R₀).
      Le particelle seguono le linee di flusso dello stesso modello: corrente
      uniforme di gas interstellare più la sorgente del vento solare,
@@ -68,8 +69,10 @@
     return { x: r * Math.cos(lon), y: r * Math.sin(lon), r: r, lon: ((lon / RAD) % 360 + 360) % 360 };
   }
   function annoDecimale(data) { var d = new Date(data); return d.getUTCFullYear() + (data - Date.UTC(d.getUTCFullYear(), 0, 1)) / (365.25 * 864e5); }
-  F.calcolo.viaggio = { pianeta: pianeta, PIANETI: PIANETI, galEcl: galEcl, radec: radec, GC: GC, NGP: NGP, inclinazione: inclinazione, campoFlusso: campoFlusso, KPC: KPC, AL: AL };
+  F.calcolo.viaggio = { qualitaAuto: qualitaAuto, pianeta: pianeta, PIANETI: PIANETI, galEcl: galEcl, radec: radec, GC: GC, NGP: NGP, inclinazione: inclinazione, campoFlusso: campoFlusso, KPC: KPC, AL: AL };
 
+  /** Qualità automatica: massima su un computer con almeno 8 core, normale altrove; leggera se il dispositivo dice di avere poca memoria. */
+  function qualitaAuto() { var n = globale.navigator || {}, piccolo = (globale.innerWidth || 1000) < 700; if (n.deviceMemory && n.deviceMemory <= 2) return 0; return !piccolo && (n.hardwareConcurrency || 4) >= 8 ? 2 : 1; }
   function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var r = Math.imul(a ^ a >>> 15, 1 | a); r = r + Math.imul(r ^ r >>> 7, 61 | r) ^ r; return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
   function distanzaTesto(L) { return L < 2e4 ? Math.round(L).toLocaleString('it-IT') + ' UA' : L < 3e7 ? (L / AL).toFixed(L < 2e5 ? 2 : 1).replace('.', ',') + t(' anni luce', ' light years') : (L / KPC).toFixed(1).replace('.', ',') + ' kpc'; }
   var TAPPE = [
@@ -84,11 +87,12 @@
 
   function scheda(div) {
     var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div', { style: 'min-width:0' }); G.appendChild(pan); G.appendChild(dx); div.appendChild(G);
-    var vistaBase = null, inScala = false, ferma = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches, L = 60, viaggio = null, S = null, T = null, L3 = globale.BSILab3D, oggetti = [], radice = null, flusso = null;
+    var ultimoCap = '', livello = qualitaAuto(), vistaBase = null, inScala = false, ferma = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches, L = 60, viaggio = null, S = null, T = null, L3 = globale.BSILab3D, oggetti = [], radice = null, flusso = null;
     var cur = F.cursore(pan, ['Scala: lato inquadrato (log₁₀ UA)', 'Scale: framed size (log₁₀ AU)'], Math.log10(LMIN), Math.log10(LMAX), 0.01, Math.log10(L), function (v) { L = Math.pow(10, v); viaggio = null; aggiorna(); }, function (v) { return distanzaTesto(Math.pow(10, v)); });
     var bv = F.el('button', { type: 'button', 'class': 'bsiFX-bott', testo: '▶ ' + t('Viaggio dal Sole alla Galassia', 'Journey from the Sun to the Galaxy') });
     bv.addEventListener('click', function () { if (ferma) { L = L > 1e7 ? 60 : 3e9; aggiorna(); return; } viaggio = { t0: null, da: Math.log10(L < 1e8 ? LMIN * 2 : L), a: Math.log10(L < 1e8 ? 6e9 : LMIN * 2) }; if (S) { S.sporca = true; S.avvia(); } });
     pan.appendChild(bv);
+    F.scelta(pan, ['Qualità', 'Quality'], [['2', ['massima (più stelle e particelle)', 'maximum (more stars and particles)']], ['1', ['normale', 'normal']], ['0', ['leggera (telefoni lenti)', 'light (slow phones)']]], String(livello), function (v) { livello = +v; if (S) costruisci(); });
     var info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info);
     info.innerHTML = '<b>' + t('Ogni oggetto alla sua posizione vera', 'Every object at its true position') + '</b>: ' + t('eclittica come riferimento; Galassia messa con la matrice galattico → equatoriale (J2000): il suo piano risulta inclinato di ', 'ecliptic as reference; Galaxy placed with the galactic → equatorial matrix (J2000): its plane comes out tilted by ') + '<b class="bsiFX-num">' + inclinazione().toFixed(1).replace('.', ',') + '°</b>. ' +
       t('Le particelle seguono il flusso del modello di Rankine: gialle dal Sole, viola dal mezzo interstellare. Nube di Oort: ipotesi. Bracci della Galassia: schema. Bolle di Fermi ed eROSITA: misurate; l\'origine dal centro è l\'interpretazione più seguita.', 'Particles follow the Rankine model flow: yellow from the Sun, violet from the interstellar medium. Oort cloud: hypothesis. Galactic arms: schematic. Fermi and eROSITA bubbles: measured; the origin at the centre is the most followed interpretation.');
@@ -99,7 +103,7 @@
     function anello(R, col, n) { var p = []; for (var i = 0; i <= (n || 128); i++) { var f = 2 * PI * i / (n || 128); p.push(new T.Vector3(R * Math.cos(f), R * Math.sin(f), 0)); } return new T.Line(new T.BufferGeometry().setFromPoints(p), new T.LineBasicMaterial({ color: col, transparent: true, opacity: 0.6 })); }
     function guscio(fr, amax, n, col, op) {
       var e1 = n, tmp = Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0], e2 = norm(vx(tmp, e1)), e3 = vx(e1, e2), NA = 40, NB = 40, pos = [], idx = [];
-      for (var i = 0; i <= NA; i++) { var al = amax * i / NA, r = fr(al), ca = Math.cos(al * RAD), sa = Math.sin(al * RAD); for (var j = 0; j <= NB; j++) { var b = 2 * PI * j / NB; pos.push(r * (e1[0] * ca + (e2[0] * Math.cos(b) + e3[0] * Math.sin(b)) * sa), r * (e1[1] * ca + (e2[1] * Math.cos(b) + e3[1] * Math.sin(b)) * sa), r * (e1[2] * ca + (e2[2] * Math.cos(b) + e3[2] * Math.sin(b)) * sa)); } }
+      for (var i = 0; i <= NA; i++) { var al = amax * i / NA, ca = Math.cos(al * RAD), sa = Math.sin(al * RAD); for (var j = 0; j <= NB; j++) { var b = 2 * PI * j / NB, d = [e1[0] * ca + (e2[0] * Math.cos(b) + e3[0] * Math.sin(b)) * sa, e1[1] * ca + (e2[1] * Math.cos(b) + e3[1] * Math.sin(b)) * sa, e1[2] * ca + (e2[2] * Math.cos(b) + e3[2] * Math.sin(b)) * sa], r = fr(al, d); pos.push(r * d[0], r * d[1], r * d[2]); } }
       for (var a2 = 0; a2 < NA; a2++) for (var b2 = 0; b2 < NB; b2++) { var p0 = a2 * (NB + 1) + b2, p1 = p0 + NB + 1; idx.push(p0, p1, p0 + 1, p0 + 1, p1, p1 + 1); }
       var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
       return new T.Mesh(g, new T.MeshBasicMaterial({ color: col, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
@@ -118,7 +122,7 @@
     function luce() { if (LUCE) return LUCE; var c = globale.document.createElement('canvas'); c.width = c.height = 64; var q = c.getContext('2d'), g = q.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.3, 'rgba(255,255,255,.45)'); g.addColorStop(1, 'rgba(255,255,255,0)'); q.fillStyle = g; q.fillRect(0, 0, 64, 64); LUCE = new T.CanvasTexture(c); return LUCE; }
     function punti(arr, col, size) { var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(arr.pos, 3)); if (arr.col) g.setAttribute('color', new T.Float32BufferAttribute(arr.col, 3)); return new T.Points(g, new T.PointsMaterial({ size: size * 2.2, map: luce(), color: arr.col ? 0xffffff : col, vertexColors: !!arr.col, transparent: true, opacity: 0.9, depthWrite: false, blending: T.AdditiveBlending, sizeAttenuation: false })); }
     function costruisci() {
-      var E = F.calcolo.eliosfera, rnd = mulberry(42), n = E.versore(E.NASO.lon, E.NASO.lat), R0 = 112;
+      var E = F.calcolo.eliosfera, rnd = mulberry(42), n = E.versore(E.NASO.lon, E.NASO.lat), R0 = E.modelloAsimmetrico().R0;
       S.pulisci(); oggetti = []; radice = new T.Group(); S.aggiungi(radice);
       /* il Sole */
       var sole = new T.Mesh(new T.SphereGeometry(1, 24, 16), new T.MeshBasicMaterial({ color: 0xffd27a })); radice.add(sole); radice.userData.sole = sole;
@@ -132,10 +136,10 @@
       });
       var kb = { pos: [] }; for (var i = 0; i < 2500; i++) { var r = 30 + 20 * rnd(), f = 2 * PI * rnd(); kb.pos.push(r * Math.cos(f), r * Math.sin(f), (rnd() - 0.5) * 6); } aggiungi(punti(kb, 0x9fb3c8, 1.5), 100, 0.01);
       /* eliosfera */
-      aggiungi(guscio(function (al) { return E.formaShock(al, 85); }, 180, n, 0xff9a3c, 0.16), 300, 0.02, 0.9);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0); }, 150, n, 0x4aa8ff, 0.16), 400, 0.02, 0.9);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.35); }, 140, n, 0xd46cff, 0.06), 500, 0.02, 0.9);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.9); }, 120, n, 0x7affc8, 0.045), 700, 0.02, 0.9);
+      aggiungi(guscio(function (al, d) { return E.shockDir(d); }, 180, n, 0xff9a3c, 0.16), 300, 0.02, 0.9);
+      aggiungi(guscio(function (al, d) { return E.eliopausaDir(d); }, 150, n, 0x4aa8ff, 0.16), 400, 0.02, 0.9);
+      aggiungi(guscio(function (al, d) { return E.eliopausaDir(d) * 1.35; }, 140, n, 0xd46cff, 0.06), 500, 0.02, 0.9);
+      aggiungi(guscio(function (al, d) { return E.eliopausaDir(d) * 1.9; }, 120, n, 0x7affc8, 0.045), 700, 0.02, 0.9);
       etichetta(t('shock di terminazione', 'termination shock'), '#ffb070', [0, 0, E.formaShock(90, 85) * 0.98], 400, 0.055);
       etichetta(t('eliopausa', 'heliopause'), '#8cc8ff', [-n[0] * 90, -n[1] * 90, -n[2] * 90 - E.eliopausa(90, R0) * 1.05], 400, 0.055);
       etichetta(t('eliosheath', 'heliosheath'), '#e6c7ff', [-n[0] * 150, -n[1] * 150, -n[2] * 150 + 25], 400, 0.045);
@@ -143,7 +147,7 @@
       etichetta(t('onda di prua (dibattuta)', 'bow wave (debated)'), '#9fffd8', [n[0] * R0 * 1.9, n[1] * R0 * 1.9, n[2] * R0 * 1.9 - 50], 800, 0.045);
       ['v1', 'v2'].forEach(function (k) { var sd = E.SONDE[k], d = E.versore(sd.lon, sd.lat), Rr = E.distanza(k, annoDecimale(Date.now())); aggiungi(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(0, 0, 0), new T.Vector3(d[0] * Rr, d[1] * Rr, d[2] * Rr)]), new T.LineBasicMaterial({ color: parseInt(sd.col.slice(1), 16) })), 400, 0.02); etichetta(sd.nome, sd.col, [d[0] * Rr, d[1] * Rr, d[2] * Rr + 8], 400, 0.045); });
       /* il flusso */
-      var NF = (globale.innerWidth || 1000) < 700 ? 1000 : 1800, fp = new Float32Array(NF * 3), fc = new Float32Array(NF * 3), st = [];
+      var NF = [800, 1800, 4500][livello], fp = new Float32Array(NF * 3), fc = new Float32Array(NF * 3), st = [];
       function nasce(i, sole) {
         if (sole) { var u = 2 * rnd() - 1, ph = 2 * PI * rnd(), s = Math.sqrt(1 - u * u), r = 3 + rnd() * 4; st[i] = { p: [r * s * Math.cos(ph), r * s * Math.sin(ph), r * u], sole: true }; }
         else { var e2 = norm(vx(Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0], n)), e3 = vx(n, e2), rr = 520 * Math.sqrt(rnd()), b = 2 * PI * rnd(), d0 = 650; st[i] = { p: [n[0] * d0 + (e2[0] * Math.cos(b) + e3[0] * Math.sin(b)) * rr, n[1] * d0 + (e2[1] * Math.cos(b) + e3[1] * Math.sin(b)) * rr, n[2] * d0 + (e2[2] * Math.cos(b) + e3[2] * Math.sin(b)) * rr], sole: false }; }
@@ -156,13 +160,13 @@
       aggiungi(new T.Points(gF, new T.PointsMaterial({ size: 1.6, vertexColors: true, transparent: true, opacity: 0.7, depthWrite: false, blending: T.AdditiveBlending, sizeAttenuation: false })), 800, 0.02);
       flusso.muovi(0);
       /* nube di Oort */
-      var oo = { pos: [] }; for (var k2 = 0; k2 < 5000; k2++) { var rO = 2000 * Math.pow(50, rnd()), u2 = 2 * rnd() - 1, f2 = 2 * PI * rnd(), sq = Math.sqrt(1 - u2 * u2), piatto = rO < 2e4 ? 0.35 : 1; oo.pos.push(rO * sq * Math.cos(f2), rO * sq * Math.sin(f2), rO * u2 * piatto); }
+      var oo = { pos: [] }; for (var k2 = 0, NO = [3000, 5000, 12000][livello]; k2 < NO; k2++) { var rO = 2000 * Math.pow(50, rnd()), u2 = 2 * rnd() - 1, f2 = 2 * PI * rnd(), sq = Math.sqrt(1 - u2 * u2), piatto = rO < 2e4 ? 0.35 : 1; oo.pos.push(rO * sq * Math.cos(f2), rO * sq * Math.sin(f2), rO * u2 * piatto); }
       aggiungi(punti(oo, 0x8fb8d8, 1.4), 2e5, 0.02); etichetta(t('nube di Oort (ipotesi)', 'Oort cloud (hypothesis)'), '#a8cbe6', [0, -6e4, 3e4], 2e5, 0.05);
       /* Alfa Centauri */
       var ac = radec(219.90, -60.83), Dac = 4.37 * AL; var sa = new T.Mesh(new T.SphereGeometry(Dac * 0.006, 12, 8), new T.MeshBasicMaterial({ color: 0xfff1c0 })); sa.position.set(ac[0] * Dac, ac[1] * Dac, ac[2] * Dac); aggiungi(sa, Dac * 2.4, 0.02);
       etichetta(t('Alfa Centauri · 4,37 anni luce', 'Alpha Centauri · 4.37 light years'), '#fff1c0', [ac[0] * Dac, ac[1] * Dac, ac[2] * Dac + Dac * 0.08], Dac * 2.4, 0.045);
       /* Via Lattea */
-      var gx = { pos: [], col: [] }, NG = (globale.innerWidth || 1000) < 700 ? 14000 : 26000, kpitch = Math.tan(12 * RAD);
+      var gx = { pos: [], col: [] }, NG = [10000, 26000, 70000][livello], kpitch = Math.tan(12 * RAD);
       for (var g = 0; g < NG; g++) {
         var tipo = rnd(), rg, th, zg, xg, yg, colr;
         if (tipo < 0.10) { rg = Math.abs(gauss(rnd) * 0.9); th = 2 * PI * rnd(); zg = gauss(rnd) * 0.45; colr = [1, 0.82, 0.55]; xg = RGC - rg * KPC * Math.cos(th); yg = -rg * KPC * Math.sin(th); }   /* rigonfiamento: stelle vecchie, giallastre */
@@ -189,8 +193,8 @@
     function aggiorna() {
       var lg = Math.log10(L), w = Math.max(0, Math.min(1, (lg - 7.8) / 1.4)); w = w * w * (3 - 2 * w);
       var tap = TAPPE.filter(function (x) { return L < x[0]; })[0];
-      cap.innerHTML = '<b>' + distanzaTesto(L) + '</b> · ' + t(tap[1][0], tap[1][1]);
-      cur.value = lg.toFixed(2);
+      var testoCap = '<b>' + distanzaTesto(L) + '</b> · ' + t(tap[1][0], tap[1][1]); if (testoCap !== ultimoCap) { cap.innerHTML = testoCap; ultimoCap = testoCap; }   /* il DOM solo quando cambia */
+      if (globale.document.activeElement !== cur) cur.value = lg.toFixed(2);
       if (!radice) return;
       radice.scale.setScalar(1 / L);
       radice.userData.sole.scale.setScalar(L * 0.012);
@@ -202,7 +206,7 @@
       radice.position.set(-gcv.x * w / L, -gcv.y * w / L, -gcv.z * w / L);
       if (w > 0) S.vista.ph = vistaBase.ph + (1.18 - vistaBase.ph) * w; else if (inScala) S.vista.ph = vistaBase.ph;
       inScala = w > 0;
-      oggetti.forEach(function (o) { var q = Math.log10(o.userData.taglia / L), a = Math.max(0, Math.min(1, (q - Math.log10(o.userData.dentro)) / 0.5)) * Math.max(0, Math.min(1, (o.userData.su - q) / 0.4)); o.visible = a > 0.01; o.traverse(function (x) { if (!x.material) return; var u = x.material.uniforms && x.material.uniforms.opacita; if (x.userData.op == null) x.userData.op = u ? u.value : (x.material.opacity == null ? 1 : x.material.opacity); if (u) u.value = x.userData.op * a; else { x.material.opacity = x.userData.op * a; x.material.transparent = true; } }); });
+      oggetti.forEach(function (o) { var q = Math.log10(o.userData.taglia / L), a = Math.max(0, Math.min(1, (q - Math.log10(o.userData.dentro)) / 0.5)) * Math.max(0, Math.min(1, (o.userData.su - q) / 0.4)); o.visible = a > 0.01; a = Math.round(a * 50) / 50; if (o.userData.aPrec === a) return; o.userData.aPrec = a; o.traverse(function (x) { if (!x.material) return; var u = x.material.uniforms && x.material.uniforms.opacita; if (x.userData.op == null) x.userData.op = u ? u.value : (x.material.opacity == null ? 1 : x.material.opacity); if (u) u.value = x.userData.op * a; else { x.material.opacity = x.userData.op * a; x.material.transparent = true; } }); });
       S.didascalia.textContent = t('Dal Sole alla Galassia', 'From the Sun to the Galaxy') + ' · ' + t('lato ', 'side ') + distanzaTesto(L) + ' · ' + t('scala logaritmica continua, posizioni vere', 'continuous logarithmic scale, true positions');
       S.sporca = true; S.avvia();
     }

@@ -82,15 +82,17 @@
   var SPRITE = null;
   function luce(T) { if (SPRITE) return SPRITE; var c = globale.document.createElement('canvas'); c.width = c.height = 64; var q = c.getContext('2d'), g = q.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); q.fillStyle = g; q.fillRect(0, 0, 64, 64); SPRITE = new T.CanvasTexture(c); return SPRITE; }
 
+  function qualitaAuto() { var n = globale.navigator || {}, piccolo = (globale.innerWidth || 1000) < 700; if (n.deviceMemory && n.deviceMemory <= 2) return 0; return !piccolo && (n.hardwareConcurrency || 4) >= 8 ? 2 : 1; }
   /* ═══ 2. LA SCHEDA ═════════════════════════════════════════════════════ */
   function hsl(h, s, l) { h = ((h % 1) + 1) % 1; var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h * 12) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); }; return [f(0), f(8), f(4)]; }
   function scheda(div) {
     var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div', { style: 'min-width:0' }); G.appendChild(pan); G.appendChild(dx); div.appendChild(G);
-    var o = { n: 4, l: 3, m: 3, Z: 1 }, mostra = { superficie: true, scie: true, fase: true, anello: true }, S = null, T = null, stato = null, tempo = 0;
+    var livello = qualitaAuto(), o = { n: 4, l: 3, m: 3, Z: 1 }, mostra = { superficie: true, scie: true, fase: true, anello: true }, S = null, T = null, stato = null, tempo = 0;
     var ferma = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var PRESET = [['4f3', '4f, m = 3 (anello, tre lunghezze d\'onda)', [4, 3, 3]], ['3d1', '3d, m = 1 (due lobi e un toro)', [3, 2, 1]], ['3d2', '3d, m = 2', [3, 2, 2]], ['2p1', '2p, m = 1 (una ciambella)', [2, 1, 1]], ['5g4', '5g, m = 4', [5, 4, 4]], ['3d0', '3dz², m = 0 (nessuna corrente)', [3, 2, 0]], ['4f1', '4f, m = 1', [4, 3, 1]]];
     F.scelta(pan, ['Orbitale', 'Orbital'], PRESET.map(function (p) { return [p[0], p[1]]; }), '4f3', function (v) { var p = PRESET.filter(function (x) { return x[0] === v; })[0][2]; o.n = p[0]; o.l = p[1]; o.m = p[2]; costruisci(); });
     var segno = F.scelta(pan, ['Verso della rotazione', 'Sense of rotation'], [['+', ['m positivo (antiorario visto da +z)', 'positive m (counter-clockwise from +z)']], ['-', ['m negativo (orario)', 'negative m (clockwise)']]], '+', function (v) { o.m = Math.abs(o.m) * (v === '-' ? -1 : 1); costruisci(); });
+    F.scelta(pan, ['Qualità', 'Quality'], [['2', ['massima (più scie, superficie più fine)', 'maximum (more streaks, finer surface)']], ['1', ['normale', 'normal']], ['0', ['leggera (telefoni lenti)', 'light (slow phones)']]], String(livello), function (v) { livello = +v; costruisci(); });
     var sv = F.el('div', { style: 'display:grid;gap:2px;margin:8px 0' }); pan.appendChild(sv);
     [['superficie', ['Superficie a reticolo (90 %)', 'Wireframe surface (90 %)']], ['scie', ['Scie della corrente di probabilità', 'Probability-current streaks']], ['fase', ['Onda di fase sul piano', 'Phase wave on the plane']], ['anello', ['Anello di de Broglie (semiclassico)', 'de Broglie ring (semiclassical)']]].forEach(function (x) {
       var lab = F.el('label', { style: 'display:flex;align-items:center;justify-content:flex-start;gap:10px;min-height:36px;width:100%;text-align:left;cursor:pointer' }), c = F.el('input', { type: 'checkbox', style: 'width:20px;height:20px;flex:0 0 auto;margin:0' }); c.checked = mostra[x[0]];
@@ -111,22 +113,22 @@
     function costruisci() {
       testo(); if (!S) return;
       S.pulisci(); var gr = new T.Group(); S.aggiungi(gr); stato = { parti: {} };
-      var L = (o.n * o.n * 3 + 10) * 0.85 / (o.Z || 1), piccolo = (globale.innerWidth || 1000) < 700;
+      var L = (o.n * o.n * 3 + 10) * 0.85 / (o.Z || 1), Q = livello;
       /* livello al 90 % da una griglia 3D */
-      var N = 36, h = 2 * L / N, vals = new Float32Array((N + 1) * (N + 1) * (N + 1)), k = 0;
+      var N = [30, 36, 48][Q], h = 2 * L / N, vals = new Float32Array((N + 1) * (N + 1) * (N + 1)), k = 0;
       for (var a = 0; a <= N; a++) for (var b = 0; b <= N; b++) for (var c = 0; c <= N; c++) vals[k++] = densitaRZ(o, Math.hypot(-L + c * h, -L + b * h), -L + a * h);
       var c90 = O().soglia(vals, h * h * h, 0.9);
       /* 1. la superficie a reticolo: contorno meridiano ruotato */
-      var seg = contorno(o, L, piccolo ? 130 : 190, piccolo ? 260 : 380, c90), pos = [], col = [], NM = piccolo ? 24 : 36;
+      var seg = contorno(o, L, [100, 170, 260][Q], [200, 340, 520][Q], c90), pos = [], col = [], NM = [20, 32, 48][Q];
       function colorePolare(R, z) { var th = Math.atan2(R, z), P = O().legendre(o.l, Math.abs(o.m), Math.cos(th)); return P >= 0 ? [0.36, 0.78, 1.0] : [1.0, 0.62, 0.22]; }
       for (var q = 0; q < NM; q++) { var f = 2 * PI * q / NM, cf = Math.cos(f), sf = Math.sin(f); seg.forEach(function (s) { var cc = colorePolare((s[0][0] + s[1][0]) / 2, (s[0][1] + s[1][1]) / 2); pos.push(s[0][0] * cf, s[0][0] * sf, s[0][1], s[1][0] * cf, s[1][0] * sf, s[1][1]); col.push.apply(col, cc.concat(cc)); }); }
-      var NP = piccolo ? 18 : 26, passo = Math.max(1, Math.floor(seg.length / NP));
+      var NP = [14, 22, 34][Q], passo = Math.max(1, Math.floor(seg.length / NP));
       for (var si = 0; si < seg.length; si += passo) { var s0 = seg[si], R0 = (s0[0][0] + s0[1][0]) / 2, z0 = (s0[0][1] + s0[1][1]) / 2, cc2 = colorePolare(R0, z0); if (R0 < 0.05 * L) continue; for (var w = 0; w < 64; w++) { var f1 = 2 * PI * w / 64, f2 = 2 * PI * (w + 1) / 64; pos.push(R0 * Math.cos(f1), R0 * Math.sin(f1), z0, R0 * Math.cos(f2), R0 * Math.sin(f2), z0); col.push.apply(col, cc2.concat(cc2)); } }
       var gS = new T.BufferGeometry(); gS.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); gS.setAttribute('color', new T.Float32BufferAttribute(col, 3));
       var sup = new T.LineSegments(gS, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: T.AdditiveBlending, depthWrite: false }));
       sup.name = 'superficie'; sup.visible = mostra.superficie; gr.add(sup);
       /* la superficie di vetro: il contorno ruotato in 72 spicchi, normali dal gradiente vero di |ψ|² */
-      var NV = 72, vp = [], vn = [], vc = [];
+      var NV = [40, 72, 120][Q], vp = [], vn = [], vc = [];
       seg.forEach(function (sg) {
         var g0 = gradienteRZ(o, sg[0][0], sg[0][1]), g1 = gradienteRZ(o, sg[1][0], sg[1][1]), l0 = Math.hypot(g0[0], g0[1]) || 1, l1 = Math.hypot(g1[0], g1[1]) || 1, c0 = colorePolare(sg[0][0], sg[0][1]), c1 = colorePolare(sg[1][0], sg[1][1]);
         for (var w2 = 0; w2 < NV; w2++) {
@@ -137,7 +139,7 @@
       var gV = new T.BufferGeometry(); gV.setAttribute('position', new T.Float32BufferAttribute(vp, 3)); gV.setAttribute('normal', new T.Float32BufferAttribute(vn, 3)); gV.setAttribute('color', new T.Float32BufferAttribute(vc, 3));
       var vetroM = new T.Mesh(gV, vetro(T, 0x6fd6ff, 0.32)); vetroM.name = 'vetro'; sup.add(vetroM); stato.parti.superficie = sup;
       /* 2. le scie della corrente */
-      var NS = piccolo ? 520 : 1100, pts = O().campiona({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, NS, 17), LT = 16;
+      var NS = [400, 1000, 2400][Q], pts = O().campiona({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, NS, 17), LT = 16;
       var particelle = pts.map(function (p) { var R = Math.hypot(p[0], p[1]); return { R: Math.max(R, 0.08 * L), z: p[2], phi: Math.atan2(p[1], p[0]) }; });
       var sp = new Float32Array(NS * (LT - 1) * 6), sc = new Float32Array(NS * (LT - 1) * 6), gT = new T.BufferGeometry();
       gT.setAttribute('position', new T.BufferAttribute(sp, 3)); gT.setAttribute('color', new T.BufferAttribute(sc, 3));
@@ -160,7 +162,7 @@
       }
       aggiornaScie();
       /* 3. l'onda di fase sul piano della densità massima */
-      var PM = pianoMassimo(o), NRf = 80, NFf = 240, Rmax = Math.min(L * 1.15, PM.rho * 2.4 + 2), ampiezza = L * 0.12, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
+      var PM = pianoMassimo(o), NRf = [50, 80, 120][Q], NFf = [160, 240, 360][Q], Rmax = Math.min(L * 1.15, PM.rho * 2.4 + 2), ampiezza = L * 0.12, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
       var maxA = 0; for (var i2 = 0; i2 <= NRf; i2++) for (var j2 = 0; j2 <= NFf; j2++) { var Rr = Rmax * i2 / NRf, ff = 2 * PI * j2 / NFf, ps = O().psi({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, Rr * Math.cos(ff), Rr * Math.sin(ff), PM.z); base.push(ps); maxA = Math.max(maxA, Math.hypot(ps.re, ps.im)); }
       for (var i3 = 0; i3 < NRf; i3++) for (var j3 = 0; j3 < NFf; j3++) { var a0 = i3 * (NFf + 1) + j3; idx.push(a0, a0 + NFf + 1, a0 + 1, a0 + 1, a0 + NFf + 1, a0 + NFf + 2); }
       var gF = new T.BufferGeometry(); gF.setAttribute('position', new T.BufferAttribute(posF, 3)); gF.setAttribute('color', new T.BufferAttribute(colF, 3)); gF.setIndex(idx);

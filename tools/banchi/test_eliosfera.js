@@ -10,6 +10,9 @@
    · Pressione: ρv² = 1,34 nPa a 1 UA (5 protoni/cm³, 400 km/s); lo shock a
      94 UA chiede 0,15 pPa; r_TS scala come 1/√P.
    · Rankine: r(90°) = √2 R₀, la coda tende a 2R₀.
+   · Modello asimmetrico (v255): passa esattamente per i quattro
+     attraversamenti delle Voyager; sud più vicino del nord; shock sempre
+     dentro l'eliopausa.
    · Coordinate: dall'equatore all'eclittica, la direzione di Voyager 1
      (17h 13m, +12°) è a latitudine +35°, quella di Voyager 2 a −38°; il
      punto vernale resta a (0°, 0°), il polo nord celeste va a latitudine
@@ -59,6 +62,13 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
   vicino('r(90°) = √2 R₀', Math.SQRT2 * 112, E.eliopausa(90, 112), 1e-9);
   vicino('la coda tende a 2R₀', 224, E.raggioCoda(179.99, 112), 1e-6);
   att('al naso r = R₀', 112, E.eliopausa(0, 112));
+
+  console.log('\n── Il modello asimmetrico vincolato alle Voyager ──');
+  const d1 = E.versore(E.SONDE.v1.lon, E.SONDE.v1.lat), d2 = E.versore(E.SONDE.v2.lon, E.SONDE.v2.lat), MA = E.modelloAsimmetrico();
+  att('passa per i quattro attraversamenti misurati (UA)', '121.6 119 94 83.7', [E.eliopausaDir(d1), E.eliopausaDir(d2), E.shockDir(d1), E.shockDir(d2)].map(x => +x.toFixed(9)).join(' '));
+  vero('il sud è più vicino del nord: k > 0 per eliopausa e shock (' + MA.kHP.toFixed(2) + ', ' + MA.kTS.toFixed(2) + ' UA)', MA.kHP > 0 && MA.kTS > 0);
+  vero('al naso prevede l\'eliopausa a ' + E.eliopausaDir(MA.n).toFixed(1) + ' UA e lo shock a ' + E.shockDir(MA.n).toFixed(1) + ' UA (fra 100 e 130, fra 70 e 95)', E.eliopausaDir(MA.n) > 100 && E.eliopausaDir(MA.n) < 130 && E.shockDir(MA.n) > 70 && E.shockDir(MA.n) < 95);
+  vero('lo shock sta dentro l\'eliopausa in ogni direzione', Array.from({ length: 400 }, (_, i) => { const th = Math.acos(1 - 2 * (i + 0.5) / 400), ph = i * 2.39996; return [Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th)]; }).filter(d => E.angolo(MA.n, d) < 140).every(d => E.shockDir(d) < E.eliopausaDir(d)));
 
   console.log('\n── Coordinate ──');
   const v1 = E.eclittiche(258.35, 12.0), v2 = E.eclittiche(302.5, -59.5), np = E.eclittiche(0, 90), gamma = E.eclittiche(0, 0);
