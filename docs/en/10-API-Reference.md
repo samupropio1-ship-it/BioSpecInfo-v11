@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v252` |
+| **Version described** | `bsi-v253` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -542,7 +542,7 @@ New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo
 | Symbol | Signature | Description |
 |---|---|---|
 | `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione», the «🗂️ Tutte le sezioni nell'ologramma» card (search, subject filter, «🎞️ Mostrami tutto») |
-| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 204 sections since v242 (chemistry 79, physics 64, mathematics 32, shared 29). Read from the bar, not written by hand |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 205 sections since v242 (chemistry 79, physics 65, mathematics 32, shared 29). Read from the bar, not written by hand |
 | `sezioneDi` | `(text) → catalogue entry \| null` | The section a question names: meaningful words of the names (with stems), acronyms (MS, IR, UV, NMR, MO…) weighted more, synonyms («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); ties go to the shorter name. E.g. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
 | `mostraSezione` | `(id) → Promise<boolean>` | Opens the section behind the Spectra window (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed) and refreshes the screen, so the hologram shows it live |
 | `giro` | `(subject?)` | «🎞️ Mostrami tutto»: every section of the subject (`'chimica'`, `'fisica'`, `'matematica'`; all if empty) in the hologram, one every 7 s, with the counter «n/N · name» |
@@ -619,4 +619,4 @@ loop (the host calls `passo(dt)` and attaches `radice` to the body); with
 
 ---
 
-_Document updated to version `bsi-v252`._
+_Document updated to version `bsi-v253`._

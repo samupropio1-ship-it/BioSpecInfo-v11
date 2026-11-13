@@ -5,7 +5,7 @@
    · DIAGRAMMI DI STATO: tensioni di vapore con l'equazione di Antoine,
      legge di Raoult (benzene-toluene, quasi ideale) e Raoult modificata con
      i coefficienti di attivita' di van Laar (etanolo-acqua, con
-     l'azeotropo di massimo che impedisce di superare il 95 % in massa per
+     l'azeotropo di minimo (temperatura di ebollizione minima, 78,2 °C) che impedisce di superare il 95 % in massa per
      distillazione); curve T-x-y a 1 atm calcolate per punti di bolla;
    · McCABE-THIELE: la colonna di rettifica disegnata a gradini fra la curva
      di equilibrio e le rette di lavoro; il numero di piatti teorici, il

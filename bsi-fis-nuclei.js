@@ -6,7 +6,7 @@
    bsi-fis-nucleare.js (radiochimica); le particelle elementari in
    bsi-fis-particelle.js. Qui c'e' la fisica del nucleo come sistema:
 
-   · LA FORMULA SEMIEMPIRICA (Weizsäcker, coefficienti di Krane):
+   · LA FORMULA SEMIEMPIRICA (Weizsäcker; coefficienti di un fit diffuso nei manuali, non quelli di Krane):
      B = a_V A − a_S A^(2/3) − a_C Z(Z−1)/A^(1/3) − a_A (A−2Z)²/A ± δ,
      δ = a_P/√A. La curva B/A con i suoi cinque termini e, in 3D, la VALLE
      DI STABILITA': una barra per ogni nucleo (N, Z) legato, alta quanto

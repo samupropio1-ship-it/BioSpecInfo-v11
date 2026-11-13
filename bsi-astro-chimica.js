@@ -101,7 +101,7 @@
     var g = griglia(div), pan = g.pan, ln = 2, Av = 2, lG = 0, T = 50;
     F.cursore(pan, ['Densità n (log₁₀, cm⁻³)', 'Density n (log₁₀, cm⁻³)'], 1, 5, 0.1, ln, function (v) { ln = v; disegna(); }, function (v) { return v.toFixed(1); });
     F.cursore(pan, ['Estinzione A_V (magnitudini)', 'Extinction A_V (magnitudes)'], 0, 8, 0.1, Av, function (v) { Av = v; disegna(); }, function (v) { return v.toFixed(1); });
-    F.cursore(pan, ['Campo ultravioletto G₀ (log₁₀)', 'Ultraviolet field G₀ (log₁₀)'], -1, 3, 0.1, lG, function (v) { lG = v; disegna(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['Campo ultravioletto χ, in unità del campo di Draine ≈ 1,7 G₀ di Habing (log₁₀)', 'Ultraviolet field χ, in Draine-field units ≈ 1.7 Habing G₀ (log₁₀)'], -1, 3, 0.1, lG, function (v) { lG = v; disegna(); }, function (v) { return v.toFixed(1); });
     F.cursore(pan, ['Temperatura (K)', 'Temperature (K)'], 10, 200, 5, T, function (v) { T = v; disegna(); });
     var info = nota(pan), c = F.tela(g.dx, 0.62);
     function disegna() {
@@ -122,7 +122,7 @@
   function schedaProfilo(div) {
     var g = griglia(div), pan = g.pan, ln = 3, lG = 1, T = 50;
     F.cursore(pan, ['Densità n (log₁₀, cm⁻³)', 'Density n (log₁₀, cm⁻³)'], 1, 5, 0.1, ln, function (v) { ln = v; disegna(); }, function (v) { return v.toFixed(1); });
-    F.cursore(pan, ['Campo ultravioletto G₀ (log₁₀)', 'Ultraviolet field G₀ (log₁₀)'], -1, 4, 0.1, lG, function (v) { lG = v; disegna(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['Campo ultravioletto χ, in unità del campo di Draine ≈ 1,7 G₀ di Habing (log₁₀)', 'Ultraviolet field χ, in Draine-field units ≈ 1.7 Habing G₀ (log₁₀)'], -1, 4, 0.1, lG, function (v) { lG = v; disegna(); }, function (v) { return v.toFixed(1); });
     F.cursore(pan, ['Temperatura (K)', 'Temperature (K)'], 10, 200, 5, T, function (v) { T = v; disegna(); });
     var info = nota(pan), c = F.tela(g.dx, 0.62);
     function disegna() {

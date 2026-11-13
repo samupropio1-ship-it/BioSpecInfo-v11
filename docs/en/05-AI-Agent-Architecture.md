@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v252` |
+| **Documented version** | Service Worker `bsi-v253` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 51 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 52 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (51 tools, all local except 2 network)     │
+│        └── tool executor (52 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 51 tools → receive the streamed response → if it
+prompt and the schema of all 52 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 51 tools
+## 3. The 52 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -945,8 +945,8 @@ summarised here.
   screen data as text). With the screen included, text and image go to the
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
-  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 204
-  sections since v242 (chemistry 79, physics 64, mathematics 32, shared 29), read from
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 205
+  sections since v242 (chemistry 79, physics 65, mathematics 32, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window
@@ -1072,7 +1072,7 @@ search, turn suspension and resumption was simulated.
 | Metric | Value |
 |---|---|
 | Component size | 6,254 lines |
-| Tools | 51 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`) |
+| Tools | 52 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`) |
 | Model configurations | 10 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |

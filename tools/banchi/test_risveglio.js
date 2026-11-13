@@ -259,7 +259,7 @@ async function meteoFinto(ctx, stato) {
     return o;
   });
   att('lo strumento «meteo» registrato una volta', 1, s.strumento);
-  att('51 strumenti in tutto', 51, s.totale);
+  att('52 strumenti in tutto (con leggi_teoria, v253)', 52, s.totale);
   vero('lo strumento risponde con dati e frase: ' + (s.esegui.frase || ''), s.esegui.ok && s.esegui.citta === 'Roma' && s.esegui.domani.max === 20 && /^Domani a Roma/.test(s.esegui.frase));
   vero('senza città dice al modello di chiederla', s.senza.ok === false && /chiedigliela/.test(s.senza.error));
   vero('nella Chat, senza chiave: «' + s.chat.slice(0, 60) + '»', /^A Roma ci sono 18 gradi/.test(s.chat));

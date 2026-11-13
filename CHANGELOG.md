@@ -7,6 +7,85 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v253] — 2026-11-13
+
+**La teoria di ogni sezione, lo spaziotempo curvo e i wormhole, e trenta errori scientifici corretti**
+
+Richiesta dell'autore: «la teoria di tutte le sezioni della chimica, fisica e
+matematica e la teoria della curvatura dello spaziotempo, dei wormhole e cose
+così, però scientificamente accurate».
+
+### Aggiunto
+- **📖 Teoria in ogni sezione** (`bsi-teoria.js`, dati in `bsi-teoria-a…g.js`):
+  145 schede, una per ogni sezione di chimica, fisica e matematica che spiega
+  qualcosa (restano fuori solo quiz, flashcard, riassunti, formulari, glossari,
+  esami e pagine introduttive). Ogni scheda ha l'idea centrale, i concetti in
+  paragrafi, le formule con il significato di ogni simbolo, ipotesi e limiti,
+  gli errori tipici, un esercizio svolto (la soluzione si apre a richiesta), le
+  fonti (manuali e articoli veri, citati per capitolo o argomento) e i
+  collegamenti alle sezioni vicine. In tutto circa 90 000 parole. Ogni
+  esercizio è stato ricalcolato. Il pulsante «📖 Teoria» sta sotto il titolo,
+  accanto a «🎓 Lezione guidata»; l'indice con la ricerca è nel menu ✨ →
+  📖 Teoria di tutte le sezioni; a voce: «teoria dell'entropia», «spiegami la
+  teoria», «indice della teoria». Spectra ha lo strumento `leggi_teoria`: prima
+  di spiegare un concetto può partire dal testo controllato.
+- **🌀 Spaziotempo curvo e wormhole** (`bsi-astro-wormhole.js`, Astrofisica):
+  curvatura e maree vicino a pianeti, stelle di neutroni e buchi neri; il
+  wormhole di Morris e Thorne con il diagramma di immersione che si ruota con il
+  dito (e il ponte di Einstein–Rosen a confronto); la materia esotica che
+  servirebbe, contro l'energia negativa che esiste davvero (Casimir); il tempo
+  che rallenta. Ogni affermazione porta la sua etichetta: MISURATO, TEORIA,
+  IPOTESI, SPECULAZIONE.
+
+### Corretto (trovato rileggendo il codice per scrivere la teoria)
+- **Titolazioni**: il pH ora viene dal bilancio di carica esatto. Prima: un
+  +0,1 messo a mano sul pH iniziale, il logaritmo invertito per le basi deboli,
+  il punto equivalente senza il termine di concentrazione (per una base debole
+  il PE è acido, 5,28 per NH₃ 0,1 M, non 7) e letto da un punto della griglia.
+- **Punto isoelettrico**: dalla carica netta. Prima istidina 3,91 (giusto
+  7,59), cisteina 9,23 (5,07), tirosina 9,59 (5,63).
+- **Formula bruta da SMILES**: gli idrogeni si contano davvero (prima una stima
+  moltiplicata per 0,7: l'etanolo diventava C₂H₇O).
+- **Farmacocinetica**: la modalità «dose» leggeva un campo inesistente e dava
+  una dose infinita; Cockcroft–Gault non è più chiamata eGFR; l'intervallo del
+  grafico è 2·t½, come calcolato.
+- **Nernst**: log K contava n due volte.
+- **Orbitali molecolari**: π come coppia degenere riempita secondo Hund (l'O₂
+  appariva diamagnetico); N₂ non è «il legame più forte» (CO lo supera).
+- **Complessi**: caselle riempite secondo Hund, e_g e t₂g scritti giusti,
+  [Ni(CN)₄]²⁻ con lo schema quadrato-planare; il cianuro è tossico per la
+  citocromo c ossidasi, non per l'emoglobina.
+- **Simmetria**: numero di atomi sbagliato per cinque molecole, carattere di
+  T₂g in Oₕ, etichette Ag/Bg/A₁g/T₁ᵤ, banda del benzene a 1600 cm⁻¹ (E₂g,
+  Raman).
+- **Zuccheri**: le forme aperte di glucosio, galattosio e mannosio erano
+  chetosi, il 2-desossiribosio era la gliceraldeide, ribosio e fruttosio
+  avevano stereocentri sbagliati (controllato con RDKit).
+- **Biochimica**: pKa della lisina e dell'acido D-aspartico, massa della
+  glicina, idrossiprolina (codice e SMILES), ΔG°′ della G3P deidrogenasi e dei
+  complessi III e IV, H⁺ pompati non più casuali (10 per NADH, 6 per FADH₂),
+  ATP dell'acido oleico, deficit di MCAD, passo del DNA e A=T, anidrasi
+  carbonica fra le liasi, O₂/H₂O₂ a pH 7.
+- **Spettroscopia**: etichette di massa (M–OH, COOC₂H₅⁺, McLafferty senza H in
+  γ), costanti J del cicloesano, segni NOESY, bande UV, metodo di Shoolery.
+- **Altro**: E2 anti-periplanare, carbocatione secondario nel propene, stato di
+  transizione della Diels–Alder non planare, pattinaggio sul ghiaccio, STP
+  IUPAC, profilo endoergonico, soglie del diabete (≥), esami dell'infarto,
+  interazioni del warfarin, Sirio B, massa del Sole, coefficienti «di Krane»,
+  campo ultravioletto della nube, azeotropo etanolo–acqua.
+- Banchi **`test_teoria`** (24), **`test_spaziotempo`** (33),
+  **`test_correzioni`** (24); requisiti AI-21, SCI-67, SCI-68; 52 strumenti
+  dell'agente; 205 sezioni; batteria a 96 banchi.
+
+### Limiti dichiarati
+- La teoria è in italiano; nelle altre lingue la scheda lo dice.
+- Le fonti sono citate per capitolo o argomento, non per pagina: alcune
+  numerazioni di capitolo cambiano fra le edizioni.
+- Restano da sistemare le etichette di carica delle specie degli amminoacidi
+  in «Distribuzioni» e piccole imprecisioni dichiarate nelle schede (costanti
+  del silicio, modello di Morse per HCl).
+
+---
 ## [bsi-v252] — 2026-11-12
 
 **Le funzioni di Spectra nel menu ✨ vero, la sua testa che si muove, le icone delle materie in 3D e tre sezioni nuove: Hammett, Foucault, Frenet**

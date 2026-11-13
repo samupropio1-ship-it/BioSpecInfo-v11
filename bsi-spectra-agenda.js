@@ -176,6 +176,7 @@
   function comando(frase) {
     /* prima il risveglio, il meteo, la rete neurale (bsi-spectra-risveglio.js) */
     var R = g.BSISpectraRisveglio; if (R && R.comando) { var rr = R.comando(frase); if (rr) return rr; }
+    var Te = g.BSITeoria; if (Te && Te.comando) { var rt = Te.comando(frase); if (rt) return rt; }      /* (v253) «teoria di…», «indice della teoria» */
     var o = String(frase || '').trim(), t = senzaAccenti(o).replace(/^(ehi |hey |ok )?(spectra|spettra)[\s,]*/, '').replace(/^(per favore |puoi |potresti )/, '').replace(/[?!.]+$/, '').trim(), m;
     if ((m = /^(?:ricordami|ricorda mi|fammi ricordare|avvisami|avvertimi|metti un promemoria|segna un promemoria|promemoria)\b[\s,:]*(.*)$/.exec(t))) {
       if (!m[1]) return { testo: 'Che cosa devo ricordarti, e quando?' };

@@ -28,7 +28,7 @@
   var F = globale.BSIFisica;
   if (!F) return;
   var t = F.t, fmt = F.fmt;
-  var G = 6.6743e-11, c = 299792458, h = 6.62607015e-34, kB = 1.380649e-23, sigma = 5.670374419e-8, Msun = 1.98892e30, Rsun = 6.957e8, Lsun = 3.828e26, Tsun = 5772, AU = 1.495978707e11, ANNO = 3.15576e7;
+  var G = 6.6743e-11, c = 299792458, h = 6.62607015e-34, kB = 1.380649e-23, sigma = 5.670374419e-8, Msun = 1.98847e30, Rsun = 6.957e8, Lsun = 3.828e26, Tsun = 5772, AU = 1.495978707e11, ANNO = 3.15576e7;
   function griglia(div) { var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'); g.appendChild(pan); g.appendChild(dx); div.appendChild(g); return { pan: pan, dx: dx }; }
   function nota(pan) { var n = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(n); return n; }
 
@@ -43,7 +43,7 @@
   function classe(T) { return T >= 30000 ? 'O' : T >= 10000 ? 'B' : T >= 7500 ? 'A' : T >= 6000 ? 'F' : T >= 5200 ? 'G' : T >= 3700 ? 'K' : 'M'; }
   function raggioDa(L, T) { return Math.sqrt(L) * Math.pow(Tsun / T, 2); }
   /* stelle vere: luminosita' (L☉) e temperatura efficace (K) */
-  var STELLE = [['Sole', 'Sun', 1, 5772], ['Sirio A', 'Sirius A', 25.4, 9940], ['Sirio B', 'Sirius B', 0.056, 25000], ['Vega', 'Vega', 40.1, 9602], ['Betelgeuse', 'Betelgeuse', 1.26e5, 3600], ['Rigel', 'Rigel', 1.2e5, 12100], ['Proxima Centauri', 'Proxima Centauri', 0.00155, 3042], ['Aldebaran', 'Aldebaran', 439, 3910], ['Arturo', 'Arcturus', 170, 4286], ['Antares', 'Antares', 7.5e4, 3660], ['Polare', 'Polaris', 1260, 6015], ['Deneb', 'Deneb', 1.96e5, 8525], ['Stella di Barnard', 'Barnard’s Star', 0.0035, 3134], ['Spica', 'Spica', 20500, 25300], ['Procione B', 'Procyon B', 0.00049, 7740], ['α Centauri A', 'α Centauri A', 1.519, 5790]];
+  var STELLE = [['Sole', 'Sun', 1, 5772], ['Sirio A', 'Sirius A', 25.4, 9940], ['Sirio B', 'Sirius B', 0.025, 25000], ['Vega', 'Vega', 40.1, 9602], ['Betelgeuse', 'Betelgeuse', 1.26e5, 3600], ['Rigel', 'Rigel', 1.2e5, 12100], ['Proxima Centauri', 'Proxima Centauri', 0.00155, 3042], ['Aldebaran', 'Aldebaran', 439, 3910], ['Arturo', 'Arcturus', 170, 4286], ['Antares', 'Antares', 7.5e4, 3660], ['Polare', 'Polaris', 1260, 6015], ['Deneb', 'Deneb', 1.96e5, 8525], ['Stella di Barnard', 'Barnard’s Star', 0.0035, 3134], ['Spica', 'Spica', 20500, 25300], ['Procione B', 'Procyon B', 0.00049, 7740], ['α Centauri A', 'α Centauri A', 1.519, 5790]];
   /* Planck: radianza spettrale per unita' di lunghezza d'onda (W m⁻² sr⁻¹ m⁻¹) */
   function planck(lam, T) { var x = h * c / (lam * kB * T); return x > 700 ? 0 : 2 * h * c * c / Math.pow(lam, 5) / (Math.exp(x) - 1); }
   function wien(T) { return 2.897771955e-3 / T; }
