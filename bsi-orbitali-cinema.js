@@ -69,6 +69,19 @@
   function energia(o) { return -0.5 * Math.pow(o.Z || 1, 2) / (o.n * o.n); }   /* hartree */
   F.calcolo.orbitaliCinema = { densitaRZ: densitaRZ, corrente: corrente, contorno: contorno, pianoMassimo: pianoMassimo };
 
+  /** Gradiente di |ψ|² nel semipiano meridiano (per le normali della superficie: perpendicolari alla superficie di livello). */
+  function gradienteRZ(o, R, z) { var h = 1e-3 * (o.n * o.n); return [(densitaRZ(o, R + h, z) - densitaRZ(o, Math.max(0, R - h), z)) / (R > h ? 2 * h : R + h), (densitaRZ(o, R, z + h) - densitaRZ(o, R, z - h)) / (2 * h)]; }
+  F.calcolo.orbitaliCinema.gradienteRZ = gradienteRZ;
+  /** Vetro con il bordo luminoso (Fresnel): opaco di fronte, brillante dove la superficie si vede di taglio. */
+  function vetro(T, col, op) {
+    return new T.ShaderMaterial({ uniforms: { colore: { value: new T.Color(col) }, opacita: { value: op } }, transparent: true, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending,
+      vertexShader: 'varying vec3 vN; varying vec3 vV; varying vec3 vC; attribute vec3 color; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); vC = color; gl_Position = projectionMatrix * mv; }',
+      fragmentShader: 'uniform vec3 colore; uniform float opacita; varying vec3 vN; varying vec3 vV; varying vec3 vC; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2); vec3 c = mix(colore, vC, 0.85); gl_FragColor = vec4(c * (0.18 + 1.5 * f), opacita * (0.25 + f)); }' });
+  }
+  /** Punto di luce morbido (gaussiano) per le teste delle scie. */
+  var SPRITE = null;
+  function luce(T) { if (SPRITE) return SPRITE; var c = globale.document.createElement('canvas'); c.width = c.height = 64; var q = c.getContext('2d'), g = q.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); q.fillStyle = g; q.fillRect(0, 0, 64, 64); SPRITE = new T.CanvasTexture(c); return SPRITE; }
+
   /* ═══ 2. LA SCHEDA ═════════════════════════════════════════════════════ */
   function hsl(h, s, l) { h = ((h % 1) + 1) % 1; var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h * 12) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); }; return [f(0), f(8), f(4)]; }
   function scheda(div) {
@@ -93,7 +106,7 @@
       info.innerHTML = '<b>' + nm + '</b> · E = ' + num(energia(o) * 27.2114, 3) + ' eV<br>' +
         (ac ? t('Corrente attorno all\'asse z: v = ħ|m|/(mₑ ρ). Sul piano a z = ', 'Current around the z axis: v = ħ|m|/(mₑ ρ). On the plane at z = ') + num(PM.z, 1) + ' a₀, ' + t('a ρ = ', 'at ρ = ') + num(PM.rho, 1) + ' a₀: v = <b class="bsiFX-num">' + num(ac / PM.rho * 2.18769e6 / 1e3, 0) + ' km/s</b>, λ = 2πρ/|m| = <b class="bsiFX-num">' + num(2 * PI * PM.rho / ac, 1) + ' a₀</b>.'
           : t('Con m = 0 la funzione ha la stessa fase in ogni punto di un parallelo: J = 0, nessuna scia si muove. Il foglio sale e scende tutto insieme.', 'With m = 0 the function has the same phase along each parallel: J = 0, no streak moves. The sheet rises and falls all together.')) +
-        '<br><small>' + t('Reticolo: isosuperficie vera (contorno al 90 % ruotato attorno a z); colori del reticolo: segno della parte polare P_l^m(cos θ). Scie: velocità esagerata, l\'animazione è rallentata di circa 10¹⁵ volte. L\'anello di de Broglie è l\'immagine semiclassica di Bohr–Sommerfeld: nella meccanica quantistica l\'elettrone non sta su un cerchio.', 'Wireframe: true isosurface (90 % contour revolved around z); wireframe colours: sign of the polar part P_l^m(cos θ). Streaks: exaggerated speed, the animation is slowed about 10¹⁵ times. The de Broglie ring is the Bohr–Sommerfeld semiclassical picture: in quantum mechanics the electron is not on a circle.') + '</small>';
+        '<br><small>' + t('Reticolo: isosuperficie vera (contorno al 90 % ruotato attorno a z); colori del reticolo: segno della parte polare P_l^m(cos θ). Scie: velocità esagerata, l\'animazione è rallentata di circa 10¹⁵ volte; la fase gira con ω ∝ |E_n| ∝ 1/n², nel rapporto vero fra i livelli. L\'anello di de Broglie è l\'immagine semiclassica di Bohr–Sommerfeld: nella meccanica quantistica l\'elettrone non sta su un cerchio.', 'Wireframe: true isosurface (90 % contour revolved around z); wireframe colours: sign of the polar part P_l^m(cos θ). Streaks: exaggerated speed, the animation is slowed about 10¹⁵ times. The de Broglie ring is the Bohr–Sommerfeld semiclassical picture: in quantum mechanics the electron is not on a circle.') + '</small>';
     }
     function costruisci() {
       testo(); if (!S) return;
@@ -104,24 +117,38 @@
       for (var a = 0; a <= N; a++) for (var b = 0; b <= N; b++) for (var c = 0; c <= N; c++) vals[k++] = densitaRZ(o, Math.hypot(-L + c * h, -L + b * h), -L + a * h);
       var c90 = O().soglia(vals, h * h * h, 0.9);
       /* 1. la superficie a reticolo: contorno meridiano ruotato */
-      var seg = contorno(o, L, piccolo ? 90 : 140, piccolo ? 180 : 280, c90), pos = [], col = [], NM = piccolo ? 20 : 28;
+      var seg = contorno(o, L, piccolo ? 130 : 190, piccolo ? 260 : 380, c90), pos = [], col = [], NM = piccolo ? 24 : 36;
       function colorePolare(R, z) { var th = Math.atan2(R, z), P = O().legendre(o.l, Math.abs(o.m), Math.cos(th)); return P >= 0 ? [0.36, 0.78, 1.0] : [1.0, 0.62, 0.22]; }
       for (var q = 0; q < NM; q++) { var f = 2 * PI * q / NM, cf = Math.cos(f), sf = Math.sin(f); seg.forEach(function (s) { var cc = colorePolare((s[0][0] + s[1][0]) / 2, (s[0][1] + s[1][1]) / 2); pos.push(s[0][0] * cf, s[0][0] * sf, s[0][1], s[1][0] * cf, s[1][0] * sf, s[1][1]); col.push.apply(col, cc.concat(cc)); }); }
       var NP = piccolo ? 18 : 26, passo = Math.max(1, Math.floor(seg.length / NP));
       for (var si = 0; si < seg.length; si += passo) { var s0 = seg[si], R0 = (s0[0][0] + s0[1][0]) / 2, z0 = (s0[0][1] + s0[1][1]) / 2, cc2 = colorePolare(R0, z0); if (R0 < 0.05 * L) continue; for (var w = 0; w < 64; w++) { var f1 = 2 * PI * w / 64, f2 = 2 * PI * (w + 1) / 64; pos.push(R0 * Math.cos(f1), R0 * Math.sin(f1), z0, R0 * Math.cos(f2), R0 * Math.sin(f2), z0); col.push.apply(col, cc2.concat(cc2)); } }
       var gS = new T.BufferGeometry(); gS.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); gS.setAttribute('color', new T.Float32BufferAttribute(col, 3));
       var sup = new T.LineSegments(gS, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: T.AdditiveBlending, depthWrite: false }));
-      sup.name = 'superficie'; sup.visible = mostra.superficie; gr.add(sup); stato.parti.superficie = sup;
+      sup.name = 'superficie'; sup.visible = mostra.superficie; gr.add(sup);
+      /* la superficie di vetro: il contorno ruotato in 72 spicchi, normali dal gradiente vero di |ψ|² */
+      var NV = 72, vp = [], vn = [], vc = [];
+      seg.forEach(function (sg) {
+        var g0 = gradienteRZ(o, sg[0][0], sg[0][1]), g1 = gradienteRZ(o, sg[1][0], sg[1][1]), l0 = Math.hypot(g0[0], g0[1]) || 1, l1 = Math.hypot(g1[0], g1[1]) || 1, c0 = colorePolare(sg[0][0], sg[0][1]), c1 = colorePolare(sg[1][0], sg[1][1]);
+        for (var w2 = 0; w2 < NV; w2++) {
+          var fa = 2 * PI * w2 / NV, fb = 2 * PI * (w2 + 1) / NV, P = [[sg[0], fa, g0, l0, c0], [sg[1], fa, g1, l1, c1], [sg[1], fb, g1, l1, c1], [sg[0], fb, g0, l0, c0]];
+          [0, 1, 2, 0, 2, 3].forEach(function (k3) { var q3 = P[k3], R3 = q3[0][0], z3 = q3[0][1], cf3 = Math.cos(q3[1]), sf3 = Math.sin(q3[1]); vp.push(R3 * cf3, R3 * sf3, z3); vn.push(-q3[2][0] / q3[3] * cf3, -q3[2][0] / q3[3] * sf3, -q3[2][1] / q3[3]); vc.push(q3[4][0], q3[4][1], q3[4][2]); });
+        }
+      });
+      var gV = new T.BufferGeometry(); gV.setAttribute('position', new T.Float32BufferAttribute(vp, 3)); gV.setAttribute('normal', new T.Float32BufferAttribute(vn, 3)); gV.setAttribute('color', new T.Float32BufferAttribute(vc, 3));
+      var vetroM = new T.Mesh(gV, vetro(T, 0x6fd6ff, 0.32)); vetroM.name = 'vetro'; sup.add(vetroM); stato.parti.superficie = sup;
       /* 2. le scie della corrente */
       var NS = piccolo ? 520 : 1100, pts = O().campiona({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, NS, 17), LT = 16;
       var particelle = pts.map(function (p) { var R = Math.hypot(p[0], p[1]); return { R: Math.max(R, 0.08 * L), z: p[2], phi: Math.atan2(p[1], p[0]) }; });
       var sp = new Float32Array(NS * (LT - 1) * 6), sc = new Float32Array(NS * (LT - 1) * 6), gT = new T.BufferGeometry();
       gT.setAttribute('position', new T.BufferAttribute(sp, 3)); gT.setAttribute('color', new T.BufferAttribute(sc, 3));
-      var scie = new T.LineSegments(gT, new T.LineBasicMaterial({ vertexColors: true, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); scie.name = 'scie'; scie.visible = mostra.scie; gr.add(scie); stato.parti.scie = scie;
+      var tp = new Float32Array(NS * 3), gTe = new T.BufferGeometry(); gTe.setAttribute('position', new T.BufferAttribute(tp, 3));
+      var teste = new T.Points(gTe, new T.PointsMaterial({ size: L * 0.05, map: luce(T), color: 0xbff4ff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0.9 }));
+      var scie = new T.LineSegments(gT, new T.LineBasicMaterial({ vertexColors: true, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); scie.name = 'scie'; scie.add(teste); scie.visible = mostra.scie; gr.add(scie); stato.parti.scie = scie;
       var K = 6.0 * L / Math.max(1, Math.abs(o.m));                       /* esagerazione: scie lunghe una frazione di giro */
       function aggiornaScie() {
         var p = 0;
-        particelle.forEach(function (s) {
+        particelle.forEach(function (s, ip) {
+          tp[ip * 3] = s.R * Math.cos(s.phi); tp[ip * 3 + 1] = s.R * Math.sin(s.phi); tp[ip * 3 + 2] = s.z;
           var om = o.m / (s.R * s.R) * K, arco = Math.max(-2.2, Math.min(2.2, om * 0.7)), lungo = o.m ? arco : 0.02;
           for (var j = 0; j < LT - 1; j++) {
             var f1 = s.phi - lungo * j / (LT - 1), f2 = s.phi - lungo * (j + 1) / (LT - 1), a1 = 1 - j / (LT - 1), a2 = 1 - (j + 1) / (LT - 1);
@@ -129,17 +156,17 @@
             sc[p] = 0.42 * a1; sc[p + 1] = 0.62 * a1; sc[p + 2] = 0.68 * a1; sc[p + 3] = 0.42 * a2; sc[p + 4] = 0.62 * a2; sc[p + 5] = 0.68 * a2; p += 6;
           }
         });
-        gT.attributes.position.needsUpdate = true; gT.attributes.color.needsUpdate = true;
+        gT.attributes.position.needsUpdate = true; gT.attributes.color.needsUpdate = true; gTe.attributes.position.needsUpdate = true;
       }
       aggiornaScie();
       /* 3. l'onda di fase sul piano della densità massima */
-      var PM = pianoMassimo(o), NRf = 50, NFf = 160, Rmax = Math.min(L * 1.15, PM.rho * 2.4 + 2), ampiezza = L * 0.12, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
+      var PM = pianoMassimo(o), NRf = 80, NFf = 240, Rmax = Math.min(L * 1.15, PM.rho * 2.4 + 2), ampiezza = L * 0.12, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
       var maxA = 0; for (var i2 = 0; i2 <= NRf; i2++) for (var j2 = 0; j2 <= NFf; j2++) { var Rr = Rmax * i2 / NRf, ff = 2 * PI * j2 / NFf, ps = O().psi({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, Rr * Math.cos(ff), Rr * Math.sin(ff), PM.z); base.push(ps); maxA = Math.max(maxA, Math.hypot(ps.re, ps.im)); }
       for (var i3 = 0; i3 < NRf; i3++) for (var j3 = 0; j3 < NFf; j3++) { var a0 = i3 * (NFf + 1) + j3; idx.push(a0, a0 + NFf + 1, a0 + 1, a0 + 1, a0 + NFf + 1, a0 + NFf + 2); }
       var gF = new T.BufferGeometry(); gF.setAttribute('position', new T.BufferAttribute(posF, 3)); gF.setAttribute('color', new T.BufferAttribute(colF, 3)); gF.setIndex(idx);
       var fogli = new T.Group(), foglio = new T.Mesh(gF, new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.3, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
-      var li = []; for (var i5 = 0; i5 <= NRf; i5 += 5) for (var j5 = 0; j5 < NFf; j5++) { var a5 = i5 * (NFf + 1) + j5; li.push(a5, a5 + 1); }
-      for (var j6 = 0; j6 < NFf; j6 += 8) for (var i6 = 0; i6 < NRf; i6++) { var a6 = i6 * (NFf + 1) + j6; li.push(a6, a6 + NFf + 1); }
+      var li = []; for (var i5 = 0; i5 <= NRf; i5 += 8) for (var j5 = 0; j5 < NFf; j5++) { var a5 = i5 * (NFf + 1) + j5; li.push(a5, a5 + 1); }
+      for (var j6 = 0; j6 < NFf; j6 += 12) for (var i6 = 0; i6 < NRf; i6++) { var a6 = i6 * (NFf + 1) + j6; li.push(a6, a6 + NFf + 1); }
       var gR = new T.BufferGeometry(); gR.setAttribute('position', gF.attributes.position); gR.setIndex(li);   /* stessi vertici del foglio: si muove con lui */
       var rete = new T.LineSegments(gR, new T.LineBasicMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.22, blending: T.AdditiveBlending, depthWrite: false }));
       fogli.add(foglio); fogli.add(rete); fogli.visible = mostra.fase; gr.add(fogli); stato.parti.fase = fogli;
@@ -163,7 +190,7 @@
       function aggiornaAnello(fase) { for (var u2 = 0; u2 <= NA; u2++) { var ff2 = 2 * PI * u2 / NA, rr = PM.rho + (ac ? L * 0.045 * Math.cos(o.m * ff2 - fase) : L * 0.045 * Math.cos(fase)); pA[u2 * 3] = rr * Math.cos(ff2); pA[u2 * 3 + 1] = rr * Math.sin(ff2); pA[u2 * 3 + 2] = PM.z; } gA.attributes.position.needsUpdate = true; }
       aggiornaAnello(0); anello.visible = mostra.anello && ac > 0; gr.add(anello); stato.parti.anello = anello;
       stato.aggiorna = function (dt) {
-        tempo += dt; var fase = tempo * 1.4;
+        tempo += dt; var fase = tempo * 1.6 * 4 / (o.n * o.n);   /* ω ∝ |E_n| ∝ 1/n²: il rapporto fra i livelli è quello vero */
         if (o.m) particelle.forEach(function (s) { s.phi += o.m / (s.R * s.R) * K * dt * 0.25; });
         aggiornaScie(); aggiornaFoglio(fase); aggiornaAnello(fase);
       };

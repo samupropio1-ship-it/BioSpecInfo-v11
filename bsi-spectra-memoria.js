@@ -246,7 +246,7 @@
       if (!f.length && !p.length && !a) return null;                      /* niente ancora: risponde la mente */
       return { testo: [f.length ? 'Di te so: ' + f.map(function (x) { return x.testo.replace(/[.]$/, ''); }).join('; ') + '.' : '', p.length ? 'Come studi: ' + p.map(function (x) { return x.testo.replace(/[.]$/, ''); }).join('; ') + '.' : '', a ? 'L\'ultima pagina del diario: ' + a.testo : ''].filter(Boolean).join(' ') + ' Puoi farmi dimenticare qualsiasi cosa: «dimentica…».' };
     }
-    if ((m = /^(?:dimentica|cancella dalla memoria|scordati)\s+(?:che\s+|di\s+|il\s+|la\s+|lo\s+|i\s+|le\s+)?(.{3,})$/.exec(t)) && !/^tutto$/.test(m[1])) {
+    if ((m = /^(?:dimentica|cancella dalla memoria|scordati)\s+(?:che\s+|di\s+|il\s+|la\s+|lo\s+|i\s+|le\s+)?(.{3,})$/.exec(t)) && !/^tutto$/.test(m[1]) && !/creator/.test(m[1])) {   /* «dimentica che sono il tuo creatore» è del riconoscimento del creatore (Spectra Live), non della memoria */
       var n = dimentica(m[1]); return { testo: n ? 'Dimenticato: ' + n + (n === 1 ? ' ricordo cancellato.' : ' ricordi cancellati.') : 'Non trovo ricordi su «' + m[1] + '».' };
     }
     return null;

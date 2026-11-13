@@ -50,7 +50,25 @@
   /** Inclinazione del piano galattico sull'eclittica (gradi). */
   function inclinazione() { return Math.acos(Math.abs(NGP[2])) / RAD; }
   function campoFlusso(p, n, R0, U) { var r2 = p[0] * p[0] + p[1] * p[1] + p[2] * p[2], r = Math.sqrt(r2), k = U * R0 * R0 / (r2 * r); return [-U * n[0] + k * p[0], -U * n[1] + k * p[1], -U * n[2] + k * p[2]]; }
-  F.calcolo.viaggio = { galEcl: galEcl, radec: radec, GC: GC, NGP: NGP, inclinazione: inclinazione, campoFlusso: campoFlusso, KPC: KPC, AL: AL };
+  /* Elementi orbitali medi J2000 e loro variazioni per secolo (Standish, JPL, «Keplerian elements for approximate positions»,
+     valido 1800–2050): a (UA), e, L (gradi), ϖ (gradi). Inclinazioni trascurate: errore di posizione sotto 1° per i pianeti esterni. */
+  var PIANETI = [['Mercurio', 'Mercury', 0.38709927, 0.20563593, 252.25032350, 149472.67411175, 77.45779628, 0.16047689, 0xb8b0a8],
+    ['Venere', 'Venus', 0.72333566, 0.00677672, 181.97909950, 58517.81538729, 131.60246718, 0.00268329, 0xf0d8a0],
+    ['Terra', 'Earth', 1.00000261, 0.01671123, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0x6fa8ff],
+    ['Marte', 'Mars', 1.52371034, 0.09339410, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 0xe07050],
+    ['Giove', 'Jupiter', 5.20288700, 0.04838624, 34.39644051, 3034.74612775, 14.72847983, 0.21252668, 0xe0b080],
+    ['Saturno', 'Saturn', 9.53667594, 0.05386179, 49.95424423, 1222.49362201, 92.59887831, -0.41897216, 0xe8d090],
+    ['Urano', 'Uranus', 19.18916464, 0.04725744, 313.23810451, 428.48202785, 170.95427630, 0.40805281, 0x9fe0e8],
+    ['Nettuno', 'Neptune', 30.06992276, 0.00859048, -55.12002969, 218.45945325, 44.96476227, -0.32241464, 0x6f8fff]];
+  /** Posizione eliocentrica eclittica (UA) del pianeta i alla data (ms): equazione di Keplero risolta con Newton. */
+  function pianeta(i, data) {
+    var P = PIANETI[i], T = (data / 864e5 + 2440587.5 - 2451545.0) / 36525, L = P[4] + P[5] * T, w = P[6] + P[7] * T, e = P[3], M = ((L - w) % 360 + 540) % 360 - 180, Mr = M * RAD, E = Mr + e * Math.sin(Mr);
+    for (var k = 0; k < 12; k++) E -= (E - e * Math.sin(E) - Mr) / (1 - e * Math.cos(E));
+    var xv = P[2] * (Math.cos(E) - e), yv = P[2] * Math.sqrt(1 - e * e) * Math.sin(E), nu = Math.atan2(yv, xv), r = Math.hypot(xv, yv), lon = nu + w * RAD;
+    return { x: r * Math.cos(lon), y: r * Math.sin(lon), r: r, lon: ((lon / RAD) % 360 + 360) % 360 };
+  }
+  function annoDecimale(data) { var d = new Date(data); return d.getUTCFullYear() + (data - Date.UTC(d.getUTCFullYear(), 0, 1)) / (365.25 * 864e5); }
+  F.calcolo.viaggio = { pianeta: pianeta, PIANETI: PIANETI, galEcl: galEcl, radec: radec, GC: GC, NGP: NGP, inclinazione: inclinazione, campoFlusso: campoFlusso, KPC: KPC, AL: AL };
 
   function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var r = Math.imul(a ^ a >>> 15, 1 | a); r = r + Math.imul(r ^ r >>> 7, 61 | r) ^ r; return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
   function distanzaTesto(L) { return L < 2e4 ? Math.round(L).toLocaleString('it-IT') + ' UA' : L < 3e7 ? (L / AL).toFixed(L < 2e5 ? 2 : 1).replace('.', ',') + t(' anni luce', ' light years') : (L / KPC).toFixed(1).replace('.', ',') + ' kpc'; }
@@ -76,8 +94,8 @@
       t('Le particelle seguono il flusso del modello di Rankine: gialle dal Sole, viola dal mezzo interstellare. Nube di Oort: ipotesi. Bracci della Galassia: schema. Bolle di Fermi ed eROSITA: misurate; l\'origine dal centro è l\'interpretazione più seguita.', 'Particles follow the Rankine model flow: yellow from the Sun, violet from the interstellar medium. Oort cloud: hypothesis. Galactic arms: schematic. Fermi and eROSITA bubbles: measured; the origin at the centre is the most followed interpretation.');
     var cap = F.el('div', { 'class': 'bsiVG-cap', 'aria-live': 'polite' });
     function stile() { if (globale.document.getElementById('bsiVG-stile')) return; var st = globale.document.createElement('style'); st.id = 'bsiVG-stile'; st.textContent = '.bsiVG-cap{position:absolute;left:10px;right:44px;top:8px;pointer-events:none;font:13px/1.5 system-ui,sans-serif;color:#e8eef6;text-shadow:0 1px 3px #000;z-index:2}.bsiVG-cap b{color:#ffd24a}@media(max-width:600px){.bsiVG-cap{font-size:11.5px;right:8px;top:40px}}'; globale.document.head.appendChild(st); }
-    function aggiungi(o, taglia, fadeDentro) { o.userData.taglia = taglia; o.userData.dentro = fadeDentro || 0.004; oggetti.push(o); radice.add(o); return o; }
-    function etichetta(testo, col, pos, taglia, alto) { var e = L3.testo3d(T, testo, col, taglia * (alto || 0.07)); e.position.set(pos[0], pos[1], pos[2]); return aggiungi(e, taglia, 0.02); }
+    function aggiungi(o, taglia, fadeDentro, su) { o.userData.taglia = taglia; o.userData.dentro = fadeDentro || 0.004; o.userData.su = su == null ? 1.7 : su; oggetti.push(o); radice.add(o); return o; }
+    function etichetta(testo, col, pos, taglia, alto) { var e = L3.testo3d(T, testo, col, taglia * (alto || 0.07)); e.position.set(pos[0], pos[1], pos[2]); return aggiungi(e, taglia, 0.02, 0.45); }
     function anello(R, col, n) { var p = []; for (var i = 0; i <= (n || 128); i++) { var f = 2 * PI * i / (n || 128); p.push(new T.Vector3(R * Math.cos(f), R * Math.sin(f), 0)); } return new T.Line(new T.BufferGeometry().setFromPoints(p), new T.LineBasicMaterial({ color: col, transparent: true, opacity: 0.6 })); }
     function guscio(fr, amax, n, col, op) {
       var e1 = n, tmp = Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0], e2 = norm(vx(tmp, e1)), e3 = vx(e1, e2), NA = 40, NB = 40, pos = [], idx = [];
@@ -86,31 +104,44 @@
       var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
       return new T.Mesh(g, new T.MeshBasicMaterial({ color: col, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
     }
+    function vetro(col, op) {
+      return new T.ShaderMaterial({ uniforms: { colore: { value: new T.Color(col) }, opacita: { value: op } }, transparent: true, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending,
+        vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+        fragmentShader: 'uniform vec3 colore; uniform float opacita; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.0); gl_FragColor = vec4(colore * (0.25 + 1.8 * f), opacita * (0.2 + 1.4 * f)); }' });
+    }
     function lobo(centro, asse, alto, largo, col, op) {
-      var g = new T.SphereGeometry(1, 48, 32), m = new T.Mesh(g, new T.MeshBasicMaterial({ color: col, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
+      var g = new T.SphereGeometry(1, 64, 48), m = new T.Mesh(g, vetro(col, op * 1.6));
       m.scale.set(largo, largo, alto / 2); var q = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 0, 1), new T.Vector3(asse[0], asse[1], asse[2])); m.quaternion.copy(q);
       m.position.set(centro[0] + asse[0] * alto / 2, centro[1] + asse[1] * alto / 2, centro[2] + asse[2] * alto / 2); return m;
     }
-    function punti(arr, col, size) { var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(arr.pos, 3)); if (arr.col) g.setAttribute('color', new T.Float32BufferAttribute(arr.col, 3)); return new T.Points(g, new T.PointsMaterial({ size: size, color: arr.col ? 0xffffff : col, vertexColors: !!arr.col, transparent: true, opacity: 0.85, depthWrite: false, blending: T.AdditiveBlending, sizeAttenuation: false })); }
+    var LUCE = null;
+    function luce() { if (LUCE) return LUCE; var c = globale.document.createElement('canvas'); c.width = c.height = 64; var q = c.getContext('2d'), g = q.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.3, 'rgba(255,255,255,.45)'); g.addColorStop(1, 'rgba(255,255,255,0)'); q.fillStyle = g; q.fillRect(0, 0, 64, 64); LUCE = new T.CanvasTexture(c); return LUCE; }
+    function punti(arr, col, size) { var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(arr.pos, 3)); if (arr.col) g.setAttribute('color', new T.Float32BufferAttribute(arr.col, 3)); return new T.Points(g, new T.PointsMaterial({ size: size * 2.2, map: luce(), color: arr.col ? 0xffffff : col, vertexColors: !!arr.col, transparent: true, opacity: 0.9, depthWrite: false, blending: T.AdditiveBlending, sizeAttenuation: false })); }
     function costruisci() {
       var E = F.calcolo.eliosfera, rnd = mulberry(42), n = E.versore(E.NASO.lon, E.NASO.lat), R0 = 112;
       S.pulisci(); oggetti = []; radice = new T.Group(); S.aggiungi(radice);
       /* il Sole */
       var sole = new T.Mesh(new T.SphereGeometry(1, 24, 16), new T.MeshBasicMaterial({ color: 0xffd27a })); radice.add(sole); radice.userData.sole = sole;
       /* pianeti e fascia di Kuiper */
-      [[1, 'Terra', 'Earth'], [5.2, 'Giove', 'Jupiter'], [9.58, 'Saturno', 'Saturn'], [19.2, 'Urano', 'Uranus'], [30.07, 'Nettuno', 'Neptune']].forEach(function (p, i) { aggiungi(anello(p[0], 0x7fa6c9), p[0] * 2.2, 0.01); var f = 0.6 + i * 1.3, pos = [p[0] * Math.cos(f), p[0] * Math.sin(f), 0]; var m = new T.Mesh(new T.SphereGeometry(p[0] * 0.03 + 0.05, 12, 8), new T.MeshBasicMaterial({ color: [0x7fb2ff, 0xe0b080, 0xe8d090, 0x9fe0e8, 0x6f8fff][i] })); m.position.set(pos[0], pos[1], pos[2]); aggiungi(m, p[0] * 2.2, 0.01); etichetta(t(p[1], p[2]), '#cfe3f7', [pos[0], pos[1], pos[2] + p[0] * 0.06], p[0] * 2.2, 0.05); });
+      var oggi = Date.now();
+      PIANETI.forEach(function (P, ip) {
+        var orb = [], e = P[3], a = P[2], w = P[6] * RAD; for (var k = 0; k <= 160; k++) { var E2 = 2 * PI * k / 160, xv = a * (Math.cos(E2) - e), yv = a * Math.sqrt(1 - e * e) * Math.sin(E2); orb.push(new T.Vector3(xv * Math.cos(w) - yv * Math.sin(w), xv * Math.sin(w) + yv * Math.cos(w), 0)); }
+        aggiungi(new T.Line(new T.BufferGeometry().setFromPoints(orb), new T.LineBasicMaterial({ color: 0x7fa6c9, transparent: true, opacity: 0.55 })), a * 2.4, 0.012);
+        var q = pianeta(ip, oggi), m = new T.Mesh(new T.SphereGeometry(a * 0.035 + 0.02, 16, 10), new T.MeshBasicMaterial({ color: P[8] })); m.position.set(q.x, q.y, 0); aggiungi(m, a * 2.4, 0.012);
+        etichetta(t(P[0], P[1]), '#cfe3f7', [q.x, q.y, a * 0.09], a * 2.4, 0.06);
+      });
       var kb = { pos: [] }; for (var i = 0; i < 2500; i++) { var r = 30 + 20 * rnd(), f = 2 * PI * rnd(); kb.pos.push(r * Math.cos(f), r * Math.sin(f), (rnd() - 0.5) * 6); } aggiungi(punti(kb, 0x9fb3c8, 1.5), 100, 0.01);
       /* eliosfera */
-      aggiungi(guscio(function (al) { return E.formaShock(al, 85); }, 180, n, 0xff9a3c, 0.16), 300, 0.02);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0); }, 150, n, 0x4aa8ff, 0.16), 400, 0.02);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.35); }, 140, n, 0xd46cff, 0.06), 500, 0.02);
-      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.9); }, 120, n, 0x7affc8, 0.045), 700, 0.02);
-      function lungoNaso(k, al) { var d = E.versore(E.NASO.lon + al, E.NASO.lat + 25); return [d[0] * k, d[1] * k, d[2] * k]; }
-      etichetta(t('shock di terminazione', 'termination shock'), '#ffb070', lungoNaso(90, 40), 400, 0.09);
-      etichetta(t('eliopausa', 'heliopause'), '#8cc8ff', lungoNaso(130, -30), 400, 0.09);
-      etichetta(t('muro di idrogeno (modello)', 'hydrogen wall (model)'), '#e2a8ff', lungoNaso(165, 20), 600, 0.08);
-      etichetta(t('onda di prua (dibattuta)', 'bow wave (debated)'), '#9fffd8', lungoNaso(250, 70), 800, 0.08);
-      ['v1', 'v2'].forEach(function (k) { var sd = E.SONDE[k], d = E.versore(sd.lon, sd.lat), Rr = E.distanza(k, 2026.9); aggiungi(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(0, 0, 0), new T.Vector3(d[0] * Rr, d[1] * Rr, d[2] * Rr)]), new T.LineBasicMaterial({ color: parseInt(sd.col.slice(1), 16) })), 400, 0.02); etichetta(sd.nome, sd.col, [d[0] * Rr, d[1] * Rr, d[2] * Rr + 8], 400, 0.045); });
+      aggiungi(guscio(function (al) { return E.formaShock(al, 85); }, 180, n, 0xff9a3c, 0.16), 300, 0.02, 0.9);
+      aggiungi(guscio(function (al) { return E.eliopausa(al, R0); }, 150, n, 0x4aa8ff, 0.16), 400, 0.02, 0.9);
+      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.35); }, 140, n, 0xd46cff, 0.06), 500, 0.02, 0.9);
+      aggiungi(guscio(function (al) { return E.eliopausa(al, R0 * 1.9); }, 120, n, 0x7affc8, 0.045), 700, 0.02, 0.9);
+      etichetta(t('shock di terminazione', 'termination shock'), '#ffb070', [0, 0, E.formaShock(90, 85) * 0.98], 400, 0.055);
+      etichetta(t('eliopausa', 'heliopause'), '#8cc8ff', [-n[0] * 90, -n[1] * 90, -n[2] * 90 - E.eliopausa(90, R0) * 1.05], 400, 0.055);
+      etichetta(t('eliosheath', 'heliosheath'), '#e6c7ff', [-n[0] * 150, -n[1] * 150, -n[2] * 150 + 25], 400, 0.045);
+      etichetta(t('muro di idrogeno (modello)', 'hydrogen wall (model)'), '#e2a8ff', [n[0] * R0 * 1.35, n[1] * R0 * 1.35, n[2] * R0 * 1.35 + 45], 600, 0.045);
+      etichetta(t('onda di prua (dibattuta)', 'bow wave (debated)'), '#9fffd8', [n[0] * R0 * 1.9, n[1] * R0 * 1.9, n[2] * R0 * 1.9 - 50], 800, 0.045);
+      ['v1', 'v2'].forEach(function (k) { var sd = E.SONDE[k], d = E.versore(sd.lon, sd.lat), Rr = E.distanza(k, annoDecimale(Date.now())); aggiungi(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(0, 0, 0), new T.Vector3(d[0] * Rr, d[1] * Rr, d[2] * Rr)]), new T.LineBasicMaterial({ color: parseInt(sd.col.slice(1), 16) })), 400, 0.02); etichetta(sd.nome, sd.col, [d[0] * Rr, d[1] * Rr, d[2] * Rr + 8], 400, 0.045); });
       /* il flusso */
       var NF = (globale.innerWidth || 1000) < 700 ? 1000 : 1800, fp = new Float32Array(NF * 3), fc = new Float32Array(NF * 3), st = [];
       function nasce(i, sole) {
@@ -133,15 +164,15 @@
       /* Via Lattea */
       var gx = { pos: [], col: [] }, NG = (globale.innerWidth || 1000) < 700 ? 14000 : 26000, kpitch = Math.tan(12 * RAD);
       for (var g = 0; g < NG; g++) {
-        var tipo = rnd(), rg, th, zg;
-        if (tipo < 0.15) { rg = Math.abs(gauss(rnd) * 1.2); th = 2 * PI * rnd(); zg = gauss(rnd) * 0.5; }      /* rigonfiamento */
-        else if (tipo < 0.75) { var braccio = Math.floor(rnd() * 4), s0 = rnd(); rg = 3 + 12 * Math.pow(s0, 0.9); th = braccio * PI / 2 + Math.log(rg / 3) / kpitch + gauss(rnd) * 0.18; zg = gauss(rnd) * 0.12; }
-        else { rg = 15 * Math.sqrt(rnd()); th = 2 * PI * rnd(); zg = gauss(rnd) * 0.25; }
-        /* la Galassia ruota in senso orario vista dal polo nord galattico: bracci che si avvolgono all'indietro */
-        var xg = RGC - rg * KPC * Math.cos(th), yg = -rg * KPC * Math.sin(th), p3 = galEcl([xg, yg, zg * KPC]);
-        gx.pos.push(p3[0], p3[1], p3[2]); var caldo = rg < 3 ? 1 : 0; gx.col.push(caldo ? 1 : 0.75, caldo ? 0.85 : 0.85, caldo ? 0.6 : 1);
+        var tipo = rnd(), rg, th, zg, xg, yg, colr;
+        if (tipo < 0.10) { rg = Math.abs(gauss(rnd) * 0.9); th = 2 * PI * rnd(); zg = gauss(rnd) * 0.45; colr = [1, 0.82, 0.55]; xg = RGC - rg * KPC * Math.cos(th); yg = -rg * KPC * Math.sin(th); }   /* rigonfiamento: stelle vecchie, giallastre */
+        else if (tipo < 0.22) { var lb = (rnd() * 2 - 1) * 5, wb = gauss(rnd) * 0.6, ab = 27 * RAD; xg = RGC - (lb * Math.cos(ab) - wb * Math.sin(ab)) * KPC; yg = -(lb * Math.sin(ab) + wb * Math.cos(ab)) * KPC; zg = gauss(rnd) * 0.25; colr = [1, 0.8, 0.55]; rg = Math.hypot(lb, wb); }   /* la barra: 5 kpc, 27° dalla linea Sole–centro */
+        else if (tipo < 0.80) { var braccio = Math.floor(rnd() * 4), s0 = rnd(); rg = 3.5 + 11.5 * Math.pow(s0, 0.9); th = braccio * PI / 2 + Math.log(rg / 3.5) / kpitch + gauss(rnd) * 0.16; zg = gauss(rnd) * 0.1; xg = RGC - rg * KPC * Math.cos(th); yg = -rg * KPC * Math.sin(th); colr = rnd() < 0.05 ? [1, 0.45, 0.65] : [0.68, 0.82, 1]; }   /* bracci: stelle giovani azzurre, regioni HII rosa */
+        else { rg = 15 * Math.sqrt(rnd()); th = 2 * PI * rnd(); zg = gauss(rnd) * 0.3; xg = RGC - rg * KPC * Math.cos(th); yg = -rg * KPC * Math.sin(th); colr = [0.85, 0.85, 0.9]; }   /* disco diffuso */
+        var p3 = galEcl([xg, yg, zg * KPC]);
+        gx.pos.push(p3[0], p3[1], p3[2]); gx.col.push(colr[0] * 0.8, colr[1] * 0.8, colr[2] * 0.8);
       }
-      aggiungi(punti(gx, 0xffffff, 1.6), 4e9, 0.05);
+      aggiungi(punti(gx, 0xffffff, 1.3), 4e9, 0.05);
       etichetta(t('centro galattico · Sgr A*', 'galactic centre · Sgr A*'), '#ffd27a', [GC[0], GC[1], GC[2] + 0.6 * KPC], 4e9, 0.035);
       etichetta(t('il Sole · braccio di Orione', 'the Sun · Orion arm'), '#9fe0ff', [0, 0, 0.5 * KPC], 4e9, 0.03);
       /* bolle */
@@ -171,7 +202,7 @@
       radice.position.set(-gcv.x * w / L, -gcv.y * w / L, -gcv.z * w / L);
       if (w > 0) S.vista.ph = vistaBase.ph + (1.18 - vistaBase.ph) * w; else if (inScala) S.vista.ph = vistaBase.ph;
       inScala = w > 0;
-      oggetti.forEach(function (o) { var q = Math.log10(o.userData.taglia / L), a = Math.max(0, Math.min(1, (q - Math.log10(o.userData.dentro)) / 0.5)) * Math.max(0, Math.min(1, (1.7 - q) / 0.5)); o.visible = a > 0.01; o.traverse(function (x) { if (x.material) { if (x.userData.op == null) x.userData.op = x.material.opacity == null ? 1 : x.material.opacity; x.material.opacity = x.userData.op * a; x.material.transparent = true; } }); });
+      oggetti.forEach(function (o) { var q = Math.log10(o.userData.taglia / L), a = Math.max(0, Math.min(1, (q - Math.log10(o.userData.dentro)) / 0.5)) * Math.max(0, Math.min(1, (o.userData.su - q) / 0.4)); o.visible = a > 0.01; o.traverse(function (x) { if (!x.material) return; var u = x.material.uniforms && x.material.uniforms.opacita; if (x.userData.op == null) x.userData.op = u ? u.value : (x.material.opacity == null ? 1 : x.material.opacity); if (u) u.value = x.userData.op * a; else { x.material.opacity = x.userData.op * a; x.material.transparent = true; } }); });
       S.didascalia.textContent = t('Dal Sole alla Galassia', 'From the Sun to the Galaxy') + ' · ' + t('lato ', 'side ') + distanzaTesto(L) + ' · ' + t('scala logaritmica continua, posizioni vere', 'continuous logarithmic scale, true positions');
       S.sporca = true; S.avvia();
     }

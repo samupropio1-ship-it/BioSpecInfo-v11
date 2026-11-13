@@ -16,6 +16,8 @@
      Alfa Centauri a latitudine eclittica −42,6°. Flusso di Rankine: velocità
      nulla al naso dell'eliopausa (punto di ristagno), lontano uguale al vento
      interstellare.
+   v255 (perfezionamento): normali della superficie dal gradiente vero; pianeti
+   alla data con Keplero e gli elementi JPL (equinozio, perielio, afelio).
    Poi le due schede nella pagina: formule in sovrimpressione, le scie, il
    cursore della scala che porta alle bolle, «riduci movimento», niente
    errori, niente sbordi.
@@ -57,6 +59,19 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
   const pm3 = C.pianoMassimo({ n: 3, l: 2, m: 1 });
   vicino('3d, m = 1: densità massima a θ = 45°', 45, pm3.theta * 180 / Math.PI, 2e-3);
 
+  const oc = { n: 4, l: 3, m: 3 }, segC = C.contorno(oc, 40, 190, 380, 2e-6); let cosMax = 0;
+  segC.forEach(sg => { const d = [sg[1][0] - sg[0][0], sg[1][1] - sg[0][1]], gr = C.gradienteRZ(oc, (sg[0][0] + sg[1][0]) / 2, (sg[0][1] + sg[1][1]) / 2), l = Math.hypot(...d) * Math.hypot(...gr); if (l > 0) cosMax = Math.max(cosMax, Math.abs(d[0] * gr[0] + d[1] * gr[1]) / l); });
+  vero('le normali della superficie (dal gradiente di |ψ|²) sono perpendicolari al contorno (cos max ' + cosMax.toFixed(3) + ')', cosMax < 0.05);
+
+  console.log('\n── I pianeti alla data (Keplero, elementi JPL) ──');
+  const eqx = V.pianeta(2, Date.UTC(2026, 2, 20, 14, 46));
+  vero('equinozio di marzo 2026: la Terra a longitudine eliocentrica 180° (' + eqx.lon.toFixed(2) + '°)', Math.abs(eqx.lon - 180) < 0.6);
+  vicino('perielio del 3 gennaio 2026: distanza Terra–Sole (UA)', 0.98330, V.pianeta(2, Date.UTC(2026, 0, 3, 17)).r, 1e-4);
+  vicino('afelio del 3 luglio 2026: distanza Terra–Sole (UA)', 1.01664, V.pianeta(2, Date.UTC(2026, 6, 3)).r, 2e-4);
+  const g0 = V.pianeta(4, Date.UTC(2026, 0, 1)), g1 = V.pianeta(4, Date.UTC(2026, 0, 1) + 11.862 * 365.25 * 864e5);
+  vero('Giove torna allo stesso punto dopo 11,86 anni', Math.abs(((g1.lon - g0.lon + 540) % 360) - 180) < 0.5);
+  vicino('Mercurio al perielio: a(1 − e) (UA)', 0.38709927 * (1 - 0.20563593), Math.min(...Array.from({ length: 200 }, (_, k) => V.pianeta(0, Date.UTC(2026, 0, 1) + k * 0.44 * 864e5).r)), 2e-4);
+
   console.log('\n── La Galassia e il flusso ──');
   vicino('inclinazione del piano galattico sull\'eclittica (gradi)', 60.19, V.inclinazione(), 1e-3);
   const g = V.GC, gn = Math.hypot(...g);
@@ -82,7 +97,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       let el = document.getElementById('sorbitali'), bt = [...el.querySelectorAll('.bsiFX-schede button')].find(b => /Onde di fase/.test(b.textContent)); o.tabOrb = !!bt; bt && bt.click();
       for (let i = 0; i < 60 && !el.querySelector('.bsiOC-formule'); i++) await pausa(250); await pausa(1200);
       const f = el.querySelector('.bsiOC-formule'); o.formule = !!f && /J/.test(f.textContent) && /2πmħ/.test(f.textContent) && /3λ/.test(f.textContent);
-      const S = BSILab3D.scene().filter(s => s.box.offsetParent && s.box.closest('#sorbitali'))[0]; o.ar = !!(S && S.box.querySelector('.bsiAR-tasto'));
+      const S = BSILab3D.scene().filter(s => s.box.offsetParent && s.box.closest('#sorbitali'))[0]; o.ar = !!(S && S.box.querySelector('.bsiAR-tasto')); o.vetro = !!(S && S.radice.children[0] && S.radice.children[0].getObjectByName('vetro'));
       const scie = S && S.radice.children[0] && S.radice.children[0].children.find(c => c.name === 'scie');
       const prima = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() : ''; await pausa(600); o.scieMuovono = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() !== prima : null;
       o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth; o.strano = (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b).{0,20}/) || [null])[0];
@@ -97,7 +112,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       o.sb = Math.max(o.sb, document.documentElement.scrollWidth - document.documentElement.clientWidth); o.strano = o.strano || (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b).{0,20}/) || [null])[0];
       return o;
     });
-    vero(nome + ' · orbitali: la scheda «Onde di fase e correnti» con le formule in sovrimpressione e il pulsante AR', r.tabOrb && r.formule && r.ar);
+    vero(nome + ' · orbitali: la scheda «Onde di fase e correnti» con le formule in sovrimpressione, la superficie di vetro e il pulsante AR', r.tabOrb && r.formule && r.ar && r.vetro);
     att(nome + ' · ' + (opz.reducedMotion ? 'con «riduci movimento» le scie restano ferme' : 'le scie si muovono'), opz.reducedMotion ? false : true, r.scieMuovono);
     vero(nome + ' · Galassia: la scheda, la didascalia in UA, a 4×10⁹ UA le bolle di Fermi ed eROSITA', r.tabGal && r.capPianeti && r.capBolle);
     vero(nome + ' · alla scala galattica si vedono Galassia e bolle (' + r.visibili + '), i pianeti sono spenti (' + r.nascosti + ')', r.visibili >= 6 && r.nascosti >= 5);
