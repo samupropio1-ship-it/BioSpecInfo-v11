@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v251` |
+| **Version described** | `bsi-v253` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -155,6 +155,7 @@ the kit stays usable without remembering progress.
 |---|---|---|
 | `bsi-spectra-mente-v1` | JSON: `episodi` (at most 300: time, subject, section, question cut to 160 characters, outcome), `sezioni` (time and visits per section), `ore` (24 counters), `materie` (seconds per subject), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, between 0 and 1), `emozioni` (at most 60) | Until the user says «forget everything», which resets the object and removes the key |
 | `bsi-spectra-agenda-v1` | JSON: `voci` (reminders, tasks, events: `id`, `genere`, `testo` up to 240 characters, `quando` in milliseconds or null, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; at most 60 closed entries), `n` (counter) | Written by `bsi-spectra-agenda.js`; stays in the browser; deleted with the «memoria» group and exported with «esporta la memoria» |
+| `bsi-spectra-novita-v252` | `"1"` once the «Novità di Spectra» panel has been shown | Written by `bsi-spectra-risveglio.js`; used to show it once only |
 | `bsi-spectra-risveglio-v1` | JSON: `citta`, `lat`, `lon` (the city chosen with «abito a…»), `armato` (true after the first wake-up), `briefing` (the 8:00 and 20:00 briefing on or off), `fatti` (the last ten slots already done), `meteo` (the last weather, kept 15 minutes), `ascolto` (glasses mode on: restarts on opening), `avvioSveglia` (Spectra wakes up at every opening) | Written by `bsi-spectra-risveglio.js`; stays in the browser; deleted with the «memoria» group and exported with «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
@@ -340,4 +341,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v251`._
+_Document updated to version `bsi-v253`._

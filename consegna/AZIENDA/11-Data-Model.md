@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v251` |
+| **Versione descritta** | `bsi-v253` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -151,6 +151,7 @@ e il kit resta usabile senza ricordare i progressi.
 |---|---|---|
 | `bsi-spectra-mente-v1` | JSON: `episodi` (al massimo 300: ora, materia, sezione, domanda troncata a 160 caratteri, esito), `sezioni` (tempo e visite per sezione), `ore` (24 contatori), `materie` (secondi per materia), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, fra 0 e 1), `emozioni` (al massimo 60) | Finché l'utente non dice «dimentica tutto», che azzera l'oggetto e rimuove la chiave |
 | `bsi-spectra-agenda-v1` | JSON: `voci` (promemoria, compiti, eventi: `id`, `genere`, `testo` fino a 240 caratteri, `quando` in millisecondi o nullo, `anticipo`, `ripeti`, `stato`, `creato`, `chiuso`; al massimo 60 voci chiuse), `n` (contatore) | Scritta da `bsi-spectra-agenda.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
+| `bsi-spectra-novita-v252` | `"1"` quando il riquadro «Novità di Spectra» è stato mostrato | Scritta da `bsi-spectra-risveglio.js`; serve a mostrarlo una volta sola |
 | `bsi-spectra-risveglio-v1` | JSON: `citta`, `lat`, `lon` (la città scelta con «abito a…»), `armato` (vero dopo il primo risveglio), `briefing` (il punto delle 8 e delle 20 acceso o spento), `fatti` (le ultime dieci fasce già fatte), `meteo` (l'ultimo meteo, tenuto 15 minuti), `ascolto` (modalità occhiali accesa: riparte all'apertura), `avvioSveglia` (Spectra si sveglia a ogni apertura) | Scritta da `bsi-spectra-risveglio.js`; resta nel browser; si cancella con il gruppo «memoria» e si esporta con «esporta la memoria» |
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
 | `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
@@ -332,4 +333,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v251`._
+_Documento aggiornato alla versione `bsi-v253`._

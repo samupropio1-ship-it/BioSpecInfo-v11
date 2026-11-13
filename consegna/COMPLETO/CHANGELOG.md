@@ -7,6 +7,136 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v253] — 2026-11-13
+
+**La teoria di ogni sezione, lo spaziotempo curvo e i wormhole, e trenta errori scientifici corretti**
+
+Richiesta dell'autore: «la teoria di tutte le sezioni della chimica, fisica e
+matematica e la teoria della curvatura dello spaziotempo, dei wormhole e cose
+così, però scientificamente accurate».
+
+### Aggiunto
+- **📖 Teoria in ogni sezione** (`bsi-teoria.js`, dati in `bsi-teoria-a…g.js`):
+  145 schede, una per ogni sezione di chimica, fisica e matematica che spiega
+  qualcosa (restano fuori solo quiz, flashcard, riassunti, formulari, glossari,
+  esami e pagine introduttive). Ogni scheda ha l'idea centrale, i concetti in
+  paragrafi, le formule con il significato di ogni simbolo, ipotesi e limiti,
+  gli errori tipici, un esercizio svolto (la soluzione si apre a richiesta), le
+  fonti (manuali e articoli veri, citati per capitolo o argomento) e i
+  collegamenti alle sezioni vicine. In tutto circa 90 000 parole. Ogni
+  esercizio è stato ricalcolato. Il pulsante «📖 Teoria» sta sotto il titolo,
+  accanto a «🎓 Lezione guidata»; l'indice con la ricerca è nel menu ✨ →
+  📖 Teoria di tutte le sezioni; a voce: «teoria dell'entropia», «spiegami la
+  teoria», «indice della teoria». Spectra ha lo strumento `leggi_teoria`: prima
+  di spiegare un concetto può partire dal testo controllato.
+- **🌀 Spaziotempo curvo e wormhole** (`bsi-astro-wormhole.js`, Astrofisica):
+  curvatura e maree vicino a pianeti, stelle di neutroni e buchi neri; il
+  wormhole di Morris e Thorne con il diagramma di immersione che si ruota con il
+  dito (e il ponte di Einstein–Rosen a confronto); la materia esotica che
+  servirebbe, contro l'energia negativa che esiste davvero (Casimir); il tempo
+  che rallenta. Ogni affermazione porta la sua etichetta: MISURATO, TEORIA,
+  IPOTESI, SPECULAZIONE.
+
+### Corretto (trovato rileggendo il codice per scrivere la teoria)
+- **Titolazioni**: il pH ora viene dal bilancio di carica esatto. Prima: un
+  +0,1 messo a mano sul pH iniziale, il logaritmo invertito per le basi deboli,
+  il punto equivalente senza il termine di concentrazione (per una base debole
+  il PE è acido, 5,28 per NH₃ 0,1 M, non 7) e letto da un punto della griglia.
+- **Punto isoelettrico**: dalla carica netta. Prima istidina 3,91 (giusto
+  7,59), cisteina 9,23 (5,07), tirosina 9,59 (5,63).
+- **Formula bruta da SMILES**: gli idrogeni si contano davvero (prima una stima
+  moltiplicata per 0,7: l'etanolo diventava C₂H₇O).
+- **Farmacocinetica**: la modalità «dose» leggeva un campo inesistente e dava
+  una dose infinita; Cockcroft–Gault non è più chiamata eGFR; l'intervallo del
+  grafico è 2·t½, come calcolato.
+- **Nernst**: log K contava n due volte.
+- **Orbitali molecolari**: π come coppia degenere riempita secondo Hund (l'O₂
+  appariva diamagnetico); N₂ non è «il legame più forte» (CO lo supera).
+- **Complessi**: caselle riempite secondo Hund, e_g e t₂g scritti giusti,
+  [Ni(CN)₄]²⁻ con lo schema quadrato-planare; il cianuro è tossico per la
+  citocromo c ossidasi, non per l'emoglobina.
+- **Simmetria**: numero di atomi sbagliato per cinque molecole, carattere di
+  T₂g in Oₕ, etichette Ag/Bg/A₁g/T₁ᵤ, banda del benzene a 1600 cm⁻¹ (E₂g,
+  Raman).
+- **Zuccheri**: le forme aperte di glucosio, galattosio e mannosio erano
+  chetosi, il 2-desossiribosio era la gliceraldeide, ribosio e fruttosio
+  avevano stereocentri sbagliati (controllato con RDKit).
+- **Biochimica**: pKa della lisina e dell'acido D-aspartico, massa della
+  glicina, idrossiprolina (codice e SMILES), ΔG°′ della G3P deidrogenasi e dei
+  complessi III e IV, H⁺ pompati non più casuali (10 per NADH, 6 per FADH₂),
+  ATP dell'acido oleico, deficit di MCAD, passo del DNA e A=T, anidrasi
+  carbonica fra le liasi, O₂/H₂O₂ a pH 7.
+- **Spettroscopia**: etichette di massa (M–OH, COOC₂H₅⁺, McLafferty senza H in
+  γ), costanti J del cicloesano, segni NOESY, bande UV, metodo di Shoolery.
+- **Altro**: E2 anti-periplanare, carbocatione secondario nel propene, stato di
+  transizione della Diels–Alder non planare, pattinaggio sul ghiaccio, STP
+  IUPAC, profilo endoergonico, soglie del diabete (≥), esami dell'infarto,
+  interazioni del warfarin, Sirio B, massa del Sole, coefficienti «di Krane»,
+  campo ultravioletto della nube, azeotropo etanolo–acqua.
+- Banchi **`test_teoria`** (24), **`test_spaziotempo`** (33),
+  **`test_correzioni`** (24); requisiti AI-21, SCI-67, SCI-68; 52 strumenti
+  dell'agente; 205 sezioni; batteria a 96 banchi.
+
+### Limiti dichiarati
+- La teoria è in italiano; nelle altre lingue la scheda lo dice.
+- Le fonti sono citate per capitolo o argomento, non per pagina: alcune
+  numerazioni di capitolo cambiano fra le edizioni.
+- Restano da sistemare le etichette di carica delle specie degli amminoacidi
+  in «Distribuzioni» e piccole imprecisioni dichiarate nelle schede (costanti
+  del silicio, modello di Morse per HCl).
+
+---
+## [bsi-v252] — 2026-11-12
+
+**Le funzioni di Spectra nel menu ✨ vero, la sua testa che si muove, le icone delle materie in 3D e tre sezioni nuove: Hammett, Foucault, Frenet**
+
+Segnalazione dell'autore dal telefono: «non c'è nulla». Aveva ragione. Le voci
+Sveglia, Agenda e Rete neurale della v251 erano state aggiunte a un elenco del
+menu che l'app non mostra più; il menu che si apre dal pulsante ✨ è un altro.
+Il banco di prova cercava il testo nella pagina invece di aprire il menu, e
+per questo non se n'era accorto.
+
+### Corretto
+- **Menu ✨**: nuova sezione **🤖 Spectra**, la prima, con 🌅 Sveglia Spectra,
+  👓 Occhiali e dispositivi, 🗓️ Agenda di Spectra, 🧠 Rete neurale di Spectra.
+- **Ologramma → Tutta l'app**: anche lì le quattro voci (da 15 a 19 voci del
+  menu).
+- **Novità di Spectra**: a chi ha già parlato con Spectra compare, una volta
+  sola, un riquadro in basso con i quattro pulsanti.
+- `test_risveglio` ora apre il menu vero e tocca le voci (99 controlli);
+  `test_spectra_olo` conta 19 voci.
+
+### Aggiunto
+Richiesta dell'autore, con lo screenshot del telefono: la testa dell'icona di
+Spectra che si muove, le icone di matematica, chimica e fisica in 3D o
+comunque molto più particolari, e ancora più sezioni con dati.
+- **La testa di Spectra si muove**: nel pulsante tondo gira a destra e a
+  sinistra, si inclina, annuisce, con un riflesso metallico che le passa
+  sopra; quando parla annuisce più in fretta. Solo CSS: nessun peso in più.
+- **Icone 3D delle materie**: ⚛️ un atomo con tre orbite inclinate che
+  ruotano nello spazio e un elettrone che corre su ognuna; Σ in rilievo, dorata,
+  che oscilla; 🧪 una beuta di vetro con il liquido che ondeggia e le
+  bollicine che salgono. Con «riduci movimento» restano ferme.
+- **σ Hammett e sostituenti** (chimica, gruppo 🔬): 24 sostituenti con σm,
+  σp, σp⁺, σp⁻ (Hansch, Leo, Taft 1991); cinque reazioni con ρ (acidi
+  benzoici, fenoli, ioni anilinio, idrolisi dei benzoati, solvolisi dei
+  cloruri di cumile); previsione di k/k₀ e del pKa; ρ ricavato dai tuoi dati.
+- **🌍 Pendolo di Foucault e Coriolis** (fisica): le equazioni nel
+  riferimento terrestre integrate con Runge–Kutta, la rosetta disegnata sul
+  pavimento con i punti cardinali, quattordici città, la deviazione di un corpo
+  che cade e l'accelerazione laterale di uno che corre.
+- **🌀 Curve nello spazio** (matematica): curvatura, torsione, triedro T, N, B
+  e cerchio osculatore su una curva che si ruota con il dito; elica, cubica
+  gobba, nodo trifoglio, Viviani, spirale conica, o la curva che scrivi tu.
+- Le sezioni passano da 201 a **204**. Banco **`test_potenzia252`** (80
+  controlli); requisiti SCI-64…66 e UI-34; batteria a 93 banchi.
+
+### Corretto (trovato facendo le icone)
+- Una regola di stile già esistente per l'etichetta dei pulsanti delle materie
+  colpiva ogni elemento al loro interno: le icone nuove sarebbero state
+  invisibili. Ora vale solo per l'etichetta.
+
+---
 ## [bsi-v251] — 2026-11-12
 
 **Spectra assistente di ogni giorno, dentro l'app: si sveglia, dice meteo e impegni, ricorda, fa il punto alle 8 e alle 20, mostra la sua memoria come neuroni. Senza installare nulla**

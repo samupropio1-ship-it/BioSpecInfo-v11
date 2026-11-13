@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v251` |
+| **Versione documentata** | Service Worker `bsi-v253` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 51 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 52 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -53,7 +53,7 @@ una demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── esecutore strumenti (51, tutti locali salvo 2 di rete)   │
+│        └── esecutore strumenti (52, tutti locali salvo 2 di rete)   │
 │               ├── motore di calcolo (parser proprio, no eval)       │
 │               ├── risolutori di dominio (13 aree scientifiche)      │
 │               ├── dataset interni dell'app (9 basi dati)            │
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 51 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 52 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 51 strumenti
+## 3. I 52 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -978,8 +978,8 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 201 sezioni dalla v242 (chimica 78, fisica 63,
-  matematica 31, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
+  (`BSIMaterie.materiaDi`), 205 sezioni dalla v242 (chimica 79, fisica 65,
+  matematica 32, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
   (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),
@@ -1109,7 +1109,7 @@ del turno.
 | Metrica | Valore |
 |---|---|
 | Righe del componente | 6.254 |
-| Strumenti | 51 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`) |
+| Strumenti | 52 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`, 3 in `bsi-spectra-agenda.js`, 1 in `bsi-spectra-risveglio.js`, 1 in `bsi-teoria.js`) |
 | Configurazioni di modello | 10 (3 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |

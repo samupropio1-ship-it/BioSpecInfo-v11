@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v251` |
+| **Versione descritta** | `bsi-v253` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -526,7 +526,7 @@ Evento nuovo: **`bsi-spectra-tema`** (`CustomEvent` su `document`, `detail: { te
 | Simbolo | Firma | Descrizione |
 |---|---|---|
 | `costruisci` | `(pannello)` | Costruisce la scheda «🧠 Spiega» nel pannello dato (la chiama `bsi-ai-hub.js`): domanda, livello, casella «📺 Includi lo schermo» con la scheda dello schermo, domande rapide, «↺ Nuova spiegazione», il riquadro «🗂️ Tutte le sezioni nell'ologramma» (ricerca, filtro per materia, «🎞️ Mostrami tutto») |
-| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Tutte le sezioni della barra dell'app (`.nav-group-panel [data-s]`), con l'etichetta del gruppo e la materia (`BSIMaterie.materiaDi`; `'comune'` se nessuna): 201 sezioni dalla v242 (chimica 78, fisica 63, matematica 31, comuni 29). Letto dalla barra, non scritto a mano |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Tutte le sezioni della barra dell'app (`.nav-group-panel [data-s]`), con l'etichetta del gruppo e la materia (`BSIMaterie.materiaDi`; `'comune'` se nessuna): 205 sezioni dalla v242 (chimica 79, fisica 65, matematica 32, comuni 29). Letto dalla barra, non scritto a mano |
 | `sezioneDi` | `(testo) → voce del catalogo \| null` | La sezione che una domanda nomina: parole significative dei nomi (con radice), sigle (MS, IR, UV, NMR, MO…) pesate di più, sinonimi («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); a parità il nome più corto. Es. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
 | `mostraSezione` | `(id) → Promise<boolean>` | Apre la sezione dietro la finestra di Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve) e aggiorna lo schermo, così l'ologramma la mostra dal vivo |
 | `giro` | `(materia?)` | «🎞️ Mostrami tutto»: ogni sezione della materia (`'chimica'`, `'fisica'`, `'matematica'`; tutte se vuota) nell'ologramma, una ogni 7 s, con il contatore «n/N · nome» |
@@ -548,7 +548,7 @@ Evento **`bsi-spectra-stato`**, dalla v242 anche dalla console: `bsi-spectra-liv
 | `CAPITOLI` | `{ chimica, fisica, matematica }` → array di 10 capitoli | Ogni capitolo: `id` (`c-…`, `f-…`, `m-…`), `liv` (0 Scuola superiore … 4 PhD avanzato · frontiera), `tit`, `sez` (l'id della sezione dell'app collegata), `scena` (la scena dell'ologramma: `orbitale`, `molecola`, `spettro`, `onda`, `pianeti`, `superficie`), `testo`, `pred: { d, o[4], g, p[4] }` (domanda, quattro risposte, indice della giusta, un perché per ognuna), `prova?: { et, min, max, passo, val }` (il cursore, in 19 capitoli su 30) |
 | `calcola` | `(id, valore) → { v, testo } \| null` | La grandezza del cursore di un capitolo: `v` il numero, `testo` la riga mostrata. Es. `calcola('c-ph', 8).v` ≈ 6,978 (HCl 10⁻⁸ M, con l'autoprotolisi), `calcola('f-pendolo', 1).v` ≈ 2,006 s, `calcola('m-armonica', 3).v` ≈ 7,4855; `null` per i capitoli senza cursore |
 | `costruisci` | `(materia, pannello) → elemento` | Costruisce la pagina della materia nel pannello: testa con la barra «n/10», i dieci capitoli (`section.cap`, id `bsiEX-<id>`) con previsione, prova e i pulsanti «📺 Guardalo dal vivo», «🧠 Spiegamelo tutto», «🔊 Ascolta Spectra»; allo scorrimento il capitolo che attraversa il centro dello spazio libero sotto la figura prende la classe `attivo`, emette `bsi-spectra-dice` e porta l'ologramma alla sua scena; imposta la variabile CSS `--bsiEX-top` (l'altezza della testata fissa dell'app) |
-| `gibbsMax` | `(N) → number` | Il massimo, calcolato numericamente su 4000 punti in (0, π/2], della somma parziale dell'onda quadra (4/π) Σ sin(kx)/k sui k dispari ≤ N (≈ 1,179 con N = 201) |
+| `gibbsMax` | `(N) → number` | Il massimo, calcolato numericamente su 4000 punti in (0, π/2], della somma parziale dell'onda quadra (4/π) Σ sin(kx)/k sui k dispari ≤ N (≈ 1,179 con N = 204) |
 | `SEZIONI` | `['sesplchim', 'sesplfis', 'sesplmat']` | Le tre sezioni, registrate con `BSIFisica.sezione` (una scheda, «⚡ Esplora») |
 | `MEM` | `'bsi-esplora-v1'` | La chiave `localStorage` delle previsioni: `{ <id capitolo>: { giusta, quando } }` |
 
@@ -603,4 +603,4 @@ anche `parti` (le mesh del modello per nome).
 
 ---
 
-_Documento aggiornato alla versione `bsi-v251`._
+_Documento aggiornato alla versione `bsi-v253`._

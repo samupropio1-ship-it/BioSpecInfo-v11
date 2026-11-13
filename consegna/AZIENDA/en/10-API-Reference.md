@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v251` |
+| **Version described** | `bsi-v253` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -542,7 +542,7 @@ New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo
 | Symbol | Signature | Description |
 |---|---|---|
 | `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione», the «🗂️ Tutte le sezioni nell'ologramma» card (search, subject filter, «🎞️ Mostrami tutto») |
-| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 201 sections since v242 (chemistry 78, physics 63, mathematics 31, shared 29). Read from the bar, not written by hand |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 205 sections since v242 (chemistry 79, physics 65, mathematics 32, shared 29). Read from the bar, not written by hand |
 | `sezioneDi` | `(text) → catalogue entry \| null` | The section a question names: meaningful words of the names (with stems), acronyms (MS, IR, UV, NMR, MO…) weighted more, synonyms («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); ties go to the shorter name. E.g. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
 | `mostraSezione` | `(id) → Promise<boolean>` | Opens the section behind the Spectra window (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed) and refreshes the screen, so the hologram shows it live |
 | `giro` | `(subject?)` | «🎞️ Mostrami tutto»: every section of the subject (`'chimica'`, `'fisica'`, `'matematica'`; all if empty) in the hologram, one every 7 s, with the counter «n/N · name» |
@@ -564,7 +564,7 @@ The **`bsi-spectra-stato`** event, since v242 also from the console: `bsi-spectr
 | `CAPITOLI` | `{ chimica, fisica, matematica }` → array of 10 chapters | Each chapter: `id` (`c-…`, `f-…`, `m-…`), `liv` (0 high school … 4 advanced PhD · frontier), `tit`, `sez` (the id of the linked app section), `scena` (the hologram scene: `orbitale`, `molecola`, `spettro`, `onda`, `pianeti`, `superficie`), `testo`, `pred: { d, o[4], g, p[4] }` (question, four answers, index of the right one, a reason for each), `prova?: { et, min, max, passo, val }` (the slider, in 19 chapters out of 30) |
 | `calcola` | `(id, value) → { v, testo } \| null` | A chapter's slider quantity: `v` the number, `testo` the line shown. E.g. `calcola('c-ph', 8).v` ≈ 6.978 (HCl 10⁻⁸ M, with autoprotolysis), `calcola('f-pendolo', 1).v` ≈ 2.006 s, `calcola('m-armonica', 3).v` ≈ 7.4855; `null` for chapters without a slider |
 | `costruisci` | `(materia, pannello) → element` | Builds the subject's page in the panel: header with the «n/10» bar, the ten chapters (`section.cap`, id `bsiEX-<id>`) with prediction, try and the «📺 Guardalo dal vivo», «🧠 Spiegamelo tutto», «🔊 Ascolta Spectra» buttons; on scroll the chapter crossing the middle of the free space under the figure takes the `attivo` class, emits `bsi-spectra-dice` and brings the hologram to its scene; sets the CSS variable `--bsiEX-top` (the height of the app's fixed header) |
-| `gibbsMax` | `(N) → number` | The maximum, computed numerically over 4000 points in (0, π/2], of the partial sum of the square wave (4/π) Σ sin(kx)/k over odd k ≤ N (≈ 1.179 with N = 201) |
+| `gibbsMax` | `(N) → number` | The maximum, computed numerically over 4000 points in (0, π/2], of the partial sum of the square wave (4/π) Σ sin(kx)/k over odd k ≤ N (≈ 1.179 with N = 204) |
 | `SEZIONI` | `['sesplchim', 'sesplfis', 'sesplmat']` | The three sections, registered with `BSIFisica.sezione` (one tab, «⚡ Esplora») |
 | `MEM` | `'bsi-esplora-v1'` | The `localStorage` key of the predictions: `{ <chapter id>: { giusta, quando } }` |
 
@@ -619,4 +619,4 @@ loop (the host calls `passo(dt)` and attaches `radice` to the body); with
 
 ---
 
-_Document updated to version `bsi-v251`._
+_Document updated to version `bsi-v253`._
