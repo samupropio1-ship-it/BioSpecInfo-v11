@@ -941,6 +941,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sesplchim" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la chimica con Spectra</button>
     <button class="nav-btn" data-s="smol">🔍 Molecola</button>
     <button class="nav-btn" data-s="spt">⬡ Tavola Periodica</button>
+    <button class="nav-btn" data-s="selementi3d" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚛️ Gli elementi in 3D</button>
     <button class="nav-btn" data-s="ssyn">🧪 Sintesi Org.</button>
     <button class="nav-btn" data-s="sretro">🔄 Retrosintesi</button>
     <button class="nav-btn" data-s="sanimmech">🎬 Meccanismi</button>
@@ -3746,7 +3747,7 @@ var ELEMENTS = [
 [100,"Fm","Fermio",257,7,null,9,"+3","[Rn]5f¹²7s²",1.30,null,6.50,1527,"Primo elemento non isolabile in quantità visibili."],
 [101,"Md","Mendelevio",258,7,null,9,"+3","[Rn]5f¹³7s²",1.30,null,6.58,827,"Sintetizzato da seaborgio con particelle alfa al ciclotrone."],
 [102,"No","Nobelio",259,7,null,9,"+2,+3","[Rn]5f¹⁴7s²",1.30,null,6.65,830,"Noto per insolitamente stabile stato +2 (configurazione f¹⁴)."],
-[103,"Lr","Laurenzio",266,7,3,9,"+3","[Rn]5f¹⁴7p¹",1.30,null,4.90,1627,"Ultimo attinide. Sintesi a JINR (Dubna) nel 1961."],
+[103,"Lr","Laurenzio",266,7,3,9,"+3","[Rn]5f¹⁴7s²7p¹",1.30,null,4.90,1627,"Ultimo attinide. Sintesi a JINR (Dubna) nel 1961."],
 [104,"Rf","Rutherfordio",267,7,4,3,"+4","[Rn]5f¹⁴6d²7s²",null,null,6.01,2100,"Primo elemento superpesante. Sintesi GSI (Darmstadt)."],
 [105,"Db","Dubnio",268,7,5,3,"+5","[Rn]5f¹⁴6d³7s²",null,null,null,null,"Sintetizzato a JINR e Lawrence Berkeley. Emivita max ~28h."],
 [106,"Sg","Seaborgio",269,7,6,3,"+6","[Rn]5f¹⁴6d⁴7s²",null,null,null,null,"Dedicato a Glenn Seaborg, chimico premio Nobel."],
@@ -29739,6 +29740,7 @@ window.calcMolProps = function() {
 <div id="smatfrenet" class="section"></div>
 <div id="sastrowh" class="section"></div>
 <div id="sorbitali" class="section"></div>
+<div id="selementi3d" class="section"></div>
 <div id="sastrooscura" class="section"></div>
 <div id="smatmappa" class="section"></div>
 <div id="sfarmquant" class="section"></div>
@@ -32179,6 +32181,7 @@ window.addEventListener('load', init);
 <script src="./bsi-astro-wormhole.js" defer></script>
 <script src="./bsi-orbitali-cinema.js" defer></script>
 <script src="./bsi-orbitali.js" defer></script>
+<script src="./bsi-elementi3d.js" defer></script>
 <script src="./bsi-mat-mappa.js" defer></script>
 <script src="./bsi-ar.js" defer></script>
 <script src="./bsi-farm-quantitativa.js" defer></script>

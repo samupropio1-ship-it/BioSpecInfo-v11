@@ -238,6 +238,8 @@ const PROPRI = [
     ruoloEn: 'Curved spacetime and wormholes: curvature and tides, Morris–Thorne metric, exotic matter, Casimir, time dilation.' },
   { file: 'bsi-orbitali.js', ruolo: 'Laboratorio degli orbitali: funzioni d\'onda idrogenoidi esatte, isosuperficie al 90 %, fase come colore, sovrapposizioni nel tempo, corrente di probabilità, H₂⁺ LCAO.',
     ruoloEn: 'Orbital laboratory: exact hydrogen-like wavefunctions, 90 % isosurface, phase as colour, time-dependent superpositions, probability current, H₂⁺ LCAO.' },
+  { file: 'bsi-elementi3d.js', ruolo: 'Gli elementi in 3D: nuvola elettronica di Slater per sottoguscio, nucleo con protoni e neutroni, configurazioni della tabella, righe di emissione NIST, tavola periodica e sequenza.',
+    ruoloEn: 'The elements in 3D: Slater electron cloud per subshell, nucleus with protons and neutrons, table configurations, NIST emission lines, periodic table and sequence.' },
   { file: 'bsi-astro-materiaoscura.js', ruolo: 'Materia oscura e lenti gravitazionali: rete cosmica 3D, lente calcolata per pixel sulla GPU, rete neurale addestrata nel browser con fit fisico, curve di rotazione.',
     ruoloEn: 'Dark matter and gravitational lensing: 3D cosmic web, lens computed per pixel on the GPU, neural network trained in the browser with physical fit, rotation curves.' },
   { file: 'bsi-astro-materiaoscura-fisica.js', ruolo: 'Calcolo della materia oscura: cosmologia ΛCDM (Planck 2018), spettro BBKS con σ₈, FFT 3D, rete cosmica di Zel\'dovich, lenti puntiforme, SIS, SIE e NFW, curve critiche e caustiche, curve di rotazione.',
