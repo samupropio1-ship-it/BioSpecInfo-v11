@@ -15,7 +15,10 @@
    · Spettro P(k) = A kⁿˢ T(k)², T di Bardeen, Bond, Kaiser e Szalay (1986) con
      Γ = Ωm h; A fissata da σ₈ (finestra a cilindro, R = 8 Mpc/h).
 
-   LA RETE COSMICA (approssimazione di Zel'dovich, 1970)
+   LA RETE COSMICA (approssimazione di Zel'dovich, 1970, troncata: Coles, Melott e
+   Shandarin 1993 — lo spettro si filtra con e^(−k²R²/2) alla scala non lineare,
+   così i filamenti restano netti dopo l'incrocio delle orbite e somigliano a
+   quelli delle simulazioni a N corpi)
    · Campo gaussiano δ(k) sulla griglia N³ in una scatola di lato L (Mpc/h),
      spostamento ψ(k) = i k δ(k)/k², particelle x = q + D(a) ψ(q).
    · Densità di ogni particella dal determinante del gradiente della
@@ -76,7 +79,7 @@
 
   /* ═══ 3. LA RETE COSMICA ═══════════════════════════════════════════════ */
   /** Condizioni iniziali di Zel'dovich: N per lato (potenza di 2), L lato (Mpc/h), seme. Restituisce δ e ψ (Mpc/h) a z = 0 e i gradienti di ψ. */
-  function reteCosmica(N, L, seme) {
+  function reteCosmica(N, L, seme, Rtronca) {
     var M = N * N * N, dx = L / N, rnd = mulberry(seme || 3), re = new Float64Array(M), im = new Float64Array(M);
     for (var i = 0; i < M; i++) re[i] = gauss(rnd);
     fft3(re, im, N, false);
@@ -85,7 +88,7 @@
     var fattore = 1 / Math.sqrt(dx * dx * dx);
     for (var z = 0; z < N; z++) for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
       var id = (z * N + y) * N + x, kx = kk(x), ky = kk(y), kz = kk(z), k = Math.sqrt(kx * kx + ky * ky + kz * kz);
-      var a = k > 0 ? Math.sqrt(spettro(k)) * fattore : 0;
+      var a = k > 0 ? Math.sqrt(spettro(k)) * fattore * (Rtronca ? Math.exp(-k * k * Rtronca * Rtronca / 2) : 1) : 0;   /* troncamento gaussiano (TZA) */
       if (x === N / 2 || y === N / 2 || z === N / 2) a = 0;               /* la frequenza di Nyquist non ha un partner hermitiano: si toglie */
       re[id] *= a; im[id] *= a;
     }

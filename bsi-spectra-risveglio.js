@@ -212,6 +212,7 @@
       '#bsiRV,#bsiRN{position:fixed;inset:0;z-index:100060;background:radial-gradient(ellipse at center,#06263a 0%,#020a12 70%);color:#bff3ff;font:500 .95rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
       'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(22px + env(safe-area-inset-bottom,0px))}' +
       '#bsiRV canvas,#bsiRN canvas{display:block}#bsiRV .sfondo{position:fixed;inset:0;width:100%;height:100%;opacity:.35;pointer-events:none}' +
+      '#bsiRN .testa>div{display:flex;align-items:center;gap:8px;flex:0 0 auto}#bsiRN .testa h2{flex:1 1 auto;min-width:0}#bsiRN .conta2{width:min(640px,100%);font-size:.78rem;opacity:.75}' +
       '#bsiRV .testa,#bsiRN .testa{position:relative;width:min(640px,100%);display:flex;justify-content:space-between;align-items:center;gap:10px}' +
       '#bsiRV h2,#bsiRN h2{margin:0;font:700 1rem/1.2 ui-monospace,Menlo,monospace;letter-spacing:.18em;color:#7fe7ff}' +
       '.bsiRV-batt{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#bff3ff}.bsiRV-batt .corpo{position:relative;width:30px;height:14px;border:2px solid #7fe7ff;border-radius:3px;padding:1px;box-sizing:border-box}' +
@@ -249,7 +250,7 @@
   function el(tag, attr, testo) { var e = D.createElement(tag); for (var k in attr || {}) e.setAttribute(k, attr[k]); if (testo != null) e.textContent = testo; return e; }
 
   /* ── 7. il disegno della rete ────────────────────────────────────────── */
-  var COLORI = { ricordo: '#34d0ff', conversazione: '#ff9f43', impegno: '#ff5d73', sezione: '#7cf29a', procedura: '#c792ff', autobiografia: '#ffd24a' };
+  var COLORI = { nucleo: '#e8f7ff', ricordo: '#34d0ff', conversazione: '#ff9f43', impegno: '#ff5d73', sezione: '#7cf29a', procedura: '#c792ff', autobiografia: '#ffd24a' };
   /** Anima la rete in una tela. Restituisce {ferma, scegli(x,y)}. */
   function animaRete(tela, G, opz) {
     opz = opz || {};
@@ -260,18 +261,26 @@
     misura();
     N.forEach(function (n) { n.x = W / 2 + (rnd() - 0.5) * W * 0.7; n.y = H / 2 + (rnd() - 0.5) * H * 0.7; n.vx = 0; n.vy = 0; n.fase = rnd() * 6.28; });
     var scelto = -1, passo = 0;
+    /* (v255) Fruchterman e Reingold (1991): repulsione k²/d, attrazione d²/k, spostamento limitato da una «temperatura» che si
+       raffredda, più una leggera gravità verso il centro. Prima la repulsione non aveva limite: con pochi neuroni li schiacciava
+       contro i bordi. */
+    var temp = null;
     function fisica() {
-      var k = Math.sqrt(W * H / Math.max(1, N.length)) * 0.55;
-      for (var i = 0; i < N.length; i++) for (var j = i + 1; j < N.length; j++) {
-        var a = N[i], b = N[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy + 0.01, f = k * k / d2 * 0.02;
-        a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
+      var k = Math.min(Math.sqrt(W * H / Math.max(1, N.length)) * 0.6, Math.min(W, H) / 3.2), i, j;
+      if (temp == null) temp = Math.min(W, H) / 8;
+      N.forEach(function (n) { n.dx = 0; n.dy = 0; });
+      for (i = 0; i < N.length; i++) for (j = i + 1; j < N.length; j++) {
+        var a = N[i], b = N[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.sqrt(dx * dx + dy * dy) || 0.1, f = k * k / d;
+        a.dx += dx / d * f; a.dy += dy / d * f; b.dx -= dx / d * f; b.dy -= dy / d * f;
       }
-      L.forEach(function (l) { var a = N[l.a], b = N[l.b], dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) + 0.01, f = (d - k) * 0.004; a.vx += dx / d * f * d; a.vy += dy / d * f * d; b.vx -= dx / d * f * d; b.vy -= dy / d * f * d; });
+      L.forEach(function (l) { var a = N[l.a], b = N[l.b], dx = a.x - b.x, dy = a.y - b.y, d = Math.sqrt(dx * dx + dy * dy) || 0.1, f = d * d / k; a.dx -= dx / d * f; a.dy -= dy / d * f; b.dx += dx / d * f; b.dy += dy / d * f; });
       N.forEach(function (n) {
-        n.vx += (W / 2 - n.x) * 0.0016; n.vy += (H / 2 - n.y) * 0.0016;
-        if (!calmo) { n.fase += 0.02; n.vx += Math.cos(n.fase) * 0.03; n.vy += Math.sin(n.fase * 1.3) * 0.03; }       // fluttuano
-        n.vx *= 0.86; n.vy *= 0.86; n.x = Math.max(8, Math.min(W - 8, n.x + n.vx)); n.y = Math.max(8, Math.min(H - 8, n.y + n.vy));
+        n.dx += (W / 2 - n.x) * 0.06 * k / 40; n.dy += (H / 2 - n.y) * 0.06 * k / 40;
+        var m = Math.sqrt(n.dx * n.dx + n.dy * n.dy) || 1, s = Math.min(m, temp) / m;
+        n.x = Math.max(10, Math.min(W - 10, n.x + n.dx * s)); n.y = Math.max(10, Math.min(H - 10, n.y + n.dy * s));
+        if (!calmo) { n.fase += 0.02; n.x += Math.cos(n.fase) * 0.25; n.y += Math.sin(n.fase * 1.3) * 0.25; }       // fluttuano appena
       });
+      temp = Math.max(0.6, temp * 0.985);
     }
     function disegna() {
       ctx.clearRect(0, 0, W, H);
@@ -285,6 +294,7 @@
         var r = 3 + Math.min(6, n.peso * 0.8) + (i === scelto ? 3 : 0);
         ctx.shadowColor = COLORI[n.tipo]; ctx.shadowBlur = i === scelto ? 18 : 8; ctx.fillStyle = COLORI[n.tipo];
         ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.2832); ctx.fill(); ctx.shadowBlur = 0;
+        if (n.struttura && !opz.sfondo) { ctx.font = '600 10px ui-monospace,Menlo,monospace'; ctx.fillStyle = 'rgba(191,243,255,.8)'; var et = n.testo.split(/[:—]/)[0].trim(); ctx.textAlign = n.x > W / 2 ? 'left' : 'right'; ctx.fillText(et, n.x + (n.x > W / 2 ? 8 : -8), n.y - 6); ctx.textAlign = 'left'; }   /* (v255) i nomi della struttura */
       });
     }
     function ciclo() { if (fermo) return; passo++; fisica(); disegna(); raf = (calmo && passo > 260) ? 0 : g.requestAnimationFrame(ciclo); if (calmo && passo === 260) disegna(); }
@@ -297,9 +307,27 @@
   }
 
   var rete = null;
+  /** (v255) La struttura che la rete ha sempre, anche al primo giorno: il nucleo di Spectra, i cinque livelli della memoria,
+      le tre materie. I neuroni dei ricordi si agganciano al loro livello (e le sezioni alla loro materia): la rete non è mai
+      vuota e si vede dove va a finire ogni ricordo. */
+  function conStruttura(G) {
+    var base = [['nucleo', 'Spectra — il nucleo'], ['nucleo', 'Memoria di lavoro: la conversazione in corso'], ['nucleo', 'Episodi: che cosa è successo'], ['nucleo', 'Fatti: che cosa è vero di te'], ['nucleo', 'Procedure: come preferisci studiare'], ['nucleo', 'Autobiografia: la nostra storia'], ['nucleo', 'Chimica'], ['nucleo', 'Fisica'], ['nucleo', 'Matematica']];
+    var N = base.map(function (b, i) { return { tipo: b[0], testo: b[1], p: [], i: i, peso: 0, struttura: true }; }), off = N.length, L = [];
+    function lega(a, b, f) { L.push({ a: a, b: b, f: f }); N[a].peso++; N[b].peso++; }
+    for (var k = 1; k < off; k++) lega(0, k, 3);
+    G.neuroni.forEach(function (n) { var c = {}; for (var q in n) c[q] = n[q]; c.i = N.length; c.peso = 0; N.push(c); });
+    G.collegamenti.forEach(function (l) { lega(l.a + off, l.b + off, l.f); });
+    var LIV = { conversazione: 2, ricordo: 3, procedura: 4, autobiografia: 5, impegno: 1 }, MAT = { chimica: 6, fisica: 7, matematica: 8 };
+    G.neuroni.forEach(function (n, i) {
+      var j = i + off;
+      if (n.tipo === 'sezione') { var m = g.BSIMaterie && g.BSIMaterie.materiaDi ? g.BSIMaterie.materiaDi(n.id) : null; lega(MAT[m] || 3, j, 1); }
+      else if (LIV[n.tipo] != null) lega(LIV[n.tipo], j, 1);
+    });
+    return { neuroni: N, collegamenti: L, struttura: off };
+  }
   function apriRete() {
     chiudiRete(); stile();
-    var G = grafo(), P = el('div', { id: 'bsiRN', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Rete neurale di Spectra' });
+    var G = grafo(), GS = conStruttura(G), P = el('div', { id: 'bsiRN', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Rete neurale di Spectra' });
     var testa = el('div', { class: 'testa' }); testa.appendChild(el('h2', {}, 'RETE NEURALE'));
     var dx = el('div', {}); var bt = el('span', { class: 'bsiRV-batt' }); dx.appendChild(bt);
     var x = el('button', { type: 'button' }, 'Chiudi'); x.onclick = chiudiRete; dx.appendChild(x); testa.appendChild(dx); P.appendChild(testa);
@@ -310,13 +338,14 @@
     P.appendChild(leg);
     var box = el('div', { class: 'tela' }), cv = el('canvas', { role: 'img', 'aria-label': 'La rete della memoria di Spectra: ' + G.neuroni.length + ' neuroni e ' + G.collegamenti.length + ' collegamenti' });
     box.appendChild(cv); P.appendChild(box);
-    var info = el('div', { class: 'scelto', 'aria-live': 'polite' }, G.neuroni.length ? 'Tocca un neurone per leggere il ricordo.' : 'La rete è ancora vuota: ogni conversazione, ricordo o impegno aggiunge un neurone.');
+    P.appendChild(el('div', { class: 'conta2' }, '+ ' + GS.struttura + ' neuroni di struttura: il nucleo, i cinque livelli della memoria, le tre materie'));
+    var info = el('div', { class: 'scelto', 'aria-live': 'polite' }, G.neuroni.length ? 'Tocca un neurone per leggere il ricordo.' : 'La rete è ancora vuota: ogni conversazione, ricordo o impegno aggiunge un neurone. Intanto vedi la struttura: il nucleo di Spectra, i cinque livelli della memoria e le materie, dove i ricordi andranno ad agganciarsi.');
     P.appendChild(info);
     D.body.appendChild(P); iconaBatteria(bt);
-    var A = animaRete(cv, G);
+    var A = animaRete(cv, GS);
     cv.addEventListener('pointerdown', function (e) {
       var r = cv.getBoundingClientRect(), n = A.scegli(e.clientX - r.left, e.clientY - r.top);
-      info.textContent = n ? ({ ricordo: '🧠 Ricordo', conversazione: '💬 Conversazione', impegno: '🗓️ Impegno', sezione: '📚 Sezione', procedura: '🧭 Procedura', autobiografia: '📔 Diario' }[n.tipo]) + ' — ' + n.testo + (n.peso ? ' · ' + n.peso + (n.peso === 1 ? ' collegamento' : ' collegamenti') : '') : 'Nessun neurone qui.';
+      info.textContent = n ? ({ nucleo: '✳️ Struttura', ricordo: '🧠 Ricordo', conversazione: '💬 Conversazione', impegno: '🗓️ Impegno', sezione: '📚 Sezione', procedura: '🧭 Procedura', autobiografia: '📔 Diario' }[n.tipo]) + ' — ' + n.testo + (n.peso ? ' · ' + n.peso + (n.peso === 1 ? ' collegamento' : ' collegamenti') : '') : 'Nessun neurone qui.';
     });
     rete = { el: P, anima: A, grafo: G };
     return rete;

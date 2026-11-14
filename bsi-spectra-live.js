@@ -889,41 +889,95 @@
       if (fin.trim()) { hud.interim = ''; hud.ascolto = false; testiHud(); elabora(fin.trim()); }
     };
     r.onerror = function (ev) { hud.ascolto = false; stato('attesa'); testiHud(); if (ev.error === 'not-allowed') dialogo('', t('Il microfono è stato negato: puoi scrivere nel campo qui sotto.', 'The microphone was denied: you can type below.')); };
-    r.onend = function () { if (hud.ascolto) { hud.ascolto = false; testiHud(); stato('attesa'); } };
+    r.onend = function () { if (hud.ascolto) { hud.ascolto = false; testiHud(); stato('attesa'); } setTimeout(riprendiSentinella, 400); };
+    pausaSentinella();                                                               /* (v255) un solo microfono alla volta */
     hud.rec = r; hud.ascolto = true; stato('ascolta'); testiHud();
-    try { r.start(); } catch (e) { hud.ascolto = false; testiHud(); }
+    try { r.start(); } catch (e) { hud.ascolto = false; testiHud(); riprendiSentinella(); }
   }
   function fermaAscolto() { hud.ascolto = false; if (hud.rec) { try { hud.rec.abort(); } catch (e) {} } stato('attesa'); testiHud(); }
   /* SEMPRE IN ASCOLTO: anche a console chiusa, una frase che comincia con
      «Spectra» o «Spectra» riapre la console ed esegue il comando. Il
      riconoscimento del browser si ferma da solo dopo un silenzio: si riavvia. */
-  var sentinella = { rec: null, attiva: false };
-  function comandoDaSentinella(s) {
-    var m = norm(s).match(/\b(?:ehi |hey |ok )?(?:spectra|spettra|spektra|spetra)\b[ ,]*(.*)$/);
-    return m ? m[1].trim() : null;
+  var sentinella = { rec: null, attiva: false, inPausa: false, errori: 0, timer: 0, ultimoAvvio: 0 };
+  /* (v255) LA PAROLA «SPECTRA», TOLLERANTE. Il riconoscimento italiano scrive «Spectra» in molti modi: spectra, spettra,
+     spektra, spectre, specter, spec tra… Si accetta una parola delle prime tre che dista al più 2 lettere da «spectra»
+     (distanza di Levenshtein), comincia con «sp» e non è una parola comune che le somiglia («spettro», «spettri»,
+     «spettrale», «specchio»: nell'app si parla di spettri di continuo). Anche due parole attaccate («spec tra»). */
+  var NON_SVEGLIA = /^(spettro|spettri|spettrale|spettrali|specchio|specchi|spesa|spese|spetta|spettano|specie|spettacolo|sperma|spenta|spento|spenti|spettava)$/;
+  function distanza(a, b) { var m = a.length, n = b.length, d = []; for (var i = 0; i <= m; i++) { d[i] = [i]; } for (var j = 1; j <= n; j++) d[0][j] = j; for (i = 1; i <= m; i++) for (j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; }
+  function eSpectra(w) { if (!w || w.length < 5 || w.length > 9 || w.slice(0, 2) !== 'sp' || NON_SVEGLIA.test(w)) return false; return distanza(w, 'spectra') <= 2; }
+  /** Dove comincia il comando dopo la parola di attivazione: indice della parola successiva, o −1. */
+  function trovaSveglia(parole) {
+    for (var i = 0; i < Math.min(4, parole.length); i++) {
+      if (/^(ehi|hey|ok|ciao|eh)$/.test(parole[i])) continue;
+      if (eSpectra(parole[i])) return i + 1;
+      if (i + 1 < parole.length && eSpectra(parole[i] + parole[i + 1])) return i + 2;
+      return -1;
+    }
+    return -1;
   }
-  function avviaSentinella() {
+  function comandoDaSentinella(s) {
+    var p = norm(s).replace(/[,.!?;:]/g, ' ').split(/\s+/).filter(Boolean), k = trovaSveglia(p);
+    return k < 0 ? null : p.slice(k).join(' ').trim();
+  }
+  function haSpectra(s) { var p = norm(s).replace(/[,.!?;:]/g, ' ').split(/\s+/).filter(Boolean); for (var i = 0; i < p.length; i++) if (eSpectra(p[i]) || (i + 1 < p.length && eSpectra(p[i] + p[i + 1]))) return true; return false; }
+  /* (v255) IL RIAVVIO CON ATTESA CRESCENTE. Il riconoscimento del browser si chiude da solo dopo un silenzio o un errore.
+     Prima ripartiva subito, sempre: con un errore di rete o di microfono girava a vuoto decine di volte al secondo
+     (batteria, bip continui su Android). Ora: 300 ms dopo una chiusura normale, poi 1, 2, 4, 8, 15 s se gli errori si
+     ripetono; un risultato riazzera. In pausa mentre la console ascolta (un solo microfono alla volta) e mentre la pagina
+     è nascosta; riparte da sola quando torna visibile. */
+  function programmaRiavvio() {
+    clearTimeout(sentinella.timer);
+    if (!sentinella.attiva || sentinella.inPausa) return;
+    var attesa = sentinella.errori ? Math.min(15000, 1000 * Math.pow(2, sentinella.errori - 1)) : 300;
+    sentinella.timer = setTimeout(function () { if (!sentinella.attiva || sentinella.inPausa || document.hidden) return; try { sentinella.rec.start(); sentinella.ultimoAvvio = Date.now(); } catch (e) { sentinella.errori++; programmaRiavvio(); } }, attesa);
+  }
+  function pausaSentinella() { if (!sentinella.attiva) return; sentinella.inPausa = true; clearTimeout(sentinella.timer); try { sentinella.rec && sentinella.rec.abort(); } catch (e) {} }
+  function riprendiSentinella() { if (!sentinella.attiva || !sentinella.inPausa) return; sentinella.inPausa = false; programmaRiavvio(); }
+  function avviaSentinella(silenziosa) {
     var Rec = globale.SpeechRecognition || globale.webkitSpeechRecognition; if (!Rec) return false;
-    var r = new Rec(); r.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; r.continuous = true; r.interimResults = false;
+    if (sentinella.rec) { try { sentinella.rec.onend = null; sentinella.rec.abort(); } catch (e) {} }
+    var r = new Rec(); r.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; r.continuous = true; r.interimResults = false; r.maxAlternatives = 3;
     r.onresult = function (ev) {
+      sentinella.errori = 0;
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
         if (!ev.results[i].isFinal) continue;
-        var detto = ev.results[i][0].transcript;
         if (voce.inCorso) continue;                                                    /* (v251) mentre parla non ascolta: sentirebbe se stesso, dagli occhiali o dall'altoparlante */
+        /* (v255) tutte le alternative del riconoscitore, non solo la prima */
+        var alt = []; for (var a = 0; a < ev.results[i].length; a++) alt.push(ev.results[i][a].transcript);
+        var detto = alt[0], c = null;
+        for (var b = 0; b < alt.length && c === null; b++) { c = comandoDaSentinella(alt[b]); if (c !== null) detto = alt[b]; }
         /* (v251) «sveglia Spectra», «Spectra svegliati»: la sequenza di risveglio */
-        if (/\b(sveglia|svegliati|risvegliati)\b/.test(norm(detto)) && /\b(spectra|spettra|spektra|spetra)\b/.test(norm(detto)) && globale.BSISpectraRisveglio) { globale.BSISpectraRisveglio.risveglio(); continue; }
-        var c = comandoDaSentinella(detto); if (c === null) continue;
+        if (alt.some(function (x) { return /\b(sveglia|svegliati|risvegliati|wake up)\b/.test(norm(x)) && haSpectra(x); }) && globale.BSISpectraRisveglio) { globale.BSISpectraRisveglio.risveglio(); continue; }
+        if (c === null) continue;
         if (hud.el && hud.el.classList.contains('aperto') && hud.ascolto) continue;   /* la console sta gia' ascoltando */
         apriHud({ briefing: !c }); if (c) elabora(c);
       }
     };
-    r.onend = function () { if (sentinella.attiva) { try { r.start(); } catch (e) {} } };
-    r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); try { document.dispatchEvent(new CustomEvent('bsi-spectra-ascolto-negato', { detail: { errore: ev.error } })); } catch (e) {} } };
-    sentinella.rec = r; sentinella.attiva = true;
-    try { r.start(); } catch (e) { sentinella.attiva = false; return false; }
+    r.onend = function () { programmaRiavvio(); };
+    r.onerror = function (ev) {
+      if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; salvaSentinella(false); testiHud(); try { document.dispatchEvent(new CustomEvent('bsi-spectra-ascolto-negato', { detail: { errore: ev.error } })); } catch (e) {} return; }
+      if (ev.error !== 'no-speech' && ev.error !== 'aborted') sentinella.errori++;      /* il silenzio e l'interruzione voluta non sono errori */
+    };
+    sentinella.rec = r; sentinella.attiva = true; sentinella.inPausa = false; sentinella.errori = 0;
+    try { r.start(); sentinella.ultimoAvvio = Date.now(); } catch (e) { sentinella.attiva = false; return false; }
+    if (!silenziosa) salvaSentinella(true);
     return true;
   }
-  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } }
+  /* (v255) la scelta resta: alla riapertura dell'app, se il permesso del microfono c'è già, la sentinella riparte da sola;
+     altrimenti al primo tocco sullo schermo (i browser chiedono un gesto) */
+  function salvaSentinella(si) { try { if (si) globale.localStorage.setItem('bsi-spectra-sentinella', '1'); else globale.localStorage.removeItem('bsi-spectra-sentinella'); } catch (e) {} }
+  function ripristinaSentinella() {
+    var vuole = false; try { vuole = globale.localStorage.getItem('bsi-spectra-sentinella') === '1'; } catch (e) {}
+    if (!vuole || sentinella.attiva) return;
+    var alTocco = function () { document.removeEventListener('pointerdown', alTocco, true); if (!sentinella.attiva) avviaSentinella(true); testiHud(); };
+    var P = globale.navigator && globale.navigator.permissions;
+    if (P && P.query) P.query({ name: 'microphone' }).then(function (st) { if (st.state === 'granted') { avviaSentinella(true); testiHud(); } else document.addEventListener('pointerdown', alTocco, true); }, function () { document.addEventListener('pointerdown', alTocco, true); });
+    else document.addEventListener('pointerdown', alTocco, true);
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && sentinella.attiva && !sentinella.inPausa) { sentinella.errori = 0; programmaRiavvio(); } });
+  setTimeout(ripristinaSentinella, 1500);
+  function fermaSentinella() { sentinella.attiva = false; sentinella.inPausa = false; clearTimeout(sentinella.timer); salvaSentinella(false); if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } }
 
   /* in conversazione a mani libere, finita la risposta si torna ad ascoltare */
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
@@ -1198,7 +1252,7 @@
   globale.BSISpectraLive = {
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
-    guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella, attiva: function () { return sentinella.attiva; } },
+    guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella, eSpectra: eSpectra, haSpectra: haSpectra, pausa: pausaSentinella, riprendi: riprendiSentinella, stato: function () { return { attiva: sentinella.attiva, inPausa: sentinella.inPausa, errori: sentinella.errori }; }, attiva: function () { return sentinella.attiva; } },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
     apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, provaAudio: provaAudio, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'

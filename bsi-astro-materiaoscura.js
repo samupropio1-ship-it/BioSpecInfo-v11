@@ -67,7 +67,7 @@
     function testo() {
       if (!dati) return;
       var a = 1 / (1 + o.z), Dg = MO().crescita(a);
-      info.innerHTML = stato('modello') + '<b>' + t('Approssimazione di Zel\'dovich', 'Zel\'dovich approximation') + '</b>: x = q + D(a) ψ(q), ψ(k) = i k δ(k)/k²<br>' +
+      info.innerHTML = stato('modello') + '<b>' + t('Approssimazione di Zel\'dovich troncata', 'Truncated Zel\'dovich approximation') + '</b>: x = q + D(a) ψ(q), ψ(k) = i k δ(k)/k²<br>' +
         'z = <b class="bsiFX-num">' + num(o.z, 1) + '</b>, a = ' + num(a, 3) + ', ' + t('fattore di crescita ', 'growth factor ') + 'D = <b class="bsiFX-num">' + num(Dg, 3) + '</b> · ' + t('età dell\'universo ≈ ', 'age of the universe ≈ ') + '<b class="bsiFX-num">' + num(eta(a), 2) + ' Gyr</b><br>' +
         t('Scatola di 200 Mpc/h (≈ 300 Mpc), ', 'Box of 200 Mpc/h (≈ 300 Mpc), ') + dati.N + '³ ' + t('particelle; spettro ΛCDM di Planck 2018, σ₈ = 0,811. Colore: densità ρ/ρ̄ = 1/|det(I + D∂ψ/∂q)| — viola vuoti e filamenti, rosa e bianco i nodi dove nascono gli ammassi.', 'particles; Planck 2018 ΛCDM spectrum, σ₈ = 0.811. Colour: density ρ/ρ̄ = 1/|det(I + D∂ψ/∂q)| — violet voids and filaments, pink and white the nodes where clusters are born.') +
         '<br><small>' + t('Zel\'dovich è esatta finché le orbite non si incrociano; dopo (z ≲ 1 nei nodi) gli ammassi veri si fanno con le simulazioni a N corpi: qui i filamenti sono al posto giusto, i nodi troppo gonfi.', 'Zel\'dovich is exact until orbits cross; after that (z ≲ 1 in the nodes) real clusters require N-body simulations: here filaments are in the right place, nodes too puffy.') + '</small>';
@@ -76,7 +76,7 @@
     function costruisci() {
       if (!S) return;
       var N = o.livello === 0 ? 32 : 64, L = 200, t0 = performance.now();
-      var R = MO().reteCosmica(N, L, o.seme), M = N * N * N, passo = o.livello === 1 ? 2 : 1, Mv = Math.ceil(M / passo);
+      var R = MO().reteCosmica(N, L, o.seme, 3.0), M = N * N * N, passo = o.livello === 1 ? 2 : 1, Mv = Math.ceil(M / passo);
       var tutte = new Float32Array(M * 3), dens = new Float32Array(M), pos = new Float32Array(Mv * 3), col = new Float32Array(Mv * 3);
       S.pulisci(); var gr = new T.Group(); S.aggiungi(gr);
       var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('color', new T.BufferAttribute(col, 3));
@@ -93,9 +93,9 @@
         var j = 0;
         for (var i = 0; i < dati.dens.length; i += dati.passo, j++) {
           dati.pos[j * 3] = dati.tutte[i * 3]; dati.pos[j * 3 + 1] = dati.tutte[i * 3 + 1]; dati.pos[j * 3 + 2] = dati.tutte[i * 3 + 2];
-          var l = Math.log10(dati.dens[i]), f = Math.max(0, Math.min(1, (l + 0.6) / 2.0)), r, gg, b;
+          var l = Math.log10(dati.dens[i]), f = Math.max(0, Math.min(1, (l + 0.15) / 1.6)), r, gg, b;
           if (f < 0.5) { var u = f / 0.5; r = 0.16 + 0.74 * u; gg = 0.05 + 0.2 * u; b = 0.38 + 0.4 * u; } else { var w = (f - 0.5) / 0.5; r = 0.9 + 0.1 * w; gg = 0.25 + 0.7 * w; b = 0.78 + 0.2 * w; }
-          var k = 0.35 + 0.65 * f; dati.col[j * 3] = r * k; dati.col[j * 3 + 1] = gg * k; dati.col[j * 3 + 2] = b * k;
+          var k = 0.04 + 0.96 * Math.pow(f, 1.35);   /* i vuoti quasi spenti, filamenti e nodi accesi */ dati.col[j * 3] = r * k; dati.col[j * 3 + 1] = gg * k; dati.col[j * 3 + 2] = b * k;
         }
         dati.geo.attributes.position.needsUpdate = true; dati.geo.attributes.color.needsUpdate = true;
         S.didascalia.textContent = t('Rete cosmica', 'Cosmic web') + ' · z = ' + num(o.z, 1) + ' · ' + dati.N + '³ ' + t('particelle', 'particles') + ' · 200 Mpc/h · Zel\'dovich';
@@ -133,15 +133,17 @@
     '  vec2 d = rot(b - sorg, 0.6); d.y /= ellS; float r = length(d)/rSorg; float ph = atan(d.y, d.x);',
     '  float disco = exp(-r*2.2); float bracci = 0.5 + 0.5*cos(2.0*ph - 5.0*log(r + 0.05) - tempo*0.15);',
     '  float nucleo = exp(-r*r*40.0);',
-    '  float nodi = pow(max(0.0, sin(17.0*d.x/rSorg + 3.0)*sin(19.0*d.y/rSorg + 1.0)), 18.0) * exp(-r*1.5);',
-    '  float I = disco*(0.35 + 0.9*bracci) + 1.6*nucleo + 1.2*nodi;',
+    '  vec2 kn = d/rSorg; float nodi = 0.0; for (int k = 0; k < 7; k++) { float fk = float(k); vec2 c0 = vec2(cos(fk*2.39 + 0.4), sin(fk*2.39 + 0.4))*(0.2 + 0.09*fk); nodi += exp(-dot(kn - c0, kn - c0)*90.0); }',
+    '  float I = disco*(0.45 + 1.1*bracci) + 1.8*nucleo + 0.9*nodi;',
     '  return I*vec3(0.55, 0.75, 1.0) + nucleo*vec3(1.0, 0.85, 0.6) + nodi*vec3(1.0, 0.45, 0.85);',
     '}',
+    'float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7)))*43758.5453); }',
+    'vec3 campoProfondo(vec2 b){ vec3 c = vec3(0.0); vec2 g = b*1.6; vec2 id = floor(g); for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++) { vec2 cel = id + vec2(float(i), float(j)); float h = h21(cel); if (h < 0.55) continue; vec2 cen = cel + vec2(h21(cel + 7.1), h21(cel + 3.3)); vec2 d = rot(g - cen, h*6.28); d.y /= 0.35 + 0.6*h21(cel + 1.7); float r = length(d); float lum = (0.06 + 0.18*h21(cel + 9.2))*exp(-r*r*55.0); c += lum*mix(vec3(1.0, 0.7, 0.45), vec3(0.55, 0.7, 1.0), h21(cel + 4.4)); } return c; }',
     'void main(){',
     '  vec2 th = (vUv - 0.5)*fov; float kap; vec2 a = defl(th, kap); vec2 b = th - a;',
     /* sovracampionamento 2×2 per bordi definiti */
     '  vec3 c = vec3(0.0); float px = fov/900.0;',
-    '  for (int i = 0; i < 2; i++) for (int j = 0; j < 2; j++) { vec2 o = (vec2(float(i), float(j)) - 0.5)*px; float k2; vec2 t2 = th + o; c += sorgente(t2 - defl(t2, k2)); }',
+    '  for (int i = 0; i < 2; i++) for (int j = 0; j < 2; j++) { vec2 o = (vec2(float(i), float(j)) - 0.5)*px; float k2; vec2 t2 = th + o; vec2 bb = t2 - defl(t2, k2); c += sorgente(bb) + campoProfondo(bb); }',
     '  c *= 0.25;',
     '  float rl = length(rot(th, ang)*vec2(1.0, 1.0/max(q, 0.3)));',
     '  if (luceOn > 0.5) c += vec3(1.0, 0.72, 0.42)*0.55*exp(-7.67*(pow(rl/(0.5*te + 0.05), 0.25) - 1.0))*0.02;',

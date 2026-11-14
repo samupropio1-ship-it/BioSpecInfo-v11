@@ -125,6 +125,8 @@ var PRECACHE = [
   './bsi-mat-frenet.js',
   './bsi-astro-wormhole.js',
   './bsi-orbitali.js',
+  './bsi-astro-materiaoscura.js',
+  './bsi-astro-materiaoscura-fisica.js',
   './bsi-astro-viaggio.js',
   './bsi-orbitali-cinema.js',
   './bsi-fis-motore.js',
