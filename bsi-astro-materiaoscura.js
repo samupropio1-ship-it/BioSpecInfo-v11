@@ -25,6 +25,9 @@
       È lo schema di Hezaveh, Perreault Levasseur e Marshall (Nature 548, 2017).
    4. LE CURVE DI ROTAZIONE — disco esponenziale (Freeman) più alone NFW:
       senza alone la velocità cala come Keplero, con l'alone resta piatta.
+   5. LA REGIA — la sequenza del video: rete cosmica, crollo del nodo più
+      denso in un alone NFW, l'anello di Einstein che nasce dietro l'alone, tre
+      aloni-lente insieme, il ritorno alla rete.
 
    ONESTA'
    · Zel'dovich vale fino all'incrocio delle orbite: dopo, i veri ammassi si
@@ -346,6 +349,77 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ 5. LA REGIA: DALLA MATERIA ALLA LENTE ═══════════════════════════ */
+  /* La sequenza del video di riferimento, con la fisica delle altre schede:
+     A (0–8 s) la rete cosmica di Zel'dovich troncata; B (8–14 s) le particelle del nodo più denso cadono in un alone NFW
+     (raggi campionati dalla massa cumulativa M(<r) ∝ ln(1+x) − x/(1+x)), le altre si spengono; C (14–26 s) dietro l'alone
+     compare la lente calcolata dallo stesso shader: l'anello di Einstein si forma mentre la sorgente si allinea, l'alone
+     ruota; D (26–34 s) tre aloni-lente insieme, ognuno con il suo anello; E (34–40 s) si torna alla rete. */
+  var VERT3D = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+  function schedaCinema(div) {
+    var g = griglia(div), S = null, T = null, st = null, tempo = 0, corre = !ferma();
+    var bp = F.el('button', { type: 'button', 'class': 'bsiFX-bott', testo: corre ? '⏸ ' + t('Ferma', 'Stop') : '▶ ' + t('Avvia la sequenza', 'Start the sequence') }); g.pan.appendChild(bp);
+    bp.addEventListener('click', function () { corre = !corre; bp.textContent = corre ? '⏸ ' + t('Ferma', 'Stop') : '▶ ' + t('Avvia la sequenza', 'Start the sequence'); if (S) { S.sporca = true; S.avvia(); } });
+    var cur = F.cursore(g.pan, ['Momento della sequenza (s)', 'Moment of the sequence (s)'], 0, 40, 0.1, 0, function (v) { tempo = v; corre = false; bp.textContent = '▶ ' + t('Avvia la sequenza', 'Start the sequence'); aggiorna(0); }, function (v) { return num(v, 1) + ' s'; });
+    var info = nota(g.pan);
+    var FASI = [[8, t('La rete cosmica: filamenti e nodi di materia oscura (Zel\'dovich troncata, ΛCDM).', 'The cosmic web: filaments and nodes of dark matter (truncated Zel\'dovich, ΛCDM).')], [14, t('Il nodo più denso collassa in un alone: profilo NFW, la forma che hanno gli aloni nelle simulazioni.', 'The densest node collapses into a halo: NFW profile, the shape haloes have in simulations.')], [26, t('Dietro l\'alone, una galassia lontana: la massa piega la luce e quando sorgente e alone si allineano nasce l\'anello di Einstein.', 'Behind the halo, a distant galaxy: the mass bends the light and when source and halo align the Einstein ring is born.')], [34, t('Tre aloni-lente insieme, ognuno con il suo anello: così si mappa la materia oscura nel cielo.', 'Three lens haloes together, each with its ring: this is how dark matter is mapped on the sky.')], [40, t('Si torna alla rete: ogni nodo è un alone, ogni alone una lente possibile.', 'Back to the web: every node is a halo, every halo a possible lens.')]];
+    function costruisci() {
+      S.pulisci(); var gr = new T.Group(); S.aggiungi(gr);
+      var N = 32, L = 200, R = MO().reteCosmica(N, L, 13, 3.0), M = N * N * N, base = new Float32Array(M * 3), dens = new Float32Array(M); MO().evolvi(R, 1, base, dens);
+      /* il nodo più denso */
+      var imax = 0; for (var i = 1; i < M; i++) if (dens[i] > dens[imax]) imax = i;
+      var cx = base[imax * 3], cy = base[imax * 3 + 1], cz = base[imax * 3 + 2];
+      for (var j = 0; j < M; j++) { base[j * 3] -= cx; base[j * 3 + 1] -= cy; base[j * 3 + 2] -= cz; for (var c = 0; c < 3; c++) { var v = base[j * 3 + c]; if (v > L / 2) v -= L; if (v < -L / 2) v += L; base[j * 3 + c] = v; } }
+      /* le destinazioni nell'alone: le 6000 particelle più vicine al nodo, raggi NFW (c = 8, r₂₀₀ = 18 unità) */
+      var dist = []; for (var k = 0; k < M; k++) dist.push([Math.hypot(base[k * 3], base[k * 3 + 1], base[k * 3 + 2]), k]); dist.sort(function (a, b) { return a[0] - b[0]; });
+      var nAl = 6000, dest = new Float32Array(M * 3), inAlone = new Uint8Array(M), rnd = MO().mulberry(3), cN = 8, r200 = 18, m = function (x) { return Math.log(1 + x) - x / (1 + x); };
+      for (var q = 0; q < nAl; q++) { var id = dist[q][1], u = rnd() * m(cN), lo = 0, hi = cN; for (var it = 0; it < 40; it++) { var md = (lo + hi) / 2; if (m(md) < u) lo = md; else hi = md; } var rr = lo * r200 / cN, uu = 2 * rnd() - 1, ph = 2 * PI * rnd(), sq = Math.sqrt(1 - uu * uu); dest[id * 3] = rr * sq * Math.cos(ph); dest[id * 3 + 1] = rr * sq * Math.sin(ph); dest[id * 3 + 2] = rr * uu * 0.85; inAlone[id] = 1; }
+      var pos = new Float32Array(M * 3), col = new Float32Array(M * 3), geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('color', new T.BufferAttribute(col, 3));
+      var pts = new T.Points(geo, new T.PointsMaterial({ size: 1.5, map: luce(T), vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending })); gr.add(pts);
+      /* le lenti: lo stesso shader della scheda 2, su piani dietro gli aloni */
+      function lente(x, y, z, scala, te, q, ang) {
+        var mat = new T.ShaderMaterial({ vertexShader: VERT3D, fragmentShader: FRAG, transparent: true, depthWrite: false, blending: T.AdditiveBlending, uniforms: { tipo: { value: 2 }, te: { value: te }, q: { value: q }, ang: { value: ang }, ks: { value: 0.6 }, rs: { value: 1.5 }, gam: { value: 0 }, phig: { value: 0 }, fov: { value: 6 }, tempo: { value: 0 }, kappaOn: { value: 0 }, luceOn: { value: 1 }, rSorg: { value: 0.28 }, ellS: { value: 0.7 }, sorg: { value: new T.Vector2(1.5, 0) } } });
+        var pl = new T.Mesh(new T.PlaneGeometry(scala, scala), mat); pl.position.set(x, y, z); gr.add(pl); return pl;
+      }
+      var L1 = lente(0, 0, 0, 70, 1.25, 0.8, 0.4), L2 = lente(-60, 25, -10, 45, 1.0, 0.65, 1.2), L3 = lente(55, -20, 5, 45, 1.1, 0.9, 2.0);
+      st = { pos: pos, col: col, geo: geo, base: base, dest: dest, inAlone: inAlone, dens: dens, lenti: [L1, L2, L3] };
+      S.inquadra(170, 0.6, 1.25); S.gira = false;
+      aggiorna(0);
+    }
+    function liscio(a, b, x) { var u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
+    function aggiorna(dt) {
+      if (!st) return;
+      var tt = tempo, crollo = liscio(8, 14, tt) * (1 - liscio(34, 39, tt)), spegni = liscio(9, 13, tt) * (1 - liscio(34, 38, tt)), M = st.dens.length;
+      for (var i = 0; i < M; i++) {
+        var a = st.inAlone[i] ? crollo : 0, j = i * 3;
+        st.pos[j] = st.base[j] * (1 - a) + st.dest[j] * a; st.pos[j + 1] = st.base[j + 1] * (1 - a) + st.dest[j + 1] * a; st.pos[j + 2] = st.base[j + 2] * (1 - a) + st.dest[j + 2] * a;
+        var l = Math.log10(st.dens[i]), f = Math.max(0, Math.min(1, (l + 0.15) / 1.6)), k = (0.04 + 0.96 * Math.pow(f, 1.35)) * (st.inAlone[i] ? 1 : 1 - 0.85 * spegni) + (st.inAlone[i] ? 0.5 * crollo : 0);
+        st.col[j] = (0.35 + 0.65 * f) * k; st.col[j + 1] = (0.12 + 0.75 * f * f) * k; st.col[j + 2] = (0.75 + 0.25 * f) * k;
+      }
+      st.geo.attributes.position.needsUpdate = true; st.geo.attributes.color.needsUpdate = true;
+      /* le lenti: la prima compare dopo il crollo, la sorgente si allinea e nasce l'anello; poi le altre due */
+      var a1 = liscio(13, 16, tt) * (1 - liscio(35, 38, tt)), a23 = liscio(25, 28, tt) * (1 - liscio(34, 37, tt));
+      st.lenti.forEach(function (pl, k) {
+        var U = pl.material.uniforms, vis = k === 0 ? a1 : a23; pl.visible = vis > 0.01; pl.scale.setScalar(Math.max(0.01, vis));
+        var al = k === 0 ? 1.6 * (1 - liscio(15, 22, tt)) : 0.15 + 0.1 * Math.sin(tt * 0.7 + k);
+        U.sorg.value.set(al * Math.cos(tt * 0.4 + k) + 0.02, al * 0.6 * Math.sin(tt * 0.4 + k)); U.ang.value = 0.4 + tt * 0.25 * (k ? -1 : 1); U.tempo.value = tt;
+        pl.quaternion.copy(S.cam.quaternion);                                   /* il piano guarda sempre la telecamera */
+      });
+      S.vista.th += dt * 0.12; S.vista.r = 170 - 95 * liscio(9, 16, tt) * (1 - liscio(26, 29, tt)) - 20 * liscio(26, 29, tt) * (1 - liscio(34, 38, tt)) + 0 * tt;
+      var fase = FASI.filter(function (x) { return tt < x[0]; })[0] || FASI[FASI.length - 1];
+      info.innerHTML = '<b>' + num(tt, 1) + ' s</b> · ' + fase[1] + '<br><small>' + t('Le particelle e gli anelli sono calcolati con la fisica delle altre schede; i tempi della sequenza sono una regia, non tempi cosmici.', 'Particles and rings are computed with the physics of the other tabs; the sequence timing is direction, not cosmic time.') + '</small>';
+      if (globale.document.activeElement !== cur) cur.value = tt;
+      S.didascalia.textContent = t('Dalla materia oscura alla lente', 'From dark matter to the lens') + ' · ' + num(tt, 1) + ' s';
+      S.sporca = true; S.avvia();
+    }
+    var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); g.dx.appendChild(attesa);
+    if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+    L3.stile(); L3.caricaThree().then(function () {
+      attesa.remove(); T = globale.THREE; S = new L3.Scena(g.dx, 0.85); g.dx.insertBefore(S.box, g.dx.firstChild); S.ren.setClearColor(0x010104, 1);
+      setTimeout(function () { costruisci(); S.ogniFotogramma(function (dt) { if (!corre) return false; tempo = (tempo + dt) % 40; aggiorna(dt); return true; }); }, 0);
+    }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
+  }
+
   F.calcolo.materiaoscura = { immagineLente: immagineLente, parametriCasuali: parametriCasuali, bersaglio: bersaglio, daBersaglio: daBersaglio, Rete: Rete, fitFisico: fitFisico, dataset: dataset, normalizza: normalizza, diffAngolo: diffAngolo, PIX: PIX, FRAG: FRAG };
   F.sezione('sastrooscura', {
     titolo: ['🌑 Materia oscura e lenti gravitazionali', '🌑 Dark matter and gravitational lensing'],
@@ -355,7 +429,8 @@
       { nome: ['La rete cosmica', 'The cosmic web'], costruisci: schedaRete },
       { nome: ['La lente gravitazionale', 'The gravitational lens'], costruisci: schedaLente },
       { nome: ['Fisica + apprendimento automatico', 'Physics + machine learning'], costruisci: schedaML },
-      { nome: ['Curve di rotazione', 'Rotation curves'], costruisci: schedaRotazione }
+      { nome: ['Curve di rotazione', 'Rotation curves'], costruisci: schedaRotazione },
+      { nome: ['🎬 Dalla materia alla lente', '🎬 From matter to the lens'], costruisci: schedaCinema }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);
