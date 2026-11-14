@@ -945,8 +945,8 @@ summarised here.
   screen data as text). With the screen included, text and image go to the
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
-  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 210
-  sections since v242 (chemistry 82, physics 66, mathematics 33, shared 29), read from
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 212
+  sections since v242 (chemistry 83, physics 67, mathematics 33, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window

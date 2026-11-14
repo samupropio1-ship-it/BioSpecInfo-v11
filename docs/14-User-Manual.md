@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 210 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 212 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra, il volto in un cerchio | L'assistente che risponde alle domande: un tocco apre la console, e da lì 💬 la chat |
 | **🎓 Lezione guidata** | Sotto il titolo di ogni sezione | Una lezione in capitoli sulla sezione, condotta da Spectra |
@@ -647,7 +647,7 @@ ricomincia; la conversazione non si salva.
 
 **Tutte le sezioni nell'ologramma.** Nella scheda «🧠 Spiega» apri il riquadro
 **«🗂️ Tutte le sezioni nell'ologramma»**: ci sono tutte le sezioni dell'app
-(210: 82 di chimica, 66 di fisica, 33 di matematica e 29 comuni), divise per
+(212: 83 di chimica, 67 di fisica, 33 di matematica e 29 comuni), divise per
 gruppo come nella barra. Cercane una nella casella (per esempio «titolazione»,
 «Schrödinger», «integrali») o filtra per materia; toccala e Spectra la apre
 dietro la finestra, la mostra dal vivo nell'ologramma e spunta «📺 Includi lo

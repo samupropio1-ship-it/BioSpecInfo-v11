@@ -287,6 +287,27 @@ Studio).
 | «Spectra, sicurezza: posso mescolare…?» | risposta prioritaria sulla compatibilità dei reagenti, prima frase sempre il rischio |
 | «Spectra, basta» / tocco sulla stanghetta | silenzio immediato |
 
+### 3.4-bis I difetti trovati e risolti (v255)
+
+Richiesta: «risolvi in modo definitivo i bug di rete neurale, sveglia e
+occhiali». Trovati leggendo il codice e provati con un riconoscimento vocale
+simulato (`test_sentinella`, 29 controlli):
+
+| Difetto | Effetto sul telefono | Correzione |
+|---|---|---|
+| La sentinella ripartiva subito a ogni chiusura | Con un errore di rete o di microfono girava a vuoto decine di volte al secondo: batteria e bip continui su Android | Attesa crescente 0,3 → 1, 2, 4, 8, 15 s; un risultato riazzera |
+| Due riconoscimenti in competizione | La console apriva il suo ascolto, la sentinella ripartiva e le rubava il microfono: errore «aborted» | Un microfono alla volta: la sentinella va in pausa mentre la console ascolta e riprende dopo |
+| La parola «Spectra» riconosciuta solo in 4 grafie, solo nella prima alternativa | Il riconoscimento italiano scrive spectre, specter, spec tra…: la sveglia non partiva | Distanza di Levenshtein ≤ 2 nelle prime parole, parole attaccate, tutte le alternative; esclusi spettro, spettri, specchio, spettacolo (si dicono di continuo) |
+| Pagina in secondo piano | Il riconoscimento moriva e non ripartiva | Ripartenza a pagina visibile; la scelta «sempre in ascolto» resta dopo una ricarica (riparte da sola se il permesso c'è, altrimenti al primo tocco) |
+| Rete neurale vuota al primo giorno | «0 neuroni»: sembrava rotta | Struttura sempre presente (nucleo, cinque livelli della memoria, materie) a cui si agganciano i ricordi |
+| Disposizione della rete | Con pochi neuroni la repulsione senza limite li schiacciava contro i bordi | Fruchterman e Reingold con temperatura che si raffredda |
+| Testata della rete sul telefono | «Chiudi» copriva la batteria | Testata a flessione |
+| «Dimentica che sono il tuo creatore» (v254) | La memoria nuova intercettava la frase | La frase torna a Spectra Live |
+
+Che cosa resta fuori dall'app: la parola di attivazione degli occhiali
+stessi («Hey Meta») e la loro voce sono di Meta; Spectra negli occhiali
+passa dal telefono (modalità occhiali, §3.2) o dall'app nativa della fase 7.
+
 ### 3.5 Consumi, riservatezza, limiti
 
 - L'ascolto continuo tiene aperto il collegamento audio: consuma batteria degli
@@ -502,6 +523,47 @@ astronomia deve:
 - applicare lo stesso livello a tutte le sezioni di astronomia (orbite, stelle,
   buchi neri, galassie, cosmologia, esopianeti, cielo).
 
+### 5.4-bis Materia oscura e lenti gravitazionali — lo standard del video di simulazione
+
+Riferimento: il video «simulating dark matter through gravitational lensing
+using physics & machine learning». Descrizione fotogramma per fotogramma,
+vincolante come scaletta:
+
+| Tempo | Che cosa si vede | Come lo fa l'app (v255) |
+|---|---|---|
+| Inizio | Schermo scuro, nube densa di particelle viola, rosa e bianche in filamenti e ammassi | 🌑 «La rete cosmica»: 262 144 particelle mosse con Zel'dovich troncata su uno spettro ΛCDM (Planck 2018, σ₈ = 0,811); colore = densità dal determinante della mappa |
+| Progressione | La nube si concentra ed evolve | Il cursore del redshift e «Dalla luce fossile a oggi»: z da 30 a 0 con il fattore di crescita D(a) vero |
+| Transizione | Le particelle diventano strutture a lente: anelli concentrici blu, ciano e viola, spirali, rotazioni | 🎬 «Dalla materia alla lente»: il nodo più denso crolla in un alone NFW; dietro, lo shader della lente forma l'anello di Einstein mentre la sorgente si allinea; l'alone ruota |
+| Continuazione | Più lenti che ruotano e interagiscono, particelle di sfondo | Tre aloni-lente, ciascuno con il suo anello e il campo profondo di galassie deformate |
+| Fine | Ritorno a particelle e ammassi | La regia torna alla rete cosmica |
+
+Vincoli: sfondo nero; particelle come punti di luce additivi (mai sfere
+piene); anelli e archi calcolati dall'equazione della lente per ogni pixel,
+mai disegnati; ogni scheda dichiara che cosa è misurato, che cosa è modello e
+che cosa è apprendimento automatico; la rete neurale si addestra su dati
+generati dallo stesso modello fisico e un fit fisico la verifica (χ²/ν ≈ 1).
+
+### 5.4-ter Gli elementi — lo standard «The Elements», più scuro e più vero
+
+Riferimento: il video degli elementi interattivi (Ar, Al, Re, Ge, Eu, La, Pa,
+Ga, Tl, Y, Gd, Si, Li, Ba, Er, Tb, Dy, Pr, Pm, Tc, Te, Cm, Bk, Kr, C, Na…).
+Fotogramma per fotogramma: al centro un atomo 3D che ruota con elettroni e
+orbitali; luce colorata propria dell'elemento; ai lati protoni, elettroni,
+configurazione, massa, usi; in basso l'impronta spettrale; la tavola
+periodica; transizioni fluide da un elemento all'altro.
+
+Requisito di miglioramento, vincolante: più scuro, più realistico, non da
+cartone. Quindi:
+- l'atomo **non** è il sistema solare di Bohr: la nuvola elettronica viene
+  dalla densità di Slater di ogni sottoguscio, con la configurazione del NIST;
+  il modello di Bohr resta solo come opzione «storica»;
+- il nucleo ha i suoi Z protoni e A − Z neutroni, con l'ingrandimento
+  dichiarato (il vero nucleo è circa 100 000 volte più piccolo dell'atomo);
+- materiali fisici, tone mapping cinematografico, sfondo quasi nero, una luce
+  di contorno del colore della riga più forte dell'elemento;
+- l'impronta spettrale contiene solo righe misurate (NIST, in aria) o
+  calcolate (idrogeno, Rydberg): dove i dati non ci sono lo si dice.
+
 ### 5.5 La scheda di conformità visiva
 
 Per ogni sezione, prima della consegna:
@@ -691,6 +753,12 @@ battimento e H₂⁺ contro le formule esatte). Le frequenze di fotogramma (60/3
 fps) non sono ancora misurate su telefoni veri: il banco gira in un browser
 senza scheda grafica, dove non dicono niente.
 
+**Stato alla `bsi-v255`** (aggiornato): oltre a quanto sotto, 🌑 materia
+oscura e lenti gravitazionali (cinque schede, con la regia del video e la
+rete neurale verificata da un fit fisico), ⚛️ gli elementi in 3D (Slater,
+NIST), i difetti della sentinella vocale e della rete neurale risolti
+(§3.4-bis), le skill di Blender e la pipeline 3D (§9.0-bis).
+
 **Stato alla `bsi-v255`.** Fase 3 fatta per la parte nell'app: `bsi-ar.js`
 (GLB, USDZ, WebXR, Quick Look; prove manuali sui telefoni ancora da fare).
 Fase 4: nuova sezione 🌞 L'eliosfera e il viaggio dal Sole alla Galassia; la
@@ -719,6 +787,22 @@ prerequisiti. Più le animazioni di 🌌 onde di fase e correnti degli orbitali.
 | Prove | Playwright per tutto ciò che sta nel browser, con WebXR e microfono simulati; prove manuali su dispositivi reali per AR e occhiali | ogni consegna verificata |
 | Accessibilità | WCAG 2.1 AA, «riduci movimento», testo alternativo per ogni tela | obbligo, non opzione |
 | Privacy | tutto locale per default; il servizio è dell'utente; nessuna telemetria | la memoria è la cosa più personale dell'app |
+
+### 9.0-bis La pipeline 3D con Blender (v255)
+
+- **Le skill di Blender** (arjun988/blender-skills, licenza MIT) sono nel
+  progetto in `.claude/skills/`: le 18 utili alla visualizzazione scientifica
+  (regia, animazione, telecamera, luci, render, materiali, geometry nodes,
+  compositing, effetti, esportazione glTF e USD, ottimizzazione, controllo di
+  qualità). Lavorano attraverso il server MCP di Blender sul computer
+  dell'autore (Blender aperto con l'addon BlenderMCP).
+- **Blender senza schermo** (`bpy` 5.0) gira anche nell'ambiente di sviluppo:
+  i file AR dell'app sono stati validati con il validatore glTF di Khronos e
+  con i validatori di USD; Blender serve per le risorse che il browser non
+  può calcolare in tempo reale (render cinematografici, modelli di organi e
+  proteine ad alta risoluzione), sempre esportati in GLB e USDZ.
+- **La regola**: nel browser tutto ciò che è fisica si calcola (nessuna
+  animazione «finta»); Blender produce solo ciò che è geometria o resa.
 
 ### 9.1 I rischi principali
 

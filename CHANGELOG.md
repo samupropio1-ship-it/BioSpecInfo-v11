@@ -9,7 +9,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 ---
 ## [bsi-v255] — 2026-11-13
 
-**Realtà aumentata in ogni scena 3D, l'eliosfera, la fisiologia e la farmacologia quantitative, la mappa dei prerequisiti, il motore in spaccato**
+**Materia oscura e lenti gravitazionali, gli elementi in 3D, la parola «Spectra» senza difetti, la realtà aumentata in ogni scena 3D, l'eliosfera fino alla Galassia, fisiologia e farmacologia quantitative, la mappa dei prerequisiti, il motore in spaccato**
 
 Seguito di «procedi su ogni cosa»: le fasi 3, 4, 5, 8 e 9 del progetto
 (`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md`), ciascuna con una consegna
@@ -83,7 +83,55 @@ verificata.
   come punti di luce, gialle nel rigonfiamento e nella barra (5 kpc, 27°),
   azzurre nei bracci con le regioni HII rosa.
 
+- **🌑 Materia oscura e lenti gravitazionali** (`bsi-astro-materiaoscura*.js`,
+  Astrofisica), allo standard del video di riferimento: la rete cosmica in 3D
+  (fino a 262 144 particelle, Zel'dovich troncata su uno spettro ΛCDM di
+  Planck 2018 con σ₈ = 0,811, colore dalla densità vera); la lente
+  gravitazionale calcolata pixel per pixel sulla GPU (puntiforme, SIS, SIE,
+  NFW, taglio esterno) con anelli di Einstein, archi, croci, curve critiche,
+  caustiche, amplificazioni, campo profondo deformato e la massa κ «che non si
+  vede»; fisica + apprendimento automatico: una rete neurale addestrata nel
+  browser su lenti simulate legge θ_E e l'ellitticità, un fit fisico parte
+  dalla sua risposta e la verifica (χ²/ν ≈ 1, come Hezaveh et al., Nature
+  2017); le curve di rotazione con disco e alone (229 km/s del Sole); e la
+  regia del video, «🎬 Dalla materia alla lente»: rete → alone → anello che
+  nasce → tre lenti → rete.
+- **⚛️ Gli elementi in 3D** (`bsi-elementi3d.js`): ogni elemento come atomo
+  vero, più scuro e meno da cartone del riferimento — nuvola elettronica di
+  Slater sottoguscio per sottoguscio, nucleo con i suoi protoni e neutroni,
+  luce di contorno del colore della sua riga più forte, densità radiale,
+  impronta spettrale con righe NIST (o calcolate per l'idrogeno) e la
+  dichiarazione esplicita quando mancano; tavola periodica e la sequenza del
+  video (Ar, Al, Re, Ge, Eu, La…); modello di Bohr solo come opzione storica.
+- **Limiti tolti**: i file AR si semplificano sopra 60 000 triangoli (lo USDZ
+  dell'orbitale da 15,6 a circa 2 MB, forma esatta entro la cella);
+  l'eliosfera ha una forma asimmetrica vincolata ai quattro attraversamenti
+  delle Voyager (passa esattamente per 94,0, 121,6, 83,7 e 119,0 UA); qualità
+  massima, normale o leggera nelle animazioni pesanti; misurati i fotogrammi
+  con la CPU rallentata 4× e 6× (50–60 fps; il viaggio galattico è il più
+  pesante); il tratteggio del motore calcolato una volta.
+- **Le skill di Blender** (arjun988/blender-skills, MIT) nel progetto, in
+  `.claude/skills/` (le 18 utili alla visualizzazione scientifica), e Blender
+  5.0 senza schermo nella pipeline di sviluppo.
+- Banchi **`test_materiaoscura`** (32), **`test_elementi3d`** (20),
+  **`test_sentinella`** (29); requisiti SCI-75, SCI-76, STA-11; 212 sezioni;
+  batteria a 107 banchi.
+
 ### Corretto
+- **La parola «Spectra» e la sentinella sempre in ascolto**: ripartiva
+  subito a ogni chiusura e, con un errore di rete o di microfono, girava a
+  vuoto decine di volte al secondo (batteria, bip su Android); ora attesa
+  crescente. Rubava il microfono alla console: ora cede e riprende. Capiva
+  «Spectra» solo in quattro grafie e nella prima alternativa: ora tollera le
+  grafie del riconoscimento italiano (spectre, specter, spec tra…), esclude
+  le parole che le somigliano (spettro, specchio…), guarda tutte le
+  alternative. Riparte a pagina visibile e dopo una ricarica.
+- **La rete neurale**: al primo giorno era vuota («0 neuroni») e sembrava
+  rotta; con pochi neuroni li schiacciava contro i bordi. Ora ha sempre la sua
+  struttura (nucleo, cinque livelli della memoria, materie) e la disposizione
+  di Fruchterman e Reingold; la testata non si sovrappone più sul telefono.
+- **Laurenzio**: la configurazione nella tabella dell'app era «[Rn]5f¹⁴7p¹»
+  (101 elettroni); corretta in «[Rn]5f¹⁴7s²7p¹» (NIST).
 - **«Dimentica che sono il tuo creatore»** (introdotto nella v254): il comando
   della memoria «dimentica…» intercettava la frase e il riconoscimento del
   creatore restava attivo. Ora la frase va a Spectra Live, come prima

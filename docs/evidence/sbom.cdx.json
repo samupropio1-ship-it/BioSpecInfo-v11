@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-13T12:30:47.363Z",
+    "timestamp": "2026-11-14T09:01:18.941Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "93a3ca988e0875ac5ee7e7344a2b40fc9bc6ff35"
+        "value": "3495168d22a481ed2da276381bd0cec7a7a65168"
       }
     ]
   },
