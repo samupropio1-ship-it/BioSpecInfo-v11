@@ -54,7 +54,7 @@
   function scelta3D(dx, rapporto, pronto) {
     var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); dx.appendChild(attesa);
     if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
-    L3.stile(); L3.caricaThree().then(function () { attesa.remove(); var S = new L3.Scena(dx, rapporto); dx.insertBefore(S.box, dx.firstChild); S.ren.setClearColor(0x020108, 1); setTimeout(function () { pronto(S, globale.THREE, L3); }, 0); }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
+    L3.stile(); L3.caricaThree().then(function () { attesa.remove(); var S = new L3.Scena(dx, rapporto); dx.insertBefore(S.box, dx.firstChild); S.ren.setClearColor(0x020108, 1); S.cinema({ forza: 1.15, soglia: 0.4 }); setTimeout(function () { pronto(S, globale.THREE, L3); }, 0); }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
   }
 
   /* ═══ 1. LA RETE COSMICA ═══════════════════════════════════════════════ */
@@ -415,7 +415,7 @@
     var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); g.dx.appendChild(attesa);
     if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
     L3.stile(); L3.caricaThree().then(function () {
-      attesa.remove(); T = globale.THREE; S = new L3.Scena(g.dx, 0.85); g.dx.insertBefore(S.box, g.dx.firstChild); S.ren.setClearColor(0x010104, 1);
+      attesa.remove(); T = globale.THREE; S = new L3.Scena(g.dx, 0.85); g.dx.insertBefore(S.box, g.dx.firstChild); S.ren.setClearColor(0x010104, 1); S.cinema({ forza: 1.1, soglia: 0.42 });
       setTimeout(function () { costruisci(); S.ogniFotogramma(function (dt) { if (!corre) return false; tempo = (tempo + dt) % 40; aggiorna(dt); return true; }); }, 0);
     }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
   }

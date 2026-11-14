@@ -204,7 +204,7 @@
     testo();
     if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
     L3.stile(); L3.caricaThree().then(function () {
-      attesa.remove(); S = new L3.Scena(dx, 0.95); dx.insertBefore(S.box, dx.firstChild); T = globale.THREE; S.ren.setClearColor(0x03070d, 1);
+      attesa.remove(); S = new L3.Scena(dx, 0.95); dx.insertBefore(S.box, dx.firstChild); T = globale.THREE; S.ren.setClearColor(0x03070d, 1); S.cinema({ forza: 0.55, soglia: 0.68 });
       if (getComputedStyle(S.box).position === 'static') S.box.style.position = 'relative';
       S.box.appendChild(formule);
       setTimeout(function () { costruisci(); S.ogniFotogramma(function (dt) { if (ferma || !stato || !stato.aggiorna) return false; stato.aggiorna(dt); return true; }); }, 0);

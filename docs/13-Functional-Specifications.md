@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **212 sezioni**, raggruppate per area di studio.
+L'applicazione conta **211 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -429,8 +429,8 @@ matematica deve esserci, non deve mancare nulla in questo ologramma: deve
 esserci tutto spiegabile e mostrabile». Il catalogo non è scritto a mano: si
 legge dalla barra dell'app (ogni pulsante di sezione, con il suo gruppo —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — e la sua materia): 212 sezioni
-(chimica 83, fisica 67, matematica 33, comuni 29, dalla v242); una sezione nuova compare da
+Utility, Fisica, Matematica, Astrofisica — e la sua materia): 211 sezioni
+(chimica 82, fisica 67, matematica 33, comuni 29, dalla v242); una sezione nuova compare da
 sola. Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
 nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un filtro
 per materia; un tocco apre la sezione dietro la finestra di Spectra

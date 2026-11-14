@@ -96,6 +96,17 @@ verificata.
   2017); le curve di rotazione con disco e alone (229 km/s del Sole); e la
   regia del video, «🎬 Dalla materia alla lente»: rete → alone → anello che
   nasce → tre lenti → rete.
+- **⬡ La Tavola Periodica sostituita** dalla nuova (`bsi-elementi3d.js`, sezione
+  `spt`): due schede, «⚛️ L'atomo in 3D» e «⬡ La tavola e le tendenze» (tavola
+  colorata per elettronegatività, raggio, ionizzazione, fusione, massa o
+  categoria; un tocco porta all'atomo). Conserva tutti i dati della vecchia
+  (ossidazione, fusione, periodo, gruppo, categoria, descrizione).
+- **La resa «cinema» nel motore 3D** (`BSILab3D.Scena.cinema()`), dalle skill di
+  compositing e luci di blender-skills: bagliore solo sopra soglia calcolato a
+  metà risoluzione, vignettatura sottile, tone mapping ACES, grana
+  leggerissima (spenta con «riduci movimento»); accesa negli orbitali, nel
+  viaggio galattico, nella materia oscura e negli elementi; gli elementi con il
+  rig a tre punti (chiave 5500 K, riempimento al 30 %, contorno caldo 3200 K).
 - **⚛️ Gli elementi in 3D** (`bsi-elementi3d.js`): ogni elemento come atomo
   vero, più scuro e meno da cartone del riferimento — nuvola elettronica di
   Slater sottoguscio per sottoguscio, nucleo con i suoi protoni e neutroni,
@@ -113,8 +124,8 @@ verificata.
 - **Le skill di Blender** (arjun988/blender-skills, MIT) nel progetto, in
   `.claude/skills/` (le 18 utili alla visualizzazione scientifica), e Blender
   5.0 senza schermo nella pipeline di sviluppo.
-- Banchi **`test_materiaoscura`** (32), **`test_elementi3d`** (20),
-  **`test_sentinella`** (29); requisiti SCI-75, SCI-76, STA-11; 212 sezioni;
+- Banchi **`test_materiaoscura`** (32), **`test_elementi3d`** (24),
+  **`test_sentinella`** (29); requisiti SCI-75, SCI-76, STA-11; 211 sezioni (la voce «Gli elementi in 3D» è diventata la Tavola Periodica);
   batteria a 107 banchi.
 
 ### Corretto
@@ -137,7 +148,7 @@ verificata.
   creatore restava attivo. Ora la frase va a Spectra Live, come prima
   (`test_spectra238` di nuovo 66/66).
 - Banchi **`test_ar`** (30), **`test_eliosfera`** (43), **`test_medfarm`**
-  (53), **`test_matmappa`** (21), **`test_motore`** (22), **`test_cinema`** (32);
+  (53), **`test_matmappa`** (21), **`test_motore`** (22), **`test_cinema`** (34);
   requisiti SCI-70…74, UI-35, UI-36; 210 sezioni; batteria a 104 banchi.
 
 ### Limiti dichiarati

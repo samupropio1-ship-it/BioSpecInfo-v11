@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* ═══════════════════════════════════════════════════════════════════════════
-   test_elementi3d — ⚛️ Gli elementi in 3D (v255)
+   test_elementi3d — ⬡ Tavola periodica e gli elementi in 3D (v255: sostituisce
+   la vecchia tavola, sezione spt)
 
    PERCHE' QUESTO BANCO ESISTE
    L'autore vuole gli elementi «scientificamente accurati al 100 %». Qui si
@@ -68,17 +69,22 @@ function vero(d, c) { att(d, true, !!c); }
     console.log('\n── La pagina, ' + nome + ' ──');
     const p = await pg.evaluate(async () => {
       const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
-      const x = BSISpectraLive.calcolo.apriSezione('selementi3d'); await pausa(600); o.aperta = x && x.id; o.nav = !!document.querySelector('.nav-btn[data-s="selementi3d"]');
-      const el = document.getElementById('selementi3d'); for (let i = 0; i < 40 && !el.querySelector('.bsi3d-box'); i++) await pausa(250);
-      o.celle = el.querySelectorAll('.bsiEL-tavola button').length;
+      const x = BSISpectraLive.calcolo.apriSezione('spt'); await pausa(600); o.aperta = x && x.id; o.nav = !!document.querySelector('.nav-btn[data-s="spt"]');
+      const el = document.getElementById('spt'); for (let i = 0; i < 40 && !el.querySelector('.bsi3d-box'); i++) await pausa(250);
+      o.celle = el.querySelectorAll('.bsiEL-tavola:not(.bsiEL-grande) button').length;
       const sp = () => (el.querySelector('canvas[aria-label^="Impronta"]') || {}).getAttribute ? el.querySelector('canvas[aria-label^="Impronta"]').getAttribute('aria-label') : '';
       el.querySelector('.bsiEL-tavola button[data-z="11"]').click(); await pausa(800); o.sodio = /Sodio/.test(el.innerText) && /589,00 nm/.test(sp());
       el.querySelector('.bsiEL-tavola button[data-z="63"]').click(); await pausa(800); o.europio = /Europio/.test(el.innerText) && /niente dati inventati/.test(sp()) && /4f/.test(el.innerText);
       o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth; o.strano = (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b).{0,20}/) || [null])[0];
       o.ar = !!el.querySelector('.bsiAR-tasto');
+      o.schede = el.querySelectorAll('.bsiFX-schede button').length; o.vecchi = /ossidazione/.test(el.innerText) && /fusione/.test(el.innerText) && /Periodo/.test(el.innerText);
+      el.querySelectorAll('.bsiFX-schede button')[1].click(); await pausa(700); const g = el.querySelector('.bsiEL-grande'); o.tendenze = !!g && g.querySelectorAll('button').length === 118 && /Elettronegatività/.test(el.innerText);
+      [...g.querySelectorAll('button')].find(b => /^Ferro/.test(b.getAttribute('aria-label'))).click(); await pausa(1200); o.ferro = /\bFerro\b/.test(el.innerText) && el.querySelectorAll('.bsiFX-schede button')[0].classList.contains('on');
       return o;
     });
-    vero(nome + ' · nella barra, si apre, la tavola ha 118 elementi (' + p.celle + ')', p.nav && p.aperta === 'selementi3d' && p.celle === 118);
+    vero(nome + ' · nella barra, si apre con due schede, la tavola ha 118 elementi (' + p.celle + ')', p.nav && p.aperta === 'spt' && p.celle === 118 && p.schede === 2);
+    vero(nome + ' · la tavola delle tendenze: colorata per elettronegatività, un tocco sul ferro apre il ferro in 3D', p.tendenze && p.ferro);
+    vero(nome + ' · i dati della vecchia tavola ci sono: ossidazione, fusione, periodo e gruppo', p.vecchi);
     vero(nome + ' · un tocco sul sodio: dati e righe; sull\'europio: dichiara che le righe non ci sono', p.sodio && p.europio);
     vero(nome + ' · la scena ha il pulsante AR', p.ar);
     att(nome + ' · non sborda e non mostra valori mancanti', '0 null', p.sb + ' ' + p.strano);

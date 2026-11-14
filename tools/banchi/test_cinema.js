@@ -97,7 +97,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       let el = document.getElementById('sorbitali'), bt = [...el.querySelectorAll('.bsiFX-schede button')].find(b => /Onde di fase/.test(b.textContent)); o.tabOrb = !!bt; bt && bt.click();
       for (let i = 0; i < 60 && !el.querySelector('.bsiOC-formule'); i++) await pausa(250); await pausa(1200);
       const f = el.querySelector('.bsiOC-formule'); o.formule = !!f && /J/.test(f.textContent) && /2πmħ/.test(f.textContent) && /3λ/.test(f.textContent);
-      const S = BSILab3D.scene().filter(s => s.box.offsetParent && s.box.closest('#sorbitali'))[0]; o.ar = !!(S && S.box.querySelector('.bsiAR-tasto')); o.vetro = !!(S && S.radice.children[0] && S.radice.children[0].getObjectByName('vetro'));
+      const S = BSILab3D.scene().filter(s => s.box.offsetParent && s.box.closest('#sorbitali'))[0]; o.ar = !!(S && S.box.querySelector('.bsiAR-tasto')); o.post = !!(S && S._post); const px = S && S.ren.domElement; o.luce = (() => { if (!px) return 0; S.disegna(); const c = document.createElement('canvas'); c.width = 64; c.height = 64; const q = c.getContext('2d'); q.drawImage(px, 0, 0, 64, 64); const d = q.getImageData(0, 0, 64, 64).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] + d[i + 2]; return s / (64 * 64 * 3); })(); o.vetro = !!(S && S.radice.children[0] && S.radice.children[0].getObjectByName('vetro'));
       const scie = S && S.radice.children[0] && S.radice.children[0].children.find(c => c.name === 'scie');
       const prima = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() : ''; await pausa(600); o.scieMuovono = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() !== prima : null;
       o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth; o.strano = (el.innerText.match(/.{0,20}(\bNaN\b|\bundefined\b).{0,20}/) || [null])[0];
@@ -113,6 +113,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       return o;
     });
     vero(nome + ' · orbitali: la scheda «Onde di fase e correnti» con le formule in sovrimpressione, la superficie di vetro e il pulsante AR', r.tabOrb && r.formule && r.ar && r.vetro);
+    vero(nome + ' · la resa «cinema» è accesa e l\'immagine non è nera (luminosità media ' + Math.round(r.luce) + ')', r.post && r.luce > 4);
     att(nome + ' · ' + (opz.reducedMotion ? 'con «riduci movimento» le scie restano ferme' : 'le scie si muovono'), opz.reducedMotion ? false : true, r.scieMuovono);
     vero(nome + ' · Galassia: la scheda, la didascalia in UA, a 4×10⁹ UA le bolle di Fermi ed eROSITA', r.tabGal && r.capPianeti && r.capBolle);
     vero(nome + ' · alla scala galattica si vedono Galassia e bolle (' + r.visibili + '), i pianeti sono spenti (' + r.nascosti + ')', r.visibili >= 6 && r.nascosti >= 5);

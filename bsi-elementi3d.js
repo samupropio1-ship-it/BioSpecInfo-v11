@@ -1,5 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   bsi-elementi3d.js — ⚛️ Gli elementi in 3D (v255)
+   bsi-elementi3d.js — ⬡ Tavola periodica e gli elementi in 3D (v255)
+   Sostituisce la vecchia «Tavola Periodica» (sezione spt): ne conserva tutti i
+   dati (ossidazione, proprietà, categoria) e aggiunge l'atomo in 3D e le
+   tendenze periodiche colorate.
    BioSpecInfo · © Samuele Pio Provenzano
 
    PERCHE' ESISTE
@@ -129,6 +132,7 @@
   var CAT_EN = ['', 'alkali metal', 'alkaline-earth metal', 'transition metal', 'post-transition metal', 'metalloid', 'nonmetal', 'noble gas', 'lanthanide', 'actinide'];
   function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var r = Math.imul(a ^ a >>> 15, 1 | a); r = r + Math.imul(r ^ r >>> 7, 61 | r) ^ r; return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
 
+  var VAI = null, ZSCELTO = 18;   /* la scheda della tavola chiama quella dell'atomo */
   function scheda(div) {
     var E = elementi();
     if (!E) { div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('I dati degli elementi non sono disponibili in questa pagina.', 'Element data is not available on this page.') })); return; }
@@ -145,19 +149,19 @@
     var spet = F.el('canvas', { role: 'img', 'aria-label': t('Impronta spettrale', 'Spectral fingerprint'), style: 'width:100%;height:92px;display:block;border-radius:10px;background:#03060b;margin-top:8px' });
     var cR = F.tela(dx, 0.38);
     stile();
-    function stile() { if (D.getElementById('bsiEL-stile')) return; var st = D.createElement('style'); st.id = 'bsiEL-stile'; st.textContent = '.bsiEL-tavola{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:2px;margin-top:10px}.bsiEL-tavola button{min-width:0;padding:0;aspect-ratio:1/1;border:1px solid #1a3050;border-radius:3px;background:#07121e;color:#cfe3f7;font:600 clamp(7px,1.15vw,11px)/1 system-ui,sans-serif;cursor:pointer}.bsiEL-tavola button[aria-pressed="true"]{outline:2px solid #ffd24a;color:#fff}.bsiEL-tavola .vuoto{visibility:hidden}.bsiEL-tavola .sep{grid-column:1/-1;height:4px}'; D.head.appendChild(st); }
+    function stile() { if (D.getElementById('bsiEL-stile')) return; var st = D.createElement('style'); st.id = 'bsiEL-stile'; st.textContent = '.bsiEL-tavola{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:2px;margin-top:10px}.bsiEL-tavola button{min-width:0;padding:0;aspect-ratio:1/1;border:1px solid #1a3050;border-radius:3px;background:#07121e;color:#cfe3f7;font:600 clamp(7px,1.15vw,11px)/1 system-ui,sans-serif;cursor:pointer}.bsiEL-tavola button[aria-pressed="true"]{outline:2px solid #ffd24a;color:#fff}.bsiEL-tavola .vuoto{visibility:hidden}.bsiEL-tavola .sep{grid-column:1/-1;height:4px}.bsiEL-grande{gap:3px}.bsiEL-grande button{aspect-ratio:auto;min-height:clamp(26px,5.2vw,58px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:1px}.bsiEL-grande .z{font-size:clamp(5px,.8vw,9px);opacity:.75}.bsiEL-grande b{font-size:clamp(8px,1.4vw,15px)}.bsiEL-grande .v{font-size:clamp(5px,.75vw,9px);opacity:.85}'; D.head.appendChild(st); }
     var COLCAT = ['#333', '#ff8f6b', '#ffc36b', '#6bb7ff', '#8fb0d0', '#7fe0b0', '#9fe0ff', '#c9a6ff', '#ff9fd8', '#ffb0a0'];
     function tavola() {
       var celle = {}; E.forEach(function (e) { var z = e[0], p = e[4], g = e[5], r, c; if (z >= 57 && z <= 71) { r = 9; c = z - 57 + 3; } else if (z >= 89 && z <= 103) { r = 10; c = z - 89 + 3; } else { r = p; c = g; } celle[r + ',' + c] = e; });
       for (var r = 1; r <= 10; r++) { if (r === 8) { tav.appendChild(F.el('div', { 'class': 'sep' })); continue; } for (var c = 1; c <= 18; c++) { var e = celle[r + ',' + c]; if (!e) { tav.appendChild(F.el('span', { 'class': 'vuoto' })); continue; } (function (e) { var b = F.el('button', { type: 'button', testo: e[1], title: e[0] + ' ' + e[2], 'aria-label': e[2] + ', ' + e[0], style: 'border-color:' + COLCAT[e[6]] + '55' }); b.dataset.z = e[0]; b.addEventListener('click', function () { o.corre = false; vai(e[0]); }); tav.appendChild(b); })(e); } }
     }
-    tavola();
-    function vai(z) { o.z = z; scelta.value = String(z); transizione = 0; costruisci(); tav.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.z === z)); }); }
+    tavola(); VAI = vai; o.z = ZSCELTO;
+    function vai(z) { o.z = z; ZSCELTO = z; scelta.value = String(z); transizione = 0; costruisci(); tav.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.z === z)); }); }
     function testi() {
       var e = E[o.z - 1], A = Math.round(e[3]), N = Math.max(0, A - e[0]), occ = configurazione(o.z), conf = ORDINE.filter(function (x) { return occ[x]; }).map(function (x) { return x + '<sup>' + occ[x] + '</sup>'; }).join(' '), gs = sottogusci(o.z), est = gs[gs.length - 1];
       dati.innerHTML = '<div style="display:flex;align-items:baseline;gap:10px"><span style="font:800 2.2em/1 system-ui;color:#fff">' + e[1] + '</span><span><b>' + e[2] + '</b><br><small>' + t(CAT[e[6]], CAT_EN[e[6]]) + ' · Z = ' + e[0] + '</small></span></div>' +
         t('Protoni ', 'Protons ') + '<b class="bsiFX-num">' + e[0] + '</b> · ' + t('elettroni ', 'electrons ') + '<b class="bsiFX-num">' + e[0] + '</b> · ' + t('neutroni ', 'neutrons ') + '<b class="bsiFX-num">' + N + '</b> <small>(' + t('isotopo con A = ', 'isotope with A = ') + A + ')</small><br>' +
-        t('Massa atomica ', 'Atomic mass ') + '<b class="bsiFX-num">' + String(e[3]).replace('.', ',') + ' u</b>' + (e[9] != null ? ' · ' + t('elettronegatività ', 'electronegativity ') + String(e[9]).replace('.', ',') : '') + (e[11] != null ? ' · ' + t('1ª ionizzazione ', '1st ionisation ') + String(e[11]).replace('.', ',') + ' eV' : '') + '<br>' +
+        t('Periodo ', 'Period ') + e[4] + (e[5] ? ' · ' + t('gruppo ', 'group ') + e[5] : '') + ' · ' + t('ossidazione ', 'oxidation ') + '<b>' + (e[7] || '—') + '</b>' + (e[12] != null ? ' · ' + t('fusione ', 'melting ') + String(e[12]).replace('-', '−') + ' °C' : '') + '<br>' + t('Massa atomica ', 'Atomic mass ') + '<b class="bsiFX-num">' + String(e[3]).replace('.', ',') + ' u</b>' + (e[9] != null ? ' · ' + t('elettronegatività ', 'electronegativity ') + String(e[9]).replace('.', ',') : '') + (e[11] != null ? ' · ' + t('1ª ionizzazione ', '1st ionisation ') + String(e[11]).replace('.', ',') + ' eV' : '') + '<br>' +
         t('Configurazione ', 'Configuration ') + '<b>' + e[8] + '</b><br><small>' + conf + '</small><br>' +
         (est ? t('Elettrone più esterno (', 'Outermost electron (') + est.nome + '): Z_eff = <b class="bsiFX-num">' + num(est.zeff, 2) + '</b> (Slater), ⟨r⟩ ≈ ' + num(est.rMedio * 52.9, 0) + ' pm' + (e[10] ? ' · ' + t('raggio atomico tabulato ', 'tabulated atomic radius ') + e[10] + ' pm' : '') + '<br>' : '') +
         '<small>' + (e[13] || '') + '</small>';
@@ -184,9 +188,13 @@
       S.pulisci(); gr = new T.Group(); S.aggiungi(gr);
       var scala = 1.6, mappa = function (r) { return o.radice ? 2.2 * Math.sqrt(r) : scala * r; };   /* a₀ → unità della scena: lineare, o radice quadrata (dichiarata) */
       /* luci: chiave fredda, contorno del colore dell'elemento, cielo basso */
-      gr.add(new T.HemisphereLight(0x223355, 0x05060a, 0.35));
-      var k = new T.DirectionalLight(0xdfe9ff, 1.1); k.position.set(4, 6, 5); gr.add(k);
-      var rim = new T.PointLight(new T.Color(col[0], col[1], col[2]), 2.4, 30); rim.position.set(-5, -2, -4); gr.add(rim);
+      /* il rig a tre punti delle skill di luci (blender-skills, «Three-Point Studio»): chiave 5500 K a 45° di elevazione e 30° di
+         azimut, riempimento opposto al 30 %, contorno caldo 3200 K dietro (135°); più un contorno del colore dell'elemento */
+      gr.add(new T.HemisphereLight(0x1a2740, 0x040508, 0.22));
+      var chiave = new T.DirectionalLight(0xfff4e8, 1.15); chiave.position.set(Math.cos(0.52) * 7, Math.sin(0.52) * 7, 7); gr.add(chiave);
+      var riemp = new T.DirectionalLight(0xdfe9ff, 0.35); riemp.position.set(-Math.cos(0.52) * 7, -Math.sin(0.52) * 7, 2); gr.add(riemp);
+      var caldo = new T.DirectionalLight(0xffc28a, 0.7); caldo.position.set(-4, 6, -6); gr.add(caldo);
+      var rim = new T.PointLight(new T.Color(col[0], col[1], col[2]), 2.2, 30); rim.position.set(-5, -2, -4); gr.add(rim);
       /* il nucleo: protoni e neutroni impacchettati (spirale di Fibonacci a gusci), ingrandito */
       var tot = e[0] + N, rN = 0.42 * Math.cbrt(tot) * 0.13, nuc = new T.Group(), sp = new T.SphereGeometry(0.065, 20, 14);
       var mP = new T.MeshStandardMaterial({ color: 0xb24a3c, roughness: 0.38, metalness: 0.05, emissive: 0x240806 }), mN = new T.MeshStandardMaterial({ color: 0x7c8794, roughness: 0.45, metalness: 0.1 });
@@ -224,7 +232,7 @@
     if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
     L3.stile(); L3.caricaThree().then(function () {
       attesa.remove(); T = globale.THREE; S = new L3.Scena(dx, 0.78); dx.insertBefore(S.box, dx.firstChild);
-      S.ren.setClearColor(0x020306, 1); S.ren.toneMapping = T.ACESFilmicToneMapping; S.ren.toneMappingExposure = 0.9; S.ren.outputEncoding = T.sRGBEncoding;
+      S.ren.setClearColor(0x020306, 1); S.cinema({ forza: 0.8, soglia: 0.5, esposizione: 0.95 });
       setTimeout(function () {
         vai(o.z);
         S.ogniFotogramma(function (dt) {
@@ -240,10 +248,36 @@
     F.alRidimensiona(function () { disegnaSpettro(E[o.z - 1][1]); disegnaRadiale(); });
   }
 
-  F.sezione('selementi3d', {
-    titolo: ['⚛️ Gli elementi in 3D', '⚛️ The elements in 3D'],
+  var PROPRIETA = [['9', ['Elettronegatività (Pauling)', 'Electronegativity (Pauling)'], ''], ['10', ['Raggio atomico', 'Atomic radius'], ' pm'], ['11', ['Prima energia di ionizzazione', 'First ionisation energy'], ' eV'], ['12', ['Punto di fusione', 'Melting point'], ' °C'], ['3', ['Massa atomica', 'Atomic mass'], ' u'], ['6', ['Categoria', 'Category'], '']];
+  /** Colore percettivo (viridis approssimata) per f ∈ [0, 1]. */
+  function viridis(f) { var V = [[68, 1, 84], [72, 40, 120], [62, 74, 137], [49, 104, 142], [38, 130, 142], [31, 158, 137], [53, 183, 121], [109, 205, 89], [180, 222, 44], [253, 231, 37]], x = Math.max(0, Math.min(1, f)) * (V.length - 1), i = Math.min(V.length - 2, Math.floor(x)), u = x - i; return 'rgb(' + V[i].map(function (c, k) { return Math.round(c + (V[i + 1][k] - c) * u); }).join(',') + ')'; }
+  function schedaTendenze(div) {
+    var E = elementi(); if (!E) { div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('I dati degli elementi non sono disponibili.', 'Element data is not available.') })); return; }
+    var o = { p: '9' }, pan = F.el('div', { 'class': 'bsiFX-pannello', style: 'margin-bottom:10px' }); div.appendChild(pan);
+    F.scelta(pan, ['Colora la tavola per', 'Colour the table by'], PROPRIETA.map(function (x) { return [x[0], x[1]]; }), o.p, function (v) { o.p = v; disegna(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info);
+    var tav = F.el('div', { 'class': 'bsiEL-tavola bsiEL-grande', role: 'grid', 'aria-label': t('Tavola periodica colorata per proprietà: tocca un elemento per vederlo in 3D', 'Periodic table coloured by property: tap an element to see it in 3D') }); div.appendChild(tav);
+    var COLCAT = ['#333', '#ff8f6b', '#ffc36b', '#6bb7ff', '#8fb0d0', '#7fe0b0', '#9fe0ff', '#c9a6ff', '#ff9fd8', '#ffb0a0'];
+    function disegna() {
+      tav.innerHTML = ''; var k = +o.p, vals = E.map(function (e) { return e[k]; }).filter(function (v) { return v != null && typeof v === 'number'; }), mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), celle = {};
+      E.forEach(function (e) { var z = e[0], r, c; if (z >= 57 && z <= 71) { r = 9; c = z - 57 + 3; } else if (z >= 89 && z <= 103) { r = 10; c = z - 89 + 3; } else { r = e[4]; c = e[5]; } celle[r + ',' + c] = e; });
+      for (var r = 1; r <= 10; r++) { if (r === 8) { tav.appendChild(F.el('div', { 'class': 'sep' })); continue; } for (var c = 1; c <= 18; c++) { var e = celle[r + ',' + c]; if (!e) { tav.appendChild(F.el('span', { 'class': 'vuoto' })); continue; } (function (e) {
+        var v = e[k], sfondo = k === 6 ? COLCAT[e[6]] + '55' : (v == null ? '#0b1420' : viridis((v - mn) / (mx - mn || 1))), testoV = k === 6 ? '' : (v == null ? '—' : (Math.abs(v) >= 100 ? Math.round(v) : String(v).replace('.', ',')));
+        var b = F.el('button', { type: 'button', title: e[0] + ' ' + e[2] + (k === 6 ? '' : ': ' + testoV + PROPRIETA.filter(function (x) { return x[0] === o.p; })[0][2]), 'aria-label': e[2] + (k === 6 ? '' : ', ' + testoV), html: '<span class="z">' + e[0] + '</span><b>' + e[1] + '</b><span class="v">' + testoV + '</span>', style: 'background:' + sfondo + ';color:' + (k !== 6 && v != null && (v - mn) / (mx - mn || 1) > 0.62 ? '#071018' : '#e9f2fb') });
+        b.addEventListener('click', function () { ZSCELTO = e[0]; var sec = div.closest('.section'), tb = sec && sec.querySelector('.bsiFX-schede button'); if (tb) tb.click(); setTimeout(function () { if (VAI) VAI(e[0]); }, 60); });
+        tav.appendChild(b); })(e); } }
+      var nome = PROPRIETA.filter(function (x) { return x[0] === o.p; })[0];
+      info.innerHTML = k === 6 ? t('Colori per categoria: alcalini, alcalino-terrosi, transizione, blocco p, semimetalli, non metalli, gas nobili, lantanidi, attinidi.', 'Colours by category: alkali, alkaline-earth, transition, p-block, metalloids, nonmetals, noble gases, lanthanides, actinides.')
+        : '<b>' + t(nome[1][0], nome[1][1]) + '</b>: ' + t('da ', 'from ') + String(mn).replace('.', ',') + nome[2] + t(' (viola) a ', ' (violet) to ') + String(mx).replace('.', ',') + nome[2] + t(' (giallo); grigio dove il dato manca. ', ' (yellow); grey where data is missing. ') +
+          ({ '9': t('Cresce verso destra e verso l\'alto: il fluoro è il più elettronegativo.', 'It grows to the right and upwards: fluorine is the most electronegative.'), '10': t('Cresce verso il basso e verso sinistra: più gusci, carica efficace più bassa.', 'It grows downwards and to the left: more shells, lower effective charge.'), '11': t('Massima nei gas nobili, minima negli alcalini: è l\'energia per togliere l\'elettrone più esterno.', 'Highest in noble gases, lowest in alkali metals: the energy to remove the outermost electron.'), '12': t('Il tungsteno fonde a 3422 °C, l\'elio non solidifica a pressione ambiente.', 'Tungsten melts at 3422 °C, helium does not solidify at ambient pressure.'), '3': t('Cresce con Z, con poche inversioni (Ar/K, Co/Ni, Te/I) dovute agli isotopi.', 'It grows with Z, with a few inversions (Ar/K, Co/Ni, Te/I) due to isotopes.') }[o.p] || '') + ' ' + t('Tocca un elemento per vederlo in 3D.', 'Tap an element to see it in 3D.');
+    }
+    disegna();
+  }
+
+  F.sezione('spt', {
+    titolo: ['⬡ Tavola periodica e gli elementi in 3D', '⬡ Periodic table and the elements in 3D'],
     sotto: ['Ogni elemento della tavola periodica come atomo vero: la nuvola elettronica del modello di Slater, guscio per guscio, il nucleo con i suoi protoni e neutroni, i dati e l\'impronta spettrale delle righe di emissione misurate. Tocca la tavola o fai partire la sequenza.',
             'Every element of the periodic table as a real atom: the electron cloud of Slater\'s model, shell by shell, the nucleus with its protons and neutrons, the data and the spectral fingerprint of the measured emission lines. Tap the table or start the sequence.'],
-    schede: [{ nome: ['L\'atomo', 'The atom'], costruisci: scheda }]
+    schede: [{ nome: ['⚛️ L\'atomo in 3D', '⚛️ The atom in 3D'], costruisci: scheda }, { nome: ['⬡ La tavola e le tendenze', '⬡ The table and its trends'], costruisci: schedaTendenze }]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -123,9 +123,58 @@
     var v = this.vista, c = this.cam;
     c.position.set(v.bersaglio.x + v.r * Math.sin(v.ph) * Math.cos(v.th), v.bersaglio.y + v.r * Math.sin(v.ph) * Math.sin(v.th), v.bersaglio.z + v.r * Math.cos(v.ph));
     c.up.set(0, 0, 1); c.lookAt(v.bersaglio);
-    this.ren.render(this.sc, c); this.sporca = false;
+    if (this._post) this._post.render(this.sc, c); else this.ren.render(this.sc, c); this.sporca = false;
     var et = this.didascalia.textContent || t('Vista 3D interattiva', 'Interactive 3D view');
     if (this._et !== et) { this._et = et; this.ren.domElement.setAttribute('aria-label', et); }
+  };
+  /* ── (v255) LA RESA «CINEMA» ──────────────────────────────────────────
+     Dalle skill di compositing e luci (arjun988/blender-skills, MIT), portate nel browser: la catena di bellezza
+     esposizione → bagliore («fog glow», solo sopra una soglia, mai su ogni pixel) → vignettatura sottile → tone mapping
+     ACES, più una grana leggerissima che toglie l'aspetto «digitale». Il bagliore si calcola a metà risoluzione con due
+     sfocature gaussiane separabili. Si accende per scena (S.cinema()); chi ha «riduci movimento» non riceve la grana che
+     cambia. Le tele restano leggibili dai banchi e dal pulsante 📷 (si disegna sempre sul buffer visibile). */
+  var VQ = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
+  var F_LUCE = 'uniform sampler2D t; uniform float soglia; varying vec2 vUv; void main(){ vec3 c = texture2D(t, vUv).rgb; float l = dot(c, vec3(0.2126, 0.7152, 0.0722)); float k = smoothstep(soglia, soglia + 0.25, l); gl_FragColor = vec4(c * k, 1.0); }';
+  var F_SFOCA = 'uniform sampler2D t; uniform vec2 dir; varying vec2 vUv; void main(){ vec3 c = texture2D(t, vUv).rgb * 0.227027; c += texture2D(t, vUv + dir * 1.3846).rgb * 0.316216; c += texture2D(t, vUv - dir * 1.3846).rgb * 0.316216; c += texture2D(t, vUv + dir * 3.2308).rgb * 0.070270; c += texture2D(t, vUv - dir * 3.2308).rgb * 0.070270; gl_FragColor = vec4(c, 1.0); }';
+  var F_FINE = 'uniform sampler2D t; uniform sampler2D b; uniform float forza, esposizione, vignetta, grana, tempo; varying vec2 vUv;' +
+    'vec3 aces(vec3 x){ return clamp((x*(2.51*x + 0.03))/(x*(2.43*x + 0.59) + 0.14), 0.0, 1.0); }' +
+    'float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)) + tempo) * 43758.5453); }' +
+    'void main(){ vec3 c = texture2D(t, vUv).rgb; c = pow(c, vec3(2.2)); vec3 g = pow(texture2D(b, vUv).rgb, vec3(2.2)); c = (c + g * forza) * esposizione; c = aces(c); c = pow(c, vec3(1.0/2.2));' +
+    ' vec2 d = vUv - 0.5; c *= 1.0 - vignetta * smoothstep(0.35, 0.85, length(d) * 1.25); c += (h(vUv * 991.0) - 0.5) * grana; gl_FragColor = vec4(c, 1.0); }';
+  function Cinema(S, opz) {
+    var T = S.T; opz = opz || {};
+    this.S = S; this.forza = opz.forza == null ? 0.85 : opz.forza; this.soglia = opz.soglia == null ? 0.55 : opz.soglia; this.esposizione = opz.esposizione || 1.05; this.vignetta = opz.vignetta == null ? 0.32 : opz.vignetta;
+    this.grana = (globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : (opz.grana == null ? 0.018 : opz.grana);
+    var p = { minFilter: T.LinearFilter, magFilter: T.LinearFilter, format: T.RGBAFormat };
+    this.rt = new T.WebGLRenderTarget(4, 4, p); this.a = new T.WebGLRenderTarget(2, 2, p); this.b = new T.WebGLRenderTarget(2, 2, p);
+    this.cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); this.sc = new T.Scene(); this.quad = new T.Mesh(new T.PlaneGeometry(2, 2)); this.sc.add(this.quad);
+    this.mLuce = new T.ShaderMaterial({ vertexShader: VQ, fragmentShader: F_LUCE, uniforms: { t: { value: null }, soglia: { value: this.soglia } }, depthTest: false });
+    this.mSfoca = new T.ShaderMaterial({ vertexShader: VQ, fragmentShader: F_SFOCA, uniforms: { t: { value: null }, dir: { value: new T.Vector2() } }, depthTest: false });
+    this.mFine = new T.ShaderMaterial({ vertexShader: VQ, fragmentShader: F_FINE, uniforms: { t: { value: null }, b: { value: null }, forza: { value: this.forza }, esposizione: { value: this.esposizione }, vignetta: { value: this.vignetta }, grana: { value: this.grana }, tempo: { value: 0 } }, depthTest: false });
+    this.tm = S.ren.toneMapping; S.ren.toneMapping = T.NoToneMapping; this.t0 = Date.now();
+  }
+  Cinema.prototype.misura = function () {
+    var r = this.S.ren, v = r.getDrawingBufferSize(new this.S.T.Vector2()), w = Math.max(2, v.x), h = Math.max(2, v.y);
+    if (this.w === w && this.h === h) return; this.w = w; this.h = h; this.rt.setSize(w, h); this.a.setSize(Math.max(2, w >> 1), Math.max(2, h >> 1)); this.b.setSize(Math.max(2, w >> 1), Math.max(2, h >> 1));
+  };
+  Cinema.prototype.passo = function (mat, dest) { this.quad.material = mat; this.S.ren.setRenderTarget(dest); this.S.ren.render(this.sc, this.cam); };
+  Cinema.prototype.render = function (scena, cam) {
+    var r = this.S.ren; this.misura();
+    r.setRenderTarget(this.rt); r.clear(); r.render(scena, cam);
+    this.mLuce.uniforms.t.value = this.rt.texture; this.passo(this.mLuce, this.a);
+    for (var i = 0; i < 2; i++) {
+      this.mSfoca.uniforms.t.value = this.a.texture; this.mSfoca.uniforms.dir.value.set((1.5 + i) / this.a.width, 0); this.passo(this.mSfoca, this.b);
+      this.mSfoca.uniforms.t.value = this.b.texture; this.mSfoca.uniforms.dir.value.set(0, (1.5 + i) / this.a.height); this.passo(this.mSfoca, this.a);
+    }
+    var U = this.mFine.uniforms; U.t.value = this.rt.texture; U.b.value = this.a.texture; U.forza.value = this.forza; U.tempo.value = this.grana ? ((Date.now() - this.t0) % 10000) / 1000 : 0;
+    this.passo(this.mFine, null);
+  };
+  Cinema.prototype.spegni = function () { this.S.ren.toneMapping = this.tm; this.rt.dispose(); this.a.dispose(); this.b.dispose(); };
+  /** Accende la resa «cinema» su questa scena (opz: forza, soglia, esposizione, vignetta, grana). false la spegne. */
+  Scena.prototype.cinema = function (opz) {
+    if (opz === false) { if (this._post) { this._post.spegni(); this._post = null; } }
+    else { try { if (!this._post) this._post = new Cinema(this, opz); else if (opz) for (var k in opz) this._post[k] = opz[k]; } catch (e) { this._post = null; } }
+    this.sporca = true; this.avvia(); return this;
   };
   Scena.prototype.avvia = function () {
     if (this.attiva) return;
