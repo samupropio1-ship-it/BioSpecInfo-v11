@@ -290,6 +290,7 @@
             'The bubble the solar wind carves in the gas between the stars: Parker spiral, termination shock, heliosheath, heliopause, the interstellar wind and the IBEX ribbon, with the real trajectories and measurements of the two Voyagers. Every claim says whether it is measured, a model or debated.'],
     schede: [
       { nome: ['L\'eliosfera in 3D', 'The heliosphere in 3D'], costruisci: schedaTre },
+      { nome: ['🎨 Tutto insieme', '🎨 All together'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.insiemeGalassia) F.schedeExtra.insiemeGalassia(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo non è caricato.', 'The module is not loaded.') })); } },
       { nome: ['🌌 Dal Sole alla Galassia', '🌌 From the Sun to the Galaxy'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.viaggioGalassia) F.schedeExtra.viaggioGalassia(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo non è caricato.', 'The module is not loaded.') })); } },
       { nome: ['Spirale di Parker', 'Parker spiral'], costruisci: schedaParker },
       { nome: ['Dove si ferma il vento', 'Where the wind stops'], costruisci: schedaPressione },

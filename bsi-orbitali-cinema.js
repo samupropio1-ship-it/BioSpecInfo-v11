@@ -87,10 +87,10 @@
   function hsl(h, s, l) { h = ((h % 1) + 1) % 1; var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h * 12) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); }; return [f(0), f(8), f(4)]; }
   function scheda(div) {
     var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div', { style: 'min-width:0' }); G.appendChild(pan); G.appendChild(dx); div.appendChild(G);
-    var livello = qualitaAuto(), o = { n: 4, l: 3, m: 3, Z: 1 }, mostra = { superficie: true, scie: true, fase: true, anello: true }, S = null, T = null, stato = null, tempo = 0;
+    var livello = qualitaAuto(), o = { n: 4, l: 3, m: 1, Z: 1 }, mostra = { superficie: true, scie: true, fase: true, anello: true }, S = null, T = null, stato = null, tempo = 0;
     var ferma = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var PRESET = [['4f3', '4f, m = 3 (anello, tre lunghezze d\'onda)', [4, 3, 3]], ['3d1', '3d, m = 1 (due lobi e un toro)', [3, 2, 1]], ['3d2', '3d, m = 2', [3, 2, 2]], ['2p1', '2p, m = 1 (una ciambella)', [2, 1, 1]], ['5g4', '5g, m = 4', [5, 4, 4]], ['3d0', '3dz², m = 0 (nessuna corrente)', [3, 2, 0]], ['4f1', '4f, m = 1', [4, 3, 1]]];
-    F.scelta(pan, ['Orbitale', 'Orbital'], PRESET.map(function (p) { return [p[0], p[1]]; }), '4f3', function (v) { var p = PRESET.filter(function (x) { return x[0] === v; })[0][2]; o.n = p[0]; o.l = p[1]; o.m = p[2]; costruisci(); });
+    var PRESET = [['4f3', '4f, m = 3 (anello, tre lunghezze d\'onda)', [4, 3, 3]], ['3d1', '3d, m = 1 (due lobi e un toro)', [3, 2, 1]], ['3d2', '3d, m = 2', [3, 2, 2]], ['2p1', '2p, m = 1 (una ciambella)', [2, 1, 1]], ['5g4', '5g, m = 4', [5, 4, 4]], ['3d0', '3dz², m = 0 (nessuna corrente)', [3, 2, 0]], ['4f1', '4f, m = 1 (due lobi e un toro, come nel riferimento)', [4, 3, 1]]];
+    F.scelta(pan, ['Orbitale', 'Orbital'], PRESET.map(function (p) { return [p[0], p[1]]; }), '4f1', function (v) { var p = PRESET.filter(function (x) { return x[0] === v; })[0][2]; o.n = p[0]; o.l = p[1]; o.m = p[2]; costruisci(); });
     var segno = F.scelta(pan, ['Verso della rotazione', 'Sense of rotation'], [['+', ['m positivo (antiorario visto da +z)', 'positive m (counter-clockwise from +z)']], ['-', ['m negativo (orario)', 'negative m (clockwise)']]], '+', function (v) { o.m = Math.abs(o.m) * (v === '-' ? -1 : 1); costruisci(); });
     F.scelta(pan, ['Qualità', 'Quality'], [['2', ['massima (più scie, superficie più fine)', 'maximum (more streaks, finer surface)']], ['1', ['normale', 'normal']], ['0', ['leggera (telefoni lenti)', 'light (slow phones)']]], String(livello), function (v) { livello = +v; costruisci(); });
     var sv = F.el('div', { style: 'display:grid;gap:2px;margin:8px 0' }); pan.appendChild(sv);
@@ -108,7 +108,7 @@
       info.innerHTML = '<b>' + nm + '</b> · E = ' + num(energia(o) * 27.2114, 3) + ' eV<br>' +
         (ac ? t('Corrente attorno all\'asse z: v = ħ|m|/(mₑ ρ). Sul piano a z = ', 'Current around the z axis: v = ħ|m|/(mₑ ρ). On the plane at z = ') + num(PM.z, 1) + ' a₀, ' + t('a ρ = ', 'at ρ = ') + num(PM.rho, 1) + ' a₀: v = <b class="bsiFX-num">' + num(ac / PM.rho * 2.18769e6 / 1e3, 0) + ' km/s</b>, λ = 2πρ/|m| = <b class="bsiFX-num">' + num(2 * PI * PM.rho / ac, 1) + ' a₀</b>.'
           : t('Con m = 0 la funzione ha la stessa fase in ogni punto di un parallelo: J = 0, nessuna scia si muove. Il foglio sale e scende tutto insieme.', 'With m = 0 the function has the same phase along each parallel: J = 0, no streak moves. The sheet rises and falls all together.')) +
-        '<br><small>' + t('Reticolo: isosuperficie vera (contorno al 90 % ruotato attorno a z); colori del reticolo: segno della parte polare P_l^m(cos θ). Scie: velocità esagerata, l\'animazione è rallentata di circa 10¹⁵ volte; la fase gira con ω ∝ |E_n| ∝ 1/n², nel rapporto vero fra i livelli. L\'anello di de Broglie è l\'immagine semiclassica di Bohr–Sommerfeld: nella meccanica quantistica l\'elettrone non sta su un cerchio.', 'Wireframe: true isosurface (90 % contour revolved around z); wireframe colours: sign of the polar part P_l^m(cos θ). Streaks: exaggerated speed, the animation is slowed about 10¹⁵ times. The de Broglie ring is the Bohr–Sommerfeld semiclassical picture: in quantum mechanics the electron is not on a circle.') + '</small>';
+        '<br><small>' + t('Reticolo: isosuperficie vera (contorno al 90 % ruotato attorno a z); colori del reticolo: segno della parte polare P_l^m(cos θ). Anelli sul piano sotto: nodi radiali e raggio più probabile. Scie: velocità esagerata, l\'animazione è rallentata di circa 10¹⁵ volte; la fase gira con ω ∝ |E_n| ∝ 1/n², nel rapporto vero fra i livelli. L\'anello di de Broglie è l\'immagine semiclassica di Bohr–Sommerfeld: nella meccanica quantistica l\'elettrone non sta su un cerchio.', 'Wireframe: true isosurface (90 % contour revolved around z); wireframe colours: sign of the polar part P_l^m(cos θ). Streaks: exaggerated speed, the animation is slowed about 10¹⁵ times. The de Broglie ring is the Bohr–Sommerfeld semiclassical picture: in quantum mechanics the electron is not on a circle.') + '</small>';
     }
     function costruisci() {
       testo(); if (!S) return;
@@ -119,13 +119,13 @@
       for (var a = 0; a <= N; a++) for (var b = 0; b <= N; b++) for (var c = 0; c <= N; c++) vals[k++] = densitaRZ(o, Math.hypot(-L + c * h, -L + b * h), -L + a * h);
       var c90 = O().soglia(vals, h * h * h, 0.9);
       /* 1. la superficie a reticolo: contorno meridiano ruotato */
-      var seg = contorno(o, L, [100, 170, 260][Q], [200, 340, 520][Q], c90), pos = [], col = [], NM = [20, 32, 48][Q];
-      function colorePolare(R, z) { var th = Math.atan2(R, z), P = O().legendre(o.l, Math.abs(o.m), Math.cos(th)); return P >= 0 ? [0.36, 0.78, 1.0] : [1.0, 0.62, 0.22]; }
+      var seg = contorno(o, L, [100, 170, 260][Q], [200, 340, 520][Q], c90), pos = [], col = [], NM = [12, 16, 22][Q];
+      function colorePolare(R, z) { var th = Math.atan2(R, z), P = O().legendre(o.l, Math.abs(o.m), Math.cos(th)); return P >= 0 ? [1.0, 0.68, 0.25] : [0.42, 0.78, 0.95]; }
       for (var q = 0; q < NM; q++) { var f = 2 * PI * q / NM, cf = Math.cos(f), sf = Math.sin(f); seg.forEach(function (s) { var cc = colorePolare((s[0][0] + s[1][0]) / 2, (s[0][1] + s[1][1]) / 2); pos.push(s[0][0] * cf, s[0][0] * sf, s[0][1], s[1][0] * cf, s[1][0] * sf, s[1][1]); col.push.apply(col, cc.concat(cc)); }); }
-      var NP = [14, 22, 34][Q], passo = Math.max(1, Math.floor(seg.length / NP));
+      var NP = [10, 14, 20][Q], passo = Math.max(1, Math.floor(seg.length / NP));
       for (var si = 0; si < seg.length; si += passo) { var s0 = seg[si], R0 = (s0[0][0] + s0[1][0]) / 2, z0 = (s0[0][1] + s0[1][1]) / 2, cc2 = colorePolare(R0, z0); if (R0 < 0.05 * L) continue; for (var w = 0; w < 64; w++) { var f1 = 2 * PI * w / 64, f2 = 2 * PI * (w + 1) / 64; pos.push(R0 * Math.cos(f1), R0 * Math.sin(f1), z0, R0 * Math.cos(f2), R0 * Math.sin(f2), z0); col.push.apply(col, cc2.concat(cc2)); } }
       var gS = new T.BufferGeometry(); gS.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); gS.setAttribute('color', new T.Float32BufferAttribute(col, 3));
-      var sup = new T.LineSegments(gS, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: T.AdditiveBlending, depthWrite: false }));
+      var sup = new T.LineSegments(gS, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.78, depthWrite: false }));   /* (v255) come il riferimento: linee nitide, niente somma che sbianca */
       sup.name = 'superficie'; sup.visible = mostra.superficie; gr.add(sup);
       /* la superficie di vetro: il contorno ruotato in 72 spicchi, normali dal gradiente vero di |ψ|² */
       var NV = [40, 72, 120][Q], vp = [], vn = [], vc = [];
@@ -137,48 +137,49 @@
         }
       });
       var gV = new T.BufferGeometry(); gV.setAttribute('position', new T.Float32BufferAttribute(vp, 3)); gV.setAttribute('normal', new T.Float32BufferAttribute(vn, 3)); gV.setAttribute('color', new T.Float32BufferAttribute(vc, 3));
-      var vetroM = new T.Mesh(gV, vetro(T, 0x6fd6ff, 0.32)); vetroM.name = 'vetro'; sup.add(vetroM); stato.parti.superficie = sup;
+      var vetroM = new T.Mesh(gV, vetro(T, 0x2a6f8f, 0.12)); vetroM.name = 'vetro'; sup.add(vetroM); stato.parti.superficie = sup;
       /* 2. le scie della corrente */
-      var NS = [400, 1000, 2400][Q], pts = O().campiona({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, NS, 17), LT = 16;
+      var NS = [260, 520, 900][Q], pts = O().campiona({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, NS, 17), LT = 28;
       var particelle = pts.map(function (p) { var R = Math.hypot(p[0], p[1]); return { R: Math.max(R, 0.08 * L), z: p[2], phi: Math.atan2(p[1], p[0]) }; });
       var sp = new Float32Array(NS * (LT - 1) * 6), sc = new Float32Array(NS * (LT - 1) * 6), gT = new T.BufferGeometry();
       gT.setAttribute('position', new T.BufferAttribute(sp, 3)); gT.setAttribute('color', new T.BufferAttribute(sc, 3));
       var tp = new Float32Array(NS * 3), gTe = new T.BufferGeometry(); gTe.setAttribute('position', new T.BufferAttribute(tp, 3));
-      var teste = new T.Points(gTe, new T.PointsMaterial({ size: L * 0.05, map: luce(T), color: 0xbff4ff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0.9 }));
-      var scie = new T.LineSegments(gT, new T.LineBasicMaterial({ vertexColors: true, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); scie.name = 'scie'; scie.add(teste); scie.visible = mostra.scie; gr.add(scie); stato.parti.scie = scie;
+      var teste = new T.Points(gTe, new T.PointsMaterial({ size: L * 0.025, map: luce(T), color: 0xdff8ff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0.55 }));
+      var scie = new T.LineSegments(gT, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false })); scie.name = 'scie'; scie.add(teste); scie.visible = mostra.scie; gr.add(scie); stato.parti.scie = scie;
       var K = 6.0 * L / Math.max(1, Math.abs(o.m));                       /* esagerazione: scie lunghe una frazione di giro */
       function aggiornaScie() {
         var p = 0;
         particelle.forEach(function (s, ip) {
           tp[ip * 3] = s.R * Math.cos(s.phi); tp[ip * 3 + 1] = s.R * Math.sin(s.phi); tp[ip * 3 + 2] = s.z;
-          var om = o.m / (s.R * s.R) * K, arco = Math.max(-2.2, Math.min(2.2, om * 0.7)), lungo = o.m ? arco : 0.02;
+          var om = o.m / (s.R * s.R) * K, arco = Math.sign(om || 1) * Math.min(1.9, 0.55 + Math.abs(om) * 0.5), lungo = o.m ? arco : 0.02;   /* scie lunghe: la lunghezza cresce con la velocità vera m/ρ */
           for (var j = 0; j < LT - 1; j++) {
             var f1 = s.phi - lungo * j / (LT - 1), f2 = s.phi - lungo * (j + 1) / (LT - 1), a1 = 1 - j / (LT - 1), a2 = 1 - (j + 1) / (LT - 1);
             sp[p] = s.R * Math.cos(f1); sp[p + 1] = s.R * Math.sin(f1); sp[p + 2] = s.z; sp[p + 3] = s.R * Math.cos(f2); sp[p + 4] = s.R * Math.sin(f2); sp[p + 5] = s.z;
-            sc[p] = 0.42 * a1; sc[p + 1] = 0.62 * a1; sc[p + 2] = 0.68 * a1; sc[p + 3] = 0.42 * a2; sc[p + 4] = 0.62 * a2; sc[p + 5] = 0.68 * a2; p += 6;
+            sc[p] = 0.78 * a1; sc[p + 1] = 0.95 * a1; sc[p + 2] = 1.0 * a1; sc[p + 3] = 0.78 * a2; sc[p + 4] = 0.95 * a2; sc[p + 5] = 1.0 * a2; p += 6;
           }
         });
         gT.attributes.position.needsUpdate = true; gT.attributes.color.needsUpdate = true; gTe.attributes.position.needsUpdate = true;
       }
       aggiornaScie();
       /* 3. l'onda di fase sul piano della densità massima */
-      var PM = pianoMassimo(o), NRf = [50, 80, 120][Q], NFf = [160, 240, 360][Q], Rmax = Math.min(L * 1.15, PM.rho * 2.4 + 2), ampiezza = L * 0.12, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
+      var PM = pianoMassimo(o), Aeq = O().angolare(o.l, o.m, false, PI / 2, 0), Am = O().angolare(o.l, o.m, false, PM.theta, 0); if (Aeq.re * Aeq.re + Aeq.im * Aeq.im > 0.25 * (Am.re * Am.re + Am.im * Am.im)) PM = { theta: PI / 2, r: PM.r, z: 0, rho: PM.r };   /* il foglio sull'equatore quando lì c'è densità (come nel riferimento) */
+      var NRf = [50, 80, 120][Q], NFf = [160, 240, 360][Q], Rmax = L * 1.35, ampiezza = L * 0.16, posF = new Float32Array((NRf + 1) * (NFf + 1) * 3), colF = new Float32Array((NRf + 1) * (NFf + 1) * 3), idx = [], base = [];
       var maxA = 0; for (var i2 = 0; i2 <= NRf; i2++) for (var j2 = 0; j2 <= NFf; j2++) { var Rr = Rmax * i2 / NRf, ff = 2 * PI * j2 / NFf, ps = O().psi({ n: o.n, l: o.l, m: o.m, reale: false, Z: o.Z || 1 }, Rr * Math.cos(ff), Rr * Math.sin(ff), PM.z); base.push(ps); maxA = Math.max(maxA, Math.hypot(ps.re, ps.im)); }
       for (var i3 = 0; i3 < NRf; i3++) for (var j3 = 0; j3 < NFf; j3++) { var a0 = i3 * (NFf + 1) + j3; idx.push(a0, a0 + NFf + 1, a0 + 1, a0 + 1, a0 + NFf + 1, a0 + NFf + 2); }
       var gF = new T.BufferGeometry(); gF.setAttribute('position', new T.BufferAttribute(posF, 3)); gF.setAttribute('color', new T.BufferAttribute(colF, 3)); gF.setIndex(idx);
-      var fogli = new T.Group(), foglio = new T.Mesh(gF, new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.3, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending }));
+      var fogli = new T.Group(), foglio = new T.Mesh(gF, new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.34, side: T.DoubleSide, depthWrite: false }));
       var li = []; for (var i5 = 0; i5 <= NRf; i5 += 8) for (var j5 = 0; j5 < NFf; j5++) { var a5 = i5 * (NFf + 1) + j5; li.push(a5, a5 + 1); }
       for (var j6 = 0; j6 < NFf; j6 += 12) for (var i6 = 0; i6 < NRf; i6++) { var a6 = i6 * (NFf + 1) + j6; li.push(a6, a6 + NFf + 1); }
       var gR = new T.BufferGeometry(); gR.setAttribute('position', gF.attributes.position); gR.setIndex(li);   /* stessi vertici del foglio: si muove con lui */
-      var rete = new T.LineSegments(gR, new T.LineBasicMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.22, blending: T.AdditiveBlending, depthWrite: false }));
+      var rete = new T.LineSegments(gR, new T.LineBasicMaterial({ color: 0xbfeaff, transparent: true, opacity: 0.32, depthWrite: false }));
       fogli.add(foglio); fogli.add(rete); fogli.visible = mostra.fase; gr.add(fogli); stato.parti.fase = fogli;
       function aggiornaFoglio(fase) {
         var c0 = Math.cos(fase), s0 = Math.sin(fase);
         for (var q2 = 0; q2 < base.length; q2++) {
           var i4 = Math.floor(q2 / (NFf + 1)), j4 = q2 % (NFf + 1), Rr = Rmax * i4 / NRf, ff = 2 * PI * j4 / NFf, b2 = base[q2], re = b2.re * c0 + b2.im * s0, im = b2.im * c0 - b2.re * s0;   /* ψ·e^(−iEt/ħ), fase = Et/ħ */
           posF[q2 * 3] = Rr * Math.cos(ff); posF[q2 * 3 + 1] = Rr * Math.sin(ff); posF[q2 * 3 + 2] = PM.z + ampiezza * re / (maxA || 1);
-          var cc3 = hsl(Math.atan2(im, re) / (2 * PI), 0.85, 0.55), mod = Math.min(1, 0.12 + 0.75 * Math.pow(Math.hypot(re, im) / (maxA || 1), 1.5));
-          colF[q2 * 3] = cc3[0] * mod; colF[q2 * 3 + 1] = cc3[1] * mod; colF[q2 * 3 + 2] = cc3[2] * mod;
+          var cc3 = hsl(Math.atan2(im, re) / (2 * PI), 0.7, 0.55), mod = 0.35 + 0.65 * Math.min(1, Math.pow(Math.hypot(re, im) / (maxA || 1), 0.8)), TE = [0.16, 0.62, 0.68];   /* petrolio, con la fase come tinta leggera */
+          colF[q2 * 3] = (TE[0] * 0.7 + cc3[0] * 0.3) * mod; colF[q2 * 3 + 1] = (TE[1] * 0.7 + cc3[1] * 0.3) * mod; colF[q2 * 3 + 2] = (TE[2] * 0.7 + cc3[2] * 0.3) * mod;
         }
         gF.attributes.position.needsUpdate = true; gF.attributes.color.needsUpdate = true;
       }
@@ -196,7 +197,13 @@
         if (o.m) particelle.forEach(function (s) { s.phi += o.m / (s.R * s.R) * K * dt * 0.25; });
         aggiornaScie(); aggiornaFoglio(fase); aggiornaAnello(fase);
       };
-      S.inquadra(L * 2.6, 0.6, 1.15); S.gira = !ferma;
+      /* (v255) la sfera esterna tenue e gli anelli sul piano sotto: le sfere dei nodi radiali e del raggio più probabile, viste in pianta */
+      var ext = []; for (var la = 1; la < 12; la++) { var th2 = PI * la / 12; for (var w3 = 0; w3 < 72; w3++) { var f3 = 2 * PI * w3 / 72, f4 = 2 * PI * (w3 + 1) / 72, Re = L * 1.12 * Math.sin(th2), ze = L * 1.12 * Math.cos(th2); ext.push(Re * Math.cos(f3), Re * Math.sin(f3), ze, Re * Math.cos(f4), Re * Math.sin(f4), ze); } }
+      for (var lo2 = 0; lo2 < 16; lo2++) { var f5 = 2 * PI * lo2 / 16; for (var w4 = 0; w4 < 36; w4++) { var a3 = PI * w4 / 36, a4 = PI * (w4 + 1) / 36; ext.push(L * 1.12 * Math.sin(a3) * Math.cos(f5), L * 1.12 * Math.sin(a3) * Math.sin(f5), L * 1.12 * Math.cos(a3), L * 1.12 * Math.sin(a4) * Math.cos(f5), L * 1.12 * Math.sin(a4) * Math.sin(f5), L * 1.12 * Math.cos(a4)); } }
+      var gE = new T.BufferGeometry(); gE.setAttribute('position', new T.Float32BufferAttribute(ext, 3)); var sfera = new T.LineSegments(gE, new T.LineBasicMaterial({ color: 0x5a6f9a, transparent: true, opacity: 0.16, depthWrite: false })); sfera.name = 'sferaEsterna'; gr.add(sfera);
+      var RI = O().radialeInfo(o.n, o.l, o.Z || 1), raggi = RI.nodiRadiali.concat([RI.rPiuProbabile, L * 0.8, L * 1.1]);
+      raggi.forEach(function (rr, ii) { var cer = []; for (var u3 = 0; u3 <= 160; u3++) cer.push(new T.Vector3(rr * Math.cos(2 * PI * u3 / 160), rr * Math.sin(2 * PI * u3 / 160), -L * 0.95)); gr.add(new T.Line(new T.BufferGeometry().setFromPoints(cer), new T.LineBasicMaterial({ color: ii === RI.nodiRadiali.length ? 0x7fa6c9 : 0x3d4f70, transparent: true, opacity: ii === RI.nodiRadiali.length ? 0.5 : 0.3 }))); });
+      S.inquadra(L * 2.5, 0.75, 1.32); S.gira = !ferma;
       S.didascalia.textContent = O().nome({ n: o.n, l: o.l, m: o.m, reale: false }) + ' · ' + t('reticolo al 90 %, scie di J, onda di fase', '90 % wireframe, J streaks, phase wave') + ' · ' + t('velocità esagerata', 'exaggerated speed');
     }
     var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); dx.appendChild(attesa);
@@ -204,7 +211,7 @@
     testo();
     if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
     L3.stile(); L3.caricaThree().then(function () {
-      attesa.remove(); S = new L3.Scena(dx, 0.95); dx.insertBefore(S.box, dx.firstChild); T = globale.THREE; S.ren.setClearColor(0x03070d, 1); S.cinema({ forza: 0.55, soglia: 0.68 });
+      attesa.remove(); S = new L3.Scena(dx, 0.95); dx.insertBefore(S.box, dx.firstChild); T = globale.THREE; S.ren.setClearColor(0x03070d, 1); S.cinema({ forza: 0.3, soglia: 0.78, vignetta: 0.4 });
       if (getComputedStyle(S.box).position === 'static') S.box.style.position = 'relative';
       S.box.appendChild(formule);
       setTimeout(function () { costruisci(); S.ogniFotogramma(function (dt) { if (ferma || !stato || !stato.aggiorna) return false; stato.aggiorna(dt); return true; }); }, 0);

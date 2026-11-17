@@ -274,6 +274,8 @@ const PROPRI = [
     ruoloEn: 'Per-section theory data: chimica fisica e analitica.' },
   { file: 'bsi-teoria-g.js', ruolo: 'Dati della teoria per sezione: spaziotempo e wormhole.',
     ruoloEn: 'Per-section theory data: spaziotempo e wormhole.' },
+  { file: 'bsi-teoria-h.js', ruolo: 'Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti.',
+    ruoloEn: 'Per-section theory data: orbitals, heliosphere, dark matter, physiology, quantitative pharmacology, prerequisite map.' },
   { file: 'bsi-teoria.js', ruolo: 'Teoria di ogni sezione: pulsante, scheda di lettura, indice e ricerca, strumento leggi_teoria per Spectra.',
     ruoloEn: 'Theory of every section: button, reading sheet, index and search, leggi_teoria tool for Spectra.' },
   { file: 'bsi-chim-hammett.js', ruolo: 'Equazione di Hammett: costanti σ (Hansch, Leo, Taft 1991), cinque reazioni con ρ, previsioni di k/k₀ e pKa, ρ ricavato dai dati.',

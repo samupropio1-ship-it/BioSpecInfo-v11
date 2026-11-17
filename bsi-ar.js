@@ -331,7 +331,7 @@
     var b = D.createElement('button'); b.type = 'button'; b.textContent = 'AR'; b.className = 'bsiAR-tasto';
     var nm = t('Realtà aumentata: posa la scena sul tavolo', 'Augmented reality: place the scene on the table'); b.title = nm; b.setAttribute('aria-label', nm);
     b.addEventListener('click', function (e) { e.stopPropagation(); var tit = (S.didascalia && S.didascalia.textContent) || ''; var sez = S.box.closest && S.box.closest('.section'), st = sez && sez.querySelector('.bsiFX-titolo, .section-title, h2'); apri(S.radice, { nome: (st ? st.textContent.trim() + (tit ? ' · ' : '') : '') + tit.split('·')[0].trim() }); });
-    barra.insertBefore(b, barra.firstChild);
+    barra.appendChild(b);   /* (v255) in fondo: i comandi della vista restano dove erano */
   }
   var stileFatto = false;
   function stile() {

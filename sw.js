@@ -143,6 +143,7 @@ var PRECACHE = [
   './bsi-teoria-e.js',
   './bsi-teoria-f.js',
   './bsi-teoria-g.js',
+  './bsi-teoria-h.js',
   './bsi-teoria.js',
   './bsi-chem-mappe.js',
   './bsi-fis-spin.js',

@@ -229,4 +229,90 @@
   }
   F.schedeExtra = F.schedeExtra || {};
   F.schedeExtra.viaggioGalassia = scheda;
+  /* ═══ TUTTO INSIEME (composizione non in scala, v255) ═════════════════════════════════════════════════════════════
+     Come nel fotogramma di riferimento dell'autore: pianeti, eliosfera, bolle di Fermi ed eROSITA e disco della Galassia
+     visibili insieme. Non è possibile in scala (dal Sole a Nettuno ci sono 30 UA, alle bolle 10⁹): ogni distanza dal Sole
+     è ridotta con d = 2,2·log₁₀(1 + r/0,3 UA), e le bolle galattiche, che stanno al centro della Galassia, sono messe
+     attorno al Sole. Lo dice la figura. Restano veri: le posizioni dei pianeti di oggi (Keplero), la forma asimmetrica
+     dell'eliosfera, l'inclinazione di 60,2° fra il piano dell'eclittica e quello della Galassia, il verso della rotazione. */
+  function schedaInsieme(div) {
+    var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div', { style: 'min-width:0' }); G.appendChild(pan); G.appendChild(dx); div.appendChild(G);
+    var ferma = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches, S = null, T = null, L3 = globale.BSILab3D, st = null, livello = qualitaAuto();
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', html: '<span style="display:inline-block;font:800 10px/1 system-ui;letter-spacing:.06em;color:#04121c;background:#ffd24a;border-radius:5px;padding:3px 6px;margin-right:6px">NON IN SCALA</span>' +
+      t('Una composizione per vedere tutto insieme: le distanze dal Sole sono compresse con una scala logaritmica (d = 2,2·log₁₀(1 + r/0,3 UA)) e le bolle di Fermi ed eROSITA, che in realtà stanno al centro della Galassia a 26 000 anni luce, sono disegnate attorno al Sole. Veri: i pianeti dove sono oggi, la forma asimmetrica dell\'eliosfera, l\'eclittica inclinata di 60,2° sul piano della Galassia. Per le distanze vere: la scheda «Dal Sole alla Galassia».',
+        'A composition to see everything together: distances from the Sun are compressed with a logarithmic scale (d = 2.2·log₁₀(1 + r/0.3 AU)) and the Fermi and eROSITA bubbles, which really sit at the Galactic centre 26,000 light years away, are drawn around the Sun. True: the planets where they are today, the asymmetric heliosphere, the ecliptic tilted 60.2° to the Galactic plane. For true distances: the «From the Sun to the Galaxy» tab.') }));
+    F.scelta(pan, ['Qualità', 'Quality'], [['2', t('massima', 'maximum')], ['1', t('normale', 'normal')], ['0', t('leggera', 'light')]], String(livello), function (v) { livello = +v; if (S) costruisci(); });
+    function d(r) { return 2.2 * Math.log10(1 + r / 0.3); }
+    function vetro(col, op) { return new T.ShaderMaterial({ uniforms: { c: { value: new T.Color(col) }, o: { value: op } }, transparent: true, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending, vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }', fragmentShader: 'uniform vec3 c; uniform float o; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.0); gl_FragColor = vec4(c*(0.22 + 1.6*f), o*(0.25 + 1.3*f)); }' }); }
+    function costruisci() {
+      var E = F.calcolo.eliosfera, rnd = mulberry(77), Q = livello;
+      S.pulisci(); var gr = new T.Group(); S.aggiungi(gr);
+      /* il riferimento della scena è il piano della Galassia (orizzontale); l'eclittica si inclina come in cielo */
+      var qEcl = new T.Quaternion().setFromUnitVectors(new T.Vector3(NGP[0], NGP[1], NGP[2]), new T.Vector3(0, 0, 1)), ecl = new T.Group(); ecl.quaternion.copy(qEcl); gr.add(ecl);
+      function lab(txt, col, x, y, z, h, gruppo) { var e = L3.testo3d(T, txt, col, h || 0.32); e.position.set(x, y, z); (gruppo || gr).add(e); return e; }
+      /* il Sole e i pianeti (nell'eclittica) */
+      var sole = new T.Mesh(new T.SphereGeometry(0.22, 32, 24), new T.MeshBasicMaterial({ color: 0xffd27a })); ecl.add(sole);
+      var oggi = Date.now(), pianeti = [];
+      PIANETI.forEach(function (P, ip) {
+        var orb = []; for (var k = 0; k <= 160; k++) { var f = 2 * PI * k / 160, E2 = f, xv = P[2] * (Math.cos(E2) - P[3]), yv = P[2] * Math.sqrt(1 - P[3] * P[3]) * Math.sin(E2), w = P[6] * RAD, x = xv * Math.cos(w) - yv * Math.sin(w), y = xv * Math.sin(w) + yv * Math.cos(w), r = Math.hypot(x, y), sc = d(r) / r; orb.push(new T.Vector3(x * sc, y * sc, 0)); }
+        ecl.add(new T.Line(new T.BufferGeometry().setFromPoints(orb), new T.LineBasicMaterial({ color: 0x9fb3c8, transparent: true, opacity: 0.45 })));
+        var m = new T.Mesh(new T.SphereGeometry(0.05 + 0.025 * Math.min(4, P[2] / 2), 16, 12), new T.MeshStandardMaterial({ color: P[8], roughness: 0.6, emissive: P[8], emissiveIntensity: 0.25 })); ecl.add(m);
+        var et = lab(t(P[0], P[1]), '#dfe9f5', 0, 0, 0, 0.3, ecl); pianeti.push({ i: ip, m: m, et: et });
+      });
+      function posPianeti(data) { pianeti.forEach(function (q) { var p = pianeta(q.i, data), r = Math.hypot(p.x, p.y), sc = d(r) / r; q.m.position.set(p.x * sc, p.y * sc, 0); q.et.position.set(p.x * sc, p.y * sc, 0.2); }); }
+      posPianeti(oggi);
+      /* l'eliosfera asimmetrica, mappata direzione per direzione */
+      var n = E.versore(E.NASO.lon, E.NASO.lat), NA = 46, NB = 46;
+      function guscio(fr, col, op, nome) {
+        var e1 = n, e2 = norm(vx(Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0], e1)), e3 = vx(e1, e2), pos = [], idx = [];
+        for (var i = 0; i <= NA; i++) { var al = 160 * i / NA, ca = Math.cos(al * RAD), sa = Math.sin(al * RAD); for (var j = 0; j <= NB; j++) { var b = 2 * PI * j / NB, dd = [e1[0] * ca + (e2[0] * Math.cos(b) + e3[0] * Math.sin(b)) * sa, e1[1] * ca + (e2[1] * Math.cos(b) + e3[1] * Math.sin(b)) * sa, e1[2] * ca + (e2[2] * Math.cos(b) + e3[2] * Math.sin(b)) * sa], r = d(Math.min(fr(dd), 2000)); pos.push(dd[0] * r, dd[1] * r, dd[2] * r); } }
+        for (var a2 = 0; a2 < NA; a2++) for (var b2 = 0; b2 < NB; b2++) { var p0 = a2 * (NB + 1) + b2, p1 = p0 + NB + 1; idx.push(p0, p1, p0 + 1, p0 + 1, p1, p1 + 1); }
+        var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); var m = new T.Mesh(g, vetro(col, op)); m.name = nome; ecl.add(m); return m;
+      }
+      guscio(function (dd) { return E.shockDir(dd); }, 0xffa64a, 0.12, 'shock');
+      guscio(function (dd) { return E.eliopausaDir(dd); }, 0x4a9dff, 0.22, 'eliopausa');
+      guscio(function (dd) { return E.eliopausaDir(dd) * 1.35; }, 0xd46cff, 0.08, 'idrogeno');
+      guscio(function (dd) { return E.eliopausaDir(dd) * 1.9; }, 0x7affc8, 0.06, 'prua');
+      var rT = d(E.shockDir([0, 0, 1])), rH = d(E.eliopausaDir([0, 0, -1]));
+      lab(t('shock di terminazione', 'termination shock'), '#ffc08a', 0, 0, rT * 0.98, 0.34, ecl); lab(t('eliopausa', 'heliopause'), '#9cc8ff', 0, 0, -rH * 1.02, 0.34, ecl);
+      lab(t('muro di idrogeno', 'hydrogen wall'), '#e2a8ff', n[0] * d(E.eliopausaDir(n) * 1.35), n[1] * d(E.eliopausaDir(n) * 1.35), n[2] * d(E.eliopausaDir(n) * 1.35) + 0.4, 0.3, ecl);
+      lab(t('onda di prua', 'bow wave'), '#9fffd8', n[0] * d(E.eliopausaDir(n) * 1.9), n[1] * d(E.eliopausaDir(n) * 1.9), n[2] * d(E.eliopausaDir(n) * 1.9) - 0.4, 0.3, ecl);
+      /* il vento solare: particelle gialle che escono e, dopo lo shock, piegano verso la coda (flusso di Rankine, mappato) */
+      var NV = [500, 1100, 2200][Q], vp = new Float32Array(NV * 3), vstato = [], R0 = E.modelloAsimmetrico().R0;
+      function nasce(i) { var u = 2 * rnd() - 1, ph = 2 * PI * rnd(), sq = Math.sqrt(1 - u * u), r = 2 + rnd() * 20; vstato[i] = [r * sq * Math.cos(ph), r * sq * Math.sin(ph), r * u]; }
+      for (var iv = 0; iv < NV; iv++) { nasce(iv); for (var z = 0; z < Math.floor(rnd() * 120); z++) muovi(iv, 3); }
+      function muovi(i, dt) { var p = vstato[i], v = campoFlusso(p, n, R0, 26), vv = Math.hypot(v[0], v[1], v[2]) || 1, h = Math.min(dt, 4 / vv); p[0] += v[0] * h; p[1] += v[1] * h; p[2] += v[2] * h; if (Math.hypot(p[0], p[1], p[2]) > 700) nasce(i); }
+      function mappaV() { for (var i = 0; i < NV; i++) { var p = vstato[i], r = Math.hypot(p[0], p[1], p[2]) || 1, sc = d(r) / r; vp[i * 3] = p[0] * sc; vp[i * 3 + 1] = p[1] * sc; vp[i * 3 + 2] = p[2] * sc; } gV.attributes.position.needsUpdate = true; }
+      var gV = new T.BufferGeometry(); gV.setAttribute('position', new T.BufferAttribute(vp, 3)); ecl.add(new T.Points(gV, new T.PointsMaterial({ size: 0.05, map: luce(), color: 0xffd36a, transparent: true, opacity: 0.85, depthWrite: false, blending: T.AdditiveBlending }))); mappaV();
+      /* le bolle (attorno al Sole in questa composizione), verticali rispetto al disco della Galassia */
+      function lobo(h, w, col, op, su) { var m = new T.Mesh(new T.SphereGeometry(1, 64, 48), vetro(col, op)); m.scale.set(w, w, h / 2); m.position.set(0, 0, su * h / 2); gr.add(m); return m; }
+      [1, -1].forEach(function (su) { lobo(11.5, 3.6, 0xe0484a, 0.16, su); lobo(16, 5.0, 0x2fb07a, 0.10, su); });
+      var NR = [900, 2000, 4000][Q], rp = []; for (var i3 = 0; i3 < NR; i3++) { var su2 = rnd() < 0.5 ? 1 : -1, u3 = rnd(), th = 2 * PI * rnd(), zz = su2 * (0.3 + 10.8 * Math.sqrt(rnd())), largo = 3.6 * Math.sqrt(Math.max(0, 1 - Math.pow((Math.abs(zz) - 5.75) / 5.75, 2))) * Math.sqrt(u3); rp.push(largo * Math.cos(th), largo * Math.sin(th), zz); }
+      var gR = new T.BufferGeometry(); gR.setAttribute('position', new T.Float32BufferAttribute(rp, 3)); gr.add(new T.Points(gR, new T.PointsMaterial({ size: 0.06, map: luce(), color: 0xff4d4d, transparent: true, opacity: 0.8, depthWrite: false, blending: T.AdditiveBlending })));
+      lab(t('bolla di Fermi (raggi γ)', 'Fermi bubble (γ rays)'), '#ff9a9a', 3.4, 0, 9.5, 0.6); lab(t('bolla di eROSITA (raggi X)', 'eROSITA bubble (X rays)'), '#8fffc8', -4.8, 0, 13.2, 0.6);
+      /* il disco della Galassia: bracci a spirale di particelle attorno */
+      var NG = [6000, 14000, 30000][Q], gp = [], gc = [], kp = Math.tan(12 * RAD);
+      for (var i4 = 0; i4 < NG; i4++) { var br = Math.floor(rnd() * 4), rr = 7 + 13 * Math.pow(rnd(), 0.8), an = br * PI / 2 + Math.log(rr / 7) / kp + gauss() * 0.18, zz2 = gauss() * 0.18; gp.push(rr * Math.cos(an), rr * Math.sin(an), zz2); var f2 = 0.55 + 0.45 * rnd(); gc.push(0.8 * f2, 0.86 * f2, 1 * f2); }
+      function gauss() { var u = Math.max(1e-9, rnd()), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * PI * v); }
+      var gG = new T.BufferGeometry(); gG.setAttribute('position', new T.Float32BufferAttribute(gp, 3)); gG.setAttribute('color', new T.Float32BufferAttribute(gc, 3)); var disco = new T.Points(gG, new T.PointsMaterial({ size: 0.16, map: luce(), vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false, blending: T.AdditiveBlending })); gr.add(disco);
+      lab(t('disco della Via Lattea', 'Milky Way disc'), '#cfe3f7', 18, 3, 1.2, 0.7);
+      /* le orbite delle Voyager, sottili */
+      ['v1', 'v2'].forEach(function (k) { var sd = E.SONDE[k], dd = E.versore(sd.lon, sd.lat), R = E.distanza(k, annoDecimale(oggi)), pts = []; for (var i5 = 0; i5 <= 60; i5++) { var r5 = R * i5 / 60, q5 = d(r5); pts.push(new T.Vector3(dd[0] * q5, dd[1] * q5, dd[2] * q5)); } ecl.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ color: parseInt(sd.col.slice(1), 16), transparent: true, opacity: 0.9 }))); var ql = d(R); lab(sd.nome, sd.col, dd[0] * ql, dd[1] * ql, dd[2] * ql + 0.25, 0.3, ecl); });
+      st = { posPianeti: posPianeti, muovi: function (dt) { for (var i = 0; i < NV; i++) muovi(i, dt * 25); mappaV(); disco.rotation.z -= dt * 0.01; }, giorni: 0 };
+      S.inquadra(42, -0.9, 1.42); S.gira = !ferma;
+      S.didascalia.textContent = t('Tutto insieme · NON IN SCALA: distanze compresse in logaritmo, bolle galattiche attorno al Sole', 'All together · NOT TO SCALE: distances log-compressed, galactic bubbles around the Sun');
+    }
+    var LUCE = null;
+    function luce() { if (LUCE) return LUCE; var c = globale.document.createElement('canvas'); c.width = c.height = 64; var q = c.getContext('2d'), g2 = q.createRadialGradient(32, 32, 0, 32, 32, 32); g2.addColorStop(0, 'rgba(255,255,255,1)'); g2.addColorStop(0.3, 'rgba(255,255,255,.45)'); g2.addColorStop(1, 'rgba(255,255,255,0)'); q.fillStyle = g2; q.fillRect(0, 0, 64, 64); LUCE = new T.CanvasTexture(c); return LUCE; }
+    function vx(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+    function norm(a) { var l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+    var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); dx.appendChild(attesa);
+    if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+    L3.stile(); L3.caricaThree().then(function () {
+      attesa.remove(); S = new L3.Scena(dx, 1.0); dx.insertBefore(S.box, dx.firstChild); T = globale.THREE; S.ren.setClearColor(0x020309, 1); S.cinema({ forza: 0.9, soglia: 0.45 });
+      setTimeout(function () { costruisci(); S.ogniFotogramma(function (dt) { if (ferma || !st) return false; st.giorni += dt * 20; st.posPianeti(Date.now() + st.giorni * 864e5); st.muovi(dt); return true; }); }, 0);
+    }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
+  }
+  F.schedeExtra.insiemeGalassia = schedaInsieme;
+
 })(typeof window !== 'undefined' ? window : globalThis);

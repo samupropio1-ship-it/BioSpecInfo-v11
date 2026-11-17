@@ -111,21 +111,22 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       }
       o.stati = [...o.stati].sort().join(',');
       o.t3d = /eliopausa a/.test(testi[0]) && /121,6/.test(testi[0]) && /Rankine/.test(testi[0]);
-      o.parker = /ψ = 47,0°/.test(testi[2]) && /5,13 nT/.test(testi[2]);
-      o.press = /1,34 nPa/.test(testi[3]) && /r_TS = 94 UA/.test(testi[3]);
-      o.voy = /94,0 UA/.test(testi[4]) && /119,0 UA/.test(testi[4]) && /onda di prua/.test(testi[4]);
+      o.parker = /ψ = 47,0°/.test(testi[3]) && /5,13 nT/.test(testi[3]);
+      o.press = /1,34 nPa/.test(testi[4]) && /r_TS = 94 UA/.test(testi[4]);
+      o.voy = /94,0 UA/.test(testi[5]) && /119,0 UA/.test(testi[5]) && /onda di prua/.test(testi[5]); o.insieme = /NON IN SCALA/.test(testi[1]);
       /* la scala lineare ricostruisce la scena senza errori */
       schede[0].click(); await pausa(400); const s = [...el.querySelectorAll('select')].filter(x => x.offsetParent)[0]; s.value = 'lin'; s.dispatchEvent(new Event('change')); await pausa(500); o.lin = /Scala lineare/.test(el.innerText);
       o.ar = !!el.querySelector('.bsiAR-tasto');
       return o;
     });
-    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sastroelio' && r.schede === 5 && r.tele.every(n => n >= 1));
+    vero(nome + ' · nella barra, si apre, 4 schede, le tele ci sono (' + r.tele.join(',') + ')', r.nav && r.aperta === 'sastroelio' && r.schede === 6 && r.tele.every(n => n >= 1));
     att(nome + ' · non sborda e non mostra valori mancanti', '0 null', r.sb + ' ' + r.strano);
     att(nome + ' · le tre etichette di stato ci sono', 'DIBATTUTO,MISURATO,MODELLO', r.stati);
     vero(nome + ' · 3D: modello di Rankine confrontato con la misura di Voyager 1', r.t3d);
     vero(nome + ' · Parker: ψ = 47,0° e 5,13 nT a 1 UA', r.parker);
     vero(nome + ' · pressione: 1,34 nPa a 1 UA, shock a 94 UA', r.press);
     vero(nome + ' · Voyager: attraversamenti e dibattito sul bow shock', r.voy);
+    vero(nome + ' · «Tutto insieme»: la composizione dichiara che non è in scala', r.insieme);
     vero(nome + ' · la scala lineare si ricostruisce, e la scena ha il pulsante AR', r.lin && r.ar);
     att(nome + ' · nessun errore JavaScript', 0, errs.length); errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
     await cx.close();
