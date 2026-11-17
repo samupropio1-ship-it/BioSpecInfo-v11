@@ -96,6 +96,20 @@ verificata.
   2017); le curve di rotazione con disco e alone (229 km/s del Sole); e la
   regia del video, «🎬 Dalla materia alla lente»: rete → alone → anello che
   nasce → tre lenti → rete.
+- **Le animazioni come nei video di riferimento**: l'orbitale predefinito è il 4f
+  con m = 1 (due lobi e un toro, come il fotogramma dell'autore) con reticolo
+  rado e nitido, lobi azzurri e toro arancio, scie della corrente lunghe e
+  sottili, foglio dell'onda di fase color petrolio sull'equatore, sfera esterna
+  e anelli sul piano (nodi radiali e raggio più probabile), bagliore minimo.
+  Nell'eliosfera la scheda **«🎨 Tutto insieme»**: pianeti di oggi, eliosfera
+  asimmetrica con il vento solare, muro di idrogeno, onda di prua, bolle di
+  Fermi (rosse, con le particelle) ed eROSITA (verdi), disco della Via Lattea
+  e Voyager in una sola scena, come il fotogramma di riferimento; dichiarata
+  NON IN SCALA sulla figura (distanze compresse in logaritmo, bolle galattiche
+  attorno al Sole), con l'inclinazione vera di 60,2° fra eclittica e Galassia.
+- **Teoria delle 6 sezioni nuove** (`bsi-teoria-h.js`): orbitali, eliosfera,
+  materia oscura, fisiologia, farmacologia quantitativa, mappa dei
+  prerequisiti; 151 schede in tutto.
 - **⬡ La Tavola Periodica sostituita** dalla nuova (`bsi-elementi3d.js`, sezione
   `spt`): due schede, «⚛️ L'atomo in 3D» e «⬡ La tavola e le tendenze» (tavola
   colorata per elettronegatività, raggio, ionizzazione, fusione, massa o
@@ -129,6 +143,8 @@ verificata.
   batteria a 107 banchi.
 
 ### Corretto
+- **Pulsante AR in fondo alla barra delle scene 3D** (stava per primo e spostava i
+  comandi della vista; `test_grafica3d`).
 - **La parola «Spectra» e la sentinella sempre in ascolto**: ripartiva
   subito a ogni chiusura e, con un errore di rete o di microfono, girava a
   vuoto decine di volte al secondo (batteria, bip su Android); ora attesa

@@ -96,7 +96,7 @@ function vicino(d, atteso, avuto, tol) { const e = Math.abs(avuto - atteso) / Ma
       BSISpectraLive.calcolo.apriSezione('sorbitali'); await pausa(600);
       let el = document.getElementById('sorbitali'), bt = [...el.querySelectorAll('.bsiFX-schede button')].find(b => /Onde di fase/.test(b.textContent)); o.tabOrb = !!bt; bt && bt.click();
       for (let i = 0; i < 60 && !el.querySelector('.bsiOC-formule'); i++) await pausa(250); await pausa(1200);
-      const f = el.querySelector('.bsiOC-formule'); o.formule = !!f && /J/.test(f.textContent) && /2πmħ/.test(f.textContent) && /3λ/.test(f.textContent);
+      const f = el.querySelector('.bsiOC-formule'); o.formule = !!f && /J/.test(f.textContent) && /2πmħ/.test(f.textContent) && /2πρ = \dλ/.test(f.textContent);
       const S = BSILab3D.scene().filter(s => s.box.offsetParent && s.box.closest('#sorbitali'))[0]; o.ar = !!(S && S.box.querySelector('.bsiAR-tasto')); o.post = !!(S && S._post); const px = S && S.ren.domElement; o.luce = (() => { if (!px) return 0; S.disegna(); const c = document.createElement('canvas'); c.width = 64; c.height = 64; const q = c.getContext('2d'); q.drawImage(px, 0, 0, 64, 64); const d = q.getImageData(0, 0, 64, 64).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] + d[i + 2]; return s / (64 * 64 * 3); })(); o.vetro = !!(S && S.radice.children[0] && S.radice.children[0].getObjectByName('vetro'));
       const scie = S && S.radice.children[0] && S.radice.children[0].children.find(c => c.name === 'scie');
       const prima = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() : ''; await pausa(600); o.scieMuovono = scie ? Array.from(scie.geometry.attributes.position.array.slice(0, 6)).join() !== prima : null;
