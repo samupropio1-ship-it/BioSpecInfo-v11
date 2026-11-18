@@ -338,7 +338,9 @@
     var n = 0; try { n = ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : -1; } catch (e) {}
     return { android: ANDROID, attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
   }
-  function taci() { voce.inCorso = false; voce.giro = (voce.giro || 0) + 1; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
+  /* (v261) interrotta la voce a mano, la sentinella riprende subito (non dopo il controllo a intervalli) */
+  function riprendiDopoVoce() { clearInterval(guardiaVoce); if (sentinella.perVoce && voceAltrui === 0 && !hud.ascolto) { sentinella.perVoce = false; if (sentinella.attiva && sentinella.inPausa) { sentinella.inPausa = false; clearTimeout(sentinella.timer); try { sentinella.rec.start(); sentinella.ultimoAvvio = Date.now(); } catch (e) { programmaRiavvio(); } } } }
+  function taci() { voce.inCorso = false; voce.giro = (voce.giro || 0) + 1; setTimeout(riprendiDopoVoce, 0); if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 
   /* ═══ 4. I COMANDI LOCALI (senza rete) ═════════════════════════════════ */
   var UNITA_A_VOCE = { 'elettronvolt': 'eV', 'elettronvolts': 'eV', 'electronvolt': 'eV', 'joule': 'J', 'kilojoule': 'kJ', 'chilojoule': 'kJ', 'calorie': 'cal', 'caloria': 'cal', 'chilocalorie': 'kcal',
