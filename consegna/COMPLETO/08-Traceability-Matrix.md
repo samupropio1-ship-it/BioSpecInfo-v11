@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v260` |
+| **Versione descritta** | `bsi-v261` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -105,6 +105,7 @@
 | **SCI-79** | Le scene fisiche 3D (v258) devono venire dalle equazioni e dai dati misurati: H₂ nel potenziale di Morse con moto esatto e D₀ = 4,478 eV, la magnetosfera di Dungey con la magnetopausa di Shue e il bordo della calotta che scende con B_z verso sud, il reticolo di Kelvin che soddisfa Navier | `bsi-fis-scene3d.js` — `morse`, `nuvolaH2`, `traccia`, `confineCalotta`, `shue`, `kelvin` | `test_spectra_ponte` (41 controlli) |
 | **SCI-80** | Le simulazioni cosmiche (v258) devono essere simulazioni, non animazioni: minimo di Morse a 74,1 pm e −4,75 eV, b_crit = 5,196 M con ΔE/E < 10⁻⁷, curva piatta con l'alone e stelle in fuga senza, N corpi con l'energia conservata; ogni analogia (telo, reticolo) dichiarata | `bsi-cosmo-*.js` | `test_cosmo` (34 controlli) |
 | **SCI-81** | Gli spaccati stellari (v260) devono usare numeri reali: composizioni che sommano 100, ogni reazione bilanciata in A e Z, durate di Woosley, Heger e Weaver 2002 per 15 e 25 M☉, residuo stella di neutroni fino a 25 M☉ e buco nero sopra, catena ⁵⁶Ni → ⁵⁶Co → ⁵⁶Fe che conserva i nuclei, BBN con Y ≈ 0,24, metallicità del Sole ritrovata; raggi non in scala e composizioni indicative dichiarati | `bsi-astro-spaccato.js`, `bsi-astro-spaccato-scenari.js` | `test_spaccato` (68 controlli) |
+| **SCI-82** | I quattordici eventi cosmici della v261 devono calcolare i loro numeri: caduta libera e Kelvin–Helmholtz, legge di Leavitt per δ Cephei, campo ed età della pulsar del Granchio, raggio di marea e ricaduta ∝ t^−5/3, Eddington e Salpeter, chirp di GW150914, ionizzazione di Saha; il grafico vivo nel palco segue la simulazione; percorsi H-R schematici e composizioni indicative dichiarati | `bsi-astro-spaccato-eventi.js`, `bsi-astro-spaccato.js` | `test_spaccato` (113 controlli) |
 | **UI-23** | Ogni scheda delle 29 sezioni con la scheda 3D nuova deve aprirsi piena, senza avvisi, con le tele disegnate e un nome accessibile, e l'ultima scheda deve essere una scena 3D che disegna; un grafico senza nome deve prendere quello della scheda | `bsi-fisica-comune.js` — `prepara()` e `mostra()` danno alle tele senza nome (o con un nome di una sola lettera) «Grafico: <scheda> — <sezione>»; la scena 3D si costruisce dopo il clic, fuori dal gestore | `test_3d238` — a 1280 e a 390 px, per ogni sezione: tutte le schede piene, senza ⚠, ogni tela disegna e ha un nome di almeno tre caratteri; l'ultima scheda è una scena con `Scena.campiona() > 0`; **lavoro sincrono al clic sotto i 250 ms** (WebGL in SwiftShader); a 390 px niente sborda; nessun errore JavaScript |
 | **UI-22** | La console di Spectra Live deve restare usabile su un telefono con la barra di stato e i tasti di Android sopra la pagina, senza elementi sovrapposti, e da lì si deve raggiungere ogni sezione | `bsi-spectra-live.js` — margini `env(safe-area-inset-*)` con minimi di 34 e 46 px (classe `.bsiJV-bordi`) quando la finestra copre lo schermo su un dispositivo touch o l'app è installata; impaginazione calcolata nel ciclo di disegno; navigatore 🧭 per materia; scorciatoie di contesto; pulsante 💬; pulsante tondo Spectra Live (dalla v239 l'unico pulsante di Spectra, UI-25) | `test_spectra238` — su un telefono simulato (412×915, touch): margini sicuri attivi, primo pulsante ≥ 34 px dal bordo alto, comandi ≥ 46 px dal bordo basso, telemetria in due colonne che non copre il volto; su schermo grande nessun margine forzato; in entrambi testata, volto, stato, dialogo, comandi e attribuzione senza sovrapposizioni; il navigatore elenca per ognuna delle tre materie esattamente le sezioni della barra, gli strumenti rapidi e le frasi; aprire una sezione di un'altra materia cambia materia e lascia il pulsante di Spectra Live |
 | **UI-24** | Ogni sezione deve avere una lezione guidata che parte dalla sezione stessa: un capitolo per scheda, i comandi mostrati al lavoro e rimessi com'erano, una verifica con la spiegazione, un riepilogo; durante la lezione nessun pulsante flottante sopra il pannello, e alla fine tutto com'era | `bsi-lezione.js` — `BSILezione.costruisci()` legge titolo, sottotitolo, schede, spiegazioni, tele, cursori e scelte; domanda di verifica dal kit di studio della materia (più parole in comune con la sezione); lettore `#bsiLZ` con riflettore, ◀ ▶, pausa e voce; pulsante «🎓 Lezione guidata con Spectra» in ogni sezione; i comandi dimostrati tornano al valore di partenza anche se si passa oltre o si chiude; pulsanti flottanti nascosti e ripristinati; «riduci movimento» rispettato. `bsi-spectra-live.js` — comando «fammi lezione» e scorciatoia 🎓 | `test_lezione` — 30 controlli: attraversando tutte le **194** sezioni della barra nelle tre materie, ognuna ha la lezione (apertura … riepilogo) e il pulsante, e ognuna delle **99** con schede ha un capitolo per scheda; almeno 60 lezioni con una domanda di verifica (**79** alla stesura); a 390 e a 1280 px: la lezione parte dall'apertura, i pulsanti flottanti si nascondono, un cursore cambia davvero valore sotto il riflettore e torna al valore di partenza saltando avanti a metà, una scelta passa le opzioni e torna, la verifica mostra la risposta giusta e la spiegazione, il riepilogo elenca i capitoli, niente sborda, alla chiusura pannello tolto e pulsanti di nuovo visibili; «fammi lezione» avvia la lezione; nessun errore JavaScript. La voce non è provata dal banco |
@@ -156,6 +157,7 @@
 | **AI-22** | La memoria di Spectra deve essere un archivio solo a cinque livelli (lavoro, episodi, fatti, procedure, autobiografia) che sopravvive alla chiusura dell'app; a ogni domanda il modello deve ricevere solo i ricordi pertinenti (non tutta la memoria), deve potersi consolidare da sola ogni giorno, dimenticare a comando, viaggiare con l'esportazione e non far arrivare al modello ricordi estranei alla domanda | `bsi-spectra-memoria.js` — `BSIMemoria.scrivi`, `cerca` (sei segnali, oblio R = e^(−Δt/S), diffusione, diversità), `consolida`, `blocco` ([RICORDI], [PROCEDURE], [STORIA]), `comando`, `dimentica`, `esportaTesto`/`importaTesto`, strumento `cerca_nella_memoria`; `bsi-ai-hub.js` — `_bsiMente(testo)` | `test_memoria` (29 controlli) |
 | **AI-23** | Spectra Prime (v258): orchestratore a sette agenti (LangGraph) con un ponte WebSocket che vede la scena 3D aperta e la comanda (load, update, toggle_layer, focus); solo wss://, origini autorizzate, quattro azioni, valori controllati, azioni high/critical bloccate fino alla conferma | `spectra_core/` (10 test Python), `bsi-spectra-ponte.js` | `test_spectra_ponte` (41 controlli) |
 | **AI-24** | Spectra è un nucleo olografico a forma di particella, non un robot (v259): nessun corpo, volto o ritratto da scaricare; stati con transizioni morbide (easeInOutSine), nessun elemento additivo che saturi; nessuna finestra, voce o tastiera che si apra senza un'azione dell'utente | `bsi-spectra-nucleo.js`, `bsi-spectra-figura.js`, `bsi-spectra-risveglio.js`, `bsi-spectra-olointerattivo.js`, `bsi-spectra-live.js`, `spectra-studio.html` | `test_spectra_nucleo` (41 controlli) |
+| **AI-25** | La voce di Spectra deve sentirsi anche con la sentinella accesa: prima di parlare (console, chat, voce di qualità) il microfono si libera e si aspetta che Android lo rilasci, mentre parla la sentinella non riparte, finita la voce riparte; nessuna frase cade | `bsi-spectra-live.js`, `bsi-spectra-voce.js`, `bsi-ai-hub.js` | `test_voce_microfono` (20 controlli) |
 
 ---
 
@@ -199,7 +201,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 758 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 760 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -245,15 +247,15 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…81) | 79 | 79 | 100 % |
-| Agente AI (AI-01…24) | 23 | 23 | 100 % |
+| Scientifici (SCI-01…82) | 80 | 80 | 100 % |
+| Agente AI (AI-01…25) | 24 | 24 | 100 % |
 | Stabilità (STA-01…11) | 11 | 11 | 100 % |
 | Interfaccia (UI-01…36) | 33 | 33 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **156** | **156** | **100 %** |
+| **Totale automatizzato** | **158** | **158** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **163** | **156** | **96 %** |
+| **Totale dichiarato** | **165** | **158** | **96 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -289,4 +291,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v260`._
+_Documento aggiornato alla versione `bsi-v261`._

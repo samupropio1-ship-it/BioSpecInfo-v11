@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v260` |
+| **Version described** | `bsi-v261` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**113 benches**, grouped by what they demonstrate.
+**114 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -146,7 +146,8 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_spaccati` | **The physics technical cutaways** (v257, 51 checks): Kirchhoff and power over a thousand random circuits, drift in copper, colour code; Nd:YAG laser power balance for eighteen cases, threshold, inversion clamped above threshold, linear growth; for twenty-five p–n junctions the field integrated from Poisson equal to the closed formula, neutrality, potential step, Shockley law; then the three tabs (circuits, laser, semiconductors) on a phone with «reduce motion» and on a large screen, with the balance written and the last 3D tab in its place |
 | `test_spectra_ponte` | **The bridge to Spectra Prime and the 3D physics scenes** (v258, 41 checks): a fake server speaks the WebSocket protocol; load/update/toggle_layer/focus commands really change the scene and telemetry reports it, unsafe addresses refused, reconnection; the physics of Morse, the magnetosphere and Kelvin |
 | `test_cosmo` | **The cosmic simulations** (v258 and v260, 44 checks: also the scale and the Sun): Morse at 74.1 pm, D₀ 4.48 eV, LCAO cloud; b_crit, weak field, logarithmic orbits, ΔE/E; Bessel, Freeman, flat curve, escaping stars without halo; N-body and bound moon; then every simulation on the page on a phone |
-| `test_spaccato` | **The stellar cutaways** (v260, 68 checks): compositions summing to 100 and displayed percentages summing to exactly 100, increasing times, every reaction balanced in A and Z, WHW02 durations, remnant by mass, Bateman for ⁵⁶Ni, Ia and kilonova light, BBN, ²⁶Al heat, closed box; then the nine scenarios on the phone (drawing, donut, legend, clock, finale), the mass slider, «reduce motion», no automatic opening |
+| `test_spaccato` | **The stellar cutaways** (v260 and v261, 113 checks: 23 events, the computed numbers of the new ones, the live chart in the frame): compositions summing to 100 and displayed percentages summing to exactly 100, increasing times, every reaction balanced in A and Z, WHW02 durations, remnant by mass, Bateman for ⁵⁶Ni, Ia and kilonova light, BBN, ²⁶Al heat, closed box; then the nine scenarios on the phone (drawing, donut, legend, clock, finale), the mass slider, «reduce motion», no automatic opening |
+| `test_voce_microfono` | **The voice with the sentinel on** (v261, 20 checks): a fake recogniser and synthesiser, as on Android (a sentence spoken with the microphone on stays silent); for console, chat and quality voice the microphone stops before the first sentence, at least 300 ms pass, no sentence is silent, all four are spoken, the sentinel does not restart while speaking and restarts afterwards; with no sentinel the voice starts at once |
 | `test_spectra_nucleo` | **Spectra as a holographic core, with no automatic openings** (v259, 41 checks): for three profiles (new, with conversations, with wake-up and glasses on) nothing opens in the first 10 s, no voice, no keyboard, only tap-to-open invitations; the button does not pulse forever; states named in Italian and English, transitions without jumps, word-by-word caption, at most 6 lit tiles, amber warning, cards, «reduce motion»; the hologram neither cycles nor speaks by itself; without WebGL the 2D core |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
@@ -318,7 +319,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` · `test_ar` · `test_eliosfera` · `test_medfarm` · `test_matmappa` · `test_motore` · `test_cinema` · `test_materiaoscura` · `test_elementi3d` · `test_sentinella` · `test_costruttore` · `test_spaccati` · `test_spectra_ponte` · `test_cosmo` · `test_spaccato` · `test_spectra_nucleo` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` · `test_ar` · `test_eliosfera` · `test_medfarm` · `test_matmappa` · `test_motore` · `test_cinema` · `test_materiaoscura` · `test_elementi3d` · `test_sentinella` · `test_costruttore` · `test_spaccati` · `test_spectra_ponte` · `test_cosmo` · `test_spaccato` · `test_voce_microfono` · `test_spectra_nucleo` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -1040,7 +1041,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 758 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 760 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -1060,4 +1061,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v260`._
+_Document updated to version `bsi-v261`._

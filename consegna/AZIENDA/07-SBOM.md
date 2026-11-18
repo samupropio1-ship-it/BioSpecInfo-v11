@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v260` |
-| Commit | `270bbd1c3c061a91a0a7a94ff9e2e4a00e2f0367` |
-| Generato (UTC) | `2026-11-18T17:16:54.570Z` |
+| Versione applicazione | `bsi-v261` |
+| Commit | `d0f512a84922b5dcf8d91e0a0a8f1492d474340d` |
+| Generato (UTC) | `2026-11-18T22:17:26.728Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -63,7 +63,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | Dimensione | Ruolo |
 |---|---:|---|
 | `index.html` | 4724 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 448 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `bsi-ai-hub.js` | 449 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
@@ -119,7 +119,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-articoli-nobel-fisica.js` | 118 kB | Spiegazioni per argomento dei Nobel per la fisica (nessun dato). |
 | `bsi-articoli-premi-matematica.js` | 123 kB | Spiegazioni per argomento dei premi Abel e Fields (nessun dato). |
 | `bsi-materie.js` | 15 kB | Pulsanti per cambiare materia: chimica, fisica, matematica. |
-| `bsi-fis-astro.js` | 36 kB | Astrofisica: diagramma H-R, corpo nero, sistema solare, esopianeti, cosmologia. |
+| `bsi-fis-astro.js` | 42 kB | Astrofisica: diagramma H-R, corpo nero, sistema solare, esopianeti, cosmologia. |
 | `bsi-fis-relativita.js` | 30 kB | Relatività ristretta: Minkowski, gemelli, dinamica. |
 | `bsi-materie-app.js` | 15 kB | Tre app in una: la materia scelta adatta menu ✨, Spectra, Studio e Utility. |
 | `bsi-attrezzi.js` | 23 kB | Strumenti rapidi del menu ✨ per fisica e matematica: calcolatrice, derivata, grafico, costante, unità, formula, glossario, quiz. |
@@ -151,7 +151,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-mappa.js` | 19 kB | Mappa dei prerequisiti di matematica: 41 argomenti su quattro livelli, percorso per ordinamento topologico. |
 | `bsi-fis-scene3d.js` | 35 kB | Scene fisiche 3D: H₂ nella curva di Morse con moto esatto e nuvola σg, magnetosfera di Dungey con magnetopausa di Shue e ovali aurorali calcolati, reticolo elastico di Kelvin. |
 | `bsi-spectra-ponte.js` | 21 kB | Ponte WebSocket con Spectra Prime (spectra_core): telemetria della scena 3D, comandi load/update/toggle_layer/focus, risposte e direttive all'avatar. |
-| `bsi-spectra-nucleo.js` | 37 kB | Spectra come nucleo olografico a forma di particella: nucleoni, nuvola elettronica dagli orbitali dell'idrogeno, elettroni, guscio esagonale, anelli HUD, stati con transizioni morbide, HUD in DOM, versione 2D. |
+| `bsi-spectra-nucleo.js` | 44 kB | Spectra come nucleo olografico a forma di particella: nucleoni, nuvola elettronica dagli orbitali dell'idrogeno, elettroni, guscio esagonale, anelli HUD, stati con transizioni morbide, HUD in DOM, versione 2D. |
 | `bsi-spectra-cervello.js` | 16 kB | La rete neurale di Spectra disegnata come un cervello: regioni con i ricordi veri, quote, sinapsi, stato interno. |
 | `bsi-cosmo-core.js` | 16 kB | Simulazioni cosmiche: motore comune (timeline cinematica, HUD, didascalie, 9:16, registrazione webm). |
 | `bsi-cosmo-h2.js` | 16 kB | H₂: Morse sui dati misurati, moto esatto, nuvola LCAO campionata esattamente, legame che si rompe. |
@@ -164,7 +164,8 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cosmo-scala.js` | 18 kB | Simulazione cosmica 3: il Sole come pallina da tennis, scala 1 : 20,8 miliardi, le stelle vicine e il vuoto calcolato. |
 | `bsi-cosmo-sole.js` | 14 kB | Simulazione cosmica 1: foglio di corrente eliosferico, magnetosfera di Dungey e Shue, ovale aurorale calcolato, tende aurorali. |
 | `bsi-astro-spaccato-scenari.js` | 36 kB | Dati degli Spaccati stellari: stadi, composizioni, reazioni bilanciate, fonti (WHW02, Sackmann 1993, Nadyozhin 1994, Kasen 2017, PDG). |
-| `bsi-astro-spaccato.js` | 71 kB | Motore degli Spaccati stellari: corpo tagliato a spicchio, strati a cipolla, ciambella della composizione, orologio, evento finale; strumento per Spectra. |
+| `bsi-astro-spaccato-eventi.js` | 59 kB | Quattordici eventi cosmici in più per gli Spaccati stellari (nascita di una stella, nane brune e rosse, Cefeidi, novae, lampi X, pulsar e magnetar, distruzioni mareali, lampi gamma, instabilità di coppia, GW150914, quasar, cristallizzazione delle nane bianche, ricombinazione) con i numeri calcolati e le fonti. |
+| `bsi-astro-spaccato.js` | 112 kB | Motore degli Spaccati stellari: corpo tagliato a spicchio, strati a cipolla, ciambella della composizione, orologio, evento finale; strumento per Spectra. |
 | `bsi-cosmo-sezione.js` | 1 kB | La sezione «Simulazioni cosmiche» con le schede-anteprima. |
 | `bsi-costruttore.js` | 45 kB | Costruttore molecolare 3D e AR: atomi legati al tocco, valenze e cariche, VSEPR, campo di forze con raggi covalenti di Cordero, anelli aromatici, esportazione MOL/XYZ e realtà aumentata. |
 | `bsi-fis-motore.js` | 17 kB | Il motore in spaccato: ciclo Otto ad aria standard con manovellismo, flussi proporzionali, bilancio e dettaglio p–V. |
@@ -193,7 +194,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 123 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 126 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
@@ -202,12 +203,12 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
-| `bsi-spectra-voce.js` | 12 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
+| `bsi-spectra-voce.js` | 15 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
 | `bsi-spectra-olointerattivo.js` | 75 kB | Ologramma interattivo di Spectra: spettri IR/¹H/¹³C/massa/UV di molecole di riferimento o della traccia scritta, con attribuzione di ogni segnale; universo con dati NASA, Keplero e vis-viva; matematica e fisica con lo svolgimento dell'assistente; ogni passaggio spiegato a voce e per iscritto. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili, dieci capitoli dalle superiori al PhD avanzato con previsione, cursore che ricalcola, visione dal vivo nell'ologramma e spiegazione completa. |
 | `bsi-spectra-spiega.js` | 36 kB | «🧠 Spiega»: la spiegazione completa ed esaustiva di chimica, fisica e matematica dalle superiori al PhD avanzato, anche di ciò che è sullo schermo (testo, valori, tabelle e immagine di spettri, grafici e scene 3D); senza modello mostra ciò che l'app sa da sola. |
-| `bsi-spectra-figura.js` | 61 kB | Spectra col corpo in un modulo solo: il controllore del corpo (incorporato nell'app e impacchettato, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
+| `bsi-spectra-figura.js` | 63 kB | Spectra col corpo in un modulo solo: il controllore del corpo (incorporato nell'app e impacchettato, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
 | `bsi-spectra-rig.js` | 35 kB | Rig automatico nel browser per le figure umanoidi senza scheletro: misura, scheletro con nomi Mixamo, pesi della pelle (distanza, normale, geodetica), testa tolta col cappuccio, ricolorazione in blu notte. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Lezioni dello studio di Spectra (predici → testa → dimostra → rivela): caduta, forma dell'acqua, problema di Basilea, con calcoli verificati. |
 | `bsi-spectra-creatore.js` | 11 kB | Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d'accesso). |
@@ -248,8 +249,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `361222387ab0a7dc4574d5927be4bdb90b8b986f908c8f9e5e99cab3a0ca871f` |
-| `bsi-ai-hub.js` | `8d15300f4035066e0c9819f02dcc9724310560533d6e71ec6b8c22aee445240f` |
+| `index.html` | `d2ba4d62ffb930e9fa19ecfcbdf6920eed2c16dfd99e8b576959b14111b38543` |
+| `bsi-ai-hub.js` | `e7cda4cfee8b1621aa4dd3f26e528b4a378b0c955410536c86d233b44ef6bcdb` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -305,7 +306,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-articoli-nobel-fisica.js` | `afc22b073e64168605b3d792cd83bcdf7d838e0c80548a0a58caae98456d7d30` |
 | `bsi-articoli-premi-matematica.js` | `d62f01d66783d7fb558684959abd1cda2f81ee6885c8cdc0879559f2b64cbf43` |
 | `bsi-materie.js` | `077f0f39435df36bcf9180d689ab8b23059ef0d684d51881692adee881778967` |
-| `bsi-fis-astro.js` | `c93690b5b939d60e119daf3bc5a69835b291026d0b360a08c6bdafd25b7f60ad` |
+| `bsi-fis-astro.js` | `4c905bafddaa31d69cf9c70186ff84c45a95a029d108d1a51aec1015307be12e` |
 | `bsi-fis-relativita.js` | `d90cb347a69e668fde69df4805815938f8da8b9a5f288ce7a16914aa0fec32bd` |
 | `bsi-materie-app.js` | `a9d57912a69bf7c599a6c4d16be815be4e654ab424daeca0e12f02c00904911f` |
 | `bsi-attrezzi.js` | `dedf9939e96c9544239f5769b68f0547604aff78e3ee3f47906afddcf1e20a38` |
@@ -337,7 +338,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-mappa.js` | `0e5ab1941db60aec5dd10c36d79585e93cf4daac34900248ee8beb9d008a15ea` |
 | `bsi-fis-scene3d.js` | `b675466692f03e72ce84a47c32abf71ac937add0a8e2c06add084090b95e7a04` |
 | `bsi-spectra-ponte.js` | `9d5d10e17383625b199eeb0c4b22748cf96b19ca87b470a0e00eea4287ebd206` |
-| `bsi-spectra-nucleo.js` | `9d06ffd953bff9f0cd929cdc69c4dc5f151fafb0eb1620355534f90355f7fffc` |
+| `bsi-spectra-nucleo.js` | `3ac506ceeeccf79579b5db6481878d9931462a59b8c156778301a7ef1f72ce58` |
 | `bsi-spectra-cervello.js` | `4676d6660ae1518f94c007f95d90c99c50365da3cae2ea047736e6ebcbe33780` |
 | `bsi-cosmo-core.js` | `d87870dd58a6cc1abf3ed4e9dae463bd50e6b7fdfbc00c4f4a93e1e9f5fe5dd5` |
 | `bsi-cosmo-h2.js` | `e4b6605e11026675df475965a527631a45b21873037acaae88428e058c802334` |
@@ -350,7 +351,8 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cosmo-scala.js` | `dafa8333109408c5c3c27602e2c072188d1c96bfbc9a2e160ee112d94abb5438` |
 | `bsi-cosmo-sole.js` | `914cd12a6b11a5fa65a1f77ba1e3e2de0f788d04d9bc3f7198940b1db186fce9` |
 | `bsi-astro-spaccato-scenari.js` | `a4022dcc6b6ea9aaec48c0438757ea918399acf2e6c7bb833567342d0471e18b` |
-| `bsi-astro-spaccato.js` | `ee7d5f46116f1b1f2ce9968adf52a72cc85bb488eeef121b025bb3d43e2f7974` |
+| `bsi-astro-spaccato-eventi.js` | `17874d4997fe2d2f29dac8e7d0d3d0f8daa20656f0eb94a51a32225e0e141b50` |
+| `bsi-astro-spaccato.js` | `1d11fd3ddb82e72526e9a815daca9ce4152ef792e49512fac0360517d49868f7` |
 | `bsi-cosmo-sezione.js` | `41ff5ee439c53082972eb3ddf8cce1aa0cec6eff84ea909a922fedcce0c5021a` |
 | `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
 | `bsi-fis-motore.js` | `69784decc437c85a417c3527b9251f30f8f6ec4f7dd9f9972bc6be1a8425a9b1` |
@@ -379,7 +381,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `eb31ee58353a3c1a834cbf2bded891b2786446ef72cc83297cc463db00729b2f` |
+| `bsi-spectra-live.js` | `db08cdcc8f3df68f8af78c97ca65df2158870d4cc894ed3d67eece0a9dafb73e` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
@@ -388,12 +390,12 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
-| `bsi-spectra-voce.js` | `fa6f3440ffadc9a9a4c2b57821141ea3d2d4ef36dca9f85d92dc21e652dad9a7` |
+| `bsi-spectra-voce.js` | `c044d64919338d70e1b99af628c67fdb5dd17355a6603542b2cbf0ac5834c86d` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-olointerattivo.js` | `61a0a7492bbc506a776312c8ea858b8231fe9cd17916f02c63c119efab520fde` |
 | `bsi-spectra-esplora.js` | `abca4cd053689e2499c90a0937b300d4c1abea3635cf6bcd6b1c117f1fa97d76` |
 | `bsi-spectra-spiega.js` | `789b3560c1372da180a86a486e9ce26f1d471768d39bd39fe1c6f55b85dc8b95` |
-| `bsi-spectra-figura.js` | `802655a1e95f21db3ed3de6f21ac4f7c008bf61f7ee5c0805a54dc7120c84251` |
+| `bsi-spectra-figura.js` | `7d68489dbdac86da630d19505b79b1609f40d9cad9116c7e3124a5bb1a417e53` |
 | `bsi-spectra-rig.js` | `fcdd67c468f543a6e98f682d49c45b26173bb987c1aa529cb63d4e3e2a40918b` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `73954030d3fac2a5b12fd26c92f61a1c8bb986813941d33fb6b154e8cf89bee2` |
@@ -424,7 +426,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `9d1bf3fa3285a2af0c731be92e8dacd1b939c57360b52329fa3cb651549b1814` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `1656ae4979c134483aa428e54b52d412969222f7e588ee68e7321c08063c8333` |
+| `sw.js` | `12a493122b239b5fa8dc003ba86963473e470d0904a6bc44c84c43f20eefc22e` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -478,4 +480,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-18T17:16:54.570Z._
+_Generato il 2026-11-18T22:17:26.728Z._
