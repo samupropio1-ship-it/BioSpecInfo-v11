@@ -7,6 +7,112 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v260] — 2026-11-18
+
+**Spaccati stellari: un motore che taglia una stella a spicchio mentre la composizione cambia; le simulazioni cosmiche 1 e 3**
+
+### Aggiunto
+- **🌟 Spaccati stellari** (`bsi-astro-spaccato.js`, sezione `sastrospaccato` nel gruppo Astrofisica): un motore
+  riutilizzabile, `BSISpaccato.crea(contenitore, scenario)`, con gli scenari descritti come dati
+  (`bsi-astro-spaccato-scenari.js`). Il corpo è tagliato a spicchio (superficie granulata, pareti con gli strati a cipolla
+  che compaiono man mano, bordi luminosi), il nucleo è una cavità con i nuclei che si agitano e le etichette stile tavola
+  periodica dei nuclei appena formati; sotto, la ciambella SVG della composizione con la legenda (percentuali che sommano
+  esattamente 100), l'orologio del tempo trascorso con il separatore italiano e la durata dello stadio; le reazioni in
+  monospazio; un evento finale. Comandi: ▶/⏸, ↺, barra del tempo trascinabile, velocità, massa iniziale, strati a cipolla
+  sì/no, 🎬 cinematico, formato 9:16 o 16:9. Tutto è funzione del tempo: trascinare la barra rimette la scena esattamente.
+- **Nove scenari**, con le fonti in `FONTI`:
+  1. **Supernova a collasso del nucleo** (20 M☉, cursore 10–40): H → He → C → Ne → O → Si → Fe con le durate di Woosley,
+     Heger e Weaver 2002 (tab. 1, 15 e 25 M☉, interpolate in log M), T e ρ del nucleo, reazioni bilanciate (tre-alfa,
+     ¹²C + ¹²C, fotodisintegrazione del neon, ¹⁶O + ¹⁶O, silicio in quasi-equilibrio fino a ⁵⁶Ni); collasso con le linee
+     tratteggiate radiali, neutronizzazione p + e⁻ → n + νₑ, M_Ch = 5,83 Y_e² M☉, ~99 % dell'energia in neutrini; lampo,
+     guscio turbolento che si svuota al centro e si raffredda dall'arancio al rosso, con Ni, Co, Fe, Si, O, Sr che compaiono;
+     resta la stella di neutroni. Il grafico B/A contro A (AME2020, tocco per leggere i valori) spiega perché il ferro è il
+     capolinea.
+  2. **Il Sole** (Sackmann, Boothroyd e Kraemer 1993): catena pp fino a oggi, fine dell'idrogeno, gigante rossa fino al
+     flash, ramo orizzontale, ramo asintotico con il processo s, nebulosa planetaria ad anello e nana bianca di 0,54 M☉.
+  3. **Stella massiccia → buco nero** (40 M☉; sopra 25 M☉, soglia incerta dichiarata): ombra con l'anello di luce e il
+     collegamento alla sezione dei buchi neri.
+  4. **Supernova Ia**: accrescimento dalla compagna (con il flusso e il disco), «simmering», esplosione senza residuo; la
+     composizione dopo l'esplosione è CALCOLATA con le equazioni di Bateman per ⁵⁶Ni → ⁵⁶Co → ⁵⁶Fe e la curva di luce di
+     Nadyozhin 1994 (picco ~1,2·10⁴³ erg/s, coda di 77 giorni).
+  5. **Kilonova** (GW170817): ultimi 100 s di spirale con le onde gravitazionali, fusione, processo r (lantanidi, platino,
+     oro), kilonova blu e rossa (masse di Kasen et al. 2017), riscaldamento ∝ t^−1,3; collegamento alle onde gravitazionali.
+  6. **Nucleosintesi del Big Bang**: congelamento di n/p a kT = 0,75 MeV, decadimento con τ_n = 878,4 s, Y = 2X_n = 0,241
+     contro 0,245 misurato; D/H, ³He/H e il problema del litio dichiarati.
+  7. **La Terra si separa in strati**: calore di ²⁶Al e ⁶⁰Fe calcolato (W/kg), oceano di magma, pioggia di ferro, nucleo in
+     ~30 milioni di anni (Hf–W), composizione di McDonough 2003.
+  8. **Giove**: H₂ molecolare, idrogeno metallico, nucleo diluito (Juno), pioggia di elio (Y = 0,234 di Galileo).
+  9. **Arricchimento galattico**: modello a scatola chiusa con la metallicità del Sole ritrovata (Z ≈ 0,0134) e il
+     «problema delle nane G» dichiarato.
+- **🎞️ 1 · «Il Sole respira. La Terra si illumina.»** (`bsi-cosmo-sole.js`): il foglio di corrente eliosferico a gonna di
+  ballerina, λ = arcsin(sin α sin(φ + Ωr/v)), con la spirale di Parker e i pianeti; il vento solare che investe la
+  magnetosfera di Dungey e Shue; l'ovale aurorale calcolato visto dal polo; le tende aurorali sopra le montagne (shader
+  illustrativo, dichiarato).
+- **🎞️ 3 · La scala** (`bsi-cosmo-scala.js`): il Sole che si rimpicciolisce fino a una pallina da tennis (1 : 20,8
+  miliardi), la Terra granello di 0,61 mm a 7,1 m, Nettuno a 215 m, Proxima a 1933 km sul globo centrato su Roma, e il vuoto
+  calcolato dai raggi delle stelle entro 12 anni luce.
+- La scheda **«Una stella muore: lo spaccato»** nelle Simulazioni cosmiche.
+- **Strumento per Spectra** `spaccato_stellare`: «mostrami come muore una stella» apre lo scenario; si usa solo quando
+  l'utente lo chiede, mai da solo. Il ponte 3D riconosce `spaccato_stellare` e `supernova`.
+- Banco **`test_spaccato`** (68 controlli) e `test_cosmo` esteso (44).
+
+### Corretto
+- In «Esplora» la scena dell'ologramma scelta dal capitolo veniva sostituita da quella dedotta dalle parole di Spectra
+  (v259): una scena fissata ora resta, e torna libera cambiando sezione (`test_spectra_esplora`).
+- `test_potenzia252` allineato all'icona a particella: ferma a riposo, orbite che girano solo mentre Spectra parla.
+- La v259 non ha avuto una consegna a sé: la sua batteria ha trovato questi tre difetti (109 superati, 3 falliti),
+  corretti qui; la v260 li comprende.
+- L'icona a particella di Spectra (v259) usava id di gradiente fissi: con più icone nella pagina si duplicavano
+  (`test_lingue`). Ora ogni icona ha i suoi.
+
+### Da verificare sul telefono
+- Fluidità (fotogrammi al secondo) durante l'esplosione con 16 000 punti e il bagliore; luminosità del lampo (non deve
+  abbagliare); leggibilità della ciambella e della legenda sotto i pulsanti flottanti; trascinamento della barra del tempo
+  col dito; «riduci movimento» del sistema (niente partenza automatica, niente agitazione); rotazione dello schermo
+  (9:16 ↔ 16:9); cursore della massa che passa da stella di neutroni a buco nero.
+
+---
+## [bsi-v259] — 2026-11-18
+
+**Spectra non è più un robot: un nucleo olografico a forma di particella; nessuna apertura senza un gesto dell'utente**
+
+### Cambiato
+- **Spectra è un nucleo olografico** (`bsi-spectra-nucleo.js`, tutto procedurale, nessun file da scaricare) al posto della
+  figura umanoide, nelle sezioni dell'AI, nella console dal vivo, nell'ologramma interattivo e nello studio delle lezioni.
+  Il cuore è una particella: 24 nucleoni (protoni teal, neutroni blu) impacchettati, che vibrano appena, con tubi di flusso
+  tenui; la nuvola elettronica di 6000 punti campionata da |ψ|² degli orbitali dell'idrogeno, che passa da 1s (in linea) a
+  2p (pensa), 2s (parla, pulsa con la voce) e 3d (cerca); tre elettroni su orbite ellittiche con la scia. Attorno: guscio a
+  celle esagonali (duale dell'icosfera) con fresnel dal teal al blu, tessere che si accendono quando pensa (al massimo 6),
+  anelli HUD con tacche, cursori e micro-etichette, satelliti che in «cerca» escono su fili sottili.
+- **HUD in DOM**: didascalia parola per parola (troncata a due righe, testo intero per i lettori di schermo), stato sotto la
+  sfera in italiano o inglese, schede di dati reali (la sezione aperta e i suoi controlli), striscione d'avviso in ambra.
+- **Stessa API** del controllore del corpo (`carica`, `fai`, `stato`, `dici`, `taci`, `emozione`, `dispose`, `cambiato`,
+  `corpo.cammina`, `corpo.audio`): figura, console, ologramma interattivo e studio funzionano senza riscritture.
+- **Luci e movimento**: niente laboratorio né luci dirette, al massimo 2 pixel per punto, esposizione 0,85, nessun elemento
+  additivo sopra luminanza × opacità 0,8, mai bianco puro; transizioni easeInOutSine di 0,75 s; l'ologramma compare con
+  dissolvenza (non più «pop»); «riduci movimento» ferma anelli e orbite.
+- **L'icona di Spectra** sui pulsanti è la particella (ferma a riposo, le orbite girano solo mentre parla); niente più testa di
+  robot che gira all'infinito né ritratto dell'androide.
+
+### Tolto (aperture automatiche)
+- Il risveglio, l'ascolto e la finestra delle novità non si aprono più da soli all'avvio: compaiono un invito da toccare e un
+  pallino sul pulsante di Spectra. L'ologramma interattivo non parla da solo («Spiega a voce automaticamente», spento di base
+  e ricordato). L'ologramma non cambia più scena ogni 14 s. Il menu ✨ non si apre più con clic finti (API `bsi14`); la
+  navigazione usa `goSection`. Il pulsante di Spectra non pulsa più all'infinito. Il controllo della figura ogni 800 ms e
+  l'ascolto di ogni clic diventano un MutationObserver.
+- Il volto androide, il robot e il volto vettoriale non si caricano più (gli script restano nel repository, commentati);
+  la cache non li scarica più.
+
+### Verificato
+- `test_spectra_nucleo` 41 controlli (nuovo); aggiornati `test_spectra_figura` 113, `test_spectra_olo` 69, `test_risveglio`
+  110, `test_spectra_studio` 79, `test_spectra238` 66 e `test_v237` (il volto androide provato come componente a sé).
+  La batteria sale a 112 banchi.
+
+### Da verificare a mano
+- Sul telefono: fluidità (≥ 55 fotogrammi al secondo), luminosità, transizioni fra gli stati, sincronia della didascalia con la
+  voce vera. L'arco del microfono in ascolto è simulato: il riconoscimento vocale del browser non dà il flusso audio.
+
+---
 ## [bsi-v258] — 2026-11-18
 
 **Spectra Prime a sette agenti con il ponte 3D, la rete neurale come un cervello, le scene fisiche 3D, sette simulazioni cosmiche**
