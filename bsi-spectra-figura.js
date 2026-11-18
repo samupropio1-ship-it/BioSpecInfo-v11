@@ -520,14 +520,34 @@
     D.addEventListener('bsi-spectra-stato', suStato); D.addEventListener('bsi-spectra-risposta', suRisposta); D.addEventListener('bsi-spectra-dice', suRisposta);
 
     /* il disegno: solo quando il riquadro si vede e la pagina e' in primo piano */
+    function coperta() {
+      var r = box.getBoundingClientRect(); if (!r.width || !r.height) return false;
+      var punti = [[0.3, 0.4], [0.5, 0.5], [0.7, 0.6]], coperti = 0;
+      for (var k = 0; k < punti.length; k++) { var x = r.left + r.width * punti[k][0], y = r.top + r.height * punti[k][1]; if (x < 0 || y < 0 || x > (globale.innerWidth || 0) || y > (globale.innerHeight || 0)) continue; var el = D.elementFromPoint(x, y); if (el && !box.contains(el) && !(el.closest && el.closest('#bsiJV-fab,#bsi14-fab,#bsi-spectra-fab,.bsi-mat-fab,#bsiRV-pallino'))) coperti++; }
+      return coperti >= 2;
+    }
+    var qualita = { somma: 0, n: 0, pr: ren.getPixelRatio() };
+    function adattaQualita(dt, attivo) {
+      if (!attivo) return; qualita.somma += dt; qualita.n++;
+      if (qualita.n < 90) return; var media = qualita.somma / qualita.n; qualita.somma = 0; qualita.n = 0;
+      var nuovo = qualita.pr; if (media > 0.026 && qualita.pr > 1) nuovo = Math.max(1, qualita.pr - 0.4); else if (media < 0.0175 && qualita.pr < Math.min(2, globale.devicePixelRatio || 1)) nuovo = Math.min(Math.min(2, globale.devicePixelRatio || 1), qualita.pr + 0.25);
+      if (Math.abs(nuovo - qualita.pr) > 0.01) { qualita.pr = nuovo; ren.setPixelRatio(nuovo); var c = ren.domElement; ren.setSize(c.clientWidth, c.clientHeight, false); F.qualita = nuovo; }
+    }
     var visibile = true, prec = 0, idleT = 0;
     if (globale.IntersectionObserver) new IntersectionObserver(function (v) { visibile = v[0] && v[0].isIntersecting; }).observe(box);
     function giro(ora) {
       if (!F.attiva) return;
       requestAnimationFrame(giro);
       if (!visibile || D.hidden || !box.isConnected || !box.offsetParent) { prec = 0; return; }
-      if (LEGG && prec && ora - prec < 30) return;   /* (v248) corpo leggero: 30 fotogrammi al secondo */
+      /* (v261) «clicco e si blocca tutto»: la figura disegnava 125 oggetti a fotogramma anche quando la chat o un'altra
+         finestra la copriva, e sempre a 60 fps. Ora: coperta → non disegna; a riposo → 30 fps; se il telefono fatica
+         (fotogrammi oltre 26 ms in media) → meno pixel, fino a 1 pixel per punto */
+      if (ora - (giro.ultimoTest || 0) > 500) { giro.ultimoTest = ora; giro.coperta = coperta(); }
+      if (giro.coperta) { prec = 0; return; }
+      var attivo = (S.corpo && S.corpo.testo) || (NU && S.nome && S.nome !== 'online') || OL.attuale === 'schermo';
+      if ((LEGG || !attivo) && prec && ora - prec < 30) return;   /* (v248) corpo leggero; (v261) a riposo: 30 fotogrammi al secondo */
       var dt = prec ? Math.min(0.1, (ora - prec) / 1000) : 0.016; prec = ora; quando += dt; idleT += dt;
+      adattaQualita(dt, attivo);
       /* lo sguardo: verso chi guarda; ogni tanto un'occhiata altrove (vivo, non fisso) */
       occhi.copy(cam.position); if (idleT % 9 > 7.6) occhi.x += 1.2 * Math.sin(idleT * 0.7);
       S.passo(dt, occhi);

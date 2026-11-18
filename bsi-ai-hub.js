@@ -6723,7 +6723,7 @@ function buildChatPane(){
       '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-prova" title="Prova quali fornitori il tuo browser riesce davvero a contattare — bastano pochi secondi e non serve una chiave">🔌 Prova</button>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
-      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label>' : '') +
+      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-prova-voce" title="Suona un bip e dice una frase: per capire se la voce arriva">🔔 Prova voce</button>' : '') +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-provabox" style="display:none"></div>' +
@@ -7289,6 +7289,9 @@ function buildChatPane(){
 
   /* (v246) l'interruttore della lettura automatica, ricordato fra una visita e l'altra */
   var tgV = document.getElementById('spectra-auto-speak-toggle');
+  /* (v261) «è sparito il pulsante per il ding della voce»: un bip e una frase di prova, sempre qui accanto alla lettura automatica */
+  var pv = document.getElementById('spectra-prova-voce');
+  if(pv){ pv.onclick = function(){ var L = window.BSISpectraLive; if(L && L.provaAudio){ L.provaAudio(); } else { speakRobotic('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); } }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
   document.getElementById('bsi-hub-reset').onclick = function(){
     if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }

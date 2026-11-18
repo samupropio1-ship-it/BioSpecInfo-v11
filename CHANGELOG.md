@@ -42,6 +42,11 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   accesa mentre Spectra parlava. Ora console, chat e voce di qualità liberano il microfono prima di parlare, aspettano che
   Android lo rilasci, e la sentinella riparte quando la voce è finita. Il ripiego della voce di qualità dice il testo frase
   per frase e non annulla a vuoto (su Android faceva cadere la frase dopo).
+- **«Clicco e si blocca tutto»**: la figura di Spectra disegnava 125 oggetti a ogni fotogramma, a 60 fps, anche quando la
+  chat o un'altra finestra la copriva. Ora non disegna quando è coperta, a riposo va a 30 fps e, se il telefono fatica
+  (fotogrammi oltre 26 ms in media), abbassa da sola la risoluzione fino a 1 pixel per punto.
+- **«È sparito il pulsante per il ding della voce»**: «🔔 Prova voce» (un bip e una frase) è ora sempre nella chat, accanto a
+  «Leggi automaticamente», e nella console di Spectra Live (🔔), oltre che nell'ologramma interattivo.
 - **Il diagramma H-R** («non so cosa sia»): ora dice che cosa mostra, le etichette non si sovrappongono più (posti
   liberi attorno al punto, linee guida, raggi scritti lungo le rette), e si tocca una stella per leggerne i dati.
 

@@ -627,7 +627,7 @@
     var d = document.createElement('div'); d.id = 'bsiJV'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
     d.innerHTML = '<canvas aria-hidden="true"></canvas><div id="bsiJV-volto"></div>' +
       '<div id="bsiJV-top"><span>◈ SPECTRA</span><span class="sp"></span>' +
-      '<button class="bsiJV-b" id="bsiJV-tutto" type="button"></button><button class="bsiJV-b" id="bsiJV-chat" type="button"></button><button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
+      '<button class="bsiJV-b" id="bsiJV-tutto" type="button"></button><button class="bsiJV-b" id="bsiJV-chat" type="button"></button><button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-prova" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div><div id="bsiJV-pensiero" aria-live="off"></div>' +
       '<div id="bsiJV-dial" aria-live="polite"></div><div id="bsiJV-nav" role="dialog"></div>' +
       '<div id="bsiJV-giu"><div id="bsiJV-chips"></div><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button><div id="bsiJV-credito"></div></div>';
@@ -656,6 +656,7 @@
     document.getElementById('bsiJV-occhi').onclick = function () { hud.occhi = !hud.occhi; testiHud(); };
     document.getElementById('bsiJV-senti').onclick = function () { sentinella.attiva ? fermaSentinella() : avviaSentinella(); testiHud(); };
     document.getElementById('bsiJV-voce').onclick = function () { voce.attiva = !voce.attiva; if (!voce.attiva) taci(); testiHud(); };
+    document.getElementById('bsiJV-prova').onclick = function () { provaAudio(); };   /* (v261) il «ding» di prova della voce, sempre a portata */
     var inp = document.getElementById('bsiJV-in');
     document.getElementById('bsiJV-invia').onclick = function () {
       var v = inp.value; inp.value = '';
@@ -676,6 +677,7 @@
     if (!hud.el) return;
     var set = function (id, s, a) { var e = document.getElementById(id); if (e) { e.textContent = s; if (a) e.setAttribute('aria-label', a); } };
     set('bsiJV-voce', voce.attiva ? '🔊' : '🔇', voce.attiva ? t('Voce attiva: tocca per silenziare', 'Voice on: tap to mute') : t('Voce spenta: tocca per attivare', 'Voice off: tap to turn on'));
+    set('bsiJV-prova', '🔔', t('Prova la voce: un bip e una frase', 'Test the voice: a beep and a sentence'));
     set('bsiJV-riduci', '▾', t('Riduci a icona', 'Minimise'));
     set('bsiJV-x', '✕', t('Chiudi la console', 'Close the console'));
     set('bsiJV-tutto', '🧭', t('Tutte le sezioni, gli strumenti e i comandi', 'All sections, tools and commands'));
