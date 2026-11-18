@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v257` |
-| Commit | `a713668fb1cea809be0fb5ab9407c091087d097e` |
-| Generato (UTC) | `2026-11-18T06:46:40.432Z` |
+| Commit | `f2ca183865e3db7774d3661bd1559a24cbaef669` |
+| Generato (UTC) | `2026-11-18T10:05:11.987Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4721 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4722 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 448 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -94,7 +94,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-visiva.js` | 24 kB | Matematica visiva: trasformazioni lineari, epicicli di Fourier, frattali, mappa logistica. |
 | `bsi-fis-em.js` | 44 kB | Elettromagnetismo in movimento: cariche, induzione, generatore, onde EM. |
 | `bsi-fis-suono.js` | 18 kB | Suono e acustica con Web Audio: armoniche, timbro, Doppler, decibel. |
-| `bsi-fis-solido.js` | 32 kB | Semiconduttori: Fermi-Dirac, drogaggio, giunzione p-n, LED. |
+| `bsi-fis-solido.js` | 33 kB | Semiconduttori: Fermi-Dirac, drogaggio, giunzione p-n, LED. |
 | `bsi-chi-distillazione.js` | 17 kB | Distillazione: Antoine, van Laar, McCabe-Thiele, Rayleigh. |
 | `bsi-chi-voltammetria.js` | 12 kB | Voltammetria ciclica simulata: diffusione e Butler-Volmer. |
 | `bsi-mat-numeri.js` | 16 kB | Numeri e crittografia: crivello, Euclide, aritmetica modulare, RSA, distribuzione dei primi. |
@@ -112,7 +112,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-ising.js` | 26 kB | Modello di Ising: Metropolis, transizione di fase, isteresi. |
 | `bsi-fis-particelle.js` | 59 kB | Fisica delle particelle: Modello Standard, conservazione, massa invariante, vite medie. |
 | `bsi-fis-analitica.js` | 40 kB | Meccanica analitica: spazio delle fasi, doppio pendolo, Noether, Liouville. |
-| `bsi-fis-laser.js` | 34 kB | Laser e ottica quantistica: soglia, modi della cavità, Rabi, Mach–Zehnder. |
+| `bsi-fis-laser.js` | 35 kB | Laser e ottica quantistica: soglia, modi della cavità, Rabi, Mach–Zehnder. |
 | `bsi-fis-clima.js` | 34 kB | Fisica del clima: bilancio radiativo, forzante della CO2, ghiaccio-albedo, Coriolis. |
 | `bsi-chi-fasi.js` | 38 kB | Diagrammi di fase: acqua e CO2 (IAPWS, Span-Wagner), eutettico, Clapeyron. |
 | `bsi-chi-pes.js` | 33 kB | Superficie di energia potenziale LEPS di H + H2 e traiettorie. |
@@ -149,7 +149,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-med-fisiologia.js` | 26 kB | Fisiologia come sistema: ciclo cardiaco a elastanza variabile, acido–base con i compensi, modello minimo di Bergman, scambi gassosi. |
 | `bsi-farm-quantitativa.js` | 22 kB | Farmacologia quantitativa: due compartimenti, dosi ripetute, farmacodinamica di Hill, indice terapeutico, interazioni di Rowland–Matin. |
 | `bsi-mat-mappa.js` | 19 kB | Mappa dei prerequisiti di matematica: 41 argomenti su quattro livelli, percorso per ordinamento topologico. |
+| `bsi-costruttore.js` | 45 kB | Costruttore molecolare 3D e AR: atomi legati al tocco, valenze e cariche, VSEPR, campo di forze con raggi covalenti di Cordero, anelli aromatici, esportazione MOL/XYZ e realtà aumentata. |
 | `bsi-fis-motore.js` | 17 kB | Il motore in spaccato: ciclo Otto ad aria standard con manovellismo, flussi proporzionali, bilancio e dettaglio p–V. |
+| `bsi-fis-spaccati.js` | 38 kB | Gli spaccati tecnici di fisica: circuito a due maglie con Kirchhoff e deriva nel rame, laser Nd:YAG con bilancio di potenza e quattro livelli, giunzione p–n con il campo integrato da Poisson. |
 | `bsi-teoria-a.js` | 174 kB | Dati della teoria per sezione: chimica, spettroscopia, farmacologia. |
 | `bsi-teoria-b.js` | 138 kB | Dati della teoria per sezione: biochimica e chimica fisica. |
 | `bsi-teoria-c.js` | 174 kB | Dati della teoria per sezione: fisica. |
@@ -157,7 +159,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | 206 kB | Dati della teoria per sezione: matematica. |
 | `bsi-teoria-f.js` | 134 kB | Dati della teoria per sezione: chimica fisica e analitica. |
 | `bsi-teoria-g.js` | 12 kB | Dati della teoria per sezione: spaziotempo e wormhole. |
-| `bsi-teoria-h.js` | 29 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
+| `bsi-teoria-h.js` | 35 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
 | `bsi-teoria.js` | 19 kB | Teoria di ogni sezione: pulsante, scheda di lettura, indice e ricerca, strumento leggi_teoria per Spectra. |
 | `bsi-chim-hammett.js` | 19 kB | Equazione di Hammett: costanti σ (Hansch, Leo, Taft 1991), cinque reazioni con ρ, previsioni di k/k₀ e pKa, ρ ricavato dai dati. |
 | `bsi-fis-foucault.js` | 15 kB | Pendolo di Foucault (Runge–Kutta nel riferimento terrestre), precessione per latitudine, deviazione di Coriolis. |
@@ -216,7 +218,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 270 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 271 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 10 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -229,7 +231,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `a32c6d7d2850e97644dfe5e509b0bbb54b415da3b7271b7ba57bedb92d56a52d` |
+| `index.html` | `0a72d29ab1618bd8232bc2bad9024c1850b457d0b644b49564036684d454f432` |
 | `bsi-ai-hub.js` | `8d15300f4035066e0c9819f02dcc9724310560533d6e71ec6b8c22aee445240f` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -261,7 +263,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-visiva.js` | `cb624f3e1e6c6df94c287f961d0f21a9d8ec852e8245ff5aeed09a083f2c5b14` |
 | `bsi-fis-em.js` | `1c45fb608ccda1e500ab3038998cee4cb9c27b091c0b1d1b4f7af0137bf9a6ab` |
 | `bsi-fis-suono.js` | `fead9e5dde961fc56c3a649cce6e8eed23046f327c8392dbfd8de5024cf0a1bf` |
-| `bsi-fis-solido.js` | `e185ce2e4f5cb4e1101bbb5d398fa3893a017c8df8fa4a26246291fda60ca2ad` |
+| `bsi-fis-solido.js` | `bd2fa03fccfe2198757c0828e53edf50a2cf97636e28e69e419662085fa9b223` |
 | `bsi-chi-distillazione.js` | `5bcf3c3064bb8b7dd66be3f34f15deb8cf4b08fe12ce92133d0db1622a16b0e7` |
 | `bsi-chi-voltammetria.js` | `4db1a71e0ac3569b821f6cc5280470453f3a4df5c62b9695a3339367c5aa3e41` |
 | `bsi-mat-numeri.js` | `f30d041cd9963342aa476e128e4b29d543e113d3483253377ea486de3d46484f` |
@@ -279,7 +281,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-ising.js` | `8ccd29082a4388ce63bdc1e39d9aa5fa92322e378384df0951d98bde6fe79b8c` |
 | `bsi-fis-particelle.js` | `4dce551cb464150e0faae0bcddcea8340596921873104503bd6a2dd10b41140c` |
 | `bsi-fis-analitica.js` | `01b4178998372c6db7d18a312c5a5ed1c8c26267bd0b72ae63ad6fbf92ba2895` |
-| `bsi-fis-laser.js` | `8f876f1552b50b22643526a2d16a4a8b0c0bbf5b8d9161d325f38efd16c917fa` |
+| `bsi-fis-laser.js` | `dd11045b8e99d4f34e2204b6b6a8b354738eb05d2741426560ac8b938bdc1fd4` |
 | `bsi-fis-clima.js` | `8e136c02f7559cd22d57ccd857d06f8d6a6a89b2f38790d2782e6a45a7f2c822` |
 | `bsi-chi-fasi.js` | `99854760b11db89cf853bb4c2be08d00f018fb510fd6a56aff1c3006e68ed1af` |
 | `bsi-chi-pes.js` | `c4e74b909e7987275930b05c0c25cdc0968bcf338ea78a144bc7ff949a821e36` |
@@ -316,7 +318,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-med-fisiologia.js` | `cb0ad121cb2cc7171ae94a37a59a0308514332fd2e5394314c60654e4da2f7f4` |
 | `bsi-farm-quantitativa.js` | `a32733c0abbe6010eba25d5ddd1d4c942f9ff75c51a5d4a7676bd251fb90a7ca` |
 | `bsi-mat-mappa.js` | `0e5ab1941db60aec5dd10c36d79585e93cf4daac34900248ee8beb9d008a15ea` |
+| `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
 | `bsi-fis-motore.js` | `69784decc437c85a417c3527b9251f30f8f6ec4f7dd9f9972bc6be1a8425a9b1` |
+| `bsi-fis-spaccati.js` | `d408eb0a996eebe491ab64de2b5907e6d65ca0c9dcc7b478ea17efafcae7470b` |
 | `bsi-teoria-a.js` | `0ba0332aeffec0436d33cf12c9e27954ac214233efc1c50068f06eaabb208e84` |
 | `bsi-teoria-b.js` | `90d286234ee20a7196d12716bab1b33d636af950051dfbf93ee859285124396e` |
 | `bsi-teoria-c.js` | `727e6d0c7df27adc70a0230a9f9d8fe24c576ebcccf359aea06572ec166259c6` |
@@ -324,7 +328,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | `cbdd56af03008bb1b14d25693e924dcc5fd3d4d8b2d866ce80ca9ce02bf89735` |
 | `bsi-teoria-f.js` | `82de383a52f65b6f897139e36c26e4df0aac9ef7e73180e9192cafdb63fc0678` |
 | `bsi-teoria-g.js` | `e1a573f57fdaac6fdfedb8b1ee4d5059a11f0178a75317b4d50c6b220231d2cd` |
-| `bsi-teoria-h.js` | `463bf353a704c906ca6139e6515df45783e88b717d8b7f2d83f465e54d334d66` |
+| `bsi-teoria-h.js` | `4d5f4bdb3c736fa8905286895dc17699a58115f1938974df3cb60e4b5cda2781` |
 | `bsi-teoria.js` | `cf049a56873408a35f0ca1854dc841454477cb8fe8f12ba59719c7085437ec61` |
 | `bsi-chim-hammett.js` | `2a2a7077ed6d6e8026d10c68a69b7227835c857e697f650d5d83567701e3b351` |
 | `bsi-fis-foucault.js` | `1504e733dc6d0fcf7c9504c8bb05bdb9f00d7a239fcf6992d5a100e28268f9f1` |
@@ -365,7 +369,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-chi-cinetica.js` | `e1a42d19404deb16f0c9cf9ac19de6b0970c955ec7b4427c4838ca97705bf3b4` |
 | `bsi-fis-meccanica.js` | `a73522108a4fdcd7b99719157b87111af8520f219c3a086d6d73eee6fefed569` |
 | `bsi-fis-onde.js` | `83ac1416df79f6fde4057382143fce24f9c6bb178f10fd44d44c96c0ffe6660a` |
-| `bsi-fis-circuiti.js` | `098679cdbb52241b6035e23076c82a25fe3d9a72b6f5bf7d4f880f887223f375` |
+| `bsi-fis-circuiti.js` | `bf675ed0ae24b8f6584f7b34597fa41d1443c017abb1b324b532ffc90d0c0b4c` |
 | `bsi-fis-termo.js` | `726263e95238d76240599d285f0d3fb4bcc5a54c018586b08077a7d5209d12cb` |
 | `bsi-mat-numerici.js` | `8656bdf657dcc3468f78951ed3d8e1056d953b147e04595c6bfaad647fa8ca93` |
 | `bsi-mat-geometria.js` | `609bf6c951d438aa0b0639fd2e736a52b340a363294ee564acfe9510966334be` |
@@ -383,10 +387,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `d9e4e52826bcbf272c6e483c1a2e7d1716fa0236f64a5514803cdcf7eeae21bc` |
+| `bsi-lingue.js` | `e9a8d9db5f8629c049b67c639c8bdd07b2a4b958bb09a2f1f155ccaac698cdd4` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `31215f8102a71fe8153d0f9092fabdaf94ad4b70dbe11d37ae8861fede481061` |
+| `sw.js` | `824bdf9fceeda3954fba03b36527afb4f31187ab5c0f37aadc6ba065fbb8a11d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -440,4 +444,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-18T06:46:40.432Z._
+_Generato il 2026-11-18T10:05:11.987Z._

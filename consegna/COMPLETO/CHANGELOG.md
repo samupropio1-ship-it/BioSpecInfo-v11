@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v257] — 2026-11-18
+
+**Il costruttore molecolare 3D e AR, tre spaccati tecnici di fisica**
+
+### Aggiunto
+- **🧪 Costruttore molecolare 3D e AR** (`bsi-costruttore.js`, sezione `scostruttore`, chimica). Si sceglie
+  l'elemento (H, C, N, O, F, P, S, Cl, Br, I) e l'ordine di legame, si tocca un atomo nella scena e il nuovo
+  atomo si lega; «Completa con idrogeni», «Chiudi anello», carica formale, cambio di elemento, eliminazione,
+  sedici modelli pronti. La geometria si rilassa con un campo di forze dichiarato: lunghezze dai raggi
+  covalenti di Cordero (2008) accorciate per i legami multipli, angoli VSEPR con le coppie solitarie (107° e
+  104,5°), termine di Urey–Bradley e K(1 + cos θ) per le molecole lineari, bipiramide trigonale con assiali ed
+  equatoriali, planarità dei centri sp², anelli aromatici a sei con legami uguali da 1,39 Å, repulsione fra
+  atomi non legati. Formula di Hill, massa molare, insaturazioni, VSEPR e ibridazione dell'atomo scelto,
+  lunghezze e angoli misurati, file MOL V2000 e XYZ. La scena è del Laboratorio 3D: il pulsante AR posa la
+  molecola costruita sul tavolo (GLB e USDZ verificati).
+- **Tre spaccati allo standard della tavola tecnica** (`bsi-fis-spaccati.js`, §5.2 del progetto), ognuno con
+  le parti etichettate da linee guida, i flussi animati di spessore proporzionale, il bilancio che si aggiorna
+  e una vista di dettaglio:
+  - «🔩 Il circuito in spaccato» (🔌 Circuiti): due generatori e tre resistori con codice colori, Kirchhoff con
+    il teorema di Millman, potenza erogata = dissipata, il generatore che si ricarica, la deriva degli elettroni
+    in 1 mm² di rame (v_d = I/(n e A), centesimi di millimetro al secondo);
+  - «🔩 Il laser in spaccato» (🔦 Laser): Nd:YAG pompato a diodo, specchi, ioni eccitati, onda stazionaria;
+    soglia, efficienza differenziale col difetto quantico 808/1064, inversione bloccata sopra soglia,
+    bilancio P_p = P_out + perdite + calore + non assorbita; dettaglio dei quattro livelli di Nd³⁺;
+  - «🔩 La giunzione in spaccato» (💡 Semiconduttori): zone p e n, cariche fisse, portatori, campo con frecce
+    proporzionali a |E(x)| integrato dall'equazione di Poisson, V_bi, larghezza di svuotamento in scala,
+    corrente di Shockley; dettaglio di E(x) e V(x).
+
+### Verificato
+- `test_costruttore` 57 controlli, `test_spaccati` 51 controlli (nuovi); la batteria sale a 109 banchi.
+- Ripassati `test_laboratori` 151, `test_pareggio` 527, `test_esplorazioni` 82, `test_teoria` 24 (152 schede),
+  `test_3d238` su `sfissolido`.
+
+### Limiti dichiarati
+- La costruzione *dentro* la sessione AR (prendere un atomo e avvicinarlo) non c'è ancora: si costruisce sullo
+  schermo e si posa in AR. Restano da rivedere allo standard §5.2 le altre 60 sezioni di fisica.
+
+---
 ## [bsi-v256] — 2026-11-18
 
 **La rete neurale di Spectra: il bug che la faceva sparire, la disposizione, il ✨ sopra la finestra**
