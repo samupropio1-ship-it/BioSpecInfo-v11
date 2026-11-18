@@ -7,6 +7,225 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v255] — 2026-11-13
+
+**Materia oscura e lenti gravitazionali, gli elementi in 3D, la parola «Spectra» senza difetti, la realtà aumentata in ogni scena 3D, l'eliosfera fino alla Galassia, fisiologia e farmacologia quantitative, la mappa dei prerequisiti, il motore in spaccato**
+
+Seguito di «procedi su ogni cosa»: le fasi 3, 4, 5, 8 e 9 del progetto
+(`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md`), ciascuna con una consegna
+verificata.
+
+### Aggiunto
+- **🥽 Realtà aumentata** (`bsi-ar.js`, fase 3): il pulsante «AR» compare
+  nella barra di ogni scena 3D (orbitali, sistema solare, buchi neri,
+  galassie, onde gravitazionali, laboratorio 3D…). Su iPhone la scena diventa
+  un file USDZ e si apre con Quick Look; su Android con Chrome parte una
+  sessione WebXR: si inquadra il tavolo, si tocca e la scena si posa, con − e +
+  per la misura e ⟳ per ruotarla; sul computer si scarica il modello .glb.
+  Esportatori scritti qui (glTF 2.0 binario e USDZ), senza librerie: i file
+  della scena degli orbitali passano il validatore glTF di Khronos e i 30
+  validatori di USD senza un avviso; l'esportazione è stata provata su tutte
+  le 15 sezioni con scene 3D.
+- **🌞 L'eliosfera** (`bsi-astro-eliosfera.js`, Astrofisica, fase 4): la bolla
+  del vento solare in 3D allo standard del progetto — spirale di Parker, shock
+  di terminazione, eliosheath, eliopausa (semicorpo di Rankine), il gas
+  interstellare che arriva a 26 km/s, il nastro di IBEX, le traiettorie delle
+  due Voyager con gli attraversamenti misurati; scala logaritmica o lineare
+  dichiarata. Poi la spirale di Parker con angolo e campo, l'equilibrio di
+  pressione che fissa lo shock, la storia delle Voyager con le fonti, il
+  dibattito sul bow shock e sulla coda. Ogni affermazione porta MISURATO,
+  MODELLO o DIBATTUTO.
+- **🔧 Il motore in spaccato** (scheda di «🔥 Termodinamica in movimento»,
+  fase 5): cilindro, pistone con le fasce, biella e manovella in sezione con
+  le linee guida, i flussi di calore e lavoro con spessore proporzionale, il
+  bilancio Q_in = L + Q_out che si aggiorna, il ciclo p–V come dettaglio.
+  È l'esempio dello standard della fisica (§5.2).
+- **🫀 Fisiologia come sistema** (`bsi-med-fisiologia.js`, fase 8): ciclo
+  cardiaco a elastanza variabile con il diagramma pressione–volume e
+  Frank–Starling; acido–base con Henderson–Hasselbalch, i compensi attesi
+  (Winter, Berend 2014) e il gap anionico, sei casi tipo; glicemia con il
+  modello minimo di Bergman; scambi gassosi dall'equazione dei gas alveolari
+  alla saturazione di Severinghaus, con la quota.
+- **💉 Farmacologia quantitativa** (`bsi-farm-quantitativa.js`, fase 8): due
+  compartimenti con le fasi α e β, dosi ripetute fino allo stato stazionario
+  con accumulo e dose di carico, farmacodinamica di Hill con indice
+  terapeutico e margine di sicurezza, interazioni per inibizione degli enzimi
+  (Rowland–Matin) con le classi FDA. Ogni scheda dice che non sostituisce il
+  medico.
+- **🧭 Mappa dei prerequisiti di matematica** (`bsi-mat-mappa.js`, fase 9):
+  41 argomenti dalle superiori all'avanzato con i prerequisiti, le sezioni che
+  li insegnano e quelle di fisica e chimica che li usano; scelto un obiettivo,
+  il percorso ordinato; «lo so già» lo accorcia.
+- **🌌 Onde di fase e correnti** (nuova prima scheda del 🔮 Laboratorio degli
+  orbitali, `bsi-orbitali-cinema.js`): come nei video che l'autore ha indicato —
+  l'orbitale come superficie a reticolo (l'isosuperficie vera, contorno al
+  90 % fatto ruotare attorno a z), le scie della corrente di probabilità
+  J = ħm|ψ|²/(mₑ r sin θ) φ̂ che girano attorno all'asse, l'onda di fase
+  Re ψ·e^(−iEt/ħ) come un foglio colorato che ruota, l'anello di de Broglie con
+  m lunghezze d'onda (∮p·dl = 2πmħ, dichiarato semiclassico), le formule in
+  sovrimpressione.
+- **🌌 Dal Sole alla Galassia** (nuova scheda dell'🌞 Eliosfera,
+  `bsi-astro-viaggio.js`): uno zoom continuo da 2 UA a 44 kpc con ogni oggetto
+  alla sua posizione vera — pianeti, fascia di Kuiper, eliosfera con muro di
+  idrogeno e onda di prua, particelle del vento solare e del gas interstellare
+  lungo le linee di flusso del modello, nube di Oort, Alfa Centauri, la Via
+  Lattea inclinata di 60,2° sull'eclittica, le bolle di Fermi ed eROSITA sopra
+  e sotto il centro galattico. «▶ Viaggio» fa la regia da solo.
+- **Perfezionamento delle due animazioni** (richiesta: «ancora più perfette,
+  autentiche, accurate e definite»): l'orbitale ha anche una superficie di
+  vetro con il bordo luminoso (Fresnel) le cui normali vengono dal gradiente
+  vero di |ψ|²; le scie hanno la testa luminosa; la fase gira con ω ∝ |E_n|,
+  nel rapporto vero fra i livelli; reticolo e foglio a risoluzione più alta.
+  Nel viaggio i pianeti (da Mercurio a Nettuno) stanno dove sono oggi, con
+  l'equazione di Keplero e gli elementi orbitali del JPL (la Terra
+  all'equinozio di marzo 2026 cade a 179,6°, al perielio a 0,98329 UA); le
+  Voyager alla data di oggi; gusci e bolle con il bordo luminoso; le stelle
+  come punti di luce, gialle nel rigonfiamento e nella barra (5 kpc, 27°),
+  azzurre nei bracci con le regioni HII rosa.
+
+- **🌑 Materia oscura e lenti gravitazionali** (`bsi-astro-materiaoscura*.js`,
+  Astrofisica), allo standard del video di riferimento: la rete cosmica in 3D
+  (fino a 262 144 particelle, Zel'dovich troncata su uno spettro ΛCDM di
+  Planck 2018 con σ₈ = 0,811, colore dalla densità vera); la lente
+  gravitazionale calcolata pixel per pixel sulla GPU (puntiforme, SIS, SIE,
+  NFW, taglio esterno) con anelli di Einstein, archi, croci, curve critiche,
+  caustiche, amplificazioni, campo profondo deformato e la massa κ «che non si
+  vede»; fisica + apprendimento automatico: una rete neurale addestrata nel
+  browser su lenti simulate legge θ_E e l'ellitticità, un fit fisico parte
+  dalla sua risposta e la verifica (χ²/ν ≈ 1, come Hezaveh et al., Nature
+  2017); le curve di rotazione con disco e alone (229 km/s del Sole); e la
+  regia del video, «🎬 Dalla materia alla lente»: rete → alone → anello che
+  nasce → tre lenti → rete.
+- **Le animazioni come nei video di riferimento**: l'orbitale predefinito è il 4f
+  con m = 1 (due lobi e un toro, come il fotogramma dell'autore) con reticolo
+  rado e nitido, lobi azzurri e toro arancio, scie della corrente lunghe e
+  sottili, foglio dell'onda di fase color petrolio sull'equatore, sfera esterna
+  e anelli sul piano (nodi radiali e raggio più probabile), bagliore minimo.
+  Nell'eliosfera la scheda **«🎨 Tutto insieme»**: pianeti di oggi, eliosfera
+  asimmetrica con il vento solare, muro di idrogeno, onda di prua, bolle di
+  Fermi (rosse, con le particelle) ed eROSITA (verdi), disco della Via Lattea
+  e Voyager in una sola scena, come il fotogramma di riferimento; dichiarata
+  NON IN SCALA sulla figura (distanze compresse in logaritmo, bolle galattiche
+  attorno al Sole), con l'inclinazione vera di 60,2° fra eclittica e Galassia.
+- **Teoria delle 6 sezioni nuove** (`bsi-teoria-h.js`): orbitali, eliosfera,
+  materia oscura, fisiologia, farmacologia quantitativa, mappa dei
+  prerequisiti; 151 schede in tutto.
+- **⬡ La Tavola Periodica sostituita** dalla nuova (`bsi-elementi3d.js`, sezione
+  `spt`): due schede, «⚛️ L'atomo in 3D» e «⬡ La tavola e le tendenze» (tavola
+  colorata per elettronegatività, raggio, ionizzazione, fusione, massa o
+  categoria; un tocco porta all'atomo). Conserva tutti i dati della vecchia
+  (ossidazione, fusione, periodo, gruppo, categoria, descrizione).
+- **La resa «cinema» nel motore 3D** (`BSILab3D.Scena.cinema()`), dalle skill di
+  compositing e luci di blender-skills: bagliore solo sopra soglia calcolato a
+  metà risoluzione, vignettatura sottile, tone mapping ACES, grana
+  leggerissima (spenta con «riduci movimento»); accesa negli orbitali, nel
+  viaggio galattico, nella materia oscura e negli elementi; gli elementi con il
+  rig a tre punti (chiave 5500 K, riempimento al 30 %, contorno caldo 3200 K).
+- **⚛️ Gli elementi in 3D** (`bsi-elementi3d.js`): ogni elemento come atomo
+  vero, più scuro e meno da cartone del riferimento — nuvola elettronica di
+  Slater sottoguscio per sottoguscio, nucleo con i suoi protoni e neutroni,
+  luce di contorno del colore della sua riga più forte, densità radiale,
+  impronta spettrale con righe NIST (o calcolate per l'idrogeno) e la
+  dichiarazione esplicita quando mancano; tavola periodica e la sequenza del
+  video (Ar, Al, Re, Ge, Eu, La…); modello di Bohr solo come opzione storica.
+- **Limiti tolti**: i file AR si semplificano sopra 60 000 triangoli (lo USDZ
+  dell'orbitale da 15,6 a circa 2 MB, forma esatta entro la cella);
+  l'eliosfera ha una forma asimmetrica vincolata ai quattro attraversamenti
+  delle Voyager (passa esattamente per 94,0, 121,6, 83,7 e 119,0 UA); qualità
+  massima, normale o leggera nelle animazioni pesanti; misurati i fotogrammi
+  con la CPU rallentata 4× e 6× (50–60 fps; il viaggio galattico è il più
+  pesante); il tratteggio del motore calcolato una volta.
+- **Le skill di Blender** (arjun988/blender-skills, MIT) nel progetto, in
+  `.claude/skills/` (le 18 utili alla visualizzazione scientifica), e Blender
+  5.0 senza schermo nella pipeline di sviluppo.
+- Banchi **`test_materiaoscura`** (32), **`test_elementi3d`** (24),
+  **`test_sentinella`** (29); requisiti SCI-75, SCI-76, STA-11; 211 sezioni (la voce «Gli elementi in 3D» è diventata la Tavola Periodica);
+  batteria a 107 banchi.
+
+### Corretto
+- **Pulsante AR in fondo alla barra delle scene 3D** (stava per primo e spostava i
+  comandi della vista; `test_grafica3d`).
+- **La parola «Spectra» e la sentinella sempre in ascolto**: ripartiva
+  subito a ogni chiusura e, con un errore di rete o di microfono, girava a
+  vuoto decine di volte al secondo (batteria, bip su Android); ora attesa
+  crescente. Rubava il microfono alla console: ora cede e riprende. Capiva
+  «Spectra» solo in quattro grafie e nella prima alternativa: ora tollera le
+  grafie del riconoscimento italiano (spectre, specter, spec tra…), esclude
+  le parole che le somigliano (spettro, specchio…), guarda tutte le
+  alternative. Riparte a pagina visibile e dopo una ricarica.
+- **La rete neurale**: al primo giorno era vuota («0 neuroni») e sembrava
+  rotta; con pochi neuroni li schiacciava contro i bordi. Ora ha sempre la sua
+  struttura (nucleo, cinque livelli della memoria, materie) e la disposizione
+  di Fruchterman e Reingold; la testata non si sovrappone più sul telefono.
+- **Laurenzio**: la configurazione nella tabella dell'app era «[Rn]5f¹⁴7p¹»
+  (101 elettroni); corretta in «[Rn]5f¹⁴7s²7p¹» (NIST).
+- **«Dimentica che sono il tuo creatore»** (introdotto nella v254): il comando
+  della memoria «dimentica…» intercettava la frase e il riconoscimento del
+  creatore restava attivo. Ora la frase va a Spectra Live, come prima
+  (`test_spectra238` di nuovo 66/66).
+- Banchi **`test_ar`** (30), **`test_eliosfera`** (43), **`test_medfarm`**
+  (53), **`test_matmappa`** (21), **`test_motore`** (22), **`test_cinema`** (34);
+  requisiti SCI-70…74, UI-35, UI-36; 210 sezioni; batteria a 104 banchi.
+
+### Limiti dichiarati
+- L'AR vera è stata provata qui solo con WebXR e Quick Look simulati: va
+  provata a mano su un Android con ARCore e su un iPhone. Le animazioni non
+  vanno in AR (si posa la scena com'è); linee ed etichette restano fuori.
+- Le superfici dell'eliosfera sono un modello simmetrico: le Voyager l'hanno
+  toccata in due punti e l'eliosfera vera è asimmetrica, come la scheda dice.
+- Le frequenze di fotogramma sui telefoni veri non sono ancora misurate.
+- La revisione delle 64 sezioni di fisica allo standard del diagramma tecnico
+  è cominciata con il motore: le altre restano da rivedere una per una.
+
+---
+## [bsi-v254] — 2026-11-13
+
+**La memoria di Spectra a cinque livelli e il laboratorio degli orbitali**
+
+Richiesta dell'autore: «procedi su ogni cosa» del progetto
+(`progetto/PROGETTO-BIOSPECINFO-SPECTRA.md`). Questa versione porta le fasi 1
+e 2, le due che si fanno dentro l'app senza servizi esterni.
+
+### Aggiunto
+- **🧠 Memoria a cinque livelli** (`bsi-spectra-memoria.js`, `BSIMemoria`):
+  un archivio IndexedDB solo per episodi, fatti, procedure e autobiografia
+  (prima tre posti che non si parlavano). A ogni domanda il modello riceve i
+  pochi ricordi pertinenti, scelti con sei segnali (significato, parole in
+  comune, recenza con oblio R = e^(−Δt/S), importanza, sezione aperta,
+  obiettivi), la diffusione ai ricordi collegati e la diversità; un ricordo
+  estraneo alla domanda non arriva. Alla prima apertura del giorno Spectra
+  consolida: i concetti che tornano diventano fatti, impara come si preferisce
+  studiare, archivia ciò che è sbiadito, scrive una pagina di diario al giorno
+  e un capitolo al mese. A parole: «preferisco…», «cosa ricordi di me»,
+  «dimentica…», «consolida la memoria». Strumento `cerca_nella_memoria`
+  (53 strumenti). La rete neurale mostra anche procedure, diario e fatti
+  dedotti. La memoria viaggia con «esporta».
+- **🔮 Laboratorio degli orbitali** (`bsi-orbitali.js`, Chimica Fisica):
+  gli orbitali dell'idrogeno dalla soluzione esatta (R_nl con i polinomi di
+  Laguerre, armoniche sferiche reali e complesse), con lo standard del
+  progetto: isosuperficie al 90 % di probabilità calcolata con i tetraedri
+  marcianti, nuvola di 22 000 punti campionati da |ψ|², nodi radiali, spaccato
+  colorato, fase complessa come colore che ruota nel tempo mentre la densità
+  resta ferma, corrente di probabilità attorno all'asse z per m ≠ 0. I grafici
+  collegati (P(r), R(r), |Y|² polare) con la normalizzazione numerica; le
+  sovrapposizioni che oscillano davvero (1s + 2p a 2,467×10¹⁵ Hz: la riga
+  Lyman-α a 121,5 nm) con la regola di dipolo; l'orbitale molecolare di H₂⁺
+  come interferenza delle due 1s, con S(R) e il piano nodale dell'antilegante.
+  Ioni idrogenoidi fino a Z = 10, dichiarati come tali.
+- Banchi **`test_memoria`** (29) e **`test_orbitali`** (48); requisiti AI-22,
+  SCI-69; 206 sezioni (chimica 80); batteria a 98 banchi.
+
+### Limiti dichiarati
+- L'incorporamento della memoria è locale (parole e sillabe): riconosce le
+  parole, non i sinonimi.
+- Le animazioni degli orbitali sono rallentate di circa 10¹⁶ volte e la
+  velocità della corrente è esagerata per renderla visibile; è scritto sulla
+  figura. Per Z > 1 gli orbitali sono di uno ione con un solo elettrone.
+- Le fasi 6 (servizio sempre acceso) e 7 (occhiali Ray-Ban Meta con
+  l'applicazione Android) richiedono un computer ospite, una chiave API e il
+  kit di Meta: restano descritte nel progetto.
+
+---
 ## [bsi-v253] — 2026-11-13
 
 **La teoria di ogni sezione, lo spaziotempo curvo e i wormhole, e trenta errori scientifici corretti**
