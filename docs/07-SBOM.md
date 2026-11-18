@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v256` |
-| Commit | `3cfd6873d80afbe4f97c41f29f81b00d4d850c57` |
-| Generato (UTC) | `2026-11-18T04:15:30.875Z` |
+| Commit | `a713668fb1cea809be0fb5ab9407c091087d097e` |
+| Generato (UTC) | `2026-11-18T06:46:40.432Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4720 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4721 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 448 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -178,7 +178,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
-| `bsi-spectra-risveglio.js` | 59 kB | Risveglio di Spectra: sequenza di avvio, meteo (Open-Meteo), punto alle 8 e alle 20, batteria, rete neurale della memoria. |
+| `bsi-spectra-risveglio.js` | 62 kB | Risveglio di Spectra: sequenza di avvio, meteo (Open-Meteo), punto alle 8 e alle 20, batteria, rete neurale della memoria. |
 | `bsi-spectra-memoria.js` | 27 kB | Memoria di Spectra a cinque livelli (IndexedDB): recupero a sei segnali, consolidamento giornaliero, procedure, diario, strumento cerca_nella_memoria. |
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
@@ -229,7 +229,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `ceff34d22435e1901f6e8f18659dcddd34aae9c4b214996d97ceeac8ec1bd9fc` |
+| `index.html` | `a32c6d7d2850e97644dfe5e509b0bbb54b415da3b7271b7ba57bedb92d56a52d` |
 | `bsi-ai-hub.js` | `8d15300f4035066e0c9819f02dcc9724310560533d6e71ec6b8c22aee445240f` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -345,7 +345,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
-| `bsi-spectra-risveglio.js` | `e932ee03f4a3e2ce8996e4b2512e596fd354eef698fb7e9fc56e5d494455fe6c` |
+| `bsi-spectra-risveglio.js` | `6b8c39f1b4f5b4e5385c584e1d079090faf328624666fccab7600f9103127a25` |
 | `bsi-spectra-memoria.js` | `02ad82dced9bb4b176734d96408153150cd35b7d0e2919f3db48aed6789bc8e3` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
@@ -386,7 +386,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `d9e4e52826bcbf272c6e483c1a2e7d1716fa0236f64a5514803cdcf7eeae21bc` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `08b129f70dca34c71a177c433cb15855bc4eb10e1c0d5cd15e1789f48f5bf1f0` |
+| `sw.js` | `31215f8102a71fe8153d0f9092fabdaf94ad4b70dbe11d37ae8861fede481061` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
@@ -440,4 +440,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-18T04:15:30.875Z._
+_Generato il 2026-11-18T06:46:40.432Z._
