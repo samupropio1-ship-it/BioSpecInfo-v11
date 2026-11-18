@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v256` |
+| **Version described** | `bsi-v257` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -283,4 +283,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v256`._
+_Document updated to version `bsi-v257`._

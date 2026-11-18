@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v256` |
+| **Versione descritta** | `bsi-v257` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -284,4 +284,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v256`._
+_Documento aggiornato alla versione `bsi-v257`._
