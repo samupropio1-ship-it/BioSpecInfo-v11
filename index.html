@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v258';
+window.BSI_APP_VERSION='bsi-v259';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -32254,9 +32254,9 @@ window.addEventListener('load', init);
 <script src="./bsi-materie.js" defer></script>
 <script src="./bsi-attrezzi.js" defer></script>
 <script src="./bsi-materie-app.js" defer></script>
-<script src="./bsi-spectra-volto.js" defer></script>
-<script src="./bsi-spectra-robot.js" defer></script>
-<script src="./bsi-spectra-androide.js" defer></script>
+<!-- (v259) Spectra è il nucleo olografico: il volto androide non si carica più. <script src="./bsi-spectra-volto.js" defer></script> -->
+<!-- (v259) Spectra è il nucleo olografico: il volto androide non si carica più. <script src="./bsi-spectra-robot.js" defer></script> -->
+<!-- (v259) Spectra è il nucleo olografico: il volto androide non si carica più. <script src="./bsi-spectra-androide.js" defer></script> -->
 <script src="./bsi-spectra-mente.js" defer></script>
 <script src="./bsi-spectra-agenda.js" defer></script>
 <script src="./bsi-spectra-cervello.js" defer></script>
@@ -32267,6 +32267,7 @@ window.addEventListener('load', init);
 <script src="./bsi-lezione.js" defer></script>
 <script src="./bsi-spectra-live.js" defer></script>
 <script src="./bsi-spectra-spiega.js" defer></script>
+<script src="./bsi-spectra-nucleo.js" defer></script>
 <script src="./bsi-spectra-figura.js" defer></script>
 <script src="./bsi-spectra-olointerattivo.js" defer></script>
 <!-- (v240) LO SPAZIO VUOTO IN CIMA ALLE SEZIONI: alcune sezioni (la dashboard, le aree con l'assistente, Spectra AI…) stanno
@@ -36479,7 +36480,8 @@ _st.textContent = [
 /* alone che pulsa piano per far notare il copilota senza distrarre */
 '@keyframes bsiSpectraPulse{0%,100%{box-shadow:0 6px 22px rgba(0,201,183,.28),0 2px 8px rgba(0,0,0,.45)}',
 '50%{box-shadow:0 6px 26px rgba(0,201,183,.55),0 2px 8px rgba(0,0,0,.45)}}',
-'#bsi-spectra-fab{animation:bsiSpectraPulse 3.4s ease-in-out infinite;}',
+'#bsi-spectra-fab{animation:none;}', /* (v259) niente alone che pulsa all\'infinito: al massimo un impulso con .bsi-impulso */
+'#bsi-spectra-fab.bsi-impulso{animation:bsiSpectraPulse 1.6s ease-in-out 1;}',
 '@media (prefers-reduced-motion:reduce){#bsi-spectra-fab{animation:none;transition:none;}}',
 /* su schermi molto stretti tengo solo l icona, per non coprire i contenuti */
 '@media (max-width:360px){#bsi-spectra-fab{padding:0 12px;font-size:0;gap:0;}',
@@ -37992,6 +37994,8 @@ function _mkFab(){
     document.getElementById('bsi14-sheet').classList.toggle('open');
   };
   document.body.appendChild(fab);
+  /* (v259) le API del menu, per chi deve leggerlo o usarne una voce senza clic finti */
+  window.bsi14 = { costruisci: function(){ _buildSheet(); _buildSR(); }, azione: function(k){ _act(k); } };
 }
 _mkFab();
 

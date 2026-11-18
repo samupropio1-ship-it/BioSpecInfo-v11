@@ -118,8 +118,9 @@ function vero(d, c) { att(d, true, !!c); }
     await pg.goto(BASE + 'spectra-studio.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
     /* (v240) il corpo di Spectra e' SEMPRE presente: incorporato nell'app (models/spectra-corpo.bsi) */
-    await pg.waitForFunction(() => SpectraStudio.stato().volto && SpectraStudio.S().rig && SpectraStudio.S().allinea === 0, null, { timeout: 120000 }).catch(() => {});
-    vero('il corpo di Spectra c\'è sempre, senza caricarlo (incorporato), e l\'avviso «sta arrivando» è sparito', await pg.evaluate(() => !!SpectraStudio.S().rig && document.getElementById('invito').hidden));
+    /* (v259) Spectra è il nucleo olografico anche nello studio: niente corpo da caricare */
+    await pg.waitForFunction(() => { const S = SpectraStudio.S(); return S && S.spectra && S.spectra.presente(); }, null, { timeout: 60000 });
+    vero('nello studio Spectra è il nucleo olografico, presente subito, senza «sta arrivando»', await pg.evaluate(() => !!window.BSISpectraNucleo && SpectraStudio.S().spectra instanceof BSISpectraNucleo.Nucleo && document.getElementById('invito').hidden));
     await pg.evaluate(() => { try { localStorage.removeItem('bsi-spectra-studio-v1'); } catch (e) {} });
     /* il riferimento: sul manichino l'osso della testa; sul corpo riggato (models/spectra-corpo.glb, se presente in locale)
        il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */

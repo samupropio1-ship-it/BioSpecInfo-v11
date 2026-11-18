@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v258` |
+| **Versione descritta** | `bsi-v259` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -154,6 +154,7 @@
 | **AI-21** | Ogni sezione di chimica, fisica e matematica che spiega qualcosa deve avere la sua teoria (concetti, formule con il significato, ipotesi e limiti, errori tipici, esercizio svolto, fonti vere, collegamenti), leggibile sul telefono, cercabile, e Spectra deve poterla leggere prima di spiegare | `bsi-teoria.js` (pulsante «📖 Teoria», scheda, `indice()`, `cerca()`, strumento `leggi_teoria`, comandi «teoria di…»), dati in `bsi-teoria-a…g.js` (154 schede) | `test_teoria` (24 controlli: copertura, forma, lettura, ricerca, comandi, strumento) |
 | **AI-22** | La memoria di Spectra deve essere un archivio solo a cinque livelli (lavoro, episodi, fatti, procedure, autobiografia) che sopravvive alla chiusura dell'app; a ogni domanda il modello deve ricevere solo i ricordi pertinenti (non tutta la memoria), deve potersi consolidare da sola ogni giorno, dimenticare a comando, viaggiare con l'esportazione e non far arrivare al modello ricordi estranei alla domanda | `bsi-spectra-memoria.js` — `BSIMemoria.scrivi`, `cerca` (sei segnali, oblio R = e^(−Δt/S), diffusione, diversità), `consolida`, `blocco` ([RICORDI], [PROCEDURE], [STORIA]), `comando`, `dimentica`, `esportaTesto`/`importaTesto`, strumento `cerca_nella_memoria`; `bsi-ai-hub.js` — `_bsiMente(testo)` | `test_memoria` (29 controlli) |
 | **AI-23** | Spectra Prime (v258): orchestratore a sette agenti (LangGraph) con un ponte WebSocket che vede la scena 3D aperta e la comanda (load, update, toggle_layer, focus); solo wss://, origini autorizzate, quattro azioni, valori controllati, azioni high/critical bloccate fino alla conferma | `spectra_core/` (10 test Python), `bsi-spectra-ponte.js` | `test_spectra_ponte` (41 controlli) |
+| **AI-24** | Spectra è un nucleo olografico a forma di particella, non un robot (v259): nessun corpo, volto o ritratto da scaricare; stati con transizioni morbide (easeInOutSine), nessun elemento additivo che saturi; nessuna finestra, voce o tastiera che si apra senza un'azione dell'utente | `bsi-spectra-nucleo.js`, `bsi-spectra-figura.js`, `bsi-spectra-risveglio.js`, `bsi-spectra-olointerattivo.js`, `bsi-spectra-live.js`, `spectra-studio.html` | `test_spectra_nucleo` (41 controlli) |
 
 ---
 
@@ -197,7 +198,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 751 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 753 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -244,14 +245,14 @@ manuale, e la loro automazione è in programma.
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
 | Scientifici (SCI-01…80) | 78 | 78 | 100 % |
-| Agente AI (AI-01…23) | 22 | 22 | 100 % |
+| Agente AI (AI-01…24) | 23 | 23 | 100 % |
 | Stabilità (STA-01…11) | 11 | 11 | 100 % |
 | Interfaccia (UI-01…36) | 33 | 33 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **154** | **154** | **100 %** |
+| **Totale automatizzato** | **155** | **155** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **161** | **154** | **96 %** |
+| **Totale dichiarato** | **162** | **155** | **96 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -287,4 +288,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v258`._
+_Documento aggiornato alla versione `bsi-v259`._

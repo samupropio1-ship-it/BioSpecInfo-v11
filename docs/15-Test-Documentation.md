@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v258` |
+| **Versione descritta** | `bsi-v259` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**111 banchi**, raggruppati per ciò che dimostrano.
+**112 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -145,6 +145,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_spaccati` | **Gli spaccati tecnici di fisica** (v257, 51 controlli): Kirchhoff e potenza su mille circuiti casuali, deriva nel rame, codice colori; bilancio di potenza del laser Nd:YAG per diciotto casi, soglia, inversione bloccata sopra soglia, crescita lineare; per venticinque giunzioni p–n il campo integrato da Poisson uguale alla formula chiusa, neutralità, salto di potenziale, legge di Shockley; poi le tre schede (circuiti, laser, semiconduttori) sul telefono con «riduci movimento» e su schermo grande, con il bilancio scritto e l'ultima scheda 3D al suo posto |
 | `test_spectra_ponte` | **Il ponte con Spectra Prime e le scene fisiche 3D** (v258, 41 controlli): un server finto parla il protocollo WebSocket; i comandi load/update/toggle_layer/focus cambiano davvero la scena e la telemetria lo riporta, indirizzi non sicuri rifiutati, ricollegamento; la fisica di Morse, della magnetosfera e di Kelvin |
 | `test_cosmo` | **Le simulazioni cosmiche** (v258, 34 controlli): Morse a 74,1 pm, D₀ 4,48 eV, nuvola LCAO; b_crit, campo debole, giri logaritmici, ΔE/E; Bessel, Freeman, curva piatta, stelle in fuga senza alone; N corpi e luna legata; poi ogni simulazione nella pagina sul telefono |
+| `test_spectra_nucleo` | **Spectra come nucleo olografico, senza aperture automatiche** (v259, 41 controlli): per tre profili (nuovo, con conversazioni, con sveglia e occhiali accesi) nei primi 10 s non si apre nulla, nessuna voce, nessuna tastiera, solo inviti da toccare; il pulsante non pulsa all'infinito; stati con i nomi in italiano e inglese, transizioni senza salti, didascalia parola per parola, tessere al massimo 6, avviso in ambra, schede, «riduci movimento»; l'ologramma non gira da solo e non parla da solo; senza WebGL il nucleo 2D |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
 | `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
@@ -330,7 +331,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` · `test_ar` · `test_eliosfera` · `test_medfarm` · `test_matmappa` · `test_motore` · `test_cinema` · `test_materiaoscura` · `test_elementi3d` · `test_sentinella` · `test_costruttore` · `test_spaccati` · `test_spectra_ponte` · `test_cosmo` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` · `test_voce` · `test_agenda` · `test_risveglio` · `test_potenzia252` · `test_teoria` · `test_spaziotempo` · `test_correzioni` · `test_memoria` · `test_orbitali` · `test_ar` · `test_eliosfera` · `test_medfarm` · `test_matmappa` · `test_motore` · `test_cinema` · `test_materiaoscura` · `test_elementi3d` · `test_sentinella` · `test_costruttore` · `test_spaccati` · `test_spectra_ponte` · `test_cosmo` · `test_spectra_nucleo` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_avvio` · `test_giro` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -1063,7 +1064,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 751 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 753 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -1083,4 +1084,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v258`._
+_Documento aggiornato alla versione `bsi-v259`._

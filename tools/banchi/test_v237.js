@@ -144,6 +144,7 @@ const ALTRE_VERIFICHE = ['verifica-studio.js', 'verifica-studio-fisica.js', 'ver
     const pg = await ctx.newPage(), errs = [];
     pg.on('pageerror', e => errs.push(e.message));
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+    await pg.addScriptTag({ url: BASE + 'bsi-spectra-androide.js' });   /* (v259) il volto androide non si carica più nell'app: lo si prova come componente */
     await pg.waitForFunction(() => !!(window.BSISpectraAndroide && window.BSISpectraMente), null, { timeout: 60000 });
     const r = await pg.evaluate(async () => {
       const A = window.BSISpectraAndroide, M = window.BSISpectraMente, o = {};

@@ -236,12 +236,13 @@
     this.mat = mat; this.lin = lin;
     /* la cornice: un pannello di vetro con i bordi accesi e una base proiettore */
     var W = 1.1, H = 1.25;
-    var vetro = new T.Mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ color: 0x0b2a55, transparent: true, opacity: 0.16, depthWrite: false, side: T.DoubleSide })); this.grp.add(vetro);
-    var bordo = new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(W, H)), lin(ciano, 0.75)); this.grp.add(bordo);
-    var base = new T.Mesh(new T.CylinderGeometry(0.16, 0.2, 0.05, 32), new T.MeshStandardMaterial({ color: 0x141c2c, metalness: 0.8, roughness: 0.3 })); base.position.set(1.05, 0.025, -0.1); sc.add(base);
-    var fascio = new T.Mesh(new T.CylinderGeometry(0.02, 0.16, 0.4, 24, 1, true), mat(blu, 0.12)); fascio.position.set(1.05, 0.25, -0.1); sc.add(fascio);
+    var vetro = new T.Mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ color: 0x0b2a55, transparent: true, opacity: 0.1, depthWrite: false, side: T.DoubleSide })); this.grp.add(vetro);
+    var bordo = new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(W, H)), lin(ciano, 0.35)); this.grp.add(bordo);
+    /* (v259) niente base proiettore né cono di luce pieno: cornice HUD sottile, come il nucleo */
+    var tacche = []; [[-W / 2, H / 2, 1, -1], [W / 2, H / 2, -1, -1], [-W / 2, -H / 2, 1, 1], [W / 2, -H / 2, -1, 1]].forEach(function (c) { tacche.push(c[0], c[1], 0, c[0] + 0.12 * c[2], c[1], 0, c[0], c[1], 0, c[0], c[1] + 0.12 * c[3], 0); });
+    var tg = new T.BufferGeometry(); tg.setAttribute('position', new T.Float32BufferAttribute(tacche, 3)); this.grp.add(new T.LineSegments(tg, lin(0x00c9b7, 0.55)));
     this.cornice = { vetro: vetro, bordo: bordo }; this.W = W; this.H = H;
-    this.scene = {}; this.attuale = null; this.t = 0; this.cambioT = 0; this.auto = true;
+    this.scene = {}; this.attuale = null; this.t = 0; this.cambioT = 0; this.auto = false;   /* (v259) niente giro automatico: la scena cambia per argomento o per scelta */
     /* la tela dello schermo vivo */
     this.tela = D.createElement('canvas'); this.tela.width = 512; this.tela.height = 384; this.tex = new T.CanvasTexture(this.tela); this.tex.encoding = T.sRGBEncoding;
   }
@@ -261,8 +262,8 @@
       U.passo = function (t) { U.p.forEach(function (q) { var M = q.M0 + 2 * Math.PI * t / q.T, E = M; for (var k = 0; k < 6; k++) E -= (E - q.e * Math.sin(E) - M) / (1 - q.e * Math.cos(E)); q.pl.position.set(q.a * (Math.cos(E) - q.e), 0, q.b * Math.sin(E)); }); g.rotation.y = t * 0.05; };
     } else if (nome === 'molecola') {
       var C = [], R = 0.2;
-      for (var k = 0; k < 6; k++) { var a2 = k * Math.PI / 3, c = new T.Vector3(R * Math.cos(a2), R * Math.sin(a2), 0); C.push(c); var at = new T.Mesh(new T.SphereGeometry(0.035, 16, 12), mat(0x9fb6dd, 0.95)); at.position.copy(c); g.add(at);
-        var h = new T.Mesh(new T.SphereGeometry(0.022, 12, 10), mat(0xffffff, 0.9)); h.position.copy(c.clone().multiplyScalar(1.55)); g.add(h);
+      for (var k = 0; k < 6; k++) { var a2 = k * Math.PI / 3, c = new T.Vector3(R * Math.cos(a2), R * Math.sin(a2), 0); C.push(c); var at = new T.Mesh(new T.SphereGeometry(0.035, 16, 12), mat(0x9fb6dd, 0.6)); at.position.copy(c); g.add(at);
+        var h = new T.Mesh(new T.SphereGeometry(0.022, 12, 10), mat(0xd7f7f3, 0.6)); h.position.copy(c.clone().multiplyScalar(1.55)); g.add(h);
         g.add(new T.Line(new T.BufferGeometry().setFromPoints([c, c.clone().multiplyScalar(1.55)]), lin(0xcfe2ff, 0.7))); }
       for (k = 0; k < 6; k++) { var A = C[k], B = C[(k + 1) % 6]; g.add(new T.Line(new T.BufferGeometry().setFromPoints([A, B]), lin(0x00c9b7, 0.95)));
         if (k % 2 === 0) { var off = A.clone().add(B).multiplyScalar(0.5).multiplyScalar(-0.12); g.add(new T.Line(new T.BufferGeometry().setFromPoints([A.clone().add(off), B.clone().add(off)]), lin(0x00c9b7, 0.6))); } }
@@ -285,7 +286,7 @@
       var lobo = new T.SphereGeometry(0.12, 32, 24); lobo.scale(1, 1.75, 1);
       var su = new T.Mesh(lobo, mat(0x00c9b7, 0.55)); su.position.y = 0.2; g.add(su); var giu = new T.Mesh(lobo, mat(0x00c9b7, 0.55)); giu.position.y = -0.2; g.add(giu);
       var anello = new T.Mesh(new T.TorusGeometry(0.15, 0.055, 16, 48), mat(0x6b8cff, 0.55)); anello.rotation.x = Math.PI / 2; g.add(anello);
-      var nucleo = new T.Mesh(new T.SphereGeometry(0.018, 12, 10), mat(0xffffff, 1)); g.add(nucleo);
+      var nucleo = new T.Mesh(new T.SphereGeometry(0.018, 12, 10), mat(0xd7f7f3, 0.6)); g.add(nucleo);
       U.passo = function (t) { g.rotation.set(0.35 + 0.2 * Math.sin(t * 0.5), t * 0.6, 0.15); };
     } else if (nome === 'onda') {
       var M2 = 300, op = new Float32Array(M2 * 3), og = new T.BufferGeometry(); og.setAttribute('position', new T.BufferAttribute(op, 3)); g.add(new T.Line(og, lin(0x00c9b7, 1)));
@@ -313,11 +314,13 @@
   Ologramma.prototype.passo = function (dt) {
     this.t += dt; var g = this.attuale && this.scene[this.attuale]; if (!g) return;
     /* la comparsa: l'ologramma «si accende» in mezzo secondo */
-    this.comparsa = Math.min(1, (this.comparsa || 0) + dt * 2); g.scale.setScalar(0.6 + 0.4 * this.comparsa);
-    this.cornice.bordo.material.opacity = 0.55 + 0.2 * Math.sin(this.t * 2.2);
+    /* (v259) la comparsa: dissolvenza dell'opacità e scala 0,97 → 1 in 500 ms (prima: «pop» da 0,6) */
+    if (this.comparsa < 1) {
+      this.comparsa = Math.min(1, (this.comparsa || 0) + dt * 2); var e = 0.5 - 0.5 * Math.cos(Math.PI * this.comparsa); g.scale.setScalar(0.97 + 0.03 * e);
+      g.traverse(function (o) { if (o.material) { if (o.material.userData.op0 == null) o.material.userData.op0 = o.material.opacity; o.material.opacity = o.material.userData.op0 * e; } });
+    }
     if (g.userData.U.passo) g.userData.U.passo(this.t);
     /* a riposo le scene si alternano da sole */
-    if (this.auto && this.attuale !== 'schermo') { this.cambioT += dt; if (this.cambioT > 14) { this.cambioT = 0; this.mostra(GIRO_OLO[(GIRO_OLO.indexOf(this.attuale) + 1) % GIRO_OLO.length]); } }
   };
   /* la scena adatta a un testo (domanda o risposta): la prima che vi si riconosce */
   function sceneDi(testo) { var s = String(testo || '').toLowerCase(); for (var k = 0; k < GIRO_OLO.length; k++) if (SCENE_OLO[GIRO_OLO[k]].parole.test(s)) return GIRO_OLO[k]; return null; }
@@ -346,27 +349,32 @@
     '#bsiJV-figura .bsiSF{height:100%;min-height:0;margin:0}#bsiJV-figura .bsiSF-az{display:none}' +
     '@media (min-width:900px){#bsiJV-figura{left:auto;right:3%;width:46%;top:14%;height:58%}}' +
     '@media (max-width:520px){.bsiSF-nota{display:none}}';
+  CSS += '.bsiSF.bsiSF-nucleo{background:radial-gradient(circle at 1px 1px,rgba(159,208,255,.08) 1px,transparent 1.5px) 0 0/40px 40px,radial-gradient(120% 90% at 35% 45%,#0a1b2e 0%,#050a16 70%)}' +
+    '@media (max-width:640px){.bsiSF-nucleo .bsiN-dida{width:auto;right:10px}.bsiSF-nucleo .bsiSF-olo{top:84px}.bsiSF-nucleo .bsiSF-oi{top:120px}}' +
+    '.bsiSF-nucleo .bsiSF-hud{display:none}.bsiSF-nucleo .bsiN-dida{right:auto;left:10px;width:min(56%,440px);margin:0}.bsiSF-nucleo .bsiN-stato{right:auto;width:58%;bottom:60px}';
   function stile() { if (D.getElementById('bsiSF-stile')) return; var s = D.createElement('style'); s.id = 'bsiSF-stile'; s.textContent = CSS; D.head.appendChild(s); }
 
   function webgl() { try { var c = D.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
 
   function monta(contenitore, opz) {
     opz = opz || {}; var T = globale.THREE;
-    if (!T || !globale.BSISpectraCorpo || !webgl()) return null;
+    var NU = globale.BSISpectraNucleo; if (!T || !(NU || globale.BSISpectraCorpo) || !webgl()) return null;
     stile();
     var box = D.createElement('div'); box.className = 'bsiSF'; box.setAttribute('role', 'img');
     box.setAttribute('aria-label', t('Spectra, l\'assistente, in piedi: gesticola e cambia espressione mentre risponde', 'Spectra, the assistant, standing: gestures and changes expression while answering'));
     var ren = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     /* alta definizione: fino a 2,5 pixel per punto in un riquadro (sugli schermi 4K e sui telefoni recenti resta nitido) */
     var LEGG = opz.leggero != null ? !!opz.leggero : leggero();
-    ren.setPixelRatio(Math.min(LEGG ? 2 : 2.5, globale.devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping;
+    ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.85;   /* (v259) al massimo 2 pixel per punto: meno calore e batteria */
     ren.domElement.setAttribute('aria-hidden', 'true'); box.appendChild(ren.domElement);
     var hud = D.createElement('div'); hud.className = 'bsiSF-hud'; hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + t('IN ASCOLTO', 'LISTENING') + '</b>'; box.appendChild(hud);
     var nota = D.createElement('div'); nota.className = 'bsiSF-nota'; box.appendChild(nota);
     var az = D.createElement('div'); az.className = 'bsiSF-az'; box.appendChild(az);
     contenitore.insertBefore(box, contenitore.firstChild);
 
-    var sc = new T.Scene(); sc.background = new T.Color(0x050a16); sc.fog = new T.FogExp2(0x050a16, 0.12);
+    var sc = new T.Scene(); sc.background = new T.Color(0x050a16);
+    if (NU) { box.classList.add('bsiSF-nucleo'); }
+    else { sc.fog = new T.FogExp2(0x050a16, 0.12);
     var amb = new T.Scene(); amb.add(new T.Mesh(new T.BoxGeometry(20, 10, 20), new T.MeshBasicMaterial({ color: 0x070b16, side: T.BackSide })));
     [[0, 4.8, 0, 10, .2, 4, 0xffffff, 2.2], [-9.5, 1.5, 0, .2, 3, 8, 0x2f6bff, 2.4], [9.5, 1.5, 0, .2, 3, 8, 0x00c9b7, 1.2], [0, 1, -9.5, 8, 2, .2, 0x6bcfff, 1.2]].forEach(function (p) { var m = new T.Mesh(new T.BoxGeometry(p[3], p[4], p[5]), new T.MeshBasicMaterial({ color: new T.Color(p[6]).multiplyScalar(p[7]) })); m.position.set(p[0], p[1], p[2]); amb.add(m); });
     var pm = new T.PMREMGenerator(ren); sc.environment = pm.fromScene(amb, 0.04).texture; pm.dispose();
@@ -382,13 +390,15 @@
     var ped = new T.Mesh(new T.CircleGeometry(0.62, 64), new T.MeshStandardMaterial({ color: 0x0b1428, metalness: 0.8, roughness: 0.3 })); ped.rotation.x = -Math.PI / 2; ped.position.set(-0.32, 0, 0.05); sc.add(ped);
     var anello = new T.Mesh(new T.TorusGeometry(0.62, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.set(-0.32, 0.006, 0.05); sc.add(anello);
     var alone = new T.Mesh(new T.CylinderGeometry(0.62, 0.64, 2.2, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.045, side: T.DoubleSide, depthWrite: false })); alone.position.set(-0.32, 1.1, 0.05); sc.add(alone);
+    }   /* (v259) con il nucleo: niente laboratorio (pavimento, pannelli, pedana) né luci dirette; il fondo è la griglia di puntini CSS */
+    if (NU) sc.add(new T.AmbientLight(0x6b8cff, 0.15));
     var cam = new T.PerspectiveCamera(26, 1, 0.05, 40), bers = new T.Vector3(0.38, 0.98, 0), az0 = 0.12;
     function posCam(r) { cam.position.set(bers.x + r * Math.sin(az0), bers.y + 0.18, bers.z + r * Math.cos(az0)); cam.lookAt(bers); }
 
     var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null, leggero: LEGG };
-    var S = F.spectra = new Spectra(T, sc, ren, { leggero: LEGG, manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app solo il corpo incorporato: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
+    var S = F.spectra = NU ? new NU.Nucleo(T, sc, ren, { posizione: new T.Vector3(-0.2, 1.02, 0), scala: 0.42, hudPadre: box, cambiato: function () { aggiornaNota(); } }) : new Spectra(T, sc, ren, { leggero: LEGG, manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app solo il corpo incorporato: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
     /* mentre il corpo incorporato arriva: «Spectra sta arrivando…»; se non arriva (rete assente al primo avvio): riprova */
-    var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'status');
+    var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'status'); inv.hidden = !!NU;   /* il nucleo non si scarica: nessun «Spectra sta arrivando…» */
     inv.innerHTML = '<b>' + t('Spectra sta arrivando…', 'Spectra is on the way…') + '</b>';
     var invB = D.createElement('button'); invB.type = 'button'; invB.textContent = t('↻ Riprova', '↻ Retry'); invB.hidden = true; inv.appendChild(D.createElement('br')); inv.appendChild(invB); box.appendChild(inv);
     invB.onclick = function () { invB.hidden = true; inv.querySelector('b').textContent = t('Spectra sta arrivando…', 'Spectra is on the way…'); S.carica().then(aggiornaNota); };
@@ -404,7 +414,7 @@
         var ov = D.getElementById('bsi-hub-ov'); if (!(ov && ov.classList.contains('open'))) globale.bsiOpenAIHub('spiega');
         globale.BSISpiega.mostraSezione(d.sez); return;
       }
-      var b = D.querySelector('[data-s="' + d.sez + '"]'); if (b) b.click();
+      if (typeof globale.goSection === 'function') globale.goSection(d.sez); else { var b = D.querySelector('[data-s="' + d.sez + '"]'); if (b) b.click(); }   /* la navigazione dell'app, non un clic finto */
     };
     OL.mostra('pianeti');
     /* «⛶ Interagisci»: l'ologramma interattivo (bsi-spectra-olointerattivo.js), nella modalita' di cio' che l'ologramma mostra */
@@ -440,7 +450,7 @@
       var q = OL.tela.getContext('2d');
       if (!c) {
         /* una sezione senza grafici (testo, tabelle, controlli) si proietta come scheda: ogni sezione e' mostrabile */
-        var sc2 = L && L.schermo ? L.schermo() : null; if (!sc2 || !sc2.sezione) { OL.auto = true; OL.mostra('pianeti'); return; }
+        var sc2 = L && L.schermo ? L.schermo() : null; if (!sc2 || !sc2.sezione) { OL.mostra('pianeti'); return; }
         if (vivo.ultima === sc2.sezione + '|' + (sc2.scheda || '') + '|' + (sc2.controlli || []).map(function (x) { return x.valore; }).join(',')) return;
         vivo.ultima = sc2.sezione + '|' + (sc2.scheda || '') + '|' + (sc2.controlli || []).map(function (x) { return x.valore; }).join(',');
         schedaOlo(q, OL.tela.width, OL.tela.height, sc2); OL.tex.needsUpdate = true; return;
@@ -461,14 +471,15 @@
     function tema(testo, conSchermo) {
       var Lv = globale.BSISpectraLive, aperta = Lv && Lv.schermo ? Lv.schermo() : null;
       if (conSchermo && aperta && aperta.sezione) { OL.auto = false; vivo.ultima = null; OL.mostra('schermo'); vivo(); return; }
-      var n = sceneDi(testo); if (n) { OL.auto = false; OL.mostra(n); clearTimeout(tema._t); tema._t = setTimeout(function () { OL.auto = true; }, 60000); }
+      var n = sceneDi(testo); if (n) { OL.mostra(n); }   /* (v259) niente ritorno al giro automatico dopo 60 s */
     }
     F.tema = tema;
     function suTema(e) { var d = e.detail || {}; tema(d.testo, d.schermo); }
     D.addEventListener('bsi-spectra-tema', suTema);
     function aggiornaNota() { var c = S.presente(); inv.hidden = c; nota.textContent = ''; if (!c && S.caricato === false) { inv.querySelector('b').textContent = t('Spectra non è arrivato: serve la rete la prima volta.', 'Spectra did not arrive: the network is needed the first time.'); invB.hidden = false; } }
     aggiornaNota();
-    function statoHud(s) { hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + s + '</b>'; }
+    function statoHud(s) { hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + s + '</b>'; if (NU && S.stato) { var m = /PENS|THINK/.test(s) ? 'pensa' : /PARL|SPEAK/.test(s) ? 'parla' : /ASCOLT|LISTEN/.test(s) ? 'ascolto' : /NON HO|COULD NOT/.test(s) ? null : 'online'; if (m === 'ascolto' && /^(IN ASCOLTO|LISTENING)$/.test(s)) { if (S.nome === 'parla' && !S.corpo.testo) S.stato('online'); }   /* il riposo dopo 6 s vale solo per chi ha finito di parlare: «pensa», «cerca», «avviso» restano */
+      else if (m) S.stato(m); if (/NON HO|COULD NOT/.test(s) && S.avviso) S.avviso(s); } }
 
     /* i pulsanti: corpo dal dispositivo, conversazione dal vivo, studio */
     function bottone(testo, titolo, fn) { var b = D.createElement('button'); b.type = 'button'; b.textContent = testo; b.title = titolo; b.setAttribute('aria-label', titolo); b.onclick = fn; az.appendChild(b); return b; }
@@ -496,7 +507,9 @@
       var s = perIlViso(testo); if (!s) return;
       if (s === F.ultimo && quando < 3) return;   /* la stessa frase annunciata due volte (risposta e voce): una reazione sola */
       F.ultimo = s; statoHud(t('PARLA', 'SPEAKING'));
-      if (OL.attuale !== 'schermo') { var n2 = sceneDi(s); if (n2 && OL.auto) OL.mostra(n2); }
+      if (OL.attuale !== 'schermo') { var n2 = sceneDi(s); if (n2) OL.mostra(n2); }
+      /* (v259) una scheda di dati reali: la sezione aperta e i suoi controlli */
+      if (NU && S.scheda) { var Lv = globale.BSISpectraLive, sz = Lv && Lv.schermo ? (function () { try { return Lv.schermo(); } catch (e) { return null; } })() : null; if (sz && sz.sezione) S.scheda({ titolo: t('SEZIONE · ', 'SECTION · ') + String(sz.titolo || sz.sezione).toUpperCase().slice(0, 34), righe: (sz.controlli || []).slice(0, 3).map(function (x) { return x.etichetta + ' = ' + x.valore; }), posizione: { left: '10px', top: box.clientWidth < 640 ? '84px' : '58px' }, durata: 9 }); }
       S.emozione(emo || emozioneDi(s), 6); S.dici(s); quando = 0;
       /* spiegando, Spectra indica l'ologramma, poi accompagna con le mani */
       S.fai('indica', OL.grp.getWorldPosition(new T.Vector3()), 2.5); clearTimeout(F._g); F._g = setTimeout(function () { S.fai('spiega', null, Math.min(8, 1 + s.length / 45)); }, 2600);
@@ -520,11 +533,28 @@
       S.passo(dt, occhi);
       OL.passo(dt); if (OL.attuale === 'schermo') { vivoT += dt; if (vivoT > 0.2) { vivoT = 0; vivo(); } }
       if (quando > 6 && !(S.corpo && S.corpo.testo)) statoHud(t('IN ASCOLTO', 'LISTENING'));
-      anello.material.color.setHSL(0.55 + (S.corpo && S.corpo.testo ? 0.08 : 0), 1, 0.55 + 0.1 * Math.sin(ora / 600));
+      if (!NU) anello.material.color.setHSL(0.55 + (S.corpo && S.corpo.testo ? 0.08 : 0), 1, 0.55 + 0.1 * Math.sin(ora / 600));
       ren.render(sc, cam);
     }
     requestAnimationFrame(giro);
-    F.distruggi = function () { F.attiva = false; D.removeEventListener('bsi-spectra-stato', suStato); D.removeEventListener('bsi-spectra-risposta', suRisposta); D.removeEventListener('bsi-spectra-dice', suRisposta); D.removeEventListener('bsi-spectra-tema', suTema); try { ren.dispose(); ren.forceContextLoss(); } catch (e) {} if (box.parentNode) box.parentNode.removeChild(box); };
+    F.distruggi = function () { F.attiva = false; if (S.dispose) try { S.dispose(); } catch (e) {} D.removeEventListener('bsi-spectra-stato', suStato); D.removeEventListener('bsi-spectra-risposta', suRisposta); D.removeEventListener('bsi-spectra-dice', suRisposta); D.removeEventListener('bsi-spectra-tema', suTema); try { ren.dispose(); ren.forceContextLoss(); } catch (e) {} if (box.parentNode) box.parentNode.removeChild(box); };
+    return F;
+  }
+
+  /* (v259) SENZA WebGL: il nucleo in Canvas 2D (cerchi, archi che girano, esagoni), con gli stessi stati e lo stesso HUD */
+  function monta2D(contenitore) {
+    var NU = globale.BSISpectraNucleo; if (!NU) return null; stile();
+    var box = D.createElement('div'); box.className = 'bsiSF bsiSF-nucleo'; box.setAttribute('role', 'img'); box.setAttribute('aria-label', t('Spectra, il nucleo olografico (versione 2D)', 'Spectra, the holographic core (2D version)'));
+    var cv = D.createElement('canvas'); cv.setAttribute('aria-hidden', 'true'); box.appendChild(cv); var az = D.createElement('div'); az.className = 'bsiSF-az'; box.appendChild(az);
+    contenitore.insertBefore(box, contenitore.firstChild);
+    var S = new NU.Nucleo2D(cv, { hudPadre: box }), F = { box: box, spectra: S, olo: null, attiva: true, leggero: true, adatta: function () {} };
+    S.stato('online');
+    function suStato(e) { var x = e.detail && e.detail.stato; if (x === 'pensa' || x === 'strumenti' || x === 'scrive') S.fai('pensa'); else if (x === 'ascolta') S.stato('ascolto'); }
+    function suRisposta(e) { var d = e.detail || {}; if (d.errore) { S.avviso(t('NON HO POTUTO RISPONDERE', 'COULD NOT ANSWER')); return; } S.dici(perIlViso(d.testo)); }
+    F.reagisci = function (testo) { S.dici(perIlViso(testo)); };
+    D.addEventListener('bsi-spectra-stato', suStato); D.addEventListener('bsi-spectra-risposta', suRisposta); D.addEventListener('bsi-spectra-dice', suRisposta);
+    var prec = 0; (function giro(ora) { if (!F.attiva) return; requestAnimationFrame(giro); if (D.hidden || !box.offsetParent) { prec = 0; return; } var dt = prec ? Math.min(0.1, (ora - prec) / 1000) : 0.016; prec = ora; S.passo(dt); })(0);
+    F.distruggi = function () { F.attiva = false; D.removeEventListener('bsi-spectra-stato', suStato); D.removeEventListener('bsi-spectra-risposta', suRisposta); D.removeEventListener('bsi-spectra-dice', suRisposta); S.dispose(); if (box.parentNode) box.parentNode.removeChild(box); };
     return F;
   }
 
@@ -539,9 +569,8 @@
   function prepara() {
     if (pronto) return pronto;
     var three = globale.THREE ? Promise.resolve() : (globale.BSILab3D && globale.BSILab3D.caricaThree ? globale.BSILab3D.caricaThree() : script('./three.min.js', function () { return !!globale.THREE; }));
-    pronto = three.then(function () { return script('./gltf_loader.js', function () { return !!(globale.THREE && globale.THREE.GLTFLoader); }); })
-      .then(function () { return script('./bsi-spectra-corpo.js', function () { return !!globale.BSISpectraCorpo; }); })
-      .then(function () { return script('./bsi-spectra-rig.js', function () { return !!globale.BSISpectraRig; }); })
+    /* (v259) Spectra è il nucleo olografico: si carica solo bsi-spectra-nucleo.js (niente corpo, rig, glTF, niente 404) */
+    pronto = three.then(function () { return script('./bsi-spectra-nucleo.js', function () { return !!globale.BSISpectraNucleo; }); })
       .catch(function (e) { pronto = null; throw e; });
     return pronto;
   }
@@ -582,7 +611,9 @@
     function controlla() {
       var s = bersaglio(); if (!s) return;
       if (!condivisa) {
-        if (inCorso || !webgl()) return; inCorso = true;
+        if (inCorso) return;
+        if (!webgl()) { if (globale.BSISpectraNucleo) { condivisa = monta2D(s); globale.BSISpectraFigura.figura = condivisa; } return; }   /* (v259) il nucleo in 2D */
+        inCorso = true;
         prepara().then(function () { inCorso = false; if (!condivisa) { condivisa = monta(s, {}); globale.BSISpectraFigura.figura = condivisa; controlla(); } }).catch(function () { inCorso = false; });
         return;
       }
@@ -598,12 +629,24 @@
         condivisa.adatta();
       }
     }
-    controlla(); setInterval(controlla, 800);
-    D.addEventListener('click', function () { setTimeout(controlla, 60); }, true);
+    /* (v259) prima: setInterval(controlla, 800) e un ascoltatore di ogni clic in cattura. Ora si reagisce ai cambi di classe
+       delle sezioni e delle finestre di Spectra (aperta/chiusa), raggruppati in un fotogramma */
+    controlla();
+    var inCoda = false; function presto() { if (inCoda) return; inCoda = true; setTimeout(function () { inCoda = false; controlla(); }, 60); }
+    if (globale.MutationObserver) {
+      var mo = new MutationObserver(function (lista) { for (var i = 0; i < lista.length; i++) { var el = lista[i].target; if (el.id && (el.classList.contains('section') || /^(bsi-hub-ov|bsiJV|bsi-olo-ov|bsi-pane-spiega)$/.test(el.id))) { presto(); return; } if (lista[i].type === 'childList') { presto(); return; } } });
+      var sz0 = D.querySelector('.section'), radiceSez = sz0 && sz0.parentNode || D.body;
+      mo.observe(radiceSez, { attributes: true, attributeFilter: ['class'], subtree: true });
+      mo.observe(D.body, { childList: true, attributes: true, attributeFilter: ['class'], subtree: false });
+      /* le finestre di Spectra nascono dopo: si agganciano quando compaiono nel body */
+      var aggancia = function () { ['bsi-hub-ov', 'bsiJV', 'bsi-olo-ov'].forEach(function (id) { var e = D.getElementById(id); if (e && !e._bsiOss) { e._bsiOss = 1; mo.observe(e, { attributes: true, attributeFilter: ['class', 'style'] }); } }); };
+      aggancia(); new MutationObserver(aggancia).observe(D.body, { childList: true });
+      D.addEventListener('bsi-spectra-overlay', presto);
+    } else setInterval(controlla, 1500);
     return { controlla: controlla, figura: function () { return condivisa; } };
   }
 
-  globale.BSISpectraFigura = { Spectra: Spectra, Ologramma: Ologramma, SCENE_OLO: SCENE_OLO, sceneDi: sceneDi, monta: monta, sezioni: sezioni, prepara: prepara, dbCorpo: dbCorpo, emozioneDi: emozioneDi, LIMITE: LIMITE, RIG: RIG, figura: null };
+  globale.BSISpectraFigura = { Spectra: Spectra, Ologramma: Ologramma, monta2D: monta2D, SCENE_OLO: SCENE_OLO, sceneDi: sceneDi, monta: monta, sezioni: sezioni, prepara: prepara, dbCorpo: dbCorpo, emozioneDi: emozioneDi, LIMITE: LIMITE, RIG: RIG, figura: null };
   /* nell'app (non nello studio, che usa il controllore direttamente) le sezioni dell'AI ricevono la figura */
   if (D && !/spectra-studio\.html/.test(globale.location && globale.location.pathname || '')) {
     var via = function () { if (D.querySelector('[data-s="sai"],[data-s="sareachim"]')) sezioni(); };

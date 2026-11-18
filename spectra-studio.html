@@ -82,7 +82,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 <script src="./gltf_loader.js"></script>
 <script src="./bsi-spectra-mente.js"></script>
 <script src="./bsi-spectra-creatore.js"></script>
-<script src="./bsi-spectra-androide.js"></script>
+<script src="./bsi-spectra-nucleo.js"></script>
+<!-- (v259) Spectra è il nucleo olografico: il volto androide non si carica più. <script src="./bsi-spectra-androide.js"></script> -->
 <script src="./bsi-spectra-corpo.js"></script>
 <script src="./bsi-spectra-rig.js"></script>
 <script src="./bsi-spectra-figura.js"></script>
@@ -131,7 +132,12 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     /* SPECTRA (bsi-spectra-figura.js, lo stesso delle sezioni dell'AI): il corpo scelto dall'autore, col cappuccio e il viso
        «Noir», SEMPRE presente: e' incorporato nell'app (models/spectra-corpo.bsi, impacchettato: licenza Royalty Free di
        CGTrader, il modello non si offre come file a se'). Mentre arriva: «Spectra sta arrivando…»; se non arriva: riprova. */
-    var SP = new BSISpectraFigura.Spectra(T, sc, ren, { posizione: new T.Vector3(-0.55, 0, 0.15), rotY: 0.35, contenitore: cont, cambiato: function () { invito(); } });
+    /* (v259) richiesta dell'autore: niente più robot. Spectra è il nucleo olografico (bsi-spectra-nucleo.js), con la stessa
+       interfaccia del corpo (emozione, fai, dici, audio, cammina): la radice resta a terra e il nucleo sta all'altezza del viso */
+    var NU = window.BSISpectraNucleo;
+    if (NU) { var stOld = document.getElementById('stato'); if (stOld) stOld.style.display = 'none'; }   /* lo stato lo dice il nucleo, sotto la sfera */
+    var SP = NU ? new NU.Nucleo(T, sc, ren, { posizione: new T.Vector3(-0.55, 0, 0.15), quota: 1.2, scala: 0.3, hudPadre: cont, cambiato: function () { invito(); } })
+                : new BSISpectraFigura.Spectra(T, sc, ren, { posizione: new T.Vector3(-0.55, 0, 0.15), rotY: 0.35, contenitore: cont, cambiato: function () { invito(); } });
     var inv = D.createElement('div'); inv.id = 'invito'; inv.setAttribute('role', 'status');
     inv.innerHTML = '<b>Spectra sta arrivando…</b><br><button type="button" id="invitoBtn" hidden>↻ Riprova</button>';
     cont.appendChild(inv);

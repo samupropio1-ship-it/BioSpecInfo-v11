@@ -149,7 +149,7 @@
     var bt = document.querySelector('.nav-btn[data-s="' + x.id + '"]'), pan = bt && bt.closest('[id^="navGroup"]'), M = globale.BSIMaterie;
     if (pan && M && M.MATERIE && M.imposta) { var g = +pan.id.replace('navGroup', ''); for (var k in M.MATERIE) if (M.MATERIE[k].gruppi.indexOf(g) >= 0 && k !== M.corrente()) M.imposta(k); }
     if (typeof globale.goSection === 'function') globale.goSection(x.id);
-    else { var b = document.querySelector('.nav-btn[data-s="' + x.id + '"]'); if (b) b.click(); }
+    else if (typeof globale.goSection === 'function') globale.goSection(x.id); else { var b = document.querySelector('.nav-btn[data-s="' + x.id + '"]'); if (b) b.click(); }
     return { ok: true, id: x.id, nome: x.nome };
   }
   /* lo stato dello studio, dai salvataggi del kit (BSIStudio) */
@@ -620,7 +620,10 @@
     hud.el = d; hud.cv = d.querySelector('canvas');
     /* il volto: l'androide in 3D; senza WebGL, il ritratto vettoriale */
     var vo = document.getElementById('bsiJV-volto');
-    if (globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile()) {
+    /* (v259) Spectra è il nucleo olografico (bsi-spectra-figura.js lo porta nella console al posto del busto): il volto
+       androide non si crea più e il suo modello non si scarica */
+    if (globale.BSISpectraNucleo || (globale.BSISpectraFigura && !globale.BSISpectraRobot)) { /* niente volto */ }
+    else if (globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile()) {
       globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); if (r.concentra && hud.difficolta) r.concentra(hud.difficolta.valore); if (globale.BSISpectraCreatore && globale.BSISpectraCreatore.riconosciuto() && r.espressione) r.espressione('sorrisoCaldo', 3); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
     } else if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo);
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
@@ -1153,15 +1156,20 @@
      visita: voleva dire scaricare il modello da 8 MB due secondi e mezzo dopo
      l'avvio, anche a chi la console non l'apriva mai. Ora il modello si
      scarica solo quando si apre la console. */
-  var ritratto = './models/spectra-ritratto.jpg', ritrattoPronto = false;
+  var ritratto = null, ritrattoPronto = false;   /* (v259) niente ritratto dell'androide: l'icona è la particella */
   try { ['bsi-spectra-ritratto-v1', 'bsi-spectra-ritratto-v3', 'bsi-spectra-ritratto-v4'].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+  /* (v259) l'icona di Spectra è la PARTICELLA del nucleo olografico (niente più testa di robot né ritratto dell'androide):
+     un nucleo di nucleoni teal e blu, due orbite inclinate con gli elettroni, il guscio sottile */
   function iconaVettoriale(px) {
-    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
-      '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
-      '<ellipse cx="32" cy="27" rx="17" ry="19" fill="url(#bsiRBf)"/><path d="M15.5 30 C16 41 23 46 32 46 C41 46 48 41 48.5 30 Z" fill="#1b222b"/>' +
-      '<path d="M15.6 22 Q32 17 48.4 22 L48.4 30 Q32 26 15.6 30 Z" fill="#05090e"/>' +
-      '<circle cx="25.5" cy="25" r="2.6" fill="#1a3050"/><circle cx="38.5" cy="25" r="2.6" fill="#1a3050"/><circle cx="25.5" cy="25" r="5" fill="#1a3050" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#1a3050" opacity=".25"/>' +
-      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#1a3050" opacity=".85"/></svg>';
+    var nuc = [[30, 30, 'p'], [35, 29, 'n'], [32, 34, 'n'], [28, 35, 'p'], [36, 34, 'p'], [33, 25, 'n'], [27, 27, 'n'], [31, 31, 'p']].map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.6" fill="url(#bsiPT' + q[2] + ')"/>'; }).join('');
+    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs>' +
+      '<radialGradient id="bsiPTp" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#9ff5ea"/><stop offset="100%" stop-color="#00796e"/></radialGradient>' +
+      '<radialGradient id="bsiPTn" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#8fb3ff"/><stop offset="100%" stop-color="#1d3fa8"/></radialGradient>' +
+      '<radialGradient id="bsiPTc" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6bcfff" stop-opacity=".35"/><stop offset="100%" stop-color="#2f6bff" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="32" cy="32" r="27" fill="url(#bsiPTc)"/><circle cx="32" cy="32" r="27" fill="none" stroke="#00c9b7" stroke-opacity=".35" stroke-width=".8"/>' +
+      '<g class="bsiPT-orb"><ellipse cx="32" cy="32" rx="25" ry="9" fill="none" stroke="#6bcfff" stroke-opacity=".7" stroke-width="1.1" transform="rotate(-28 32 32)"/><circle cx="54" cy="21" r="1.8" fill="#d7f7f3" fill-opacity=".85"/></g>' +
+      '<g class="bsiPT-orb2"><ellipse cx="32" cy="32" rx="25" ry="9" fill="none" stroke="#00c9b7" stroke-opacity=".6" stroke-width="1.1" transform="rotate(38 32 32)"/><circle cx="13" cy="20" r="1.8" fill="#d7f7f3" fill-opacity=".85"/></g>' +
+      nuc + '</svg>';
   }
   function icona(px) {
     var dentro = ritratto && ritrattoPronto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
@@ -1224,14 +1232,11 @@
       document.body.appendChild(b);
       var st = document.createElement('style'); st.id = 'bsiJV-fab-stile';
       st.textContent = '.nav-btn[data-s="sareachim"],.nav-btn[data-s="sareafis"],.nav-btn[data-s="sareamat"]{display:none!important}body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}' +
-        /* (v252) la testa si muove: gira, si inclina, annuisce; un riflesso metallico le passa sopra; quando parla annuisce più in fretta */
+        /* (v259) l'icona è la particella: ferma a riposo (nessuna animazione infinita); mentre Spectra parla le orbite girano
+           piano, e con «riduci movimento» restano ferme */
         '#bsiJV-fab .bsiVO-ico,#bsiJV-mini .bsiVO-ico{position:relative}' +
-        '@media (prefers-reduced-motion:no-preference){#bsiJV-fab .bsiVO-ico>*,#bsiJV-mini .bsiVO-ico>*{transform-origin:50% 62%;animation:bsiJVtesta 9s ease-in-out infinite;will-change:transform}' +
-        'body.bsiJV-parla #bsiJV-fab .bsiVO-ico>*,body.bsiJV-parla #bsiJV-mini .bsiVO-ico>*{animation:bsiJVparla .5s ease-in-out infinite alternate}' +
-        '#bsiJV-fab .bsiVO-ico:after,#bsiJV-mini .bsiVO-ico:after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(190,225,255,.38) 50%,transparent 62%);background-size:260% 100%;animation:bsiJVriflesso 7s linear infinite}}' +
-        '@keyframes bsiJVtesta{0%,100%{transform:perspective(90px) rotateY(0) rotateX(0) scale(1.14)}14%,30%{transform:perspective(90px) rotateY(18deg) rotateX(-3deg) scale(1.14)}46%,62%{transform:perspective(90px) rotateY(-16deg) rotateX(2deg) scale(1.14)}74%{transform:perspective(90px) rotateY(0) rotateX(9deg) scale(1.14)}80%{transform:perspective(90px) rotateY(0) rotateX(-4deg) scale(1.14)}87%{transform:perspective(90px) rotateY(0) rotateX(5deg) scale(1.14)}}' +
-        '@keyframes bsiJVparla{from{transform:perspective(90px) rotateX(-5deg) rotateY(-5deg) scale(1.14)}to{transform:perspective(90px) rotateX(7deg) rotateY(6deg) scale(1.17)}}' +
-        '@keyframes bsiJVriflesso{0%{background-position:160% 0}55%,100%{background-position:-110% 0}}';
+        '@media (prefers-reduced-motion:no-preference){body.bsiJV-parla .bsiVO-ico .bsiPT-orb{transform-origin:50% 50%;animation:bsiPTgira 6s linear infinite}body.bsiJV-parla .bsiVO-ico .bsiPT-orb2{transform-origin:50% 50%;animation:bsiPTgira 9s linear infinite reverse}}' +
+        '@keyframes bsiPTgira{to{transform:rotate(360deg)}}';
       document.head.appendChild(st);
     }
     document.body.classList.add('bsiJV-solo-volto');

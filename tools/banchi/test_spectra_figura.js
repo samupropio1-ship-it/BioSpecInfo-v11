@@ -49,7 +49,7 @@ function vero(d, c) { att(d, true, !!c); }
   for (const [nome, opz] of [['telefono', { viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }], ['schermo grande', { viewport: { width: 1280, height: 860 } }]]) {
     console.log('\n── Le sezioni dell\'AI, ' + nome + ' ──');
     const ctx = await b.newContext(Object.assign({ serviceWorkers: 'block' }, opz)), pg = await ctx.newPage(), errs = [];
-    pg.on('pageerror', e => errs.push(e.message));
+    pg.on('pageerror', e => errs.push(e.message)); const corpoRichiesto = []; pg.on('request', r => { if (/spectra-corpo|spectra-noir|gltf_loader|bsi-spectra-(rig|corpo|androide|robot|volto)\.js/.test(r.url())) corpoRichiesto.push(r.url()); });
     await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {} });
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!window.BSISpectraFigura, null, { timeout: 60000 });
@@ -70,34 +70,26 @@ function vero(d, c) { att(d, true, !!c); }
       att(id + ': una figura sola in tutta l\'app', 1, r.tele);
       if (r.fuori) vero(id + ': nessuno spazio vuoto sopra la sezione (#main ' + r.mainH + ' px)', r.mainH <= 12);
     }
-    /* IL CORPO E' SEMPRE PRESENTE: incorporato nell'app, nessuno deve caricarlo */
+    /* (v259) SPECTRA È IL NUCLEO OLOGRAFICO: procedurale, presente subito, nessun corpo da scaricare */
     await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
-    await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.rig && S.volto; }, null, { timeout: 120000 }).catch(() => {});
-    const sempre = await pg.evaluate(() => { const F = BSISpectraFigura.figura, i = F.box.querySelector('.bsiSF-invito'); return { rig: !!F.spectra.rig, ossa: F.spectra.modelloRiggato && F.spectra.modelloRiggato.ossa, invito: !!i && !i.hidden, pulsanti: [...F.box.querySelectorAll('.bsiSF-az > *')].map(b => b.textContent.trim()), file: !!F.box.querySelector('input[type=file]') }; });
-    vero('il corpo di Spectra c\'è sempre, senza caricarlo: incorporato nell\'app (ossa ' + sempre.ossa + ')', sempre.rig && !sempre.invito);
-    /* (v248) il corpo leggero: sul telefono mappe a 1024 px e rapporto di pixel fino a 2; sullo schermo grande definizione piena */
-    const legg = await pg.evaluate(() => { const F = BSISpectraFigura.figura; let lato = 0; F.spectra.sc.traverse(m => { if (m.isMesh && m.material && m.material.bumpMap && m.material.map && m.material.map.image) lato = Math.max(lato, m.material.map.image.width); }); return { leggero: F.leggero, lato }; });
-    if (nome === 'telefono') att('sul telefono il corpo è leggero: mappe a 1024 px', 'true 1024', legg.leggero + ' ' + legg.lato);
-    else att('sullo schermo grande il corpo resta a definizione piena: mappe a 2048 px', 'false 2048', legg.leggero + ' ' + legg.lato);
-    vero('nessun pulsante «Corpo» né scelta di file (' + sempre.pulsanti.join(', ') + ')', !sempre.file && !sempre.pulsanti.some(x => /Corpo|Body/.test(x)));
-    /* la figura si disegna (e si allinea) solo quando si vede: la si porta in vista */
-    await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
-    await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.volto && S.allinea === 0; }, null, { timeout: 90000 }).catch(() => {});
-    /* l'allineamento del viso si fa nei primi fotogrammi: si misura a regime */
-    await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra, T = THREE; if (!S.volto) return false; S.radice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.corpo.ossa.collo.getWorldPosition(new T.Vector3()); return Math.abs(bb.min.y - rif.y - 0.045) < 0.03; }, null, { timeout: 8000 }).catch(() => {});
-    const con = await pg.evaluate(() => { const F = BSISpectraFigura.figura, S = F.spectra, T = THREE; S.radice.updateMatrixWorld(true);
-      const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045, 0));
-      return { invito: F.box.querySelector('.bsiSF-invito').hidden, mento: bb.min.y - rif.y, viso: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(',') }; });
-    vero('caricato il corpo: l\'invito sparisce', con.invito);
-    vero('il viso «Noir» poggia sul colletto (' + (con.mento * 100).toFixed(1) + ' cm)', Math.abs(con.mento) < 0.03);
-    att('della testa si vede solo il viso', 'Object_2,Object_3,Object_4', con.viso);
+    await pg.waitForTimeout(600);
+    const nuc = await pg.evaluate(() => { const F = BSISpectraFigura.figura, S = F.spectra, i = F.box.querySelector('.bsiSF-invito'), T = THREE; let piena = 0;
+      S.radice.traverse(o => { const m = o.material; if (m && m.color && m.transparent) { const c = m.color, L = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b; piena = Math.max(piena, L * m.opacity); } });
+      return { nucleo: !!window.BSISpectraNucleo && S instanceof BSISpectraNucleo.Nucleo, presente: S.presente(), invito: !!i && !i.hidden, celle: S.guscio.geometry.userData.celle, pr: F.ren.getPixelRatio(), esp: F.ren.toneMappingExposure, piena, pulsanti: [...F.box.querySelectorAll('.bsiSF-az > *')].map(b => b.textContent.trim()), stato: (F.box.querySelector('.bsiN-stato') || {}).textContent }; });
+    vero('Spectra è il nucleo olografico, presente subito, senza «sta arrivando»', nuc.nucleo && nuc.presente && !nuc.invito);
+    att('guscio a celle: duale dell\'icosfera, 12 pentagoni e 150 esagoni', 162, nuc.celle);
+    vero('al massimo 2 pixel per punto ed esposizione 0,85 (' + nuc.pr + ', ' + nuc.esp + ')', nuc.pr <= 2 && Math.abs(nuc.esp - 0.85) < 1e-9);
+    vero('nessun elemento additivo satura a bianco: luminanza × opacità ≤ 0,8 (' + nuc.piena.toFixed(2) + ')', nuc.piena <= 0.8);
+    vero('lo stato sotto la sfera, a parole (' + nuc.stato + ')', /IN LINEA|ONLINE|IN ASCOLTO|LISTENING/.test(nuc.stato));
+    vero('nessun pulsante «Corpo» né scelta di file (' + nuc.pulsanti.join(', ') + ')', !nuc.pulsanti.some(x => /Corpo|Body/.test(x)));
+    vero('nessuna richiesta al corpo, al rig, al volto androide o al glTF', !corpoRichiesto.length);
     const hud = () => pg.evaluate(() => BSISpectraFigura.figura.box.querySelector('.bsiSF-hud b').textContent);
     await pg.evaluate(() => document.dispatchEvent(new CustomEvent('bsi-spectra-stato', { detail: { stato: 'pensa' } }))); await pg.waitForTimeout(300);
     const pensa = await pg.evaluate(() => { const C = BSISpectraFigura.figura.spectra.corpo; return { gesto: C.gesto, emo: C.emo }; });
-    vero('il modello lavora → Spectra pensa (mano al mento, concentrata; «' + await hud() + '»)', pensa.gesto === 'pensa' && pensa.emo === 'concentrata');
+    vero('il modello lavora → il nucleo pensa (tessere che si accendono; «' + await hud() + '»)', pensa.gesto === 'pensa' && pensa.emo === 'concentrata');
     await pg.evaluate(() => document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: 'Ottimo! Il pH vale 3,4: ecco perché.' } }))); await pg.waitForTimeout(500);
-    const parla = await pg.evaluate(() => { const S = BSISpectraFigura.figura.spectra; return { gesto: S.corpo.gesto, emo: S.corpo.emo, testo: !!S.corpo.testo, viso: !!S.volto.testo }; });
-    vero('arriva la risposta → indica l\'ologramma, gioia, labiale su corpo e viso (' + await hud() + ')', parla.gesto === 'indica' && parla.emo === 'gioia' && parla.testo && parla.viso);
+    const parla = await pg.evaluate(() => { const F = BSISpectraFigura.figura, S = F.spectra, d = F.box.querySelector('.bsiN-dida'); return { gesto: S.corpo.gesto, emo: S.corpo.emo, testo: !!S.corpo.testo, viso: S.nome === 'parla' && !!d && d.classList.contains('on') && /OTTIMO|PH/i.test(d.textContent) }; });
+    vero('arriva la risposta → un satellite indica l\'ologramma, PARLO, didascalia parola per parola (' + await hud() + ')', parla.gesto === 'indica' && parla.emo === 'gioia' && parla.testo && parla.viso);
     await pg.waitForTimeout(2900);
     att('poi accompagna la spiegazione con le mani', 'spiega', await pg.evaluate(() => BSISpectraFigura.figura.spectra.corpo.gesto));
     await pg.evaluate(() => document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { errore: true } }))); await pg.waitForTimeout(200);

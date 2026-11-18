@@ -7,6 +7,47 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v259] — 2026-11-18
+
+**Spectra non è più un robot: un nucleo olografico a forma di particella; nessuna apertura senza un gesto dell'utente**
+
+### Cambiato
+- **Spectra è un nucleo olografico** (`bsi-spectra-nucleo.js`, tutto procedurale, nessun file da scaricare) al posto della
+  figura umanoide, nelle sezioni dell'AI, nella console dal vivo, nell'ologramma interattivo e nello studio delle lezioni.
+  Il cuore è una particella: 24 nucleoni (protoni teal, neutroni blu) impacchettati, che vibrano appena, con tubi di flusso
+  tenui; la nuvola elettronica di 6000 punti campionata da |ψ|² degli orbitali dell'idrogeno, che passa da 1s (in linea) a
+  2p (pensa), 2s (parla, pulsa con la voce) e 3d (cerca); tre elettroni su orbite ellittiche con la scia. Attorno: guscio a
+  celle esagonali (duale dell'icosfera) con fresnel dal teal al blu, tessere che si accendono quando pensa (al massimo 6),
+  anelli HUD con tacche, cursori e micro-etichette, satelliti che in «cerca» escono su fili sottili.
+- **HUD in DOM**: didascalia parola per parola (troncata a due righe, testo intero per i lettori di schermo), stato sotto la
+  sfera in italiano o inglese, schede di dati reali (la sezione aperta e i suoi controlli), striscione d'avviso in ambra.
+- **Stessa API** del controllore del corpo (`carica`, `fai`, `stato`, `dici`, `taci`, `emozione`, `dispose`, `cambiato`,
+  `corpo.cammina`, `corpo.audio`): figura, console, ologramma interattivo e studio funzionano senza riscritture.
+- **Luci e movimento**: niente laboratorio né luci dirette, al massimo 2 pixel per punto, esposizione 0,85, nessun elemento
+  additivo sopra luminanza × opacità 0,8, mai bianco puro; transizioni easeInOutSine di 0,75 s; l'ologramma compare con
+  dissolvenza (non più «pop»); «riduci movimento» ferma anelli e orbite.
+- **L'icona di Spectra** sui pulsanti è la particella (ferma a riposo, le orbite girano solo mentre parla); niente più testa di
+  robot che gira all'infinito né ritratto dell'androide.
+
+### Tolto (aperture automatiche)
+- Il risveglio, l'ascolto e la finestra delle novità non si aprono più da soli all'avvio: compaiono un invito da toccare e un
+  pallino sul pulsante di Spectra. L'ologramma interattivo non parla da solo («Spiega a voce automaticamente», spento di base
+  e ricordato). L'ologramma non cambia più scena ogni 14 s. Il menu ✨ non si apre più con clic finti (API `bsi14`); la
+  navigazione usa `goSection`. Il pulsante di Spectra non pulsa più all'infinito. Il controllo della figura ogni 800 ms e
+  l'ascolto di ogni clic diventano un MutationObserver.
+- Il volto androide, il robot e il volto vettoriale non si caricano più (gli script restano nel repository, commentati);
+  la cache non li scarica più.
+
+### Verificato
+- `test_spectra_nucleo` 41 controlli (nuovo); aggiornati `test_spectra_figura` 113, `test_spectra_olo` 69, `test_risveglio`
+  110, `test_spectra_studio` 79, `test_spectra238` 66 e `test_v237` (il volto androide provato come componente a sé).
+  La batteria sale a 112 banchi.
+
+### Da verificare a mano
+- Sul telefono: fluidità (≥ 55 fotogrammi al secondo), luminosità, transizioni fra gli stati, sincronia della didascalia con la
+  voce vera. L'arco del microfono in ascolto è simulato: il riconoscimento vocale del browser non dà il flusso audio.
+
+---
 ## [bsi-v258] — 2026-11-18
 
 **Spectra Prime a sette agenti con il ponte 3D, la rete neurale come un cervello, le scene fisiche 3D, sette simulazioni cosmiche**

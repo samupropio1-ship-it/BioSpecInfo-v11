@@ -201,6 +201,7 @@ function vero(d, c) { att(d, true, !!c); }
     const pg = await (await b.newContext({ serviceWorkers: 'block' })).newPage(), errs = [];
     pg.on('pageerror', e => errs.push(e.message));
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+    await pg.addScriptTag({ url: BASE + 'bsi-spectra-androide.js' });   /* (v259) il volto androide non si carica più nell'app: lo si prova come componente */
     await pg.waitForFunction(() => !!window.BSISpectraAndroide, null, { timeout: 60000 });
     const O = await pg.evaluate(async () => {
       const box = document.createElement('div'); box.style.cssText = 'position:fixed;left:0;top:0;width:300px;height:300px;z-index:1'; document.body.appendChild(box);

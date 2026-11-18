@@ -183,7 +183,7 @@
     '#bsiOI-ospite{display:none;position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;background:#060d1a;border:1px solid rgba(107,207,255,.45);border-radius:10px;padding:8px}#bsi-olo-ov.ospita #bsiOI-ospite{display:block}#bsi-olo-ov.ospita #bsiOI-2d{display:none}' +
     '@media (max-width:820px){#bsi-olo-ov.ospita #bsiOI-tela{height:72vh}}' +
     '#bsiOI-audio{font-size:13px;color:#ffd166;display:none}#bsiOI-audio.si{display:block}';
-  var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '', autoVoce: true };
+  var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '', autoVoce: (function () { try { return localStorage.getItem('bsi-olo-autovoce') === '1'; } catch (e) { return false; } })() };   /* (v259) di base spenta: la si accende con l'interruttore */
   var el = {};
   function costruisci() {
     if (el.box) return;
@@ -201,6 +201,8 @@
     D.getElementById('bsiOI-x').onclick = chiudi;
     [].forEach.call(b.querySelectorAll('.tab'), function (x) { x.onclick = function () { modo(x.getAttribute('data-modo')); }; });
     D.getElementById('bsiOI-voce').onclick = function () { ST.voce ? fermaVoce() : spiegaPassaggi(); };
+    /* (v259) l'interruttore «Spiega a voce automaticamente»: di base spento, ricordato sul dispositivo */
+    (function () { var lb = D.createElement('label'); lb.className = 'nota'; lb.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:6px;cursor:pointer'; var cb = D.createElement('input'); cb.type = 'checkbox'; cb.id = 'bsiOI-autovoce'; cb.checked = !!ST.autoVoce; cb.onchange = function () { globale.BSIOloInterattivo.voceAutomatica(cb.checked); }; lb.appendChild(cb); lb.appendChild(D.createTextNode(t('Spiega a voce automaticamente', 'Explain aloud automatically'))); var v = D.getElementById('bsiOI-voce'); if (v && v.parentNode) v.parentNode.appendChild(lb); })();
     D.getElementById('bsiOI-ai').onclick = approfondisci;
     /* (v248) «non sento nulla»: un bip (Web Audio) e una frase di prova, con la spiegazione di che cosa vuol dire il risultato */
     D.getElementById('bsiOI-bip').onclick = function () {
@@ -301,7 +303,8 @@
   var MENU_FINESTRE = { qlab: 1, chemdraw: 1, sr: 1, challenge: 1, gloss: 1, jconst: 1, 'export': 1, sveglia: 1, occhiali: 1, agenda: 1, rete: 1 };   /* v252: le quattro voci di Spectra */
   var MENU_RISERVA = { sveglia: ['🌅 Sveglia Spectra', ''], occhiali: ['👓 Occhiali e dispositivi', ''], agenda: ['🗓️ Agenda di Spectra', ''], rete: ['🧠 Rete neurale di Spectra', ''], astro: ['🌌 Astrochimica 3D PRO', ''], accademia: ['🎓 Accademia Chimica', ''], chimorga: ['⚗️ Chimica Organica 1+2', ''], rdkitlab: ['🧪 RDKit Cheminformatics Lab', ''], pro: ['⚗️ PRO Hub — ML · QM · Fisica · Statistica', ''], simulazioni: ['🧪 Simulazioni Interattive', ''], guidaret: ['📋 Guida Retrosintesi', ''], tesi: ['📄 Documentazione Tecnica', ''], qlab: ['⚛️ Lab Quantistico', ''], chemdraw: ['🎨 Editor di struttura', ''], sr: ['⚗️ Sintesi & Retrosintesi', ''], challenge: ['🎯 Sfida spettroscopica', ''], gloss: ['📖 Glossario chimico', ''], jconst: ['⚛️ Costanti J', ''], 'export': ['📸 Esporta figure', ''] };
   function righeMenu() {
-    if (!D.querySelector('.bsi14-row[data-key]')) { var fab = D.getElementById('bsi14-fab'); if (fab) { try { fab.click(); var sh = D.getElementById('bsi14-sheet'); if (sh) sh.classList.remove('open'); } catch (e) {} } }
+    /* (v259) il foglio del menu ✨ si costruisce senza aprirlo (prima: un clic finto sul pulsante, che faceva lampeggiare il foglio) */
+    if (!D.querySelector('.bsi14-row[data-key]') && globale.bsi14 && globale.bsi14.costruisci) try { globale.bsi14.costruisci(); } catch (e) {}
     var out = {}; [].forEach.call(D.querySelectorAll('.bsi14-row[data-key]'), function (rw) { var k = rw.getAttribute('data-key'); if (out[k]) return; var tx = rw.querySelector('.bsi14-tx'), nm = tx && tx.firstElementChild ? tx.firstElementChild.textContent : '', ds = tx && tx.children[1] ? tx.children[1].textContent : '', ic = rw.firstElementChild && rw.firstElementChild !== tx ? rw.firstElementChild.textContent : ''; out[k] = { nome: (ic ? ic + ' ' : '') + nm.trim(), ds: ds.trim(), riga: rw }; });
     return out;
   }
@@ -314,6 +317,7 @@
     return out;
   }
   function apriVoceMenu(k) {   /* la stessa azione del menu ✨ */
+    if (globale.bsi14 && globale.bsi14.azione) { try { globale.bsi14.azione(k); return true; } catch (e) {} }   /* (v259) l'azione del menu, direttamente */
     var R = righeMenu(); if (R[k] && R[k].riga) { try { R[k].riga.click(); var sh = D.getElementById('bsi14-sheet'); if (sh) sh.classList.remove('open'); return true; } catch (e) {} } return false;
   }
   function catalogoApp() { var Sp = globale.BSISpiega, base = []; try { base = Sp && Sp.catalogo ? Sp.catalogo() : []; } catch (e) { base = []; } var m = []; try { m = vociMenu(); } catch (e) { m = []; } return base.concat(m); }
@@ -365,7 +369,7 @@
     }
     ST.dati = { tipo: 'app', id: id, nome: x.nome, gruppo: x.gruppo, righe: [t('Apro la sezione…', 'Opening the section…')], vivo: null }; ST.sel = -1; disegna();
     var r = null; try { r = L && L.calcolo && L.calcolo.apriSezione ? L.calcolo.apriSezione(id) : null; } catch (e) { r = null; }
-    if (!r || !r.ok) { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); }
+    if (!r || !r.ok) { if (typeof globale.goSection === 'function') globale.goSection(id); else { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); } }
     setTimeout(function () {
       if (!ST.aperto || ST.modo !== 'app' || ST.app !== id) return;
       var sez = D.getElementById(id), P = [], righe = [];
@@ -576,7 +580,7 @@
 
   globale.BSIOloInterattivo = { apri: apri, chiudi: chiudi, modo: modo, SPETTRI: MOLECOLE, PIANETI: PIANETI, spettro: spettro, pianeta: pianeta, leggiTraccia: leggiTraccia, massa: massa, insaturazione: insaturazione,
     imposta: function (s) { var q = D.getElementById('bsiOI-traccia') || D.getElementById('bsiOI-q') || D.getElementById('bsiOI-orb'); if (q) { q.value = s; (q.oninput || function () {})(); var v = D.getElementById('bsiOI-vai'); if (v && q.id === 'bsiOI-q') v.click(); } },
-    voceAutomatica: function (si) { ST.autoVoce = si !== false; if (!ST.autoVoce) { clearTimeout(tVoce); if (ST.voce) fermaVoce(); } },
+    voceAutomatica: function (si) { ST.autoVoce = si !== false; try { localStorage.setItem('bsi-olo-autovoce', ST.autoVoce ? '1' : '0'); } catch (e) {} if (!ST.autoVoce) { clearTimeout(tVoce); if (ST.voce) fermaVoce(); } },
     apriApp: apriApp, catalogo: catalogoApp,
     scegli: scegli, stato: function () { return { aperto: ST.aperto, modo: ST.modo, tipo: ST.tipo, chi: ST.chi, MHz: ST.MHz, passi: (ST.passi || []).map(function (p) { return p.tit; }), sel: ST.sel, dati: ST.dati }; } };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -606,6 +606,24 @@
 
   /* ── le novità: chi usa già l'app le vede una volta, a portata di dito ─── */
   var NOVITA = 'bsi-spectra-novita-v252';
+  /** (v259) un pallino sul pulsante di Spectra al posto della finestra che si apriva da sola: la si apre toccandolo */
+  function segnalaNovita() {
+    var gia = false; try { gia = !!g.localStorage.getItem(NOVITA); } catch (e) {}
+    var M = leggiJSON('bsi-spectra-mente-v1', {}) || {}; if (gia || !M.episodi || M.episodi.length < 3) return null;
+    var fab = D.getElementById('bsi-spectra-fab') || D.getElementById('bsi14-fab'); if (!fab || D.getElementById('bsiRV-pallino')) return null;
+    var p = D.createElement('button'); p.type = 'button'; p.id = 'bsiRV-pallino'; p.setAttribute('aria-label', 'Novità di Spectra: tocca per leggerle');
+    var r = fab.getBoundingClientRect(); p.style.cssText = 'position:fixed;z-index:2147483646;width:14px;height:14px;border-radius:50%;border:2px solid #050a16;background:#00c9b7;padding:0;cursor:pointer;left:' + Math.round(r.right - 12) + 'px;top:' + Math.round(r.top - 2) + 'px';
+    p.onclick = function (e) { e.stopPropagation(); if (p.parentNode) p.parentNode.removeChild(p); novita(true); };
+    D.body.appendChild(p); return p;
+  }
+  /** (v259) l'invito a svegliare Spectra: un pulsante discreto, non la sequenza che parte da sola */
+  function invito(cosa) {
+    stile(); if (D.getElementById('bsiRV-invito')) return null;
+    var b = el('button', { type: 'button', id: 'bsiRV-invito', class: 'riprendi' }, '🌅 Sveglia Spectra');
+    b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:100050;min-height:44px;border-radius:22px;border:1px solid #00c9b7;background:rgba(5,10,22,.92);color:#d7f7f3;font:600 14px system-ui,sans-serif;padding:8px 16px;cursor:pointer';
+    b.onclick = function () { if (b.parentNode) b.parentNode.removeChild(b); risveglio({ tocca: true }); };
+    D.body.appendChild(b); setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 20000); return b;
+  }
   function novita(forza) {
     var gia = false; try { gia = !!g.localStorage.getItem(NOVITA); } catch (e) {}
     if (gia && !forza) return null;
@@ -644,9 +662,12 @@
     if (!registraStrumento()) { var k = 0, t = setInterval(function () { if (registraStrumento() || ++k > 40) clearInterval(t); }, 500); }
     seguiBatteria();
     var daScorciatoia = daUrl();
-    if (!daScorciatoia && S.avvioSveglia) setTimeout(function () { risveglio({ tocca: true }); }, 1200);       // «Ok Google, apri BioSpecInfo» → Spectra si sveglia
-    if (S.ascolto) setTimeout(function () { occhiali(true); }, 1500);                                         // la modalità occhiali riparte da sola
-    if (!daScorciatoia && !S.avvioSveglia) setTimeout(function () { novita(); }, 2500);
+    /* (v259) richiesta dell'autore: ogni apertura è conseguenza di un'azione dell'utente. Il risveglio e l'ascolto partono
+       da un indirizzo esplicito (?spectra=…, la scorciatoia) o da un tocco: con «sveglia a ogni apertura» o con la modalità
+       occhiali accesa compare solo un invito discreto da toccare; le novità sono un pallino sul pulsante di Spectra. */
+    if (!daScorciatoia && S.avvioSveglia) setTimeout(function () { invito('sveglia'); }, 1200);
+    if (!daScorciatoia && S.ascolto) setTimeout(function () { mostraChip('fermo'); }, 1500);
+    if (!daScorciatoia && !S.avvioSveglia) setTimeout(function () { segnalaNovita(); }, 2500);
     setTimeout(function () { if (!D.hidden) controllaPunto(); }, 6000);
     setInterval(function () { if (!D.hidden) controllaPunto(); }, 30000);
     D.addEventListener('visibilitychange', function () { if (!D.hidden) controllaPunto(); });
@@ -654,7 +675,7 @@
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', avvia); else avvia();
 
   g.BSISpectraRisveglio = {
-    comando: comando, risveglio: risveglio, occhiali: occhiali, novita: novita, apriGuida: apriGuida, chiudiGuida: chiudiGuida, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
+    comando: comando, risveglio: risveglio, occhiali: occhiali, novita: novita, segnalaNovita: segnalaNovita, invito: invito, apriGuida: apriGuida, chiudiGuida: chiudiGuida, chiudi: chiudiRisveglio, punto: punto, controllaPunto: controllaPunto, meteo: meteo, fraseMeteo: fraseMeteo, trovaCitta: trovaCitta, impostaCitta: impostaCitta,
     cielo: cielo, fraseImpegni: fraseImpegni, grafo: grafo, apriRete: apriRete, chiudiRete: chiudiRete, batteria: batteria, strumento: STRUMENTO, link: linkScorciatoia,
     stato: function () { return JSON.parse(JSON.stringify(S)); }, imposta: function (o) { for (var k in o) if (k in S) S[k] = o[k]; salva(); }, ricarica: carica
   };

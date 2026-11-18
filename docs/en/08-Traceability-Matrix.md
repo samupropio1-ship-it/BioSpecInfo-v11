@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v258` |
+| **Version described** | `bsi-v259` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -154,6 +154,7 @@
 | **AI-21** | Every chemistry, physics and mathematics section that explains something must have its theory (concepts, formulas with meanings, assumptions and limits, typical errors, worked exercise, real sources, links), readable on a phone, searchable, and Spectra must be able to read it before explaining | `bsi-teoria.js` («📖 Teoria» button, sheet, `indice()`, `cerca()`, `leggi_teoria` tool, «teoria di…» commands), data in `bsi-teoria-a…g.js` (154 sheets) | `test_teoria` (24 checks: coverage, form, reading, search, commands, tool) |
 | **AI-22** | Spectra's memory must be a single store on five levels (working, episodes, facts, procedures, autobiography) that survives closing the app; for each question the model must receive only the relevant memories (not the whole memory), it must consolidate itself every day, forget on command, travel with the export, and keep memories unrelated to the question away from the model | `bsi-spectra-memoria.js` — `BSIMemoria.scrivi`, `cerca` (six signals, forgetting R = e^(−Δt/S), spreading, diversity), `consolida`, `blocco` ([RICORDI], [PROCEDURE], [STORIA]), `comando`, `dimentica`, `esportaTesto`/`importaTesto`, tool `cerca_nella_memoria`; `bsi-ai-hub.js` — `_bsiMente(testo)` | `test_memoria` (29 checks) |
 | **AI-23** | Spectra Prime (v258): seven-agent orchestrator (LangGraph) with a WebSocket bridge that sees the open 3D scene and commands it (load, update, toggle_layer, focus); wss:// only, authorised origins, four actions, checked values, high/critical actions blocked until confirmed | `spectra_core/` (10 Python tests), `bsi-spectra-ponte.js` | `test_spectra_ponte` (41 checks) |
+| **AI-24** | Spectra is a particle-shaped holographic core, not a robot (v259): no body, face or portrait to download; states with smooth transitions (easeInOutSine), no saturating additive element; no window, voice or keyboard opening without a user action | `bsi-spectra-nucleo.js`, `bsi-spectra-figura.js`, `bsi-spectra-risveglio.js`, `bsi-spectra-olointerattivo.js`, `bsi-spectra-live.js`, `spectra-studio.html` | `test_spectra_nucleo` (41 checks) |
 
 ---
 
@@ -197,7 +198,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 751 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 753 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -244,14 +245,14 @@ manual testing, and their automation is planned.
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
 | Scientific (SCI-01…80) | 78 | 78 | 100 % |
-| AI agent (AI-01…23) | 22 | 22 | 100 % |
+| AI agent (AI-01…24) | 23 | 23 | 100 % |
 | Stability (STA-01…11) | 11 | 11 | 100 % |
 | Interface (UI-01…36) | 33 | 33 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **154** | **154** | **100 %** |
+| **Automated total** | **155** | **155** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **161** | **154** | **96 %** |
+| **Declared total** | **162** | **155** | **96 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -286,4 +287,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v258`._
+_Document updated to version `bsi-v259`._

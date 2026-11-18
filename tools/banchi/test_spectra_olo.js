@@ -75,7 +75,7 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!window.BSIOloInterattivo, null, { timeout: 60000 });
     await pg.evaluate(() => document.querySelector('[data-s="sareachim"]').click());
-    await pg.waitForFunction(() => { const F = window.BSISpectraFigura && BSISpectraFigura.figura; return F && F.spectra.rig && F.spectra.volto; }, null, { timeout: 120000 }).catch(() => {});
+    await pg.waitForFunction(() => { const F = window.BSISpectraFigura && BSISpectraFigura.figura; return F && F.spectra && F.spectra.presente && F.spectra.presente(); }, null, { timeout: 120000 })   /* (v259) il nucleo olografico */.catch(() => {});
     const r = await pg.evaluate(async () => {
       const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, I = BSIOloInterattivo, o = {};
       /* la voce: si registra che cosa dice Spectra e si chiude subito ogni frase */

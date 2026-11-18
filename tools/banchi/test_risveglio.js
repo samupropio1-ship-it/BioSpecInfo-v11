@@ -423,9 +423,11 @@ async function meteoFinto(ctx, stato) {
   vero('se il browser ferma il microfono compare «Tocca per riprendere l\'ascolto», e il tocco lo riprende', o.fermo && o.ripresa);
   vero('il segnale in basso sta nello schermo del telefono', o.largo && o.chipDentro);
 
-  /* riaperta l'app, la modalità riparte da sola */
+  /* (v259) riaperta l'app, la modalità NON riparte da sola: compare l'invito, e il tocco la riprende */
   await pg4.reload({ waitUntil: 'load' }); await pg4.waitForFunction(() => !!window.BSISpectraRisveglio, null, { timeout: 60000 });
-  await pg4.waitForSelector('#bsiRV-chip.on', { timeout: 15000 });
+  await pg4.waitForSelector('#bsiRV-chip.fermo .riprendi', { timeout: 15000 });
+  const zitto = await pg4.evaluate(() => !window._ric.some(x => x.attivo && x.continuous));
+  await pg4.click('#bsiRV-chip.fermo .riprendi'); await pg4.waitForSelector('#bsiRV-chip.on', { timeout: 15000 });
   const q = await pg4.evaluate(async () => {
     const pausa = ms => new Promise(r => setTimeout(r, ms)), R = BSISpectraRisveglio, A = BSISpectraAgenda, o = {};
     o.riparte = window._ric.some(x => x.attivo && x.continuous) && window._wl.chieste >= 1;
@@ -444,7 +446,8 @@ async function meteoFinto(ctx, stato) {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); o.chiusa = !document.getElementById('bsiRD');
     return o;
   });
-  vero('riaperta l\'app, la modalità occhiali riparte da sola (ascolto e schermo)', q.riparte);
+  vero('riaperta l\'app, la modalità occhiali NON riparte da sola: invito «Tocca per riprendere», microfono spento', zitto);
+  vero('il tocco sull\'invito la riprende (ascolto e schermo)', q.riparte);
   vero('«smetti di ascoltare» spegne tutto: ' + q.spenta, /^Ascolto spento/.test(q.spenta) && q.dopo);
   vero('«come ti sveglio?» apre la guida: ' + q.sezioni, /Dagli occhiali Meta/.test(q.sezioni) && /Ehi Siri, sveglia Spectra/.test(q.sezioni) && /Ok Google, apri BioSpecInfo/.test(q.sezioni) && /Computer/.test(q.sezioni) && q.link);
   vero('l\'interruttore della modalità occhiali accende e spegne davvero', q.toggleOcchiali && q.toggleOcchiali2);
@@ -455,8 +458,11 @@ async function meteoFinto(ctx, stato) {
   /* con «sveglia all'apertura»: «Ok Google, apri BioSpecInfo» → Spectra si sveglia */
   await pg4.addInitScript(() => { try { Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { hasBeenActive: false, isActive: false } }); } catch (e) {} });
   await pg4.reload({ waitUntil: 'load' });
-  await pg4.waitForSelector('#bsiRV .tocca', { timeout: 20000 });
-  vero('con «sveglia a ogni apertura», aprire l\'app sveglia Spectra (e chiede un tocco per parlare)', true);
+  await pg4.waitForSelector('#bsiRV-invito', { timeout: 20000 }); await pg4.waitForTimeout(1500);
+  const nessuna = await pg4.evaluate(() => !document.getElementById('bsiRV'));
+  vero('(v259) con «sveglia a ogni apertura» compare solo l\'invito «🌅 Sveglia Spectra», nessuna finestra si apre da sola', nessuna);
+  await pg4.click('#bsiRV-invito'); await pg4.waitForSelector('#bsiRV .tocca', { timeout: 20000 });
+  vero('il tocco sull\'invito sveglia Spectra (e chiede un tocco per parlare)', true);
   const pg5 = await ctx.newPage(); pg5.on('pageerror', e => errs.push(e.message)); await pg5.addInitScript(sintesiFinta); await pg5.addInitScript(finti);
   await pg5.goto(BASE + 'index.html?spectra=ascolto', { waitUntil: 'load', timeout: 120000 }); await pg5.waitForSelector('#bsiRV-chip', { timeout: 20000 });
   vero('la scorciatoia «Spectra in ascolto» (?spectra=ascolto) accende la modalità occhiali', await pg5.evaluate(() => window._ric.some(x => x.continuous)));
