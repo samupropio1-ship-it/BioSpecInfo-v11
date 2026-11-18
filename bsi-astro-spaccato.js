@@ -89,6 +89,37 @@
     return (r < 0 ? '' : '+') + durata(r) + ' ' + et;
   }
 
+  /* ═══ (v261) percorsi nel diagramma H-R: [log T, log L] all'inizio, alla fine di ogni stadio, poi nel finale.
+     SCHEMATICI (forma da Sackmann et al. 1993 per il Sole, da modelli tipici per le altre) e dichiarati come tali ═══ */
+  var TRACCE_HR = {
+    sole: [[3.746, -0.13], [3.761, 0], [3.755, 0.33], [3.48, 3.41], [3.69, 1.7], [3.45, 3.6], [4.9, 3.6], [4.95, 1.5], [4.5, -1.3]],
+    supernova: [[4.55, 4.7], [4.45, 5.0], [3.56, 5.15], [3.55, 5.18], [3.55, 5.2], [3.55, 5.2], [3.55, 5.2]],
+    buconero: [[4.65, 5.3], [4.5, 5.55], [4.25, 5.65], [4.2, 5.66], [4.2, 5.67], [4.2, 5.67], [4.2, 5.67]],
+    nanarossa: [[3.46, -2.95], [3.46, -2.95], [3.55, -2.4], [3.78, -2.0], [4.0, -3.4]],
+    protostella: [[3.45, 1.6], [3.45, 1.6], [3.5, 1.3], [3.58, 0.6], [3.62, 0.2], [3.746, -0.13]],
+    grb: [[4.9, 5.6], [4.95, 5.65], [4.95, 5.65], [4.95, 5.65], [4.95, 5.65]],
+    nova: [[4.6, -1.2], [4.6, -1.2], [5.15, 4.5], [3.95, 4.7], [4.6, -1.2]],
+    pisn: [[4.85, 6.3], [4.85, 6.3], [4.7, 6.4], [4.7, 6.4], [4.7, 6.4]],
+    cefeide: [[3.77, 3.3], [3.77, 3.3], [3.77, 3.3], [3.77, 3.3]]
+  };
+  var SPIEGA_VIVO = {
+    hr: ['<b>Il grafico nel palco è il diagramma H-R</b>: temperatura della superficie in orizzontale (le stelle calde a sinistra), luce emessa in verticale. Il punto luminoso è la stella di questa simulazione e si muove mentre cambia: lungo la fascia verde finché brucia idrogeno, poi verso le giganti o le nane bianche. I puntini sono stelle vere (Sole, Sirio, Betelgeuse…). Il percorso è schematico.', '<b>The chart in the frame is the H-R diagram</b>: surface temperature horizontally (hot stars on the left), emitted light vertically. The bright dot is this simulation\'s star and moves as it changes: along the green band while it burns hydrogen, then towards the giants or the white dwarfs. The small dots are real stars (Sun, Sirius, Betelgeuse…). The path is schematic.'],
+    legame: ['<b>Il grafico nel palco è l\'energia di legame per nucleone</b> (AME2020): il punto luminoso è il nucleo che la stella sta fabbricando. Sale finché si arriva al ferro: ogni fusione libera energia. Al ferro la curva ha il massimo e la fusione smette di rendere: è per questo che il nucleo collassa.', '<b>The chart in the frame is the binding energy per nucleon</b> (AME2020): the bright dot is the nucleus the star is making. It rises up to iron: every fusion releases energy. At iron the curve peaks and fusion stops paying: that is why the core collapses.'],
+    luceIa: ['<b>Il grafico nel palco è la curva di luce</b> calcolata dai decadimenti del nichel e del cobalto (Nadyozhin 1994): il punto è l\'istante della simulazione.', '<b>The chart in the frame is the light curve</b> computed from nickel and cobalt decays (Nadyozhin 1994): the dot is the simulation\'s instant.'],
+    luceKN: ['<b>Il grafico nel palco è il calore radioattivo della kilonova</b>, ∝ t^−1,3: il punto è l\'istante della simulazione.', '<b>The chart in the frame is the kilonova\'s radioactive heating</b>, ∝ t^−1.3: the dot is the simulation\'s instant.'],
+    bbn: ['<b>Il grafico nel palco segue i neutroni liberi</b>, che decadono finché non vengono chiusi nell\'elio: il punto è l\'istante della simulazione; la riga verde è l\'elio misurato.', '<b>The chart in the frame follows the free neutrons</b>, which decay until they are locked into helium: the dot is the simulation\'s instant; the green line is the measured helium.'],
+    calore: ['<b>Il grafico nel palco è il calore radioattivo</b> che fonde la Terra giovane: il punto è l\'istante della simulazione.', '<b>The chart in the frame is the radioactive heat</b> that melts the young Earth: the dot is the simulation\'s instant.'],
+    metalli: ['<b>Il grafico nel palco è la metallicità del gas</b>: il punto è l\'istante della simulazione, quello giallo è il Sole.', '<b>The chart in the frame is the gas metallicity</b>: the dot is the simulation\'s instant, the yellow one is the Sun.'],
+    leavitt: ['<b>Il grafico nel palco è la luminosità della Cefeide</b> mentre pulsa: il punto segue la stella. Il periodo dà la luminosità (legge di Leavitt), e da lì la distanza.', '<b>The chart in the frame is the Cepheid\'s brightness</b> as it pulsates: the dot follows the star. The period gives the luminosity (Leavitt law), and from that the distance.'],
+    ppdot: ['<b>Il grafico nel palco è il diagramma P–Ṗ</b> delle pulsar: periodo e rallentamento di pulsar vere; il punto è la stella di neutroni della simulazione che invecchia.', '<b>The chart in the frame is the P–Ṗ diagram</b> of pulsars: period and slowdown of real pulsars; the dot is the simulation\'s neutron star ageing.'],
+    tde: ['<b>Il grafico nel palco è il gas che ricade</b> sul buco nero, ∝ t^−5/3: per mesi supera il limite di Eddington.', '<b>The chart in the frame is the gas falling back</b> onto the black hole, ∝ t^−5/3: for months it exceeds the Eddington limit.'],
+    chirp: ['<b>Il grafico nel palco è l\'onda gravitazionale</b>: sempre più veloce e più forte fino alla fusione (chirp), poi lo smorzamento. La riga verticale è l\'istante della simulazione.', '<b>The chart in the frame is the gravitational wave</b>: faster and stronger up to the merger (chirp), then the ringdown. The vertical line is the simulation\'s instant.'],
+    quasar: ['<b>Il grafico nel palco è la massa del buco nero</b> che cresce al limite di Eddington; il punto azzurro è un quasar osservato.', '<b>The chart in the frame is the black hole\'s mass</b> growing at the Eddington limit; the blue dot is an observed quasar.'],
+    saha: ['<b>Il grafico nel palco è la frazione di idrogeno ionizzato</b> secondo Saha: il punto scende mentre l\'universo si raffredda.', '<b>The chart in the frame is the ionised hydrogen fraction</b> according to Saha: the dot drops as the universe cools.'],
+    teff: ['<b>Il grafico nel palco è la temperatura della nana bruna</b> che si raffredda attraverso le classi M, L, T e Y.', '<b>The chart in the frame is the brown dwarf\'s temperature</b> as it cools through classes M, L, T and Y.'],
+    burst: ['<b>Il grafico nel palco è la luce X del lampo</b>: salita in un secondo, coda di decine di secondi (forma tipica).', '<b>The chart in the frame is the burst\'s X-ray light</b>: a one-second rise, a tail of tens of seconds (typical shape).']
+  };
+
   /* ═══ stile ═════════════════════════════════════════════════════════════ */
   function stile() {
     if (D.getElementById('bsiSP-stile')) return;
@@ -205,9 +236,9 @@
         '  for (int i = 0; i < 48; i++) { if (float(i) >= uPassi) break; float t = t0 + (float(i) + 0.5)*dt; vec3 p = o + d*t; float r = length(p);',
         '    float sh = exp(-pow((r - uR)/uSp, 2.)); if (sh < 0.02) continue;',
         '    vec3 q = p/max(uR, 0.2); float n = fbm(q*2.3 + uSeme + vec3(0., 0., uTempo*0.04)); float fil = 1. - abs(2.*vn(q*5.5 + uSeme*1.7) - 1.);',
-        '    float dens = sh*smoothstep(0.3, 0.8, n*0.75 + fil*0.4)*uOpac*2.6;',
+        '    float dens = sh*smoothstep(0.35, 0.85, n*0.7 + fil*0.45)*uOpac*2.2;',
         '    float kk = clamp((r - uR)/uSp*0.5 + 0.5, 0., 1.); vec3 col = mix(uC1, uC2, kk); col = mix(uC3, col, uCaldo);',
-        '    float a = 1. - exp(-dens*dt*5.); acc += tr*a*col*(0.55 + 0.75*n); tr *= 1. - a; if (tr < 0.03) break; }',
+        '    float a = 1. - exp(-dens*dt*1.1); acc += tr*a*col*(0.6 + 0.9*n)*0.75; tr *= 1. - a*0.55; if (tr < 0.03) break; }',
         '  gl_FragColor = vec4(min(acc, vec3(0.92)), 1. - tr); }'].join('\n'),
       side: 1, transparent: true, depthWrite: false, blending: T.CustomBlending, blendSrc: T.OneFactor, blendDst: T.OneMinusSrcAlphaFactor
     });
@@ -221,8 +252,8 @@
         'void main(){ vec2 p = (vUv - 0.5)*4.; float r = length(p); if (r < 1.0) discard; float a = atan(p.y, p.x);',
         '  float st = 0.5 + 0.5*sin(a*7. + 2.*sin(a*3. + uT*0.08)); st = pow(st, 3.)*0.7 + 0.3*(0.5 + 0.5*sin(a*19. - uT*0.05));',
         '  float cor = exp(-(r - 1.)*3.2)*(0.3 + 0.7*st)*0.5;',
-        '  float pr = 0.; for (int k = 0; k < 4; k++) { float ak = float(k)*1.63 + 0.55; float w = 0.16 + 0.04*float(k); float dx = mod(a - ak + 3.14159, 6.28318) - 3.14159; float x = dx/w;',
-        '    if (abs(x) < 1.) { float hg = (0.16 + 0.06*float(k))*sqrt(1. - x*x)*(0.85 + 0.15*sin(uT*0.3 + float(k))); float dd = abs((r - 1.) - hg); pr += exp(-dd*dd/0.0005)*(0.55 + 0.45*sin(x*24. + uT*0.7 + float(k)*2.)); } }',
+        '  float pr = 0.; for (int k = 0; k < 3; k++) { float ak = float(k)*2.1 + 0.55; float w = 0.12 + 0.03*float(k); float dx = mod(a - ak + 3.14159, 6.28318) - 3.14159; float x = dx/w;',
+        '    if (abs(x) < 1.) { float hg = (0.07 + 0.03*float(k))*sqrt(1. - x*x)*(0.85 + 0.15*sin(uT*0.3 + float(k))); float dd = abs((r - 1.) - hg); pr += exp(-dd*dd/0.0003)*(0.7 + 0.3*sin(x*9. + uT*0.7 + float(k)*2.)); } }',
         '  vec3 c = uCol*cor + vec3(1., 0.32, 0.18)*pr*uProm*0.8; gl_FragColor = vec4(c*uOp, 1.); }'].join('\n'),
       transparent: true, depthWrite: false, blending: T.AdditiveBlending
     });
@@ -362,8 +393,9 @@
     if (tipo === 'binaria' && sc.id !== 'quasar') {
       var bhC = !!sc.corpo.bh;
       ns1 = new T.Mesh(new T.SphereGeometry(bhC ? 0.13 : 0.11, 24, 16), new T.MeshBasicMaterial({ color: bhC ? 0x000000 : 0xdbeaff })); ns2 = ns1.clone(); if (bhC) ns2.scale.setScalar(0.9); radice.add(ns1); radice.add(ns2);
-      [ns1, ns2].forEach(function (n) { var a = sprite(T, bhC ? anello : alone, bhC ? 0xffffff : 0x9fc8ff, true); a.scale.set(bhC ? 0.6 : 0.6, bhC ? 0.6 : 0.6, 1); a.material.opacity = bhC ? 0.9 : 0.5; n.add(a); });
+      [ns1, ns2].forEach(function (n) { var a = sprite(T, bhC ? anello : alone, bhC ? 0xffffff : 0x9fc8ff, true); a.scale.set(bhC ? 0.62 : 0.6, bhC ? 0.62 : 0.6, 1); a.material.opacity = bhC ? 0.95 : 0.5; a.material.depthTest = true; n.add(a); if (bhC) { var om = new T.Mesh(new T.CircleGeometry(0.15, 40), new T.MeshBasicMaterial({ color: 0x000000 })); om.renderOrder = 6; n.userData.ombra = om; n.add(om); } });
       if (sc.id === 'quasar') { ns1.visible = ns2.visible = false; }
+      if (bhC) { var lente = sprite(T, alone, 0x6bcfff, true); lente.scale.set(2.2, 2.2, 1); lente.material.opacity = 0.18; ns1.add(lente); }
       for (i = 0; i < 5; i++) { var pts = []; for (var k = 0; k <= 96; k++) pts.push(new T.Vector3(Math.cos(k / 96 * 2 * PI), Math.sin(k / 96 * 2 * PI), 0)); var lo = new T.LineLoop(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ color: 0x6bcfff, transparent: true, opacity: 0.3 })); radice.add(lo); onde.push(lo); }
     }
     /* stelle che nascono e muoiono nella nube (galassia) */
@@ -436,6 +468,7 @@
         mPar.uniforms.uR.value[j] = sl.da === 0 && j === 0 ? sl.r : sl.r * cresce;
       });
       mPar.uniforms.uStrati.value = mostraStrati ? 1 : 0;
+      var senzaP = sc.senzaPareti && sc.senzaPareti.indexOf(s.i) >= 0 && !s.fin; p1.visible = p2.visible = !senzaP; punti.visible = sc.id !== 'giove' && !senzaP;
       var rNuc = (prec ? (prec.rNuc || 0.3) : (st.rNuc || 0.3)) + ((st.rNuc || 0.3) - (prec ? (prec.rNuc || 0.3) : (st.rNuc || 0.3))) * easeIO(u);
       mPar.uniforms.uNuc.value = (tipo === 'pianeta' || tipo === 'gigante' || tipo === 'universo' || tipo === 'nube' || sc.id === 'ia' || tipo === 'binaria') ? 0 : rNuc;
       mPar.uniforms.uScuro.value = Math.max(0, Math.min(1, ((comp.Fe || 0) - 30) / 60));
@@ -459,7 +492,7 @@
       /* binaria che spiraleggia */
       if (ns1) {
         var spir = s.i === 0 && !s.fin && sc.id !== 'quasar'; ns1.visible = ns2.visible = spir; onde.forEach(function (o) { o.visible = spir; });
-        if (spir) { var tc = 1 - s.u, sep = Math.max(0.12, 1.5 * Math.pow(tc + 0.0005, 0.25)), fase = (1 - Math.pow(tc + 0.0005, 0.625)) * 90; ns1.position.set(sep / 2 * Math.cos(fase), sep / 2 * Math.sin(fase), 0); ns2.position.set(-ns1.position.x, -ns1.position.y, 0);
+        if (spir) { var tc = 1 - s.u, sep = Math.max(0.12, 1.5 * Math.pow(tc + 0.0005, 0.25)), fase = (1 - Math.pow(tc + 0.0005, 0.625)) * 90; ns1.position.set(sep / 2 * Math.cos(fase), sep / 2 * Math.sin(fase), 0); ns2.position.set(-ns1.position.x, -ns1.position.y, 0); [ns1, ns2].forEach(function (n) { if (n.userData.ombra) n.userData.ombra.quaternion.copy(S.cam.quaternion); });
           var per = 0.25 + 1.2 * Math.pow(tc, 0.375); onde.forEach(function (o, j) { var ph = ((tempo / per) + j / onde.length) % 1, R = 0.3 + ph * 5; o.scale.set(R, R, 1); o.material.opacity = 0.35 * (1 - ph); }); }
       }
       /* il corpo: visibile prima dell'esplosione; nel caso di Ia e kilonova diventa la nube dei prodotti, stratificata */
@@ -524,7 +557,7 @@
       lampiSup.forEach(function (l) { if (fBr < 0.01 || !corpoVis || MENO_MOTO) { l.visible = false; return; } var fz = ((tempo * 0.28) + l.userData.f) % 1; if (fz < 0.9) { l.visible = false; return; } var d0 = new T.Vector3().subVectors(S.cam.position, corpo.position).normalize(), rgt = new T.Vector3().crossVectors(d0, new T.Vector3(0, 0, 1)).normalize(), upv = new T.Vector3().crossVectors(rgt, d0); var a0 = l.userData.a; l.position.copy(corpo.position).addScaledVector(rgt, Math.cos(a0) * scala * 1.02).addScaledVector(upv, Math.sin(a0) * scala * 1.02); var k2 = Math.sin((fz - 0.9) / 0.1 * PI) * fBr; l.visible = true; l.material.opacity = k2; l.scale.set(0.35 * scala * k2 + 0.05, 0.35 * scala * k2 + 0.05, 1); if (fz > 0.995) l.userData.a = Math.random() * 2 * PI; });
       /* il guscio come volume, insieme alle scintille */
       vol.visible = guscio.visible;
-      if (vol.visible) { var Ru = mG.uniforms.uR.value; mVol.uniforms.uR.value = Ru; mVol.uniforms.uSp.value = 0.2 * Ru + 0.08; mVol.uniforms.uRout.value = Ru * 1.55 + 0.35; vol.scale.setScalar(mVol.uniforms.uRout.value); mVol.uniforms.uCaldo.value = mG.uniforms.uCaldo.value; mVol.uniforms.uOpac.value = mG.uniforms.uOpac.value * Math.min(1, mG.uniforms.uDens.value * 1.4); mVol.uniforms.uSchiaccia.value = mG.uniforms.uSchiaccia.value; mVol.uniforms.uTempo.value = MENO_MOTO ? 0 : tempo;
+      if (vol.visible) { var Ru = mG.uniforms.uR.value; mVol.uniforms.uR.value = Ru; mVol.uniforms.uSp.value = 0.08 * Ru + 0.045; mVol.uniforms.uRout.value = Ru * 1.55 + 0.35; vol.scale.setScalar(mVol.uniforms.uRout.value); mVol.uniforms.uCaldo.value = mG.uniforms.uCaldo.value; mVol.uniforms.uOpac.value = mG.uniforms.uOpac.value * Math.min(1, mG.uniforms.uDens.value * 1.1) * 0.7; mVol.uniforms.uSchiaccia.value = mG.uniforms.uSchiaccia.value; mVol.uniforms.uTempo.value = MENO_MOTO ? 0 : tempo;
         if (dt > 0) { tFot.push(dt); if (tFot.length >= 30) { var med = tFot.reduce(function (a, b) { return a + b; }, 0) / tFot.length; tFot = []; if (med > 0.04) passiVol = Math.max(12, passiVol - 6); else if (med < 0.022) passiVol = Math.min(40, passiVol + 2); mVol.uniforms.uPassi.value = passiVol; } } }
       /* corona e protuberanze sulle stelle */
       var mdNow = sc.stadi[s.i].modo || tipo;
@@ -564,7 +597,7 @@
     var NS = 'http://www.w3.org/2000/svg', dati = F.el('div', { 'class': 'bsiSP-dati' }), svg = D.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('class', 'bsiSP-ciambella'); svg.setAttribute('role', 'img');
     var dx = F.el('div', { 'class': 'bsiSP-dx' }), et1 = F.el('div', { 'class': 'et', testo: t('Tempo trascorso', 'Elapsed time') }), oro = F.el('div', { 'class': 'oro', 'aria-live': 'off' }), sub = F.el('div', { 'class': 'sub' });
-    var et2 = F.el('div', { 'class': 'et', testo: sc.id === 'terra' ? t('Composizione al centro', 'Composition at the centre') : sc.id === 'giove' ? t('Composizione dell\'atmosfera', 'Atmosphere composition') : sc.id === 'galassia' ? t('Gas interstellare', 'Interstellar gas') : sc.id === 'bigbang' ? t('Composizione dell\'universo', 'Composition of the universe') : sc.id === 'ia' || sc.id === 'kilonova' ? t('Composizione della materia', 'Composition of the matter') : t('Composizione del nucleo', 'Core composition') }), leg = F.el('div', { 'class': 'bsiSP-leg' });
+    var et2 = F.el('div', { 'class': 'et', testo: sc.etDonut ? F.tt(sc.etDonut) : sc.id === 'terra' ? t('Composizione al centro', 'Composition at the centre') : sc.id === 'giove' ? t('Composizione dell\'atmosfera', 'Atmosphere composition') : sc.id === 'galassia' ? t('Gas interstellare', 'Interstellar gas') : sc.id === 'bigbang' ? t('Composizione dell\'universo', 'Composition of the universe') : sc.id === 'ia' || sc.id === 'kilonova' ? t('Composizione della materia', 'Composition of the matter') : t('Composizione del nucleo', 'Core composition') }), leg = F.el('div', { 'class': 'bsiSP-leg' });
     dx.appendChild(et1); dx.appendChild(oro); dx.appendChild(sub); dx.appendChild(et2); dx.appendChild(leg);
     dati.appendChild(svg); dati.appendChild(dx); box.appendChild(dati);
     var ultimo = '', dec = sc.decimali || 0;
@@ -618,6 +651,7 @@
       var rea = F.el('div', { 'class': 'bsiSP-reaz', 'aria-live': 'off' }), hud = F.el('div', { 'class': 'bsiSP-hud' }); box.appendChild(rea); box.appendChild(hud);
       var NSs = 'http://www.w3.org/2000/svg', svg = D.createElementNS(NSs, 'svg'); svg.setAttribute('class', 'bsiSP-svg'); svg.setAttribute('aria-hidden', 'true'); box.appendChild(svg);
       var pan = pannello(box, sc);
+      function sottoTitolo() { var hT = tit.offsetHeight || 40; rea.style.top = (12 + hT + 8) + 'px'; hud.style.top = (12 + hT + 8) + 'px'; }
       M = motore(S, T, box, sc, { strati: opz.strati });
       var L = M.linea, tau = Math.max(0, Math.min(L.totale, opz.tau || 0)), gioca = !MENO_MOTO && opz.gioca !== false, vel = opz.vel || 1, cinema = !MENO_MOTO, ultimoUI = -1;
       barra.max = String(L.totale);
@@ -651,9 +685,9 @@
       if (sc.corpo.compagna) { base.r += 1.6; S.inquadra(base.r, 2.0, 1.12); }
       function camera(st) {
         if (!cinema) return; var v = S.vista, fin = st.fin, k = 1;
-        if (fin && sc.finale.tipo === 'collasso') k = st.uf < 1.2 ? 1 - 0.18 * easeIO(st.uf) : 0.82 + 1.5 * easeIO((st.uf - 1.2) / 3.5);
+        if (fin && sc.finale.tipo === 'collasso') k = st.uf < 1.2 ? 1 - 0.18 * easeIO(st.uf) : 0.82 + (largo ? 1.5 : 2.6) * easeIO((st.uf - 1.2) / 3.5);
         else if (fin && sc.finale.tipo === 'nebulosa') k = 1 + 1.4 * easeIO(st.uf / 3);
-        else if (sc.stadi[st.i].esplode || sc.stadi[st.i].dopo) k = 1.35 + 0.8 * easeIO((st.tau - M.linea.inizi[sc.stadi.findIndex(function (x) { return x.esplode; })]) / 3);
+        else if (sc.stadi[st.i].esplode || sc.stadi[st.i].dopo) k = 1.35 + (largo ? 0.8 : 1.6) * easeIO((st.tau - M.linea.inizi[sc.stadi.findIndex(function (x) { return x.esplode; })]) / 3);
         v.r = base.r * k; v.th = (sc.corpo.compagna && !(sc.stadi[st.i].esplode || sc.stadi[st.i].dopo) ? 2.0 : base.th) + 0.12 * Math.sin(st.tau * 0.25); v.ph = base.ph - 0.05 * Math.sin(st.tau * 0.17);
       }
       /* il ciclo */
@@ -680,7 +714,7 @@
         /* etichette con linea guida: nucleo collassato, stella di neutroni, buco nero, nana bianca */
         var lab = '', w = box.clientWidth, hh = S.ren.domElement.clientHeight;
         if (fin && fin.tipo === 'collasso' && st.uf > 0.15 && st.uf < 1.3) { var c0 = M.proietta(new T.Vector3(0, 0, 0)); lab = guida(c0.x * w, c0.y * hh, w * 0.62, hh * 0.3, t('NUCLEO COLLASSATO', 'COLLAPSED CORE')); }
-        if (r.residuo) { var c1 = M.proietta(new T.Vector3(0, 0, 0)); lab = guida(c1.x * w, c1.y * hh, Math.max(10, c1.x * w - w * 0.38), c1.y * hh + hh * 0.2, r.residuo === 'bh' ? t('BUCO NERO', 'BLACK HOLE') : r.residuo === 'bh?' ? t('RESIDUO: PROBABILE BUCO NERO', 'REMNANT: LIKELY BLACK HOLE') : r.residuo === 'wd' ? t('NANA BIANCA', 'WHITE DWARF') : t('STELLA DI NEUTRONI', 'NEUTRON STAR')); if (r.residuo === 'bh') link('sastrobh', '🕳️ ' + t('Buchi neri', 'Black holes')); }
+        if (r.residuo) { var c1 = M.proietta(new T.Vector3(0, 0, 0)); lab = guida(c1.x * w, c1.y * hh, Math.max(10, c1.x * w - w * 0.38), Math.max(90, c1.y * hh - hh * 0.16), r.residuo === 'bh' ? t('BUCO NERO', 'BLACK HOLE') : r.residuo === 'bh?' ? t('RESIDUO: PROBABILE BUCO NERO', 'REMNANT: LIKELY BLACK HOLE') : r.residuo === 'wd' ? t('NANA BIANCA', 'WHITE DWARF') : t('STELLA DI NEUTRONI', 'NEUTRON STAR')); if (r.residuo === 'bh') link('sastrobh', '🕳️ ' + t('Buchi neri', 'Black holes')); }
         svg.innerHTML = lab;
         disegnaVivo(st);
         api.ultimo = { stadio: st.i, fin: st.fin, uf: st.uf, comp: M.composizione(), orologio: orologio(sc, L, st), residuo: r.residuo };
@@ -689,21 +723,21 @@
       /* ═══ (v261) IL GRAFICO VIVO, dentro il palco: legenda in alto, curve che brillano, il punto che segue la simulazione ═══ */
       var cvV = D.createElement('canvas'); cvV.className = 'bsiSP-vivo'; cvV.setAttribute('role', 'img'); box.appendChild(cvV);
       var qV = cvV.getContext('2d'), Wv = 0, Hv = 0;
-      function misuraVivo() { var dpr = Math.min(2, g.devicePixelRatio || 1), w = box.clientWidth, hb = S.ren.domElement.clientHeight, hp = pan.el.offsetHeight || 120; Wv = w - 16; Hv = Math.round(Math.min(hb * 0.24, 190)); cvV.style.left = '8px'; cvV.style.width = Wv + 'px'; cvV.style.height = Hv + 'px'; cvV.style.top = Math.max(60, hb - hp - 14 - Hv) + 'px'; cvV.width = Wv * dpr; cvV.height = Hv * dpr; qV.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      function misuraVivo() { var dpr = Math.min(2, g.devicePixelRatio || 1), w = box.clientWidth, hb = S.ren.domElement.clientHeight, hp = pan.el.offsetHeight || 120, w2 = w - 16, h2 = Math.round(Math.min(hb * 0.24, 190)); cvV.style.top = Math.max(60, hb - hp - 14 - h2) + 'px'; if (w2 === Wv && h2 === Hv) return; Wv = w2; Hv = h2; cvV.style.left = '8px'; cvV.style.width = Wv + 'px'; cvV.style.height = Hv + 'px'; cvV.width = Wv * dpr; cvV.height = Hv * dpr; qV.setTransform(dpr, 0, 0, dpr, 0, 0); }
       var tipoV = tipoG;
       cvV.style.display = tipoV ? '' : 'none';
       var gUlt = -1;
-      function traccia(id) { var A = TRACCE_HR[id]; if (!A) return null; if (id === 'nanabianca') return sc.stadi.map(function (x) { return lumWD(x.Teff); }).concat([lumWD(sc.stadi[sc.stadi.length - 1].Teff)]); return A; }
+      function traccia(id) { if (id === 'nanabianca') return sc.stadi.map(function (x) { return lumWD(x.Teff); }).concat([lumWD(sc.stadi[sc.stadi.length - 1].Teff)]); return TRACCE_HR[id] || null; }
       function lumWD(Te) { return [Math.log10(Math.max(Te, 1500)), Math.log10(0.0125 * 0.0125 * Math.pow(Math.max(Te, 1500) / 5772, 4))]; }
       function suTraccia(A, st) { var n = sc.stadi.length; if (!st.fin) { var a = A[Math.min(st.i, A.length - 1)], b = A[Math.min(st.i + 1, A.length - 1)], u = easeIO(st.u); return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]; } var fin = A.slice(n + 1); if (!fin.length) return A[Math.min(n, A.length - 1)]; var tf = st.uf / (sc.finale.anim || 1) * fin.length, j = Math.min(fin.length - 1, Math.floor(tf)), pa = j ? fin[j - 1] : A[n], pb = fin[j], uu = easeIO(tf - j); return [pa[0] + (pb[0] - pa[0]) * uu, pa[1] + (pb[1] - pa[1]) * uu]; }
       function datiVivo(st) {
         var o = { serie: [], punti: [], leg: [], marc: null }, Ef = Dd.eventi || {};
         if (tipoV === 'hr') {
-          var A = traccia(sc.id) || [], AS = g.BSIFisica.calcolo.astro;
-          o.xmin = 5.2; o.xmax = 3.35; o.ymin = -5; o.ymax = 6.6; o.xl = 'log T (K) ← ' + t('più caldo', 'hotter'); o.yl = 'log L/L☉';
+          var A = traccia(sc.id) || [[3.76, 0]], AS = g.BSIFisica.calcolo.astro;
+          o.xmin = 5.2; o.xmax = 3.35; o.ymin = -5; o.ymax = 7; o.xl = 'log T (K) ← ' + t('più caldo', 'hotter'); o.yl = 'log L/L☉';
           if (AS) { var mx = [], my = []; for (var lm = -1; lm <= 1.8; lm += 0.05) { var q0 = AS.sequenzaPrincipale(Math.pow(10, lm)); mx.push(Math.log10(q0.T)); my.push(Math.log10(q0.L)); } o.serie.push({ x: mx, y: my, col: 'rgba(94,234,212,.35)', larg: 7 }); AS.STELLE.forEach(function (z) { o.punti.push({ x: Math.log10(z[3]), y: Math.log10(z[2]), col: 'rgba(220,230,245,.55)', r: 1.6 }); }); }
           var tx = [], ty = []; A.forEach(function (p) { tx.push(p[0]); ty.push(p[1]); }); o.serie.push({ x: tx, y: ty, col: '#ffb547', larg: 1.4, trat: [3, 3] });
-          var m = suTraccia(A, st); if (m) o.marc = { x: m[0], y: m[1], col: '#fff3c8', et: 'L ≈ ' + sci(Math.pow(10, m[1])) + ' L☉ · T ≈ ' + num(Math.round(Math.pow(10, m[0]) / 10) * 10) + ' K' };
+          var m = suTraccia(A, st); if (m) { m = [Math.max(3.36, Math.min(5.19, m[0])), Math.max(-4.9, Math.min(6.9, m[1]))]; } if (m) o.marc = { x: m[0], y: m[1], col: '#fff3c8', et: 'L ≈ ' + sci(Math.pow(10, m[1])) + ' L☉ · T ≈ ' + num(Math.round(Math.pow(10, m[0]) / 10) * 10) + ' K' };
           o.leg = [['rgba(94,234,212,.8)', t('sequenza principale', 'main sequence')], ['#ffb547', t('percorso (schematico)', 'path (schematic)')], ['rgba(220,230,245,.9)', t('• stelle vere', '• real stars')]];
           o.nota = t('Diagramma H-R: il punto è la stella di questa simulazione, adesso.', 'H-R diagram: the dot is this simulation\'s star, right now.');
         } else if (tipoV === 'legame') {
@@ -789,7 +823,7 @@
       function magCef(f) { return 3.95 + 0.42 * (-Math.cos(2 * PI * f) - 0.35 * Math.sin(2 * PI * f) + 0.12 * Math.cos(4 * PI * f)) / 1.05; }
       function burst(tb) { return tb < 1 ? tb : Math.exp(-(tb - 1) / 14); }
       function disegnaVivo(st) {
-        if (!tipoV) return; var o = datiVivo(st), q = qV; if (!Wv) misuraVivo(); var W = Wv, H = Hv;
+        if (!tipoV) return; var o = datiVivo(st), q = qV; misuraVivo(); var W = Wv, H = Hv;
         q.clearRect(0, 0, W, H);
         q.fillStyle = 'rgba(5,9,18,.62)'; q.strokeStyle = 'rgba(120,150,200,.22)'; q.beginPath(); if (q.roundRect) q.roundRect(0.5, 0.5, W - 1, H - 1, 10); else q.rect(0.5, 0.5, W - 1, H - 1); q.fill(); q.stroke();
         var x0 = 34, x1 = W - 10, y0 = 24, y1 = H - 18, X = function (v) { return x0 + (v - o.xmin) / (o.xmax - o.xmin) * (x1 - x0); }, Y = function (v) { return y1 - (v - o.ymin) / (o.ymax - o.ymin) * (y1 - y0); };
@@ -822,22 +856,27 @@
 
       F.alRidimensiona(function () { palco.style.width = larghezza() + 'px'; S.adatta(); misuraVivo(); gUlt = -1; });
       api.pronto = true; api.S = S; api.M = M; api.vai = function (x) { tau = x; S.avvia(); }; api.gioca = function (v) { gioca = v; segna(); S.avvia(); }; api.totale = L.totale; api.cinematico = function (v) { cinema = v; segna(); };
-      M.imposta(tau, 0); ui(M.stato()); S.avvia();
+      sottoTitolo(); M.imposta(tau, 0); ui(M.stato()); S.avvia();
       if (opz.alPronto) opz.alPronto(api);
     }).catch(function (e) { attesa.textContent = '⚠ ' + e.message; });
     return api;
   }
 
   /* ═══ la sezione: scelta dello scenario, un palco solo ═══════════════════ */
-  var ELENCO = [['supernova', '💥'], ['sole', '☀️'], ['buconero', '🕳️'], ['ia', '⚪'], ['kilonova', '✨'], ['bigbang', '🌌'], ['terra', '🌍'], ['giove', '🪐'], ['galassia', '🌀']];
+  function elenco() { var Dd = DATI(); return Dd ? Dd.scenari().map(function (x) { return [x.id, x.emoji || '•', x.cat || 'universo']; }) : []; }
+  var ELENCO = elenco();
   function schedaSezione(div) {
     stile(); var Dd = DATI(); if (!Dd) return;
     var scelte = F.el('div', { 'class': 'bsiSP-scelte', role: 'group', 'aria-label': t('Scenari', 'Scenarios') }), palco = F.el('div');
     div.appendChild(scelte); div.appendChild(palco);
-    var tasti = {};
+    var tasti = {}, cats = Dd.CAT || { tutti: ['Scenari', 'Scenarios'] };
     function apri(id) { Object.keys(tasti).forEach(function (k) { tasti[k].setAttribute('aria-pressed', String(k === id)); }); div._sp = crea(palco, id); return div._sp; }
-    ELENCO.forEach(function (e) { var sc = Dd.perId(e[0]); var b = F.el('button', { type: 'button', 'aria-pressed': 'false', testo: e[1] + ' ' + F.tt(sc.titolo) }); b.addEventListener('click', function () { apri(e[0]); }); tasti[e[0]] = b; scelte.appendChild(b); });
-    div._apri = apri; apri('supernova');
+    Object.keys(cats).forEach(function (c) {
+      var voci = elenco().filter(function (e) { return (e[2] || 'tutti') === c || !Dd.CAT; }); if (!voci.length) return;
+      scelte.appendChild(F.el('div', { 'class': 'bsiSP-cat', testo: F.tt(cats[c]) }));
+      voci.forEach(function (e) { var sc = Dd.perId(e[0]); var b = F.el('button', { type: 'button', 'aria-pressed': 'false', testo: e[1] + ' ' + F.tt(sc.titolo) }); b.addEventListener('click', function () { apri(e[0]); palco.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); tasti[e[0]] = b; scelte.appendChild(b); });
+    });
+    div._apri = function (id) { return apri(id); }; apri('supernova');
   }
   F.sezione('sastrospaccato', {
     titolo: ['🌟 Spaccati stellari', '🌟 Stellar cutaways'],
@@ -865,9 +904,9 @@
 
   /* ═══ lo strumento per Spectra: apre uno scenario solo quando l'utente lo chiede ═══ */
   var STRUMENTO = { name: 'spaccato_stellare',
-    description: 'Apre lo «Spaccato stellare» di BioSpecInfo: un corpo celeste tagliato che cambia composizione. Scenari: supernova (come muore una stella massiccia), sole, buconero, ia (supernova di tipo Ia), kilonova (stelle di neutroni, oro), bigbang (primi 20 minuti), terra (nucleo di ferro), giove (idrogeno metallico), galassia (arricchimento di metalli). Usalo SOLO quando l\'utente chiede di vedere uno di questi processi.',
-    parameters: { type: 'object', properties: { scenario: { type: 'string', enum: ELENCO.map(function (e) { return e[0]; }) } }, required: ['scenario'] },
-    execute: function (a) { var id = a && a.scenario; if (!ELENCO.some(function (e) { return e[0] === id; })) return Promise.resolve({ ok: false, error: 'scenario sconosciuto' }); g.BSISpaccato.apri(id); var sc = DATI().perId(id); return Promise.resolve({ ok: true, aperto: F.tt(sc.titolo), spiegazione: F.tt(sc.spiegazione) }); } };
+    description: 'Apre lo «Spaccato stellare» di BioSpecInfo: un corpo celeste tagliato che cambia composizione. Scenari: supernova (come muore una stella massiccia), sole, buconero, ia (supernova di tipo Ia), kilonova (stelle di neutroni, oro), bigbang (primi 20 minuti), terra (nucleo di ferro), giove (idrogeno metallico), galassia (arricchimento di metalli), protostella (nasce una stella), nanabruna, nanarossa, cefeide, nova, lampox (lampo X), pulsar (magnetar), tde (stella fatta a pezzi da un buco nero), grb (lampo gamma), pisn (instabilità di coppia), bhbh (due buchi neri, GW150914), quasar, nanabianca (cristallizzazione), ricombinazione (fondo cosmico e reionizzazione). Usalo SOLO quando l\'utente chiede di vedere uno di questi processi.',
+    parameters: { type: 'object', properties: { scenario: { type: 'string', enum: elenco().map(function (e) { return e[0]; }) } }, required: ['scenario'] },
+    execute: function (a) { var id = a && a.scenario; if (!elenco().some(function (e) { return e[0] === id; })) return Promise.resolve({ ok: false, error: 'scenario sconosciuto' }); g.BSISpaccato.apri(id); var sc = DATI().perId(id); return Promise.resolve({ ok: true, aperto: F.tt(sc.titolo), spiegazione: F.tt(sc.spiegazione) }); } };
   function registra() { var Ts = g.BSI_AI_TOOLS; if (!Ts || !Ts.push) return false; if (!Ts.some(function (x) { return x.name === STRUMENTO.name; })) Ts.push(STRUMENTO); return true; }
   if (!registra()) { var k = 0, ti = setInterval(function () { if (registra() || ++k > 40) clearInterval(ti); }, 500); }
 })(typeof window !== 'undefined' ? window : globalThis);

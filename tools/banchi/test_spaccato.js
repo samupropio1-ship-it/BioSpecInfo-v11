@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ════════════════════════════════════════════════════════════════════════
-   test_spaccato — 🌟 Spaccati stellari (v260)
+   test_spaccato — 🌟 Spaccati stellari (v260, v261: 23 eventi)
 
    PERCHE' QUESTO BANCO ESISTE
    L'autore ha chiesto un motore che mostri una stella tagliata mentre la
@@ -39,12 +39,13 @@ function vero(d, c) { att(d, true, !!c); }
   const sezioni = {};
   ctx.BSIFisica = { t: a => a, tt: a => a[0], calcolo: {}, el: () => ({}), sezione(id, d) { sezioni[id] = d; }, cursore() {} };
   vm.createContext(ctx);
-  ['bsi-astro-spaccato-scenari.js', 'bsi-astro-spaccato.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx));
+  ['bsi-astro-spaccato-scenari.js', 'bsi-astro-spaccato-eventi.js', 'bsi-astro-spaccato.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx));
   const Dd = ctx.BSISpaccatoDati, SP = ctx.BSISpaccato, AN = Dd.ANNO, GG = Dd.GIORNO;
 
   console.log('── I dati di ogni scenario ──');
   const sc = Dd.scenari();
-  att('nove scenari', 'supernova,sole,buconero,ia,kilonova,bigbang,terra,giove,galassia', sc.map(s => s.id).join(','));
+  att('ventitré scenari (nove della v260, quattordici della v261)', 'supernova,sole,buconero,ia,kilonova,bigbang,terra,giove,galassia,protostella,nanabruna,nanarossa,cefeide,nova,lampox,pulsar,tde,grb,pisn,bhbh,quasar,nanabianca,ricombinazione', sc.map(s => s.id).join(','));
+  vero('ogni scenario ha una categoria e un\'icona', sc.every(s => s.cat && Dd.CAT[s.cat] && s.emoji));
   let somme = 0, arr = 0, temp = 0, reaz = 0, sbil = [], nReaz = 0, fonti = 0;
   sc.forEach(s => {
     const tutte = [s.comp0].concat(s.stadi.map(x => x.comp));
@@ -85,6 +86,24 @@ function vero(d, c) { att(d, true, !!c); }
   { const P0 = Dd.caloreTerra(0), P1 = Dd.caloreTerra(0.717e6); vero('Terra: calore iniziale ' + P0.toExponential(2) + ' W/kg, dimezzato (quasi tutto ²⁶Al) dopo 0,717 milioni di anni', P0 > 1e-7 && P0 < 1e-6 && Math.abs(P1 / P0 - 0.5) < 0.02); }
   { const Z = Dd.compGal(9.2).Z / 100; vero('Galassia: alla nascita del Sole Z = ' + Z.toFixed(4) + ', entro il 10 % da Z☉ = 0,0134', Math.abs(Z / 0.0134 - 1) < 0.1); att('Galassia: al Big Bang niente metalli', '0', Dd.compGal(0).Z.toFixed(0)); }
 
+  console.log('\n── Gli eventi della v261: i numeri calcolati ──');
+  { const E = Dd.eventi;
+    vero('caduta libera di un nucleo denso (10⁴ cm⁻³): ' + Math.round(E.tff(1e4) / 1e3) + ' mila anni (~3·10⁵)', Math.abs(E.tff(1e4) / 3.09e5 - 1) < 0.02);
+    vero('Kelvin–Helmholtz del Sole: ' + (E.tKH(1, 1, 1) / 1e6).toFixed(1) + ' milioni di anni (~31)', Math.abs(E.tKH(1, 1, 1) / 3.14e7 - 1) < 0.02);
+    att('legge di Leavitt per δ Cephei (P = 5,366 d): M_V', '-3.39', E.leavitt(E.PCEF).toFixed(2));
+    vero('distanza di δ Cephei dalla legge: ' + Math.round(E.distanzaCefeide(E.PCEF, 3.95)) + ' pc (Gaia ~270, HST 274 ± 11)', Math.abs(E.distanzaCefeide(E.PCEF, 3.95) - 272) < 30);
+    const P = E.pulsar(0.0337, 4.2e-13); vero('Granchio: B = ' + (P.B / 1e12).toFixed(2) + '·10¹² G, età = ' + Math.round(P.eta) + ' anni (vera: 970), Ė = ' + (P.Edot / 1e38).toFixed(1) + '·10³⁸ erg/s', P.B > 3e12 && P.B < 4.5e12 && P.eta > 1000 && P.eta < 1400 && Math.abs(P.Edot / 4.3e38 - 1) < 0.1);
+    const M = E.marea(1e6, 1, 1); vero('Sole e buco nero di 10⁶ M☉: R_t = ' + (M.Rt / 1.496e13).toFixed(3) + ' UA = ' + M.rapporto.toFixed(1) + ' R_S, ricaduta dopo ' + (M.tfb / 86400).toFixed(0) + ' giorni', Math.abs(M.Rt / 6.957e12 - 1) < 0.01 && M.rapporto > 20 && M.rapporto < 28 && M.tfb / 86400 > 30 && M.tfb / 86400 < 60);
+    { const a = E.ricaduta(100 * 86400, M.tfb, 1), b = E.ricaduta(800 * 86400, M.tfb, 1); att('la ricaduta cala come t^−5/3', Math.pow(8, -5 / 3).toFixed(5), (b / a).toFixed(5)); }
+    att('Eddington per una massa solare: 1,26·10³⁸ erg/s', '1.26e+38', E.eddington(1).toExponential(2));
+    vero('tempo di Salpeter (ε = 0,1): ' + (E.tS / 1e6).toFixed(1) + ' milioni di anni (~50)', Math.abs(E.tS / 5.0e7 - 1) < 0.05);
+    vero('GW150914: 35 Hz a ~0,2 s dalla fusione con la massa di chirp di 28 M☉ (' + E.chirp(0.2, E.MCH150914).toFixed(1) + ' Hz)', Math.abs(E.chirp(0.2, E.MCH150914) - 35) < 4);
+    vero('Saha: metà dell\'idrogeno è neutro a ' + Math.round(E.T50()) + ' K (3700–3800 K), quasi tutto a 2970 K', E.T50() > 3650 && E.T50() < 3850 && E.saha(2970) < 0.01 && E.saha(6000) > 0.99);
+    { let mono = true; for (let T = 2500; T < 6000; T += 50) if (E.saha(T + 50) < E.saha(T)) mono = false; vero('la frazione ionizzata cresce con la temperatura', mono); }
+    const C = Dd.perId('cefeide'); let som = 0; for (let k = 0; k <= 20; k++) { const c = C.compT(k * 0.37 * E.PCEF * 86400); som = Math.max(som, Math.abs(c.He1 + c.He2 - 100)); } vero('la composizione dello strato che pulsa somma sempre 100', som < 1e-9);
+    vero('ogni scenario nuovo ha la sua spiegazione e almeno una fonte', ['protostella', 'nanabruna', 'nanarossa', 'cefeide', 'nova', 'lampox', 'pulsar', 'tde', 'grb', 'pisn', 'bhbh', 'quasar', 'nanabianca', 'ricombinazione'].every(id => { const s = Dd.perId(id); return s.spiegazione[0].length > 200 && s.fonti.length && s.fonti.every(f => Dd.FONTI[f]); }));
+  }
+
   console.log('\n── Il motore ──');
   { let cresc = 0, som = 0, fin = 0; sc.forEach(s => { const L = SP.linea(s); let prec = -1; for (let k = 0; k <= 200; k++) { const st = SP.stato(s, L, L.totale * k / 200); if (st.tFis < prec - 1e-6) cresc++; prec = st.tFis; const c = SP.composizione(s, L, st), tot = Object.values(c).reduce((a, b) => a + b, 0); if (Math.abs(tot - 100) > 1e-6) som++; } if (!SP.stato(s, L, L.totale).fin) fin++; });
     att('in ogni istante di ogni scenario il tempo fisico non torna indietro', 0, cresc); att('in ogni istante la composizione somma 100', 0, som); att('alla fine della barra si arriva all\'evento finale', 0, fin); }
@@ -92,7 +111,7 @@ function vero(d, c) { att(d, true, !!c); }
   att('durate leggibili', '18 giorni · 0,9 s · 6,70 milioni di anni', [SP.durata(18 * GG), SP.durata(0.9), SP.durata(6.7e6 * AN)].join(' · ').replace(/ /g, ' '));
   att('notazione scientifica con apici', '3·10¹⁴', SP.sci(3e14));
   att('la sezione è registrata', 'sastrospaccato', Object.keys(sezioni).join(','));
-  { const T = ctx.BSI_AI_TOOLS.find(x => x.name === 'spaccato_stellare'); vero('strumento per Spectra registrato, con i nove scenari', T && T.parameters.properties.scenario.enum.length === 9); vero('e dice di usarlo SOLO quando l\'utente lo chiede', T && /SOLO quando l'utente/.test(T.description)); }
+  { const T = ctx.BSI_AI_TOOLS.find(x => x.name === 'spaccato_stellare'); vero('strumento per Spectra registrato, con i ventitré scenari', T && T.parameters.properties.scenario.enum.length === 23); vero('e dice di usarlo SOLO quando l\'utente lo chiede', T && /SOLO quando l'utente/.test(T.description)); }
 
   console.log('\n── La pagina, telefono ──');
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
@@ -108,21 +127,23 @@ function vero(d, c) { att(d, true, !!c); }
   const r = await pg.evaluate(async () => {
     const pausa = ms => new Promise(r => setTimeout(r, ms)), o = { sc: [] };
     BSISpectraLive.calcolo.apriSezione('sastrospaccato'); await pausa(900);
-    const d = document.querySelector('#sastrospaccato .bsiSP-scelte').parentNode; o.scelte = document.querySelectorAll('#sastrospaccato .bsiSP-scelte button').length;
+    const d = document.querySelector('#sastrospaccato .bsiSP-scelte').parentNode; o.scelte = document.querySelectorAll('#sastrospaccato .bsiSP-scelte button').length; o.gruppi = document.querySelectorAll('#sastrospaccato .bsiSP-cat').length;
     for (const id of BSISpaccato.ELENCO.map(e => e[0])) {
-      const a = d._apri(id); for (let i = 0; i < 80; i++) { if (a.pronto) break; await pausa(200); }
+      const vivo0 = () => { const c = document.querySelector('#sastrospaccato .bsiSP-vivo'); if (!c || c.style.display === 'none') return -1; const q = c.getContext('2d'), d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 16) if (d[i + 3] > 200 && d[i] + d[i + 1] + d[i + 2] > 300) n++; return n; };
+      const a = d._apri(id); for (let i = 0; i < 80; i++) { if (a.pronto) break; await pausa(200); } a.S.box.scrollIntoView({ block: 'center' }); await pausa(150);   /* con 23 scenari il palco sta sotto la lista: fuori vista il ciclo si ferma (giustamente) */
       a.gioca(false); a.vai(a.totale * 0.35); await pausa(500);
       const luce = (() => { a.S.disegna(); const c = document.createElement('canvas'); c.width = 90; c.height = 160; const q = c.getContext('2d'); q.drawImage(a.S.ren.domElement, 0, 0, 90, 160); const dd = q.getImageData(0, 0, 90, 160).data; let n = 0; for (let i = 0; i < dd.length; i += 4) if (dd[i] + dd[i + 1] + dd[i + 2] > 120) n++; return n; })();
       const pan = { fette: a.S.box.querySelectorAll('.bsiSP-ciambella path').length, leg: (a.S.box.querySelector('.bsiSP-leg').textContent.match(/%/g) || []).length, oro: a.S.box.querySelector('.bsiSP-dx .oro').textContent, reaz: a.S.box.querySelector('.bsiSP-reaz').textContent.length + a.S.box.querySelector('.bsiSP-hud').textContent.length };
       const somma = [...a.S.box.querySelectorAll('.bsiSP-leg b')].filter(x => /%/.test(x.textContent)).reduce((s, x) => s + parseFloat(x.textContent.replace(',', '.')), 0);
-      a.vai(a.totale); await pausa(500);
-      o.sc.push({ id, px: luce, pan, somma: Math.round(somma * 10) / 10, fine: a.ultimo && a.ultimo.fin, residuo: a.ultimo && a.ultimo.residuo, tela: +(a.S.ren.domElement.clientHeight / a.S.ren.domElement.clientWidth).toFixed(2) });
+      const vivo = vivo0(); a.vai(a.totale); for (let w = 0; w < 40 && !(a.ultimo && a.ultimo.fin); w++) await pausa(150); await pausa(300);   /* il volume dell'esplosione rallenta il rasterizzatore software della prova: si aspetta l'ultimo fotogramma */
+      o.sc.push({ id, vivo, px: luce, pan, somma: Math.round(somma * 10) / 10, fine: a.ultimo && a.ultimo.fin, residuo: a.ultimo && a.ultimo.residuo, tela: +(a.S.ren.domElement.clientHeight / a.S.ren.domElement.clientWidth).toFixed(2) });
     }
     o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth;
     return o;
   });
-  att('nove scenari da scegliere', 9, r.scelte);
-  r.sc.forEach(s => vero(s.id + ': disegna (' + s.px + ' px luminosi su 14 400), ciambella (' + s.pan.fette + ' fette) e legenda, orologio «' + s.pan.oro + '», reazioni o HUD, formato verticale (' + s.tela + ')', s.px > 150 && s.pan.fette > 0 && s.pan.leg > 0 && s.pan.oro.length > 3 && s.pan.reaz > 10 && s.tela > 1.4));
+  att('ventitré scenari da scegliere, in cinque gruppi', '23 5', r.scelte + ' ' + r.gruppi);
+  r.sc.forEach(s => vero(s.id + ': disegna (' + s.px + ' px luminosi su 14 400' + (['tde', 'bhbh', 'ricombinazione'].includes(s.id) ? ', scena scura per natura: soglia 40' : '') + '), ciambella (' + s.pan.fette + ' fette) e legenda, orologio «' + s.pan.oro + '», reazioni o HUD, formato verticale (' + s.tela + ')', s.px > (['tde', 'bhbh', 'ricombinazione'].includes(s.id) ? 40 : 150) && s.pan.fette > 0 && s.pan.leg > 0 && s.pan.oro.length > 3 && s.pan.reaz > 10 && s.tela > 1.4));
+  { const senza = r.sc.filter(s => s.vivo === -1).map(s => s.id), vuoti = r.sc.filter(s => s.vivo === 0).map(s => s.id); att('il grafico vivo nel palco c\'è e disegna (scenari senza: ' + senza.join(', ') + ')', '', vuoti.join(',')); vero('quasi tutti gli scenari hanno il grafico vivo', senza.length <= 3); }
   r.sc.forEach(s => { if (s.pan.leg <= 7) vero(s.id + ': la legenda somma 100 % (' + s.somma + ')', Math.abs(s.somma - 100) < 0.6); });
   att('supernova (20 M☉): alla fine resta una stella di neutroni', 'ns', (r.sc.find(s => s.id === 'supernova') || {}).residuo);
   att('stella di 40 M☉: alla fine resta un buco nero', 'bh', (r.sc.find(s => s.id === 'buconero') || {}).residuo);

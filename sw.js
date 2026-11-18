@@ -148,6 +148,7 @@ var PRECACHE = [
   './bsi-cosmo-scala.js',
   './bsi-cosmo-sole.js',
   './bsi-astro-spaccato-scenari.js',
+  './bsi-astro-spaccato-eventi.js',
   './bsi-astro-spaccato.js',
   './bsi-cosmo-sezione.js',
   './bsi-farm-quantitativa.js',

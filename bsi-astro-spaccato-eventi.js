@@ -68,11 +68,11 @@
   var PROTO = {
     id: 'protostella', cat: 'nascere', emoji: '🌫️', titolo: ['Nasce una stella', 'A star is born'], sottotitolo: 'nube molecolare → protostella → T Tauri → sequenza principale',
     spiegazione: ['Un nucleo denso di una nube molecolare (10⁴ molecole di H₂ per cm³, 10 K) crolla sotto il suo peso in un tempo di caduta libera di ~' + Math.round(tff(1e4) / 1e3) + ' mila anni. Il gas che cade forma un disco, e due getti portano via il momento angolare. A ~2000 K le molecole di H₂ si spezzano e il nucleo crolla una seconda volta (Larson 1969); il deuterio brucia a ~10⁶ K. La giovane stella (T Tauri) si contrae lentamente finché al centro non si accende l\'idrogeno: per una stella come il Sole servono ~' + Math.round(tKH(1, 1, 1) / 1e6) + ' milioni di anni (tempo di Kelvin–Helmholtz).', 'A dense core of a molecular cloud (10⁴ H₂ molecules per cm³, 10 K) collapses under its own weight in a free-fall time of ~' + Math.round(tff(1e4) / 1e3) + ' thousand years. The infalling gas forms a disc, and two jets carry away angular momentum. At ~2000 K the H₂ molecules break and the core collapses a second time (Larson 1969); deuterium burns at ~10⁶ K. The young star (T Tauri) contracts slowly until hydrogen ignites at the centre: a Sun-like star needs ~' + Math.round(tKH(1, 1, 1) / 1e6) + ' million years (Kelvin–Helmholtz time).'],
-    corpo: { tipo: 'nube', colore: '#8a6ad8' }, orologio: 'anni',
+    corpo: { tipo: 'nube', colore: '#8a6ad8' }, orologio: 'anni', senzaPareti: [0, 1],
     strati: [{ el: 'H2', r: 1, da: 0 }, { el: 'HI', r: 0.4, da: 1 }, { el: 'Hp', r: 0.18, da: 2 }],
     comp0: { H2: 71, He: 27, Z: 2 },
     stadi: [
-      { nome: ['Il nucleo denso crolla', 'The dense core collapses'], dur: tff(1e4) * ANNO, anim: 2.2, reazioni: [], chimica: ['caduta libera: t_ff = √(3π/32Gρ) ≈ ' + Math.round(tff(1e4) / 1e3) + ' mila anni'], T: 10, rho: 1.3e-19, scala: 1.7, comp: { H2: 71, He: 27, Z: 2 }, nuovi: [], rNuc: 0.6, fx: { disco: 0.2 } },
+      { nome: ['Il nucleo denso crolla', 'The dense core collapses'], dur: tff(1e4) * ANNO, anim: 2.2, reazioni: [], chimica: ['caduta libera: t_ff = √(3π/32Gρ) ≈ ' + Math.round(tff(1e4) / 1e3) + ' mila anni'], T: 10, rho: 1.3e-19, scala: 1.7, comp: { H2: 71, He: 27, Z: 2 }, nuovi: [], rNuc: 0.6, fx: { disco: 0.2 }, modo: 'nube' },
       { nome: ['Secondo collasso: H₂ si spezza (classe 0)', 'Second collapse: H₂ breaks (class 0)'], dur: 1e5 * ANNO, anim: 1.8, reazioni: ['2H + 1H -> 3He + g'], chimica: ['H₂ → 2 H a ~2000 K'], T: 1e6, rho: 1, scala: 1.1, comp: { HI: 71, He: 27, Z: 2 }, nuovi: ['D', 'He'], rNuc: 0.4, fx: { disco: 0.8, getti: 1 }, modo: 'nube' },
       { nome: ['Protostella e getti (classe I)', 'Protostar and jets (class I)'], dur: 4e5 * ANNO, anim: 1.8, reazioni: ['2H + 1H -> 3He + g'], T: 3e6, rho: 10, scala: 0.6, comp: { Hp: 71, He: 27, Z: 2 }, nuovi: ['He'], rNuc: 0.3, fx: { disco: 1, getti: 0.8 }, modo: 'stella', colore: '#ff9a5a' },
       { nome: ['T Tauri: il disco si dissolve', 'T Tauri: the disc dissipates'], dur: 3e6 * ANNO, anim: 1.8, reazioni: ['7Li + 1H -> 2 4He'], nota: ['dischi: pochi milioni di anni (Haisch et al. 2001)', 'discs: a few million years (Haisch et al. 2001)'], T: 6e6, rho: 20, scala: 0.6, comp: { Hp: 71, He: 27, Z: 2 }, nuovi: ['Li'], rNuc: 0.25, fx: { disco: 0.35, getti: 0.2 }, modo: 'stella', colore: '#ffb36a' },
@@ -268,11 +268,11 @@
     strati: [{ el: 'H', r: 1, da: 0 }, { el: 'He', r: 0.99, da: 0 }, { el: 'CO', r: 0.97, da: 0 }],
     comp0: { liq: 100, sol: 0 },
     stadi: [
-      { nome: ['Appena nata: 100 000 K', 'Newborn: 100,000 K'], dur: 1e6 * ANNO, anim: 2, reazioni: [], Teff: 1e5, comp: { liq: 100, sol: 0 }, nuovi: [], rNuc: 0, scala: 0.85, colore: '#cfe0ff', cristallo: 0 },
-      { nome: ['Si raffredda: 10 000 K', 'Cooling: 10,000 K'], dur: 6e8 * ANNO, anim: 2, reazioni: [], Teff: 1e4, comp: { liq: 100, sol: 0 }, nuovi: [], rNuc: 0, scala: 0.85, colore: '#f0f4ff', cristallo: 0 },
-      { nome: ['Comincia a cristallizzare (~6000 K)', 'Crystallisation begins (~6000 K)'], dur: 2e9 * ANNO, anim: 2.2, reazioni: [], nota: ['Γ ≈ 175: gli ioni C e O si ordinano', 'Γ ≈ 175: C and O ions order'], Teff: 6000, comp: { liq: 80, sol: 20 }, nuovi: [], rNuc: 0, scala: 0.85, colore: '#fff0d8', cristallo: 0.45 },
-      { nome: ['Quasi tutta cristallo (~4000 K)', 'Almost all crystal (~4000 K)'], dur: 6e9 * ANNO, anim: 2.2, reazioni: [], Teff: 4000, comp: { liq: 20, sol: 80 }, nuovi: [], rNuc: 0, scala: 0.85, colore: '#ffcf9a', cristallo: 0.85 },
-      { nome: ['Nana nera (~10¹⁵ anni)', 'Black dwarf (~10¹⁵ years)'], dur: 1e15 * ANNO, anim: 2, reazioni: [], Teff: 5, comp: { liq: 0, sol: 100 }, nuovi: [], rNuc: 0, scala: 0.85, colore: '#2a2a34', cristallo: 0.97 }
+      { nome: ['Appena nata: 100 000 K', 'Newborn: 100,000 K'], dur: 1e6 * ANNO, anim: 2, reazioni: [], Teff: 1e5, comp: { liq: 100, sol: 0 }, nuovi: [], rNuc: 0, scala: 2.1, colore: '#cfe0ff', cristallo: 0 },
+      { nome: ['Si raffredda: 10 000 K', 'Cooling: 10,000 K'], dur: 6e8 * ANNO, anim: 2, reazioni: [], Teff: 1e4, comp: { liq: 100, sol: 0 }, nuovi: [], rNuc: 0, scala: 2.1, colore: '#f0f4ff', cristallo: 0 },
+      { nome: ['Comincia a cristallizzare (~6000 K)', 'Crystallisation begins (~6000 K)'], dur: 2e9 * ANNO, anim: 2.2, reazioni: [], nota: ['Γ ≈ 175: gli ioni C e O si ordinano', 'Γ ≈ 175: C and O ions order'], Teff: 6000, comp: { liq: 80, sol: 20 }, nuovi: [], rNuc: 0, scala: 2.1, colore: '#fff0d8', cristallo: 0.45 },
+      { nome: ['Quasi tutta cristallo (~4000 K)', 'Almost all crystal (~4000 K)'], dur: 6e9 * ANNO, anim: 2.2, reazioni: [], Teff: 4000, comp: { liq: 20, sol: 80 }, nuovi: [], rNuc: 0, scala: 2.1, colore: '#ffcf9a', cristallo: 0.85 },
+      { nome: ['Nana nera (~10¹⁵ anni)', 'Black dwarf (~10¹⁵ years)'], dur: 1e15 * ANNO, anim: 2, reazioni: [], Teff: 5, comp: { liq: 0, sol: 100 }, nuovi: [], rNuc: 0, scala: 2.1, colore: '#2a2a34', cristallo: 0.97 }
     ],
     finale: { tipo: 'nessuno', anim: 1 }, nota: ['Tempi per una nana bianca di 0,6 M☉ INDICATIVI dai modelli di raffreddamento (Fontaine et al. 2001); frazioni cristallizzate INDICATIVE.', 'Times for a 0.6 M☉ white dwarf INDICATIVE from cooling models (Fontaine et al. 2001); crystallised fractions INDICATIVE.'],
     fonti: ['Tremblay19', 'Fontaine01']
@@ -309,6 +309,11 @@
   RICOMB.hud = function (s) { var st = RICOMB.stadi[s.i]; return st.T ? ['T ≈ ' + st.T + ' K, z ≈ ' + Math.round(st.T / 2.725 - 1) + '<br>x_e(Saha) = ' + (saha(Math.max(st.T, 1000)) > 0.99 ? '1' : esp(saha(Math.max(st.T, 1000)), 1)), 'T ≈ ' + st.T + ' K, z ≈ ' + Math.round(st.T / 2.725 - 1) + '<br>x_e(Saha) = ' + (saha(Math.max(st.T, 1000)) > 0.99 ? '1' : esp(saha(Math.max(st.T, 1000))))] : null; };
   CRIST.hud = function (s) { var st = CRIST.stadi[s.i]; return ['T_eff ≈ ' + st.Teff.toLocaleString('it-IT') + ' K', 'T_eff ≈ ' + st.Teff.toLocaleString('en-US') + ' K']; };
   BRUNA.hud = function (s) { var st = BRUNA.stadi[s.i]; return ['T_eff ≈ ' + st.Teff.toLocaleString('it-IT') + ' K', 'T_eff ≈ ' + st.Teff.toLocaleString('en-US') + ' K']; };
+
+  TDE.etDonut = ['Destino della stella', 'Fate of the star']; BHBH.etDonut = ['Bilancio della massa', 'Mass budget']; QUASAR.etDonut = ['Massa del buco nero', 'Black hole mass'];
+  CRIST.etDonut = ['Stato del nucleo', 'State of the core']; RICOMB.etDonut = ['Gas dell\'universo', 'Gas of the universe']; BRUNA.etDonut = ['Dove sta il carbonio', 'Where the carbon is'];
+  NOVA.grafico = 'hr'; LAMPOX.grafico = 'burst';
+  CEFEIDE.etDonut = ['Elio nello strato che pulsa', 'Helium in the pulsating layer']; PULSARS.etDonut = ['Nucleo della stella di neutroni', 'Neutron-star core']; PROTO.etDonut = ['Gas al centro', 'Gas at the centre']; LAMPOX.etDonut = ['Strato in superficie', 'Surface layer']; NOVA.etDonut = ['Strato in superficie', 'Surface layer'];
 
   var NUOVE_FONTI = {
     Larson69: 'Larson R. B. (1969), MNRAS 145, 271 — il collasso di una protostella, primo e secondo nucleo',
