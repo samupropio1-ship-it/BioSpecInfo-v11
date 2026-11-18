@@ -151,7 +151,7 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
-  const SEZ = [[8, 'smatprob', 5], [8, 'smatvis', 4], [7, 'sfisem', 5], [7, 'sfissuono', 4], [7, 'sfissolido', 4], [4, 'schidist', 3], [4, 'schivolt', 2]];   /* v238: scheda 3D aggiunta (smatprob, sfisem, sfissolido) */
+  const SEZ = [[8, 'smatprob', 5], [8, 'smatvis', 4], [7, 'sfisem', 5], [7, 'sfissuono', 4], [7, 'sfissolido', 5], [4, 'schidist', 3], [4, 'schivolt', 2]];   /* v238: scheda 3D aggiunta (smatprob, sfisem, sfissolido) */
   for (const [nome, vp] of [['schermo grande', { width: 1280, height: 900 }], ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage(), errs = [];

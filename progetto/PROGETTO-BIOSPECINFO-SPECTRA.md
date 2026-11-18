@@ -759,6 +759,20 @@ rete neurale verificata da un fit fisico), ⚛️ gli elementi in 3D (Slater,
 NIST), i difetti della sentinella vocale e della rete neurale risolti
 (§3.4-bis), le skill di Blender e la pipeline 3D (§9.0-bis).
 
+**Stato alla `bsi-v257`.** Fase 3: 🧪 il **costruttore molecolare 3D e AR**
+(`bsi-costruttore.js`, §6.3 punti 2–5 sullo schermo): tavolozza di dieci
+elementi, legame al tocco con valenze e cariche, singolo/doppio/triplo, anelli
+chiusi a mano, geometria rilassata da un campo di forze dichiarato (raggi di
+Cordero, VSEPR, planarità sp², anelli aromatici), formula di Hill, massa,
+insaturazioni, VSEPR dell'atomo scelto, file MOL e XYZ; il pulsante AR posa
+la molecola costruita sul tavolo. Resta la costruzione *dentro* la sessione
+AR (prendere un atomo e avvicinarlo, §6.3 punto 3), che chiede prove su un
+telefono vero. Fase 5: dopo il motore, **tre spaccati** allo standard §5.2
+(`bsi-fis-spaccati.js`): il circuito a due maglie, il laser Nd:YAG pompato a
+diodo, la giunzione p–n con il campo integrato da Poisson. Restano 60 sezioni
+di fisica da rivedere. La rete neurale di Spectra (v256): la pagina non si
+ricarica più alla prima visita, la struttura è ferma e dentro la tela.
+
 **Stato alla `bsi-v255`.** Fase 3 fatta per la parte nell'app: `bsi-ar.js`
 (GLB, USDZ, WebXR, Quick Look; prove manuali sui telefoni ancora da fare).
 Fase 4: nuova sezione 🌞 L'eliosfera e il viaggio dal Sole alla Galassia; la

@@ -138,7 +138,8 @@
     schede: [
       { nome: ['⚡ Transitori', '⚡ Transients'], costruisci: schedaTransitori },
       { nome: ['🔄 Corrente alternata', '🔄 Alternating current'], costruisci: schedaAlternata },
-      { nome: ['🎚️ Filtri e Bode', '🎚️ Filters and Bode'], costruisci: schedaFiltri }
+      { nome: ['🎚️ Filtri e Bode', '🎚️ Filters and Bode'], costruisci: schedaFiltri },
+      { nome: ['🔩 Il circuito in spaccato', '🔩 The circuit in cutaway'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.spaccatoCircuito) F.schedeExtra.spaccatoCircuito(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo degli spaccati non è caricato.', 'The cutaway module is not loaded.') })); } }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

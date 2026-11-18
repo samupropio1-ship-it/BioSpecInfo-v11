@@ -968,6 +968,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sbio">🧫 Biomolecole</button>
     <button class="nav-btn" data-s="sbiosyn">🔬 Biosintesi</button>
     <button class="nav-btn" data-s="sstruct">🧬 Strutture 3D</button>
+    <button class="nav-btn" data-s="scostruttore" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧪 Costruttore molecolare 3D e AR</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
   <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button><button class="nav-btn" data-s="sppp" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔀 Pentosi Fosfati</button><button class="nav-btn" data-s="surea" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">💧 Ciclo dell'Urea</button><button class="nav-btn" data-s="sgluco" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Gluconeogenesi</button></div>
@@ -29741,6 +29742,7 @@ window.calcMolProps = function() {
 <div id="sorbitali" class="section"></div>
 <div id="sastrooscura" class="section"></div>
 <div id="smatmappa" class="section"></div>
+<div id="scostruttore" class="section"></div>
 <div id="sfarmquant" class="section"></div>
 <div id="smedfisio" class="section"></div>
 <div id="sastroelio" class="section"></div>
@@ -32137,6 +32139,7 @@ window.addEventListener('load', init);
 <script src="./bsi-lab3d.js" defer></script>
 <script src="./bsi-fis-meccanica.js" defer></script>
 <script src="./bsi-fis-onde.js" defer></script>
+<script src="./bsi-fis-spaccati.js" defer></script>
 <script src="./bsi-fis-circuiti.js" defer></script>
 <script src="./bsi-fis-motore.js" defer></script>
 <script src="./bsi-fis-termo.js" defer></script>
@@ -32193,6 +32196,7 @@ window.addEventListener('load', init);
 <script src="./bsi-orbitali.js" defer></script>
 <script src="./bsi-elementi3d.js" defer></script>
 <script src="./bsi-mat-mappa.js" defer></script>
+<script src="./bsi-costruttore.js" defer></script>
 <script src="./bsi-ar.js" defer></script>
 <script src="./bsi-farm-quantitativa.js" defer></script>
 <script src="./bsi-med-fisiologia.js" defer></script>

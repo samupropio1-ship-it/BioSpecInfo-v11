@@ -287,6 +287,7 @@
       { nome: ['📶 Bande e portatori', '📶 Bands and carriers'], costruisci: schedaBande },
       { nome: ['🧂 Drogaggio', '🧂 Doping'], costruisci: schedaDrogaggio },
       { nome: ['💡 Giunzione p-n e LED', '💡 p-n junction and LEDs'], costruisci: schedaGiunzione },
+      { nome: ['🔩 La giunzione in spaccato', '🔩 The junction in cutaway'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.spaccatoGiunzione) F.schedeExtra.spaccatoGiunzione(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo degli spaccati non è caricato.', 'The cutaway module is not loaded.') })); } },
       { nome: ['🔷 Zona di Brillouin 3D', '🔷 3D Brillouin zone'], costruisci: scheda3D(schedaBrillouin) }
     ]
   });

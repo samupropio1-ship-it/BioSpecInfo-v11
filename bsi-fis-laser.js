@@ -281,7 +281,8 @@
       { nome: ['⚡ Bilancio e soglia', '⚡ Rate equations'], costruisci: schedaBilancio },
       { nome: ['🎼 Modi della cavità', '🎼 Cavity modes'], costruisci: schedaModi },
       { nome: ['🌐 Rabi e Bloch', '🌐 Rabi and Bloch'], costruisci: schedaRabi },
-      { nome: ['🔀 Mach–Zehnder', '🔀 Mach–Zehnder'], costruisci: schedaMZ }
+      { nome: ['🔀 Mach–Zehnder', '🔀 Mach–Zehnder'], costruisci: schedaMZ },
+      { nome: ['🔩 Il laser in spaccato', '🔩 The laser in cutaway'], costruisci: function (div) { if (F.schedeExtra && F.schedeExtra.spaccatoLaser) F.schedeExtra.spaccatoLaser(div); else div.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il modulo degli spaccati non è caricato.', 'The cutaway module is not loaded.') })); } }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

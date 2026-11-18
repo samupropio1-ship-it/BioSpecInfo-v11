@@ -52,7 +52,7 @@ const SEZ = [
   ['verifica-smatgiochi.js', 'smatgiochi', 8, 4], ['verifica-smatlogica.js', 'smatlogica', 8, 4],
   ['verifica-smatinfer.js', 'smatinfer', 8, 4], ['verifica-smatnoneucl.js', 'smatnoneucl', 8, 4],
   ['verifica-sfispart.js', 'sfispart', 7, 5], ['verifica-sfisanalitica.js', 'sfisanalitica', 7, 4],  /* v238: scheda 3D aggiunta in sfispart (rivelatore) */
-  ['verifica-sfislaser.js', 'sfislaser', 7, 4], ['verifica-sfisclima.js', 'sfisclima', 7, 4]
+  ['verifica-sfislaser.js', 'sfislaser', 7, 5], ['verifica-sfisclima.js', 'sfisclima', 7, 4]
 ];
 
 (async () => {

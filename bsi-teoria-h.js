@@ -229,4 +229,42 @@
     ],
     collegamenti: ['smatgrafi', 'smatlogica']
   };
+  /* ═══ 🧪 Costruttore molecolare 3D e AR (v257) ════════════════════════════ */
+  T['scostruttore'] = {
+    titolo: "Costruire una molecola: valenza, VSEPR e un campo di forze semplice",
+    sintesi: "Una molecola si costruisce legando atomi finché ogni valenza è soddisfatta. La sua forma nasce da due regole: i legami hanno una lunghezza tipica, che dipende dagli atomi e dall'ordine di legame, e le coppie di elettroni attorno a un atomo si allontanano il più possibile. Un campo di forze semplice traduce le due regole in un'energia da minimizzare.",
+    paragrafi: [
+      { titolo: "Valenza e carica formale", testo: "La valenza è il numero di legami che un atomo forma di solito: uno per idrogeno e alogeni, due per ossigeno, tre per azoto, quattro per carbonio. Fosforo e zolfo, nel terzo periodo, possono andare oltre: cinque legami in PCl₅, sei in SF₆, quattro con due doppi nell'acido solforico. La carica formale cambia il conto: lo ione ammonio NH₄⁺ ha quattro legami sull'azoto, l'ossidrile OH⁻ uno solo sull'ossigeno, un carbocatione tre. Una valenza rimasta libera indica un radicale o una molecola incompleta: di solito la si completa con gli idrogeni." },
+      { titolo: "Le lunghezze di legame dai raggi covalenti", testo: "La distanza fra due atomi legati è circa la somma dei loro raggi covalenti. Le tabelle di Cordero e colleghi (2008) danno 0,76 Å per il carbonio ibridato sp³, 0,66 per l'ossigeno, 0,31 per l'idrogeno: C–C 1,52 Å, C–O 1,42, C–H 1,07, valori vicini a quelli misurati (1,53; 1,43; 1,09). I legami multipli sono più corti: il rapporto misurato C=C/C–C vale 1,34/1,53 e C≡C/C–C vale 1,20/1,53. Nel benzene i sei legami sono uguali, 1,39 Å, a metà fra singolo e doppio: la struttura reale non è nessuna delle due formule di Kekulé ma la loro media." },
+      { titolo: "La forma dalla VSEPR", testo: "Il modello VSEPR conta i domini elettronici attorno a un atomo: atomi legati più coppie solitarie, contando un legame multiplo come un solo dominio. Due domini stanno a 180° (CO₂, acetilene), tre a 120° (formaldeide, etilene), quattro a 109,5° (metano). Le coppie solitarie occupano più spazio e stringono gli angoli: 107° nell'ammoniaca, 104,5° nell'acqua. Con cinque domini si ha una bipiramide trigonale, con angoli di 90°, 120° e 180°; con sei un ottaedro. Il numero di domini suggerisce l'ibridazione: sp, sp², sp³, sp³d, sp³d²." },
+      { titolo: "Il campo di forze e la minimizzazione", testo: "Un campo di forze scrive l'energia come somma di termini semplici: una molla per ogni legame, che vuole la lunghezza di riferimento; un termine per ogni angolo, che vuole l'angolo VSEPR; un termine che tiene nel piano i centri sp² e i loro sostituenti, perché l'etilene e il benzene sono piatti; una repulsione fra atomi non legati che si avvicinano troppo. La geometria si trova scendendo lungo il gradiente dell'energia, a passi sempre più piccoli, finché le forze sono quasi nulle. È il principio dei campi di forze di meccanica molecolare, in una versione ridotta." },
+      { titolo: "Che cosa il modello non sa fare", testo: "Le distanze escono con errori di qualche centesimo di ångström e gli angoli di pochi gradi, perché i parametri sono pochi e generali. Il modello non calcola energie di reazione, non distingue bene le conformazioni vicine in energia, non conosce la delocalizzazione oltre gli anelli aromatici a sei e non descrive gli stati di transizione. Per questo si usano campi di forze completi, parametrizzati su migliaia di molecole, o calcoli quantistici. Qui serve a vedere e misurare la forma, e a posarla sul tavolo in realtà aumentata." }
+    ],
+    formule: [
+      ["r₀(A–B) = (r_A + r_B) · f(ordine)", "lunghezza di riferimento dalla somma dei raggi covalenti, accorciata per i legami multipli"],
+      ["numero sterico = atomi legati + coppie solitarie", "i domini elettronici che fissano la geometria VSEPR attorno all'atomo"],
+      ["coppie solitarie = (elettroni di valenza − carica − ordini di legame)/2", "conteggio delle coppie non condivise per un atomo neutro o carico"],
+      ["E = Σ k_b(r − r₀)² + Σ k_θ(cos θ − cos θ₀)² + E_planarità + E_repulsione", "energia del campo di forze semplificato che la minimizzazione rende minima"],
+      ["DBE = (2C + 2 + N − H − X)/2", "gradi di insaturazione: anelli più legami pi greco, per valenze normali"]
+    ],
+    ipotesi: [
+      "Parametri generali dai raggi covalenti e dalla VSEPR, non da un campo di forze completo: errori di centesimi di ångström e di pochi gradi.",
+      "Gli anelli aromatici riconosciuti sono quelli a sei centri sp² con legami alternati; la carica formale si assegna a mano."
+    ],
+    errori: [
+      "Contare un doppio legame come due domini VSEPR: è uno solo, per questo la CO₂ è lineare.",
+      "Dare all'azoto quattro legami senza carica: lo ione ammonio ha carica positiva.",
+      "Leggere le distanze del modello come valori sperimentali al millesimo di ångström."
+    ],
+    esempio: {
+      testo: "Si parte da un carbonio, si lega un secondo carbonio e poi un ossigeno, e si completa con gli idrogeni. Il costruttore dà la formula, la massa e la geometria dell'ossigeno.",
+      risultato: "C₂H₆O, 46,07 g/mol (etanolo); l'ossigeno è AX₂E₂, angolato, con angolo C–O–H di 104,5°"
+    },
+    fonti: [
+      "B. Cordero et al., Covalent radii revisited, Dalton Transactions (2008) 2832–2838",
+      "R. J. Gillespie, R. S. Nyholm, Inorganic stereochemistry, Quarterly Reviews of the Chemical Society 11 (1957) 339",
+      "A. R. Leach, Molecular Modelling: Principles and Applications, 2ª ed., Pearson 2001, capitoli 4 e 5"
+    ],
+    collegamenti: ['svsepr', 'sstruct', 'smo']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
