@@ -345,4 +345,42 @@
     ],
     collegamenti: ['sastrobh', 'sastrooscura', 'sfisscene']
   };
+  /* ═══ 🌟 Spaccati stellari (v260) ═══════════════════════════════════════════ */
+  T['sastrospaccato'] = {
+    titolo: "Dentro le stelle mentre cambiano: nucleosintesi e trasformazioni",
+    sintesi: "Una stella è un reattore che cambia combustibile: brucia idrogeno, poi le ceneri dell'idrogeno, poi le ceneri delle ceneri, ogni volta a temperatura più alta e per un tempo molto più breve. Tagliarla a spicchio mostra gli strati che restano attorno al nucleo come in una cipolla; seguire la composizione del nucleo mostra perché tutto si ferma al ferro e perché, a quel punto, la stella crolla.",
+    paragrafi: [
+      { titolo: "Le fasi di combustione", testo: "In una stella massiccia l'idrogeno brucia per milioni di anni a circa 40 milioni di gradi, l'elio per centinaia di migliaia di anni a 200 milioni, il carbonio per secoli, il neon e l'ossigeno per mesi, il silicio per un giorno a oltre tre miliardi di gradi. Le durate si accorciano perché ogni fase rende meno energia per nucleone e perché, sopra il mezzo miliardo di gradi, i neutrini portano via energia direttamente dal nucleo." },
+      { titolo: "Perché il ferro è il capolinea", testo: "L'energia di legame per nucleone cresce dall'idrogeno fino al gruppo del ferro (⁵⁶Fe 8,790 MeV, ⁶²Ni 8,795 MeV) e poi cala. Fondere nuclei più leggeri del ferro libera energia; fondere il ferro la costa. Un nucleo di ferro non può più sostenersi con la fusione: quando supera la massa di Chandrasekhar, 5,83 Y_e² masse solari, la pressione degli elettroni degeneri non basta e il nucleo crolla in meno di un secondo." },
+      { titolo: "Collasso, rimbalzo, neutrini", testo: "Durante il crollo i protoni catturano elettroni e diventano neutroni (p + e⁻ → n + νₑ) e i fotoni spezzano i nuclei di ferro. A densità nucleare il nucleo rimbalza; circa il 99 % dell'energia liberata, ~3·10⁵³ erg, se ne va in neutrini, e una piccola parte, assorbita dal gas, lancia l'esplosione. Resta una stella di neutroni o, per le stelle più massicce, un buco nero." },
+      { titolo: "Altri forni", testo: "Una nana bianca che supera la massa di Chandrasekhar brucia in un secondo e produce circa 0,6 masse solari di ⁵⁶Ni, il cui decadimento in ⁵⁶Co e ⁵⁶Fe alimenta la luce per mesi. Due stelle di neutroni che si fondono espellono materia così ricca di neutroni che i nuclei li catturano più in fretta di quanto decadano: il processo r produce lantanidi, platino e oro. Nei primi venti minuti dell'universo si formano solo idrogeno, elio e tracce di litio." }
+    ],
+    formule: [
+      ["4 ¹H → ⁴He + 2 e⁺ + 2 νₑ", "il bilancio della catena pp e del ciclo CNO"],
+      ["3 ⁴He → ¹²C + γ", "la reazione tre-alfa che forma il carbonio"],
+      ["M_Ch = 5,83 Y_e² M☉", "massa di Chandrasekhar; con Y_e = 0,5 vale circa 1,46 M☉"],
+      ["L(t) = M_Ni[(ε_Ni − ε_Co)e^(−t/τ_Ni) + ε_Co e^(−t/τ_Co)]", "luminosità dei decadimenti di ⁵⁶Ni e ⁵⁶Co in una supernova Ia"],
+      ["Y ≈ 2 n/(n + p)", "frazione in massa di elio dal Big Bang, se tutti i neutroni finiscono nell'elio"]
+    ],
+    ipotesi: [
+      "Le durate delle fasi sono quelle dei modelli di Woosley, Heger e Weaver (2002) per 15 e 25 masse solari, interpolate in logaritmo per le masse intermedie.",
+      "Le composizioni del nucleo a fine fase sono lette dai profili pubblicati e arrotondate: indicative. I raggi degli strati nel disegno non sono in scala."
+    ],
+    errori: [
+      "Pensare che una stella bruci il ferro: il ferro è la cenere finale, e fonderlo assorbe energia.",
+      "Credere che l'esplosione sia alimentata dalla fusione: in una supernova a collasso del nucleo l'energia viene dalla gravità, e quasi tutta esce in neutrini."
+    ],
+    esempio: {
+      testo: "Una supernova Ia produce 0,6 masse solari di ⁵⁶Ni. Quanta luce emette il decadimento diciotto giorni dopo l'esplosione?",
+      risultato: "circa 1,2·10⁴³ erg/s, il picco osservato delle supernove Ia"
+    },
+    fonti: [
+      "S. E. Woosley, A. Heger, T. A. Weaver, The evolution and explosion of massive stars, Reviews of Modern Physics 74 (2002) 1015",
+      "H.-T. Janka, Explosion mechanisms of core-collapse supernovae, Annual Review of Nuclear and Particle Science 62 (2012) 407",
+      "D. K. Nadyozhin, The properties of Ni → Co → Fe decay, Astrophysical Journal Supplement 92 (1994) 527",
+      "D. Kasen et al., Origin of the heavy elements in binary neutron-star mergers from a gravitational-wave event, Nature 551 (2017) 80",
+      "I.-J. Sackmann, A. I. Boothroyd, K. E. Kraemer, Our Sun. III. Present and future, Astrophysical Journal 418 (1993) 457"
+    ],
+    collegamenti: ['sastrostelle', 'sastrobh', 'sastrogw', 'scosmo']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

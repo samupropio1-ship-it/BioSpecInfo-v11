@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v259` |
+| **Documented version** | Service Worker `bsi-v260` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 53 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 54 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (53 tools, all local except 2 network)     │
+│        └── tool executor (54 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 53 tools → receive the streamed response → if it
+prompt and the schema of all 54 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 53 tools
+## 3. The 54 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -475,6 +475,7 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 | **App control** | `naviga_sezione` (194 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
 | **Animations** | `apri_animazione` (6 reaction mechanisms) |
+| **Simulations** (v260) | `spaccato_stellare` — opens one of the nine stellar cutaways (supernova, Sun, black hole, Ia, kilonova, Big Bang, Earth, Jupiter, Galaxy) only when the user asks |
 | **Screen and page** (Spectra Live) | `leggi_schermo` (subject, section, tab, controls with their values, buttons, note text), `imposta_controllo`, `scegli_scheda`, `premi_pulsante`, `cambia_materia` |
 | **Study** (Spectra Live) | `consulta_kit` (summaries, formula sheet, glossary, quiz of the subject), `stato_studio` (flashcards due, quiz mistakes), `disegna_grafico`, `apri_strumento_rapido` |
 
@@ -946,7 +947,7 @@ summarised here.
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
   [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 214
-  sections since v242 (chemistry 83, physics 69, mathematics 33, shared 29), read from
+  sections since v242 (chemistry 83, physics 70, mathematics 33, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window

@@ -42,7 +42,7 @@
   var SCENE = {
     orbitale: 'sorbitali', eliosfera: 'sastroelio', materia_oscura: 'sastrooscura', galassia: 'sastrogal', spaziotempo: 'sastrowh',
     buco_nero: 'sastrobh', onde_gravitazionali: 'sastrogw', cosmo: 'sastrocosmo', sistema_solare: 'sastrosole', molecola: 'scostruttore',
-    laboratorio_3d: 'slab3d', morse_h2: 'sfisscene', magnetosfera: 'sfisscene', reticolo: 'sfisscene'
+    laboratorio_3d: 'slab3d', spaccato_stellare: 'sastrospaccato', supernova: 'sastrospaccato', morse_h2: 'sfisscene', magnetosfera: 'sfisscene', reticolo: 'sfisscene'
   };
   /* le tre scene nuove stanno in una sezione sola, ognuna nella sua scheda */
   var SCHEDA_DI = { morse_h2: 'morse', magnetosfera: 'magnetosfera', reticolo: 'reticolo' };

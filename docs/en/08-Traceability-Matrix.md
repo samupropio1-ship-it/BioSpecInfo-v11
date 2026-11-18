@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v259` |
+| **Version described** | `bsi-v260` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -104,6 +104,7 @@
 | **SCI-78** | Physics sections must follow the technical-plate standard (§5.2 of the project): after the engine, the two-loop circuit (exact Kirchhoff, delivered = dissipated power, drift in copper), the Nd:YAG laser (power balance that closes, threshold, inversion clamped above threshold, four levels) and the p–n junction (field integrated from Poisson equal to the closed formula, neutrality, step = V_bi − V), each with a labelled cutaway, proportional flows, balance and detail view | `bsi-fis-spaccati.js` — `circuito`, `deriva`, `laser`, `giunzione`, `campoPoisson` | `test_spaccati` (51 checks) |
 | **SCI-79** | The 3D physics scenes (v258) must come from equations and measured data: H₂ in the Morse potential with exact motion and D₀ = 4.478 eV, the Dungey magnetosphere with the Shue magnetopause and the cap boundary moving down with southward B_z, the Kelvin lattice satisfying Navier | `bsi-fis-scene3d.js` — `morse`, `nuvolaH2`, `traccia`, `confineCalotta`, `shue`, `kelvin` | `test_spectra_ponte` (41 checks) |
 | **SCI-80** | The cosmic simulations (v258) must be simulations, not animations: Morse minimum at 74.1 pm and −4.75 eV, b_crit = 5.196 M with ΔE/E < 10⁻⁷, flat curve with the halo and escaping stars without, N-body with conserved energy; every analogy (sheet, lattice) declared | `bsi-cosmo-*.js` | `test_cosmo` (34 checks) |
+| **SCI-81** | The stellar cutaways (v260) must use real numbers: compositions summing to 100, every reaction balanced in A and Z, Woosley, Heger and Weaver 2002 durations for 15 and 25 M☉, neutron-star remnant up to 25 M☉ and black hole above, a ⁵⁶Ni → ⁵⁶Co → ⁵⁶Fe chain that conserves nuclei, BBN with Y ≈ 0.24, the Sun's metallicity recovered; layer radii not to scale and indicative compositions declared | `bsi-astro-spaccato.js`, `bsi-astro-spaccato-scenari.js` | `test_spaccato` (68 checks) |
 | **UI-23** | Every tab of the 29 sections with the new 3D tab must open full, without warnings, with its canvases drawn and an accessible name, and the last tab must be a 3D scene that draws; a chart without a name must take the tab's | `bsi-fisica-comune.js` — `prepara()` and `mostra()` give canvases without a name (or with a one-letter name) «Chart: <tab> — <section>»; the 3D scene is built after the click, outside the handler | `test_3d238` — at 1280 and 390 px, for every section: all tabs full, no ⚠, every canvas draws and has a name of at least three characters; the last tab is a scene with `Scena.campiona() > 0`; **synchronous work on click under 250 ms** (WebGL in SwiftShader); nothing overflows at 390 px; no JavaScript error |
 | **UI-22** | The Spectra Live console must stay usable on a phone with Android's status bar and navigation keys over the page, with no overlapping elements, and every section must be reachable from it | `bsi-spectra-live.js` — `env(safe-area-inset-*)` margins with minimums of 34 and 46 px (class `.bsiJV-bordi`) when the window covers the screen on a touch device or the app is installed; layout computed in the drawing loop; 🧭 navigator per subject; context shortcuts; 💬 button; round Spectra Live button (since v239 Spectra's only button, UI-25) | `test_spectra238` — on a simulated phone (412×915, touch): safe margins active, first button ≥ 34 px from the top edge, controls ≥ 46 px from the bottom edge, telemetry in two columns not covering the face; on a large screen no forced margins; on both, header, face, state, dialogue, controls and attribution without overlaps; the navigator lists, for each of the three subjects, exactly the sections of the bar, the quick tools and the phrases; opening a section of another subject switches subject and leaves the Spectra Live button |
 | **UI-24** | Every section must have a guided lesson built from the section itself: one chapter per tab, the controls shown at work and put back as they were, a check question with its explanation, a summary; during the lesson no floating button over the panel, and at the end everything as it was | `bsi-lezione.js` — `BSILezione.costruisci()` reads title, subtitle, tabs, explanations, canvases, sliders and selects; check question from the subject's study kit (most words in common with the section); player `#bsiLZ` with spotlight, ◀ ▶, pause and voice; «🎓 Guided lesson with Spectra» button in every section; demonstrated controls return to their starting value even when skipping ahead or closing; floating buttons hidden and restored; «reduce motion» respected. `bsi-spectra-live.js` — «give me a lesson» («fammi lezione») command and 🎓 shortcut | `test_lezione` — 30 checks: going through all **194** sections of the bar in the three subjects, each has its lesson (opening … summary) and the button, and each of the **99** with tabs has one chapter per tab; at least 60 lessons with a check question (**79** at the time of writing); at 390 and 1280 px: the lesson starts from the opening, floating buttons are hidden, a slider really changes value under the spotlight and returns to its starting value when skipping ahead half-way, a select goes through its options and returns, the check shows the right answer and the explanation, the summary lists the chapters, nothing overflows, on closing the panel is gone and the buttons are visible again; «fammi lezione» starts the lesson; no JavaScript errors. The voice is not tested by the bench |
@@ -198,7 +199,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 753 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 758 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -244,15 +245,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…80) | 78 | 78 | 100 % |
+| Scientific (SCI-01…81) | 79 | 79 | 100 % |
 | AI agent (AI-01…24) | 23 | 23 | 100 % |
 | Stability (STA-01…11) | 11 | 11 | 100 % |
 | Interface (UI-01…36) | 33 | 33 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **155** | **155** | **100 %** |
+| **Automated total** | **156** | **156** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **162** | **155** | **96 %** |
+| **Declared total** | **163** | **156** | **96 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -287,4 +288,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v259`._
+_Document updated to version `bsi-v260`._

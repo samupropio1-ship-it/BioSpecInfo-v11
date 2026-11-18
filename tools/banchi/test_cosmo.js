@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ════════════════════════════════════════════════════════════════════════
-   test_cosmo — 🎞️ Simulazioni cosmiche (v258)
+   test_cosmo — 🎞️ Simulazioni cosmiche (v258, v260)
 
    PERCHE' QUESTO BANCO ESISTE
    Le simulazioni devono sembrare reel ma essere simulazioni vere: qui si
@@ -16,6 +16,10 @@
      ΔE/E piccolo con il leapfrog.
    · Telo: N corpi con l'energia conservata e una luna che resta legata.
    · Reticolo: lo spostamento è verso la massa e si annulla senza massa.
+   · Scala (v260): 1 : 20,8 miliardi, Terra 0,61 mm, Proxima a 1933 km,
+     il vuoto calcolato dai raggi delle stelle vicine.
+   · Sole (v260): foglio di corrente fino a ±α, piatto con α = 0, spirale
+     di Parker che si ripete ogni 2πv/Ω.
    Poi la pagina, sul telefono: la sezione, le schede-anteprima, ogni
    simulazione si apre e disegna, l'HUD ha i numeri, nessun errore.
 
@@ -32,9 +36,9 @@ function att(d, atteso, avuto) { if (String(atteso) === String(avuto)) { ok++; c
 function vero(d, c) { att(d, true, !!c); }
 
 (async () => {
-  const ctx = { console, Math, Array, Object, isFinite, String, Number, JSON, Float32Array, Float64Array, Int8Array, Date }; ctx.window = ctx; ctx.globalThis = ctx;
+  const ctx = { console, Math, Array, Object, isFinite, String, Number, JSON, Float32Array, Float64Array, Int8Array, Date }; ctx.window = ctx; ctx.document = { createElement: () => ({ getContext: () => ({}) }) }; ctx.globalThis = ctx;
   ctx.BSIFisica = { t: a => a, tt: a => a[0], calcolo: {}, el: () => ({}), sezione() {}, cursore() {} }; vm.createContext(ctx);
-  ['bsi-cosmo-core.js', 'bsi-cosmo-h2.js', 'bsi-cosmo-geodetiche.js', 'bsi-cosmo-galassia.js', 'bsi-cosmo-telo.js', 'bsi-cosmo-reticolo.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx));
+  ['bsi-cosmo-core.js', 'bsi-cosmo-h2.js', 'bsi-cosmo-geodetiche.js', 'bsi-cosmo-galassia.js', 'bsi-cosmo-telo.js', 'bsi-cosmo-reticolo.js', 'bsi-cosmo-scala.js', 'bsi-cosmo-sole.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx));
   const C = ctx.BSICosmo;
 
   console.log('── 9 · H₂ ──');
@@ -78,6 +82,18 @@ function vero(d, c) { att(d, true, !!c); }
   console.log('\n── 2 · Reticolo ──');
   { const R = C.reticolo, d = R.spostamento(3, 0, 0, 1), z = R.spostamento(3, 0, 0, 0); vero('lo spostamento punta verso la massa e si annulla senza massa', d[0] < 0 && Math.abs(z[0]) < 1e-12); }
 
+  console.log('\n── 3 · Scala ──');
+  { const Sc = C.scala, K = Sc.CONST;
+    att('Sole come pallina da tennis di 6,7 cm: scala 1 : 20,8 miliardi', '20.79', (K.scala / 1e9).toFixed(2));
+    att('la Terra diventa un granello di 0,61 mm', '0.61', (K.Dterra / K.scala * 1000).toFixed(2));
+    att('Proxima Centauri a circa 1933 km', '1933', Math.round(4.246 * K.AL / K.scala / 1000));
+    const v = Sc.vuoto(); vero('entro 12 anni luce lo spazio è vuoto per ' + v.testo + ' (pieno ' + v.pieno.toExponential(1) + ')', v.pieno > 1e-25 && v.pieno < 1e-22 && /^99,9+ %$/.test(v.testo)); }
+  console.log('\n── 1 · Sole e aurore ──');
+  { const So = C.sole; let mx = 0; for (let r = 0.5; r < 10; r += 0.37) for (let f = 0; f < 6.3; f += 0.05) mx = Math.max(mx, Math.abs(So.foglio(r, f)));
+    att('il foglio di corrente oscilla fino a ±α = 25°', '25.0', (mx * 180 / Math.PI).toFixed(1));
+    att('dipolo allineato (α = 0): foglio piatto', '0', Math.abs(So.foglio(3, 1, 0)).toFixed(0));
+    const giro = 2 * Math.PI * So.CONST.vVento / So.CONST.Omega / So.CONST.UA; vero('spirale di Parker: un giro ogni ' + giro.toFixed(2) + ' UA, il foglio si ripete', Math.abs(So.foglio(1 + giro, 0.4) - So.foglio(1, 0.4)) < 1e-9 && giro > 6 && giro < 7); }
+
   console.log('\n── La pagina, telefono ──');
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
   const cx = await b.newContext({ serviceWorkers: 'block', viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }), pg = await cx.newPage(), errs = [];
@@ -86,7 +102,7 @@ function vero(d, c) { att(d, true, !!c); }
   await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
   await pg.waitForFunction(() => !!(window.BSICosmo && window.BSISpectraLive && window.BSILab3D), null, { timeout: 60000 });
   const elenco = await pg.evaluate(() => BSICosmo.elenco());
-  vero('simulazioni registrate: ' + elenco.join(', '), elenco.length >= 7);
+  vero('simulazioni registrate: ' + elenco.join(', '), elenco.length >= 9);
   const r = await pg.evaluate(async () => {
     const pausa = ms => new Promise(r => setTimeout(r, ms)), o = { sim: [] };
     BSISpectraLive.calcolo.apriSezione('scosmo'); await pausa(800);

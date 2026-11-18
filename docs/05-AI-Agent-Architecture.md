@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v259` |
+| **Versione documentata** | Service Worker `bsi-v260` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 53 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 54 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 53 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 54 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 53 strumenti
+## 3. I 54 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -491,6 +491,7 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 | **Controllo app** | `naviga_sezione` (194 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
+| **Simulazioni** (v260) | `spaccato_stellare` — apre uno dei nove Spaccati stellari (supernova, Sole, buco nero, Ia, kilonova, Big Bang, Terra, Giove, Galassia) solo quando l'utente lo chiede |
 | **Schermo e pagina** (Spectra Live) | `leggi_schermo` (materia, sezione, scheda, controlli con i valori, pulsanti, testo della nota), `imposta_controllo`, `scegli_scheda`, `premi_pulsante`, `cambia_materia` |
 | **Studio** (Spectra Live) | `consulta_kit` (riassunti, formulario, glossario, quiz della materia), `stato_studio` (flashcard da ripassare, errori dei quiz), `disegna_grafico`, `apri_strumento_rapido` |
 
@@ -978,7 +979,7 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 214 sezioni dalla v242 (chimica 83, fisica 69,
+  (`BSIMaterie.materiaDi`), 215 sezioni dalla v242 (chimica 83, fisica 70,
   matematica 33, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
