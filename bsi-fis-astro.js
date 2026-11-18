@@ -104,35 +104,88 @@
 
   /* ═══ 1. diagramma H-R ══════════════════════════════════════════════════ */
   function schedaHR(div) {
+    /* (v261) l'autore non capiva che cosa fosse questo grafico: ora lo dice, e le etichette non si sovrappongono più */
+    var spiega = F.el('div', { 'class': 'bsiFX-nota', style: 'margin-bottom:8px' });
+    spiega.innerHTML = t('<b>Che cos\'è: il diagramma di Hertzsprung–Russell (H-R).</b> Ogni punto è una stella vera: in orizzontale la temperatura della superficie (le più calde a <b>sinistra</b>), in verticale quanta luce emette rispetto al Sole (scala logaritmica: ogni tacca vale ×100). Il colore del punto è il colore reale della stella, la grandezza cresce con il raggio. Le rette tratteggiate uniscono le stelle con lo <b>stesso raggio</b> (L = 4πR²σT⁴). Quasi tutte le stelle stanno sulla fascia verde, la <b>sequenza principale</b>, dove bruciano idrogeno; in alto a destra le giganti rosse, in basso a sinistra le nane bianche. <b>Tocca una stella</b> per leggerne i dati, oppure sposta la massa per vedere dove cade una stella nuova.',
+      '<b>What it is: the Hertzsprung–Russell (H-R) diagram.</b> Each dot is a real star: horizontally its surface temperature (the hottest on the <b>left</b>), vertically how much light it emits compared with the Sun (log scale: each tick is ×100). The dot colour is the star\'s real colour, its size grows with the radius. The dashed lines join stars with the <b>same radius</b> (L = 4πR²σT⁴). Almost all stars lie on the green band, the <b>main sequence</b>, where they burn hydrogen; top right the red giants, bottom left the white dwarfs. <b>Touch a star</b> to read its data, or move the mass to see where a new star falls.');
+    div.appendChild(spiega);
     var Gr = griglia(div), st = { M: 1, scelta: '0' }, info = F.el('div', { 'class': 'bsiFX-nota' }), info2 = F.el('div', { 'class': 'bsiFX-nota' });
     F.cursore(Gr.pan, ['massa della stella (M☉, sequenza principale)', 'star mass (M☉, main sequence)'], -1.1, 1.75, 0.01, 0, function (v) { st.M = Math.pow(10, v); disegna(); }, function (v) { return fmt(Math.pow(10, v)); });
     Gr.pan.appendChild(info);
     F.scelta(Gr.pan, ['Stella vera', 'Real star'], STELLE.map(function (s, i) { return [String(i), F.tt([s[0], s[1]])]; }), '0', function (v) { st.scelta = v; disegna(); });
     Gr.pan.appendChild(info2);
-    var cv = F.tela(Gr.dx, 0.72);
-    var X = null;
+    var cv = F.tela(Gr.dx, 0.8), punti = [];
+    function sovrappone(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
     function disegna() {
       var S = sequenzaPrincipale(st.M), Tmin = 2300, Tmax = 45000, Lmin = 1e-5, Lmax = 3e6;
-      var o = F.grafico(cv, { serie: [], xmin: Math.log10(Tmin), xmax: Math.log10(Tmax), ymin: Math.log10(Lmin), ymax: Math.log10(Lmax), invertiX: true, xl: ['log₁₀ T (K) — più caldo a sinistra', 'log₁₀ T (K) — hotter on the left'], yl: ['log₁₀ L/L☉', 'log₁₀ L/L☉'], descr: ['diagramma di Hertzsprung-Russell', 'Hertzsprung-Russell diagram'] }), q = o.q;
-      /* rette a raggio costante */
-      q.save(); q.font = '10px system-ui'; q.setLineDash([3, 4]); q.strokeStyle = 'rgba(132,148,168,.35)'; q.fillStyle = 'rgba(159,177,198,.7)';
-      [0.001, 0.01, 0.1, 1, 10, 100, 1000].forEach(function (R) { q.beginPath(); var primo = true, ult = null; for (var lt = Math.log10(Tmin); lt <= Math.log10(Tmax); lt += 0.02) { var L = R * R * Math.pow(Math.pow(10, lt) / Tsun, 4); var y = o.Y(Math.log10(L)); if (y < 0 || y > o.H) { primo = true; continue; } if (primo) { q.moveTo(o.X(lt), y); primo = false; } else q.lineTo(o.X(lt), y); ult = [o.X(lt), y]; } q.stroke(); if (ult) q.fillText(R + ' R☉', ult[0] + 2, Math.max(12, ult[1])); });
-      q.setLineDash([]);
+      var o = F.grafico(cv, { serie: [], xmin: Math.log10(Tmin), xmax: Math.log10(Tmax), ymin: Math.log10(Lmin), ymax: Math.log10(Lmax), invertiX: true, xl: ['log₁₀ T (K) — più caldo a sinistra', 'log₁₀ T (K) — hotter on the left'], yl: ['log₁₀ L/L☉', 'log₁₀ L/L☉'], descr: ['Diagramma di Hertzsprung-Russell: temperatura e luminosità di 16 stelle vere', 'Hertzsprung-Russell diagram: temperature and luminosity of 16 real stars'] }), q = o.q;
+      var area = { x: 56, y: 16, w: o.W - 56 - 16, h: o.H - 16 - 42 }, occupati = [];
+      function dentro(b) { return b.x >= area.x && b.y >= area.y && b.x + b.w <= area.x + area.w && b.y + b.h <= area.y + area.h; }
+      function libero(b) { return dentro(b) && !occupati.some(function (c) { return sovrappone(b, c); }); }
+      q.save(); q.beginPath(); q.rect(area.x - 2, area.y - 2, area.w + 4, area.h + 4); q.clip();
+      /* rette a raggio costante, con l'etichetta inclinata a metà del tratto visibile */
+      var etR = [];
+      [0.001, 0.01, 0.1, 1, 10, 100, 1000].forEach(function (R) {
+        var pts = []; for (var lt = Math.log10(Tmin); lt <= Math.log10(Tmax) + 1e-9; lt += 0.01) { var L = R * R * Math.pow(Math.pow(10, lt) / Tsun, 4), x = o.X(lt), y = o.Y(Math.log10(L)); if (y >= area.y && y <= area.y + area.h) pts.push([x, y]); }
+        if (pts.length < 2) return;
+        q.setLineDash([3, 4]); q.strokeStyle = 'rgba(132,148,168,.35)'; q.lineWidth = 1; q.beginPath(); pts.forEach(function (p, k) { if (k) q.lineTo(p[0], p[1]); else q.moveTo(p[0], p[1]); }); q.stroke(); q.setLineDash([]);
+        etR.push({ R: R, pts: pts });
+      });
       /* la sequenza principale */
-      q.strokeStyle = 'rgba(94,234,212,.35)'; q.lineWidth = 9; q.lineCap = 'round'; q.beginPath();
-      for (var lm = -1.1; lm <= 1.8; lm += 0.02) { var s2 = sequenzaPrincipale(Math.pow(10, lm)); var xx = o.X(Math.log10(s2.T)), yy = o.Y(Math.log10(s2.L)); if (lm === -1.1) q.moveTo(xx, yy); else q.lineTo(xx, yy); }
+      q.strokeStyle = 'rgba(94,234,212,.28)'; q.lineWidth = 12; q.lineCap = 'round'; q.beginPath();
+      for (var lm = -1.1; lm <= 1.8; lm += 0.02) { var s2 = sequenzaPrincipale(Math.pow(10, lm)); var xx = o.X(Math.log10(s2.T)), yy = o.Y(Math.log10(s2.L)); if (lm === -1.1) q.moveTo(xx, yy); else q.lineTo(xx, yy); occupati.push({ x: xx - 3, y: yy - 3, w: 6, h: 6 }); }
       q.stroke(); q.lineWidth = 1;
-      q.fillStyle = 'rgba(94,234,212,.8)'; q.fillText(t('sequenza principale', 'main sequence'), o.X(Math.log10(9000)), o.Y(Math.log10(3)));
-      q.fillStyle = 'rgba(255,138,128,.8)'; q.fillText(t('giganti e supergiganti', 'giants and supergiants'), o.X(Math.log10(5600)), o.Y(3.6));
-      q.fillStyle = 'rgba(200,210,230,.8)'; q.fillText(t('nane bianche', 'white dwarfs'), o.X(Math.log10(22000)), o.Y(-3.4));
-      /* stelle vere */
-      STELLE.forEach(function (s, i) { var col = coloreT(s[3]), R = raggioDa(s[2], s[3]), r = Math.max(2.5, Math.min(11, 4 + 1.6 * Math.log10(R))); q.fillStyle = 'rgb(' + col.join(',') + ')'; q.beginPath(); q.arc(o.X(Math.log10(s[3])), o.Y(Math.log10(s[2])), r, 0, Math.PI * 2); q.fill(); if (String(i) === st.scelta) { q.strokeStyle = '#ffd24a'; q.lineWidth = 2; q.stroke(); q.lineWidth = 1; } q.fillStyle = '#c9d3df'; q.fillText(F.tt([s[0], s[1]]), o.X(Math.log10(s[3])) + r + 2, o.Y(Math.log10(s[2])) + 3); });
+      /* le stelle: prima i punti (occupano spazio), poi le etichette dove c'è posto */
+      punti = [];
+      STELLE.forEach(function (s, i) { var col = coloreT(s[3]), R = raggioDa(s[2], s[3]), r = Math.max(3, Math.min(10, 4 + 1.5 * Math.log10(R))), x = o.X(Math.log10(s[3])), y = o.Y(Math.log10(s[2])); punti.push({ i: i, x: x, y: y, r: r }); occupati.push({ x: x - r, y: y - r, w: 2 * r, h: 2 * r });
+        var gr = q.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r * 1.6); gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(0.35, 'rgb(' + col.join(',') + ')'); gr.addColorStop(1, 'rgba(' + col.join(',') + ',0)');
+        q.fillStyle = gr; q.beginPath(); q.arc(x, y, r * 1.6, 0, Math.PI * 2); q.fill();
+        if (String(i) === st.scelta) { q.strokeStyle = '#ffd24a'; q.lineWidth = 2; q.beginPath(); q.arc(x, y, r + 3, 0, Math.PI * 2); q.stroke(); q.lineWidth = 1; } });
+      var xs = o.X(Math.log10(S.T)), ys = o.Y(Math.log10(S.L)); occupati.push({ x: xs - 10, y: ys - 10, w: 20, h: 20 });
+      /* etichette delle regioni */
+      q.font = 'italic 600 11px system-ui,sans-serif';
+      function regione(testo, col, x, y) { var w = q.measureText(testo).width + 6, b = { x: x - 3, y: y - 11, w: w, h: 15 }; for (var k = 0; k < 14 && !libero(b); k++) { b.y += k % 2 ? -(k + 1) * 6 : (k + 1) * 6; } if (!dentro(b)) return; occupati.push(b); q.fillStyle = col; q.textAlign = 'left'; q.fillText(testo, b.x + 3, b.y + 11); }
+      regione(t('sequenza principale', 'main sequence'), 'rgba(94,234,212,.95)', o.X(Math.log10(11000)), o.Y(Math.log10(1.5)));
+      regione(t('giganti e supergiganti', 'giants and supergiants'), 'rgba(255,150,130,.95)', o.X(Math.log10(7200)), o.Y(3.2));
+      regione(t('nane bianche', 'white dwarfs'), 'rgba(205,215,235,.95)', o.X(Math.log10(30000)), o.Y(-3.6));
+      /* nomi delle stelle: otto posti attorno al punto, poi più lontano con una linea */
+      q.font = '600 10.5px system-ui,sans-serif';
+      var ordine = punti.slice().sort(function (a, b) { return (String(b.i) === st.scelta) - (String(a.i) === st.scelta) || (b.i === 0) - (a.i === 0) || a.y - b.y; });
+      ordine.forEach(function (p) {
+        var nome = F.tt([STELLE[p.i][0], STELLE[p.i][1]]), w = q.measureText(nome).width + 4, h = 13, posto = null, linea = false;
+        for (var dist = 0; dist < 7 && !posto; dist++) {
+          var d = p.r + 3 + dist * 14;
+          [[d, -h / 2], [-d - w, -h / 2], [-w / 2, -d - h], [-w / 2, d], [d * 0.7, -d * 0.7 - h], [-d * 0.7 - w, -d * 0.7 - h], [d * 0.7, d * 0.7], [-d * 0.7 - w, d * 0.7]].some(function (c) { var b = { x: p.x + c[0], y: p.y + c[1], w: w, h: h }; if (libero(b)) { posto = b; linea = dist > 0; return true; } return false; });
+        }
+        if (!posto) return;
+        occupati.push(posto);
+        if (linea) { q.strokeStyle = 'rgba(201,211,223,.55)'; q.beginPath(); var cx = Math.max(posto.x, Math.min(p.x, posto.x + posto.w)), cy = Math.max(posto.y, Math.min(p.y, posto.y + posto.h)); q.moveTo(p.x, p.y); q.lineTo(cx, cy); q.stroke(); }
+        q.fillStyle = 'rgba(5,10,22,.7)'; q.fillRect(posto.x, posto.y, posto.w, posto.h);
+        q.fillStyle = String(p.i) === st.scelta ? '#ffd24a' : '#dfe8f2'; q.textAlign = 'left'; q.fillText(nome, posto.x + 2, posto.y + 10);
+      });
+      /* le etichette dei raggi: inclinate lungo la retta, nel primo posto libero partendo dal centro del tratto */
+      q.font = '600 9.5px system-ui,sans-serif';
+      etR.forEach(function (e) {
+        var testo = (e.R < 1 ? String(e.R).replace('.', t(',', '.')) : e.R) + ' R☉', w = q.measureText(testo).width + 6, n = e.pts.length;
+        for (var k = 0; k < n; k++) { var idx = Math.floor(n / 2) + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 2; if (idx < 1 || idx >= n - 1) continue; var p = e.pts[idx], b = { x: p[0] - w / 2, y: p[1] - 7, w: w, h: 14 };
+          if (!libero(b)) continue; occupati.push(b); var a = Math.atan2(e.pts[idx + 1][1] - e.pts[idx - 1][1], e.pts[idx + 1][0] - e.pts[idx - 1][0]); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
+          q.save(); q.translate(p[0], p[1]); q.rotate(a); q.fillStyle = 'rgba(5,10,22,.85)'; q.fillRect(-w / 2, -6, w, 12); q.fillStyle = 'rgba(170,186,206,.95)'; q.textAlign = 'center'; q.fillText(testo, 0, 3.5); q.restore(); break; }
+      });
       /* la stella scelta con la massa */
-      var cs = coloreT(S.T); q.fillStyle = 'rgb(' + cs.join(',') + ')'; q.strokeStyle = '#fff'; q.lineWidth = 2; q.beginPath(); q.arc(o.X(Math.log10(S.T)), o.Y(Math.log10(S.L)), 9, 0, Math.PI * 2); q.fill(); q.stroke(); q.restore();
+      var cs = coloreT(S.T); q.fillStyle = 'rgb(' + cs.join(',') + ')'; q.strokeStyle = '#fff'; q.lineWidth = 2; q.beginPath(); q.arc(xs, ys, 8, 0, Math.PI * 2); q.fill(); q.stroke(); q.lineWidth = 1;
+      q.font = '700 10px system-ui,sans-serif'; q.fillStyle = '#fff'; q.textAlign = 'left'; var tm = fmt(S.M) + ' M☉', bm = { x: xs + 11, y: ys - 18, w: q.measureText(tm).width + 4, h: 13 }; if (!libero(bm)) bm.x = xs - 15 - bm.w; q.fillText(tm, bm.x + 2, bm.y + 10);
+      q.restore();
       info.innerHTML = 'M = ' + fmt(S.M) + ' M☉ → L ≈ <b class="bsiFX-num">' + fmt(S.L) + ' L☉</b>, R ≈ ' + fmt(S.R) + ' R☉, T ≈ <b class="bsiFX-num">' + fmt(Math.round(S.T)) + ' K</b> (' + t('classe ', 'class ') + '<b>' + S.classe + '</b>)<br>' + t('Vita sulla sequenza principale ', 'Main-sequence lifetime ') + '≈ 10¹⁰ anni × M/L = <b>' + (S.vita > 1e9 ? fmt(S.vita / 1e9) + t(' miliardi di anni', ' billion years') : fmt(S.vita / 1e6) + t(' milioni di anni', ' million years')) + '</b>' + (S.vita > 1.38e10 ? t(' — più dell’età dell’universo: nessuna stella così è ancora morta', ' — longer than the age of the universe: no such star has died yet') : '') + '<br>' + t('Relazioni empiriche massa-luminosità (L ∝ M⁴ circa) e massa-raggio: valori indicativi.', 'Empirical mass-luminosity (L ∝ M⁴ roughly) and mass-radius relations: indicative values.');
       var V = STELLE[+st.scelta], RV = raggioDa(V[2], V[3]);
       info2.innerHTML = '<b>' + F.tt([V[0], V[1]]) + '</b>: L = ' + fmt(V[2]) + ' L☉, T = ' + V[3] + ' K, ' + t('classe ', 'class ') + classe(V[3]) + '<br>' + t('raggio da L = 4πR²σT⁴: ', 'radius from L = 4πR²σT⁴: ') + '<b>' + fmt(RV) + ' R☉</b> (' + fmt(RV * Rsun / 1000) + ' km)' + (RV > 100 ? t(' — al posto del Sole arriverebbe oltre l’orbita di ', ' — in place of the Sun it would reach beyond the orbit of ') + (RV * Rsun / AU > 1.52 ? t('Marte', 'Mars') : RV * Rsun / AU > 1 ? t('della Terra', 'the Earth') : t('Mercurio', 'Mercury')) : RV < 0.02 ? t(' — grande come la Terra: una nana bianca', ' — the size of the Earth: a white dwarf') : '');
     }
+    /* toccare una stella la sceglie */
+    cv.style.cursor = 'pointer';
+    cv.addEventListener('click', function (e) {
+      var r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, best = null, dm = 22;
+      punti.forEach(function (p) { var d = Math.hypot(p.x - x, p.y - y); if (d < dm) { dm = d; best = p; } });
+      if (!best) return; st.scelta = String(best.i); var sel = Gr.pan.querySelector('select'); if (sel) sel.value = st.scelta; disegna();
+    });
     disegna(); F.alRidimensiona(disegna);
   }
 
