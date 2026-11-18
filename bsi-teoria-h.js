@@ -267,4 +267,82 @@
     ],
     collegamenti: ['svsepr', 'sstruct', 'smo']
   };
+  /* ═══ 🎬 Scene fisiche 3D (v258) ═══════════════════════════════════════════ */
+  T['sfisscene'] = {
+    titolo: "Tre scene calcolate: il legame di H₂, la magnetosfera, un solido elastico",
+    sintesi: "Tre sistemi fisici diversi letti con lo stesso metodo: un modello con i suoi dati misurati, le equazioni risolte e non disegnate, la figura che ne viene. Il legame di H₂ vibra nel potenziale di Morse; il campo della Terra incontra il vento solare e decide dove si accendono le aurore; una forza puntuale deforma un solido secondo la soluzione di Kelvin.",
+    paragrafi: [
+      { titolo: "Il potenziale di Morse", testo: "L'energia di due atomi legati in funzione della distanza ha un minimo alla lunghezza di equilibrio r_e, sale ripida quando gli atomi si avvicinano e tende a un valore costante quando si separano. Morse (1929) la scrisse come V(r) = D_e(1 − e^(−a(r − r_e)))² − D_e, con tre parametri: la profondità D_e, la posizione r_e e la larghezza a, che si ricava dalla frequenza di vibrazione e dalla massa ridotta. Per H₂ i dati spettroscopici danno r_e = 0,741 Å, ω_e = 4401 cm⁻¹ e D_e = 4,747 eV, da cui a = 1,944 Å⁻¹." },
+      { titolo: "Livelli, energia di punto zero e dissociazione", testo: "Nel potenziale di Morse i livelli vibrazionali sono E_v = ħω(v + ½) − (ħω)²(v + ½)²/(4D_e): la spaziatura diminuisce salendo, al contrario dell'oscillatore armonico in cui resta costante. Anche nel livello più basso la molecola vibra: l'energia di punto zero E₀ vale circa 0,27 eV, e l'energia per rompere il legame dal livello zero è D₀ = D_e − E₀ = 4,478 eV, contro i 4,4781 eV misurati. Il modello prevede diciassette livelli legati, la molecola reale quindici: la curva vera si discosta da quella di Morse vicino alla dissociazione." },
+      { titolo: "La magnetosfera e la magnetopausa", testo: "Il campo magnetico terrestre è quasi un dipolo inclinato di circa undici gradi rispetto all'asse di rotazione. Il vento solare, un plasma che arriva a qualche centinaio di chilometri al secondo, lo comprime sul lato diurno e lo stira in una lunga coda sul lato notturno. La superficie dove la pressione del vento uguaglia la pressione magnetica è la magnetopausa: con il modello empirico di Shue (1998) dista circa dieci raggi terrestri verso il Sole e si avvicina quando la pressione del vento cresce. Davanti, dove il flusso supersonico rallenta di colpo, c'è l'onda d'urto." },
+      { titolo: "Linee aperte, riconnessione e aurore", testo: "Sommando al dipolo un campo interplanetario uniforme si ottiene il modello di Dungey (1961). Le linee che partono dalle latitudini medie tornano sulla Terra; quelle vicine ai poli si collegano al campo del vento solare e restano aperte. Quando il campo interplanetario punta verso sud la riconnessione sul lato diurno è forte, la calotta di linee aperte si allarga e il suo bordo scende verso l'equatore. Gli elettroni accelerati lungo le linee vicine a questo bordo eccitano l'ossigeno dell'alta atmosfera: verde a 557,7 nm più in basso, rosso a 630 nm più in alto. Per questo durante le tempeste magnetiche le aurore si vedono a latitudini più basse." },
+      { titolo: "Un solido elastico e la soluzione di Kelvin", testo: "In un solido elastico isotropo lo spostamento u obbedisce all'equazione di Navier, μ∇²u + (λ + μ)∇(∇·u) = 0 lontano dai carichi. Kelvin (1848) trovò la soluzione per una forza puntuale in un mezzo infinito: lo spostamento decresce come 1/r e contiene un termine lungo la forza e uno radiale. Il coefficiente di Poisson ν decide quanto il materiale cambia volume: davanti alla forza il solido si comprime, dietro si dilata, e per ν = 0,5 il materiale è incomprimibile e la dilatazione si annulla. Gli spostamenti veri sono di micrometri e vanno amplificati per vederli." }
+    ],
+    formule: [
+      ["V(r) = D_e(1 − e^(−a(r − r_e)))² − D_e", "potenziale di Morse di una molecola biatomica, zero agli atomi separati"],
+      ["E_v = ħω(v + ½) − (ħω)²(v + ½)²/(4D_e)", "livelli vibrazionali nel potenziale di Morse, sempre più fitti verso la dissociazione"],
+      ["r_mp = r₀ (2/(1 + cos θ))^α", "forma della magnetopausa nel modello empirico di Shue, con r₀ e α dalla pressione del vento e da B_z"],
+      ["P_d = 1,6726·10⁻⁶ n v²", "pressione dinamica del vento solare in nanopascal, con n in cm⁻³ e v in km/s"],
+      ["u = F/(8πμ(1−ν)r) · [(3 − 4ν) ê + (ê·r̂) r̂]", "spostamento di Kelvin per una forza puntuale in un solido elastico infinito"]
+    ],
+    ipotesi: [
+      "Morse è un modello a tre parametri: descrive bene il fondo della buca e peggio la dissociazione; la nuvola elettronica è l'orbitale LCAO di Coulson, non la funzione d'onda esatta.",
+      "Il modello di Dungey è nel vuoto, senza le correnti della coda; la magnetopausa di Shue è empirica e l'onda d'urto è disegnata come magnetopausa allargata.",
+      "Kelvin vale per un mezzo infinito, lineare e isotropo; vicino al punto di applicazione la soluzione diverge e la scena la regolarizza."
+    ],
+    errori: [
+      "Pensare che nel livello più basso la molecola stia ferma: vibra con l'energia di punto zero.",
+      "Credere che le aurore si formino dove il vento solare tocca l'atmosfera: si accendono lungo le linee vicine al bordo della calotta polare.",
+      "Confondere lo spostamento amplificato della figura con quello reale, di micrometri."
+    ],
+    esempio: {
+      testo: "Con un vento solare di 20 particelle per centimetro cubo a 700 km/s e il campo interplanetario a −10 nT, si legge la distanza della magnetopausa e la latitudine del bordo della calotta a mezzanotte.",
+      risultato: "P_d ≈ 16 nPa, r₀ ≈ 6,4 raggi terrestri, bordo della calotta verso 71° di latitudine magnetica"
+    },
+    fonti: [
+      "K. P. Huber, G. Herzberg, Molecular Spectra and Molecular Structure IV: Constants of Diatomic Molecules, Van Nostrand 1979",
+      "J.-H. Shue et al., Magnetopause location under extreme solar wind conditions, Journal of Geophysical Research 103 (1998) 17691",
+      "J. W. Dungey, Interplanetary magnetic field and the auroral zones, Physical Review Letters 6 (1961) 47",
+      "L. D. Landau, E. M. Lifšic, Teoria dell'elasticità, Editori Riuniti, § 8 (forza puntuale in un mezzo infinito)"
+    ],
+    collegamenti: ['sfismateriali', 'sastroelio', 'sorbitali']
+  };
+  /* ═══ 🎞️ Simulazioni cosmiche (v258) ═══════════════════════════════════════ */
+  T['scosmo'] = {
+    titolo: "Simulare invece di animare: integrare le equazioni e controllare gli errori",
+    sintesi: "Un'animazione mostra quello che qualcuno ha disegnato; una simulazione mostra quello che le equazioni producono. La differenza si vede nei controlli: una quantità che dovrebbe conservarsi resta costante, un numero critico cade dove la teoria lo prevede, un caso limite noto viene ritrovato. Le simulazioni cosmiche di questa sezione dichiarano le equazioni, il metodo numerico e l'errore che commettono.",
+    paragrafi: [
+      { titolo: "Integratori e quantità conservate", testo: "Un'equazione del moto si integra a piccoli passi. Il metodo di Runge e Kutta del quarto ordine commette un errore che scala con la quarta potenza del passo ed è adatto a traiettorie brevi e lisce, come i raggi di luce. Per le orbite che durano molti giri si usano metodi simplettici come il leapfrog o il Velocity Verlet: non conservano esattamente l'energia, ma il loro errore oscilla senza crescere, e per questo le galassie e i sistemi planetari restano stabili anche dopo migliaia di orbite." },
+      { titolo: "La luce attorno a un buco nero", testo: "Nello spaziotempo di Schwarzschild un raggio di luce nel piano dell'orbita obbedisce a d²u/dφ² = 3Mu² − u, con u = 1/r. Il parametro d'impatto critico vale 3√3 M: sotto il raggio cade nell'orizzonte, sopra sfugge deviato, e vicino al valore critico gira più volte attorno alla sfera dei fotoni a r = 3M. Il numero di giri cresce come il logaritmo della distanza dal valore critico. Lo stesso integrale dà la deviazione con cui si risolve l'equazione della lente e si ricostruisce il cielo deformato." },
+      { titolo: "Perché serve la materia oscura", testo: "La velocità di un'orbita circolare dipende dalla massa racchiusa: con la sola materia visibile, bulge e disco, la curva di rotazione dovrebbe calare lontano dal centro. Le misure la trovano invece quasi piatta fino a decine di kiloparsec. Aggiungendo un alone di materia oscura con il profilo di Navarro, Frenk e White la curva resta piatta. Togliendolo, le stelle esterne avrebbero più della velocità di fuga e la galassia perderebbe la sua parte esterna: è il ragionamento della simulazione con e senza alone." },
+      { titolo: "Il legame chimico come curva di energia", testo: "Due atomi di idrogeno si attraggono finché la loro nuvola elettronica condivisa abbassa l'energia; troppo vicini, i nuclei si respingono. Il potenziale di Morse riassume la curva con tre parametri misurati: la profondità, la distanza di equilibrio di 74,1 picometri e la larghezza. La molecola vibra anche nel livello più basso, e per romperla dal fondo occorrono 4,48 elettronvolt. La nuvola si ottiene campionando la densità di probabilità del modello a due orbitali 1s." },
+      { titolo: "Analogie dichiarate", testo: "Alcune immagini famose sono analogie, non la teoria: il telo di gomma con l'imbuto, un reticolo che si piega verso una massa. Sono utili per l'intuizione ma non sono la metrica dello spaziotempo. Le simulazioni le usano dicendolo, e lasciano calcolata la parte fisica: le orbite del telo sono un vero problema degli N corpi, la forma del pozzo galattico è il potenziale del modello, il satellite del reticolo segue un'orbita kepleriana." }
+    ],
+    formule: [
+      ["d²u/dφ² = 3Mu² − u", "equazione delle geodetiche nulle di Schwarzschild nel piano, con u = 1/r e G = c = 1"],
+      ["b_crit = 3√3 M", "parametro d'impatto critico: sotto la luce è catturata, sopra sfugge"],
+      ["v_c²(R) = R dΦ/dR", "velocità circolare dal potenziale della galassia, somma di bulge, disco e alone"],
+      ["V(R) = D_e(1 − e^(−a(R − R_e)))² − D_e", "potenziale di Morse del legame di H₂, con i dati spettroscopici misurati"],
+      ["ΔE/E = |E(t) − E(0)| / |E(0)|", "errore relativo dell'energia, il controllo di qualità di ogni integrazione"]
+    ],
+    ipotesi: [
+      "Le stelle della galassia sono particelle test in un potenziale fisso, nel piano del disco: niente autogravità né bracci che si formano da soli.",
+      "Il cielo deformato usa la lente a stelle all'infinito e un osservatore a 30 masse di distanza; le immagini di ordine superiore si accumulano sull'anello dei fotoni."
+    ],
+    errori: [
+      "Credere che il telo di gomma sia la relatività generale: è un'analogia, e la gravità che la tira verso il basso è quella che dovrebbe spiegare.",
+      "Pensare che un'integrazione corretta conservi l'energia esattamente: la conserva entro un errore che va misurato e dichiarato."
+    ],
+    esempio: {
+      testo: "Un raggio con parametro d'impatto una parte su cento milioni sopra il valore critico gira attorno al buco nero prima di sfuggire. Quanti giri fa in più di uno con una parte su diecimila?",
+      risultato: "circa ln(10⁴)/2π ≈ 1,5 giri in più"
+    },
+    fonti: [
+      "S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Press 1983, capitolo 3",
+      "J. Binney, S. Tremaine, Galactic Dynamics, 2ª ed., Princeton University Press 2008, capitoli 2 e 3",
+      "J. F. Navarro, C. S. Frenk, S. D. M. White, The structure of cold dark matter halos, Astrophysical Journal 462 (1996) 563",
+      "E. Hairer, C. Lubich, G. Wanner, Geometric numerical integration illustrated by the Störmer–Verlet method, Acta Numerica 12 (2003) 399"
+    ],
+    collegamenti: ['sastrobh', 'sastrooscura', 'sfisscene']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -40,3 +40,7 @@ stack/api/.pytest_cache/
 models/spectra-corpo.glb
 models/spectra-cyberpunk.glb
 spectra2/**/__pycache__/
+
+# Spectra Prime (spectra_core): file compilati e cache dei test
+spectra_core/**/__pycache__/
+spectra_core/.pytest_cache/

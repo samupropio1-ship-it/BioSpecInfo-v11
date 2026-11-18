@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v257';
+window.BSI_APP_VERSION='bsi-v258';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -1047,6 +1047,8 @@ window.BSI_TELEMETRY_URL='';</script>
   <div id="navGroup7" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareafis" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">⚛️ Area Fisica · assistente</button>
     <button class="nav-btn" data-s="sesplfis" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la fisica con Spectra</button>
+    <button class="nav-btn" data-s="scosmo" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎞️ Simulazioni cosmiche</button>
+    <button class="nav-btn" data-s="sfisscene" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎬 Scene fisiche 3D</button>
     <button class="nav-btn" data-s="slab3d" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧊 Laboratorio 3D</button>
     <button class="nav-btn" data-s="sfismecc" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎯 Meccanica in movimento</button>
     <button class="nav-btn" data-s="sfisonde" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">〰️ Onde e ottica</button>
@@ -29743,6 +29745,8 @@ window.calcMolProps = function() {
 <div id="sastrooscura" class="section"></div>
 <div id="smatmappa" class="section"></div>
 <div id="scostruttore" class="section"></div>
+<div id="sfisscene" class="section"></div>
+<div id="scosmo" class="section"></div>
 <div id="sfarmquant" class="section"></div>
 <div id="smedfisio" class="section"></div>
 <div id="sastroelio" class="section"></div>
@@ -32197,6 +32201,17 @@ window.addEventListener('load', init);
 <script src="./bsi-elementi3d.js" defer></script>
 <script src="./bsi-mat-mappa.js" defer></script>
 <script src="./bsi-costruttore.js" defer></script>
+<script src="./bsi-fis-scene3d.js" defer></script>
+<script src="./bsi-spectra-ponte.js" defer></script>
+<script src="./bsi-cosmo-core.js" defer></script>
+<script src="./bsi-cosmo-h2.js" defer></script>
+<script src="./bsi-cosmo-geodetiche.js" defer></script>
+<script src="./bsi-cosmo-galassia.js" defer></script>
+<script src="./bsi-cosmo-reticolo.js" defer></script>
+<script src="./bsi-cosmo-telo.js" defer></script>
+<script src="./bsi-cosmo-eliosfera.js" defer></script>
+<script src="./bsi-cosmo-vialattea.js" defer></script>
+<script src="./bsi-cosmo-sezione.js" defer></script>
 <script src="./bsi-ar.js" defer></script>
 <script src="./bsi-farm-quantitativa.js" defer></script>
 <script src="./bsi-med-fisiologia.js" defer></script>
@@ -32244,6 +32259,7 @@ window.addEventListener('load', init);
 <script src="./bsi-spectra-androide.js" defer></script>
 <script src="./bsi-spectra-mente.js" defer></script>
 <script src="./bsi-spectra-agenda.js" defer></script>
+<script src="./bsi-spectra-cervello.js" defer></script>
 <script src="./bsi-spectra-risveglio.js" defer></script>
 <script src="./bsi-spectra-memoria.js" defer></script>
 <script src="./bsi-spectra-voce.js" defer></script>

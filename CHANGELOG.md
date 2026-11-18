@@ -7,6 +7,42 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v258] — 2026-11-18
+
+**Spectra Prime a sette agenti con il ponte 3D, la rete neurale come un cervello, le scene fisiche 3D, sette simulazioni cosmiche**
+
+### Aggiunto
+- **Spectra Prime** (`spectra_core/`, FastAPI + LangGraph): l'orchestratore a sette agenti (memoria, ragionamento,
+  piano, esecuzione, critica, corpo, identità) con il WebSocket `/ws/spectra/{sessione}`; memoria su SQLite a tre
+  tipi più lo stato interno, strumenti con quattro livelli di permesso (high e critical bloccati fino a CONFIRM),
+  argomenti controllati contro lo schema, origini autorizzate, modelli scelti da variabili d'ambiente. 10 test Python
+  con modelli finti. Spectra non dichiara di essere viva, cosciente o senziente.
+- **Il ponte nel browser** (`bsi-spectra-ponte.js`): la telemetria della scena 3D aperta (solo quando cambia) e i
+  comandi load, update, toggle_layer, focus sulle scene esistenti (`BSIMotore3D`); solo wss://, quattro azioni,
+  valori controllati, ricollegamento con attese crescenti; il riquadro «Spectra Prime» nella guida dei dispositivi.
+- **La rete neurale come un cervello** (`bsi-spectra-cervello.js`): undici regioni con i ricordi veri e le loro quote,
+  sinapsi che passano dall'associazione con gli impulsi, quadro con neuroni, sinapsi, turni, memoria, stadio e le
+  cinque barre dello stato interno, «LIVE» quando Spectra ascolta; i puntini decorativi dichiarati come tali.
+- **🎬 Scene fisiche 3D** (`bsi-fis-scene3d.js`): H₂ nella curva di Morse (dati di Huber e Herzberg, moto esatto, nuvola
+  σg campionata esattamente), la magnetosfera di Dungey con la magnetopausa di Shue e gli ovali aurorali al confine
+  calcolato fra linee aperte e chiuse, il reticolo elastico di Kelvin colorato con la dilatazione.
+- **🎞️ Simulazioni cosmiche** (`bsi-cosmo-*.js`): un motore comune (timeline cinematica a fotogrammi chiave con
+  easeInOutCubic, HUD, didascalie, 9:16/16:9, ▶ cinematico / esplora, registrazione .webm) e sette simulazioni vere:
+  9 il legame H₂, 4 le geodetiche di Schwarzschild con il cielo deformato dall'equazione della lente, 8 la galassia con
+  e senza materia oscura (Hernquist + Freeman + NFW, leapfrog, schermo diviso), 2 il reticolo dello spaziotempo
+  (analogia dichiarata, rilassamento con oscillatori smorzati), 6 il telo di gomma con le orbite N corpi, 5 l'eliosfera
+  dal modello adattato alle Voyager, 7 la Via Lattea sul telo con il profilo del potenziale vero.
+
+### Verificato
+- `test_cosmo` 34 e `test_spectra_ponte` 41 controlli (nuovi); `test_risveglio` 108 (la rete come cervello: undici
+  regioni, ogni neurone nella sua); la batteria sale a 111 banchi; 154 schede di teoria.
+
+### Limiti dichiarati
+- Le simulazioni 1 (il Sole che respira, la magnetosfera, l'aurora) e 3 (il viaggio di scala) arrivano nella prossima
+  versione. Il server di Spectra Prime va pubblicato su un host HTTPS dell'autore; le risposte dei modelli veri e i
+  60 fps sul telefono si verificano su un dispositivo.
+
+---
 ## [bsi-v257] — 2026-11-18
 
 **Il costruttore molecolare 3D e AR, tre spaccati tecnici di fisica**

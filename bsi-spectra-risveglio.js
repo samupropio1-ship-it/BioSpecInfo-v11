@@ -230,7 +230,7 @@
       '#bsiRV button.primo{background:#0b7fb8;border-color:#4cc7ff}#bsiRV button:focus-visible,#bsiRN button:focus-visible{outline:2px solid #bff3ff;outline-offset:2px}' +
       '#bsiRV .scorciatoie{position:relative;width:min(640px,100%);font:400 .88rem/1.5 system-ui,sans-serif;color:#cfefff;background:#041a27;border:1px solid #13506e;border-radius:10px;padding:10px 12px;margin-top:10px}' +
       '#bsiRV .scorciatoie code{overflow-wrap:anywhere;color:#7fe7ff}#bsiRV .tocca{position:relative;margin-top:16px;font-size:1.05rem}' +
-      '#bsiRN .tela{position:relative;width:min(900px,100%);height:min(62vh,560px);margin-top:10px;border:1px solid #13506e;border-radius:12px;overflow:hidden;background:#020d16;touch-action:none}' +
+      '#bsiRN .tela{position:relative;width:min(900px,100%);height:min(78vh,760px);margin-top:10px;border:1px solid #13506e;border-radius:12px;overflow:hidden;background:#020d16;touch-action:none}' +
       '#bsiRN .tela canvas{width:100%;height:100%}#bsiRN .conta{position:relative;width:min(900px,100%);margin-top:8px;color:#7fe7ff}' +
       '#bsiRN .leggenda{position:relative;width:min(900px,100%);display:flex;flex-wrap:wrap;gap:6px 14px;font:400 .82rem system-ui,sans-serif;margin-top:6px}#bsiRN .leggenda i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}' +
       '#bsiRN .scelto{position:relative;width:min(900px,100%);min-height:2.6em;margin-top:8px;font:400 .92rem/1.45 system-ui,sans-serif;color:#e8fbff;background:#05202f;border:1px solid #1d6e94;border-radius:10px;padding:8px 12px;overflow-wrap:anywhere}' +
@@ -368,7 +368,7 @@
     var info = el('div', { class: 'scelto', 'aria-live': 'polite' }, G.neuroni.length ? 'Tocca un neurone per leggere il ricordo.' : 'La rete è ancora vuota: ogni conversazione, ricordo o impegno aggiunge un neurone. Intanto vedi la struttura: il nucleo di Spectra, i cinque livelli della memoria e le materie, dove i ricordi andranno ad agganciarsi.');
     P.appendChild(info);
     D.body.appendChild(P); D.body.classList.add('bsi-sopra'); iconaBatteria(bt);
-    var A = animaRete(cv, GS);
+    var A = g.BSISpectraCervello ? g.BSISpectraCervello.anima(cv, GS) : animaRete(cv, GS);   /* (v258) la rete come un cervello, con i dati veri */
     cv.addEventListener('pointerdown', function (e) {
       var r = cv.getBoundingClientRect(), n = A.scegli(e.clientX - r.left, e.clientY - r.top);
       info.textContent = n ? ({ nucleo: '✳️ Struttura', ricordo: '🧠 Ricordo', conversazione: '💬 Conversazione', impegno: '🗓️ Impegno', sezione: '📚 Sezione', procedura: '🧭 Procedura', autobiografia: '📔 Diario' }[n.tipo]) + ' — ' + n.testo + (n.peso ? ' · ' + n.peso + (n.peso === 1 ? ' collegamento' : ' collegamenti') : '') : 'Nessun neurone qui.';
@@ -458,7 +458,9 @@
     var P = el('div', { id: 'bsiRD', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Chiama Spectra da occhiali e dispositivi' });
     var testa = el('div', { class: 'testa' }); testa.appendChild(el('h2', {}, 'CHIAMA SPECTRA'));
     var x = el('button', { type: 'button' }, 'Chiudi'); x.onclick = chiudiGuida; testa.appendChild(x); P.appendChild(testa);
-    P.appendChild(guidaDispositivi()); D.body.appendChild(P); dispositivi = P; return P;
+    var gd = guidaDispositivi(); P.appendChild(gd);
+    if (g.BSISpectraPonte && g.BSISpectraPonte.pannello) try { g.BSISpectraPonte.pannello(gd); } catch (e) { }   /* (v258) il collegamento a Spectra Prime */
+    D.body.appendChild(P); dispositivi = P; return P;
   }
   function chiudiGuida() { if (dispositivi && dispositivi.parentNode) dispositivi.parentNode.removeChild(dispositivi); dispositivi = null; }
 

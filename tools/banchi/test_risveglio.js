@@ -315,17 +315,20 @@ async function meteoFinto(ctx, stato) {
     const G = R.anima && R.anima.neuroni ? R.anima.neuroni() : null;
     const o = { W, H, n: G ? G.length : 0 };
     if (G) {
-      const s = G.filter(n => n.struttura); o.centro = Math.hypot(s[0].x - W / 2, s[0].y - H / 2);
-      o.dentro = G.every(n => n.x >= 10 && n.x <= W - 10 && n.y >= 10 && n.y <= H - 10 && isFinite(n.x) && isFinite(n.y));
-      o.strDentro = s.every(n => n.x > 30 && n.x < W - 30 && n.y > 30 && n.y < H - 30);
+      /* (v258) la rete è disegnata come un cervello: ogni neurone sta dentro l'ellisse della sua regione */
+      const reg = {}; (R.anima.regioni ? R.anima.regioni() : []).forEach(r => { reg[r.id] = r; }); o.nReg = Object.keys(reg).length;
+      o.quote = Object.values(reg).reduce((a, r) => a + r.quota, 0);
+      o.dentro = G.every(n => n.x >= 4 && n.x <= W - 4 && n.y >= 4 && n.y <= H - 4 && isFinite(n.x) && isFinite(n.y));
+      o.inRegione = G.every(n => { const r = reg[n.regione]; if (!r) return false; const dx = (n.x - r.x) / r.rx, dy = (n.y - r.y) / r.ry; return dx * dx + dy * dy <= 1.0001; });
+      o.concetti = (reg.concetti || {}).neuroni;
     }
     BSISpectraRisveglio.chiudiRete(); if (prima == null) localStorage.removeItem('bsi_ai_memory'); else localStorage.setItem('bsi_ai_memory', prima);
     return o;
   });
   att('60 ricordi + 9 neuroni di struttura', 69, lay.n);
-  vero('il nucleo resta al centro della tela (scarto ' + (lay.centro || 0).toFixed(1) + ' px)', lay.centro < 1);
+  att('il cervello ha undici regioni e le quote fanno il 100 %', '11 1.000', lay.nReg + ' ' + (lay.quote || 0).toFixed(3));
   vero('tutti i neuroni dentro la tela, nessuna posizione non finita', lay.dentro);
-  vero('la struttura lontana dai bordi, con spazio per le etichette', lay.strDentro);
+  vero('ogni neurone dentro la sua regione; i 60 ricordi nei «concetti» (' + lay.concetti + ')', lay.inRegione && lay.concetti >= 60);
   await ctxSW.close();
   /* (v252) il menu ✨ VERO, quello che si apre dal pulsante sul telefono: prima le voci stavano in un elenco che non si vedeva */
   const mn = await pg.evaluate(async () => {
