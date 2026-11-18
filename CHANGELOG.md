@@ -7,6 +7,50 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v261] — 2026-11-18
+
+**Tutti gli eventi cosmici: ventitré spaccati con il grafico vivo nel palco; la voce di Spectra non è più muta; il nucleo più vivo; il diagramma H-R spiegato**
+
+### Aggiunto
+- **Quattordici eventi cosmici in più** negli Spaccati stellari (`bsi-astro-spaccato-eventi.js`), raggruppati in
+  «Nascere e vivere», «Morti stellari», «Oggetti compatti e buchi neri», «Pianeti», «L'universo»:
+  nasce una stella (caduta libera ~309 mila anni, getti e disco, Kelvin–Helmholtz ~31 milioni di anni), nana bruna (classi
+  M, L, T, Y; CO → CH₄), nana rossa (migliaia di miliardi di anni, brillamenti), Cefeide (meccanismo κ, legge di Leavitt:
+  δ Cephei a ~294 pc), nova (CNO caldo, ⁷Be → ⁷Li), lampo X (processo rp fino a Sn, Sb, Te), pulsar e magnetar (crosta,
+  neutroni liberi, nucleo superfluido; il Granchio: B ≈ 3,8·10¹² G, età ≈ 1270 anni; fasci e linee di campo), una stella
+  fatta a pezzi da un buco nero (raggio di marea 24 R_S, ricaduta ∝ t^−5/3), lampo gamma (Wolf–Rayet, getti a Γ ~ 300),
+  supernova a instabilità di coppia, GW150914 (chirp calcolato, 3 M☉c² in onde gravitazionali), quasar (crescita al limite
+  di Eddington, tempo di Salpeter ~50 milioni di anni), nana bianca che cristallizza (Gaia), ricombinazione e reionizzazione
+  (Saha: metà neutro a ~3730 K). Ogni scenario con la spiegazione, le fonti e i numeri calcolati nell'HUD.
+- **Il grafico vivo dentro il palco** (come nei reel che l'autore ha mandato): legenda in alto, curve che brillano, il punto
+  che segue la simulazione mentre scorre. Diagramma H-R con il percorso della stella (Sole, supernova, nane, nova…),
+  energia di legame per nucleone con il nucleo che la stella sta facendo, curve di luce, onda gravitazionale, P–Ṗ delle
+  pulsar vere, ricaduta della marea, crescita del quasar, Saha, temperatura delle nane brune, lampo X; sotto, una riga che
+  dice che cosa si sta guardando.
+- **Più realismo**: guscio dell'esplosione come volume di gas (rumore frattale e filamenti, attraversato a passi che calano
+  da soli se il telefono rallenta), macchie e facole sulle stelle, corona e protuberanze sul bordo, cielo con la Via Lattea,
+  dischi di accrescimento con temperatura ∝ r^−3/4 e rotazione kepleriana, getti con i nodi, linee di campo e fasci della
+  pulsar, filamento della marea, coppia di buchi neri con l'ombra e l'anello di luce.
+- **Il nucleo di Spectra**: la nuvola elettronica a particelle morbide che sfarfallano; onde di luce che partono dal nucleo
+  mentre parla (con l'energia della voce vera quando c'è); ai cambi di stato un fotone del colore della serie di Balmer;
+  i tubi di flusso fra i nucleoni con la carica di colore che si scambia; il nucleo si inclina appena verso il dito.
+- Banco **`test_voce_microfono`** (20 controlli); `test_spaccato` arriva a 113 controlli.
+
+### Corretto
+- **«Sento il bip della campanella per Spectra ma non la voce»**: su Android ogni avvio del riconoscimento vocale suona il
+  bip del sistema e, finché resta acceso, la sintesi vocale non esce. La sentinella («Spectra…» sempre in ascolto) restava
+  accesa mentre Spectra parlava. Ora console, chat e voce di qualità liberano il microfono prima di parlare, aspettano che
+  Android lo rilasci, e la sentinella riparte quando la voce è finita. Il ripiego della voce di qualità dice il testo frase
+  per frase e non annulla a vuoto (su Android faceva cadere la frase dopo).
+- **Il diagramma H-R** («non so cosa sia»): ora dice che cosa mostra, le etichette non si sovrappongono più (posti
+  liberi attorno al punto, linee guida, raggi scritti lungo le rette), e si tocca una stella per leggerne i dati.
+
+### Da verificare sul telefono
+- La voce con la sentinella accesa: dire «Spectra, che ore sono?» e sentire la risposta; il bip del sistema resta (è di
+  Android, ogni volta che il microfono si riaccende).
+- Fluidità dell'esplosione col volume di gas; leggibilità del grafico vivo sotto i pulsanti flottanti; parallasse del nucleo.
+
+---
 ## [bsi-v260] — 2026-11-18
 
 **Spaccati stellari: un motore che taglia una stella a spicchio mentre la composizione cambia; le simulazioni cosmiche 1 e 3**
