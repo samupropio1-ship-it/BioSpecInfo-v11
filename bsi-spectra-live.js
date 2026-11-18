@@ -1160,13 +1160,16 @@
   try { ['bsi-spectra-ritratto-v1', 'bsi-spectra-ritratto-v3', 'bsi-spectra-ritratto-v4'].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
   /* (v259) l'icona di Spectra è la PARTICELLA del nucleo olografico (niente più testa di robot né ritratto dell'androide):
      un nucleo di nucleoni teal e blu, due orbite inclinate con gli elettroni, il guscio sottile */
+  /* (v260) ogni icona ha i suoi id di gradiente: con più icone nella pagina gli id fissi si duplicavano (test_lingue) */
+  var nIcone = 0;
   function iconaVettoriale(px) {
-    var nuc = [[30, 30, 'p'], [35, 29, 'n'], [32, 34, 'n'], [28, 35, 'p'], [36, 34, 'p'], [33, 25, 'n'], [27, 27, 'n'], [31, 31, 'p']].map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.6" fill="url(#bsiPT' + q[2] + ')"/>'; }).join('');
+    var k = 'bsiPT' + (++nIcone) + '-';
+    var nuc = [[30, 30, 'p'], [35, 29, 'n'], [32, 34, 'n'], [28, 35, 'p'], [36, 34, 'p'], [33, 25, 'n'], [27, 27, 'n'], [31, 31, 'p']].map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="3.6" fill="url(#' + k + q[2] + ')"/>'; }).join('');
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs>' +
-      '<radialGradient id="bsiPTp" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#9ff5ea"/><stop offset="100%" stop-color="#00796e"/></radialGradient>' +
-      '<radialGradient id="bsiPTn" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#8fb3ff"/><stop offset="100%" stop-color="#1d3fa8"/></radialGradient>' +
-      '<radialGradient id="bsiPTc" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6bcfff" stop-opacity=".35"/><stop offset="100%" stop-color="#2f6bff" stop-opacity="0"/></radialGradient></defs>' +
-      '<circle cx="32" cy="32" r="27" fill="url(#bsiPTc)"/><circle cx="32" cy="32" r="27" fill="none" stroke="#00c9b7" stroke-opacity=".35" stroke-width=".8"/>' +
+      '<radialGradient id="' + k + 'p" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#9ff5ea"/><stop offset="100%" stop-color="#00796e"/></radialGradient>' +
+      '<radialGradient id="' + k + 'n" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#8fb3ff"/><stop offset="100%" stop-color="#1d3fa8"/></radialGradient>' +
+      '<radialGradient id="' + k + 'c" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6bcfff" stop-opacity=".35"/><stop offset="100%" stop-color="#2f6bff" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="32" cy="32" r="27" fill="url(#' + k + 'c)"/><circle cx="32" cy="32" r="27" fill="none" stroke="#00c9b7" stroke-opacity=".35" stroke-width=".8"/>' +
       '<g class="bsiPT-orb"><ellipse cx="32" cy="32" rx="25" ry="9" fill="none" stroke="#6bcfff" stroke-opacity=".7" stroke-width="1.1" transform="rotate(-28 32 32)"/><circle cx="54" cy="21" r="1.8" fill="#d7f7f3" fill-opacity=".85"/></g>' +
       '<g class="bsiPT-orb2"><ellipse cx="32" cy="32" rx="25" ry="9" fill="none" stroke="#00c9b7" stroke-opacity=".6" stroke-width="1.1" transform="rotate(38 32 32)"/><circle cx="13" cy="20" r="1.8" fill="#d7f7f3" fill-opacity=".85"/></g>' +
       nuc + '</svg>';

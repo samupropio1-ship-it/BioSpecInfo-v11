@@ -296,7 +296,7 @@
       if (!k || k === attivo) return; if (attivo) attivo.classList.remove('attivo'); attivo = k; k.classList.add('attivo');
       var c = caps.filter(function (x) { return x.id === k.dataset.cap; })[0]; if (!c) return;
       var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura;
-      if (F && F.olo) { F.olo.auto = false; F.olo.mostra(c.scena); }
+      if (F && F.olo) { F.olo.auto = false; F.olo.fisso = true; F.olo.mostra(c.scena); }
       annuncia('bsi-spectra-dice', { testo: c.tit + '. ' + c.testo, emo: 'curiosa' });
     }
     /* il capitolo attivo e' quello che attraversa il centro dello spazio libero sotto il palco di Spectra

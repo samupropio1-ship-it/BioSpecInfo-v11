@@ -385,7 +385,7 @@
       var prima = null; try { prima = L.cattura ? L.cattura() : null; } catch (e) { prima = null; }
       if (prima && prima.width > 40) { tick(); APP.timer = setInterval(tick, 250); }
       else if (sez) { ST.dati.ospite = ospita(sez); disegna(); }
-      var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; try { F.olo.mostra('schermo'); } catch (e) {} }
+      var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; F.olo.fisso = true; try { F.olo.mostra('schermo'); } catch (e) {} }
     }, 1300);
     return true;
   }
@@ -435,7 +435,7 @@
     }
     ST.dati = { tipo: 'domanda', r: r, vis: vis }; ST.sel = -1; passi(P); disegna(); tema(mat === 'matematica' ? 'superficie' : 'onda');
   }
-  function tema(scena) { var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; F.olo.mostra(scena); } }
+  function tema(scena) { var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; F.olo.fisso = true; F.olo.mostra(scena); } }
   /* (v242) richiesta dell'autore: «spiegato tutto a voce di Spectra». A ogni nuovo calcolo, appena i dati smettono di cambiare
      (1,4 s dopo l'ultima modifica), Spectra dice i passaggi da sola; «⏹ Ferma» la interrompe */
   var tVoce = 0;

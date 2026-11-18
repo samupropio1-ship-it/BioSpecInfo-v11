@@ -242,7 +242,7 @@
     var tacche = []; [[-W / 2, H / 2, 1, -1], [W / 2, H / 2, -1, -1], [-W / 2, -H / 2, 1, 1], [W / 2, -H / 2, -1, 1]].forEach(function (c) { tacche.push(c[0], c[1], 0, c[0] + 0.12 * c[2], c[1], 0, c[0], c[1], 0, c[0], c[1] + 0.12 * c[3], 0); });
     var tg = new T.BufferGeometry(); tg.setAttribute('position', new T.Float32BufferAttribute(tacche, 3)); this.grp.add(new T.LineSegments(tg, lin(0x00c9b7, 0.55)));
     this.cornice = { vetro: vetro, bordo: bordo }; this.W = W; this.H = H;
-    this.scene = {}; this.attuale = null; this.t = 0; this.cambioT = 0; this.auto = false;   /* (v259) niente giro automatico: la scena cambia per argomento o per scelta */
+    this.scene = {}; this.attuale = null; this.t = 0; this.cambioT = 0; this.auto = false;   /* (v259) niente giro automatico: la scena cambia per argomento o per scelta */ this.fisso = false;
     /* la tela dello schermo vivo */
     this.tela = D.createElement('canvas'); this.tela.width = 512; this.tela.height = 384; this.tex = new T.CanvasTexture(this.tela); this.tex.encoding = T.sRGBEncoding;
   }
@@ -507,7 +507,7 @@
       var s = perIlViso(testo); if (!s) return;
       if (s === F.ultimo && quando < 3) return;   /* la stessa frase annunciata due volte (risposta e voce): una reazione sola */
       F.ultimo = s; statoHud(t('PARLA', 'SPEAKING'));
-      if (OL.attuale !== 'schermo') { var n2 = sceneDi(s); if (n2) OL.mostra(n2); }
+      if (OL.attuale !== 'schermo' && !OL.fisso) { var n2 = sceneDi(s); if (n2) OL.mostra(n2); }   /* (v260) una scena fissata (Esplora, ologramma interattivo) resta: le parole non la cambiano */
       /* (v259) una scheda di dati reali: la sezione aperta e i suoi controlli */
       if (NU && S.scheda) { var Lv = globale.BSISpectraLive, sz = Lv && Lv.schermo ? (function () { try { return Lv.schermo(); } catch (e) { return null; } })() : null; if (sz && sz.sezione) S.scheda({ titolo: t('SEZIONE · ', 'SECTION · ') + String(sz.titolo || sz.sezione).toUpperCase().slice(0, 34), righe: (sz.controlli || []).slice(0, 3).map(function (x) { return x.etichetta + ' = ' + x.valore; }), posizione: { left: '10px', top: box.clientWidth < 640 ? '84px' : '58px' }, durata: 9 }); }
       S.emozione(emo || emozioneDi(s), 6); S.dici(s); quando = 0;
@@ -626,6 +626,7 @@
         ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q.querySelector(':scope > ' + sel); if (e) { dopo = e; return true; } return false; });
         if (dopo) q.insertBefore(condivisa.box, dopo.nextSibling); else q.insertBefore(condivisa.box, q.firstChild);
         condivisa.box.classList.toggle('bsiEX-palco', /^sespl/.test(s.id));   /* nelle sezioni «Esplora» Spectra resta in scena mentre si scorre */
+        if (condivisa.olo && !/^sespl/.test(s.id)) condivisa.olo.fisso = false;   /* (v260) cambiando sezione la scena torna libera di seguire l'argomento */
         condivisa.adatta();
       }
     }

@@ -153,8 +153,10 @@ function carica() {
       /* la testa */
       const testa = document.querySelector('#bsiJV-fab .bsiVO-ico > *'); o.testa = testa ? getComputedStyle(testa).animationName : 'manca';
       o.riflesso = testa ? getComputedStyle(testa.parentNode, '::after').animationName : 'manca';
+      for (let i = 0; i < 40 && document.body.classList.contains('bsiJV-parla'); i++) await pausa(150);   /* a riposo davvero: se sta ancora parlando si aspetta */
+      const orb = document.querySelector('#bsiJV-fab .bsiVO-ico .bsiPT-orb'); o.orbRiposo = orb ? getComputedStyle(orb).animationName : 'manca';
       document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: 'prova' } })); await pausa(50);
-      o.parla = document.body.classList.contains('bsiJV-parla') && getComputedStyle(testa).animationName;
+      o.parla = document.body.classList.contains('bsiJV-parla') && (orb ? getComputedStyle(orb).animationName : 'manca');
       await pausa(1200); o.dopo = document.body.classList.contains('bsiJV-parla');
       return o;
     });
@@ -172,9 +174,11 @@ function carica() {
     vero(nome + ' · una formula con codice è rifiutata', r.rifiuto);
     vero(nome + ' · le icone 3D delle materie sono visibili e animate: ' + r.icone.map(x => x.m + ' ' + x.anim + ' animazioni').join(', '), r.icone.length === 2 && r.icone.every(x => x.vis && x.anim >= 1 && x.nome));
     att(nome + ' · in fisica i pulsanti diventano la beuta e la Σ', 'chimica:beuta,matematica:sigma', r.icone2);
-    att(nome + ' · la testa di Spectra si muove', 'bsiJVtesta', r.testa);
-    att(nome + ' · con un riflesso metallico che le passa sopra', 'bsiJVriflesso', r.riflesso);
-    att(nome + ' · quando parla si muove di più', 'bsiJVparla', r.parla);
+    /* (v259) richiesta dell'autore: niente più testa di robot che gira all'infinito; l'icona è la particella del nucleo,
+       ferma a riposo, con le orbite che girano solo mentre Spectra parla */
+    att(nome + ' · a riposo l\'icona-particella sta ferma (niente animazione infinita)', 'none none', r.testa + ' ' + r.orbRiposo);
+    att(nome + ' · niente riflesso metallico del vecchio volto', 'none', r.riflesso);
+    att(nome + ' · quando parla le orbite girano', 'bsiPTgira', r.parla);
     att(nome + ' · e quando ha finito torna calma', false, r.dopo);
     att(nome + ' · nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
@@ -185,7 +189,7 @@ function carica() {
   await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {} });
   await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 }); await pg.waitForFunction(() => !!document.querySelector('.bsi-mat-fab .ico3d') && !!document.querySelector('#bsiJV-fab .bsiVO-ico'), null, { timeout: 60000 });
   const ferma = await pg.evaluate(() => ({ testa: getComputedStyle(document.querySelector('#bsiJV-fab .bsiVO-ico > *')).animationName, icone: [...document.querySelectorAll('.bsi-mat-fab .ico3d *')].filter(x => getComputedStyle(x).animationName !== 'none').length, vis: [...document.querySelectorAll('.bsi-mat-fab .ico3d')].every(i => getComputedStyle(i).opacity === '1') }));
-  att('con «riduci movimento» la testa sta ferma', 'none', ferma.testa);
+  att('con «riduci movimento» l\'icona sta ferma', 'none', ferma.testa);
   vero('e anche le icone, che restano visibili', ferma.icone === 0 && ferma.vis);
   await ctx.close();
   await b.close();
