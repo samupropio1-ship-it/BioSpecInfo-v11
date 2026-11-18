@@ -222,6 +222,23 @@
     return s.replace(/\s+/g, ' ').trim();
   }
   function frasi(s) { return (perLaVoce(s).match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }); }
+  /* (v261) «sento il bip della campanella ma non la voce». Su Android ogni avvio del riconoscimento vocale suona il bip
+     del sistema e, finché il riconoscimento è acceso, prende l'audio: la sintesi vocale resta muta. La sentinella
+     («Spectra…» sempre in ascolto) restava accesa anche mentre Spectra parlava (ignorava solo quello che sentiva).
+     Ora, prima di parlare, chiunque parli (console, chat, voce di qualità) libera il microfono e aspetta un attimo
+     che Android lo rilasci; finita la voce la sentinella riparte. */
+  var voceAltrui = 0, guardiaVoce = 0;
+  function qualcunoParla() { var sp = false; try { sp = speechSynthesis.speaking || speechSynthesis.pending; } catch (e) {} return voce.inCorso || voceAltrui > 0 || sp; }
+  function primaDiParlare() {
+    var occupato = sentinella.attiva && !sentinella.inPausa;
+    if (occupato) { pausaSentinella(); sentinella.perVoce = true; }
+    if (hud.ascolto) fermaAscolto();
+    clearInterval(guardiaVoce); var t0 = Date.now();
+    guardiaVoce = setInterval(function () { if (qualcunoParla() && Date.now() - t0 < 180000) return; clearInterval(guardiaVoce); setTimeout(function () { if (!qualcunoParla() && sentinella.perVoce) { sentinella.perVoce = false; riprendiSentinella(); } }, 700); }, 400);
+    return occupato ? (ANDROID ? 450 : 200) : 0;
+  }
+  globale.bsiPrimaDiParlare = function () { voceAltrui++; var ms = primaDiParlare(); return ms; };
+  globale.bsiDopoAverParlato = function () { voceAltrui = Math.max(0, voceAltrui - 1); };
   function parla(testo, fatto) {
     /* la figura col corpo (bsi-spectra-figura.js), se c'e' nella sezione aperta, parla e gesticola con la console */
     if (testo) { try { document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: String(testo) } })); } catch (e) {} }
@@ -229,6 +246,7 @@
        (audio vero, catena di effetti, labiale sull'audio); altrimenti la sintesi del browser, qui sotto */
     var VQ = globale.BSISpectraVoce;
     if (VQ && voce.attiva && VQ.qualita() === 'audio' && testo) {
+      primaDiParlare();
       var detto = perLaVoce(testo).slice(0, 3800); voce.giro = (voce.giro || 0) + 1; voce.inCorso = true; stato('parla');
       if (hud.volto) hud.volto.dici(detto);
       VQ.parla(detto, { suBocca: function (b) { hud.energia = Math.max(0.35, b.energia); if (hud.volto && hud.volto.allinea && b.frazione != null) hud.volto.allinea(Math.floor(b.frazione * detto.length)); } })
@@ -243,7 +261,7 @@
        · scegliere una voce per nome puo' finire su una voce «di rete» che senza risposta resta muta: su Android non si
          sceglie la voce, si dichiara solo la lingua e il telefono usa la sua voce predefinita, la piu' affidabile;
        · l'enunciato si tiene in vita (voce.u): il browser a volte lo butta via prima che finisca. */
-    var annullato = false;
+    var annullato = false, attesaMic = primaDiParlare();
     try { if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); annullato = true; } speechSynthesis.resume(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
     /* (v245) ogni discorso ha il suo numero: un discorso vecchio rimasto a meta' (timer, «onend» in ritardo) non riprende
@@ -282,7 +300,7 @@
       u.onend = function () { partita = true; avanti(); }; u.onerror = function () { if (partita) avanti(); };
       try { speechSynthesis.speak(u); } catch (e) {}
     };
-    if (annullato) setTimeout(prossima, 160); else prossima();
+    if (annullato || attesaMic) setTimeout(prossima, Math.max(annullato ? 160 : 0, attesaMic)); else prossima();
     return true;
   }
   /* (v243) SBLOCCO DELLA VOCE al primo tocco: su iPhone e su alcuni Android la sintesi e l'audio partono solo se la prima volta
@@ -901,7 +919,7 @@
   /* SEMPRE IN ASCOLTO: anche a console chiusa, una frase che comincia con
      «Spectra» o «Spectra» riapre la console ed esegue il comando. Il
      riconoscimento del browser si ferma da solo dopo un silenzio: si riavvia. */
-  var sentinella = { rec: null, attiva: false, inPausa: false, errori: 0, timer: 0, ultimoAvvio: 0 };
+  var sentinella = { rec: null, attiva: false, inPausa: false, perVoce: false, errori: 0, timer: 0, ultimoAvvio: 0 };
   /* (v255) LA PAROLA «SPECTRA», TOLLERANTE. Il riconoscimento italiano scrive «Spectra» in molti modi: spectra, spettra,
      spektra, spectre, specter, spec tra… Si accetta una parola delle prime tre che dista al più 2 lettere da «spectra»
      (distanza di Levenshtein), comincia con «sp» e non è una parola comune che le somiglia («spettro», «spettri»,
@@ -933,7 +951,7 @@
     clearTimeout(sentinella.timer);
     if (!sentinella.attiva || sentinella.inPausa) return;
     var attesa = sentinella.errori ? Math.min(15000, 1000 * Math.pow(2, sentinella.errori - 1)) : 300;
-    sentinella.timer = setTimeout(function () { if (!sentinella.attiva || sentinella.inPausa || document.hidden) return; try { sentinella.rec.start(); sentinella.ultimoAvvio = Date.now(); } catch (e) { sentinella.errori++; programmaRiavvio(); } }, attesa);
+    sentinella.timer = setTimeout(function () { if (!sentinella.attiva || sentinella.inPausa || document.hidden) return; if (qualcunoParla()) { programmaRiavvio(); return; } try { sentinella.rec.start(); sentinella.ultimoAvvio = Date.now(); } catch (e) { sentinella.errori++; programmaRiavvio(); } }, attesa);
   }
   function pausaSentinella() { if (!sentinella.attiva) return; sentinella.inPausa = true; clearTimeout(sentinella.timer); try { sentinella.rec && sentinella.rec.abort(); } catch (e) {} }
   function riprendiSentinella() { if (!sentinella.attiva || !sentinella.inPausa) return; sentinella.inPausa = false; programmaRiavvio(); }

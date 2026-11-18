@@ -123,14 +123,26 @@
   /* parla: restituisce una promessa che si risolve alla fine; opz.suBocca(stato) a ogni fotogramma */
   function parla(testo, opz) {
     opz = opz || {};
+    var eraInCorso = false; try { eraInCorso = 'speechSynthesis' in globale && (speechSynthesis.speaking || speechSynthesis.pending); } catch (e) {}
     ferma();
+    /* (v261) il microfono della sentinella si libera prima di parlare (su Android, acceso, ammutolisce la voce) */
+    var attesa = 0; try { if (globale.bsiPrimaDiParlare) { attesa = globale.bsiPrimaDiParlare() || 0; opz._libera = true; } } catch (e) {}
+    if (eraInCorso) attesa = Math.max(attesa, 160);
+    if (attesa && !opz._atteso) { opz._atteso = true; return new Promise(function (ok) { setTimeout(ok, attesa); }).then(function () { return parla2(testo, opz); }).then(fine2(opz), fine2(opz, true)); }
+    return parla2(testo, opz).then(fine2(opz), fine2(opz, true));
+  }
+  function fine2(opz, errore) { return function (r) { if (opz._libera && globale.bsiDopoAverParlato) try { globale.bsiDopoAverParlato(); } catch (e) {} opz._libera = false; if (errore) throw r; return r; }; }
+  function parla2(testo, opz) {
     var mio = corrente = { annullato: false };
     var a = contesto();
     if (a && chiaveOpenAI() && navigator.onLine !== false && !opz.soloSistema) {
-      if (a.state === 'suspended') try { a.resume(); } catch (e) {}
+      var ripresa = a.state === 'suspended' && a.resume ? a.resume().catch(function () {}) : null;
       return sintetizza(testo).then(function (audio) {
         if (mio.annullato) return { annullato: true };
-        /* (v243) un contesto audio ancora sospeso suonerebbe in silenzio: meglio la voce del sistema */
+        /* (v243) un contesto audio ancora sospeso suonerebbe in silenzio: meglio la voce del sistema.
+           (v261) prima si prova a riprenderlo davvero (la ripresa è asincrona: chiederla e controllare subito falliva) */
+        return Promise.race([ripresa || Promise.resolve(), new Promise(function (ok) { setTimeout(ok, 700); })]).then(function () {
+        if (mio.annullato) return { annullato: true };
         if (a.state !== 'running') return sistema(testo, opz, mio);
         var src = a.createBufferSource(); src.buffer = audio;
         var C = catena(a, opz.timbro); src.connect(C.ingresso); C.uscita.connect(a.destination);
@@ -146,6 +158,7 @@
           src.onended = function () { C.ferma(); if (opz.suBocca) try { opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); } catch (e) {} fine({ ok: true, motore: 'audio', durata: audio.duration }); };
           src.start();
         });
+        });
       }).catch(function () { return mio.annullato ? { annullato: true } : sistema(testo, opz, mio); });
     }
     return sistema(testo, opz, mio);
@@ -160,13 +173,25 @@
       if (v && !andr) u.voice = v; u.lang = v && !andr ? v.lang : (lg === 'en' ? 'en-GB' : 'it-IT'); u.rate = 0.88; u.pitch = 0.58; u.volume = 1;
       u.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: ev.charIndex / Math.max(1, testo.length) }); };
       u.onend = u.onerror = function () { if (opz.suBocca) opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); fine({ ok: true, motore: 'sistema' }); };
-      mio.u = u; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { fine({ ok: false }); }
+      /* (v261) su Android una frase lunga a volte non parte o si tronca: si dice frase per frase, tenendo in vita l'enunciato */
+      var pezzi = (String(testo).match(/[^.!?;:\n]+[.!?;:]*/g) || [String(testo)]).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }), k = 0, fatto = 0;
+      function prossimo() {
+        if (mio.annullato) { fine({ annullato: true }); return; }
+        if (k >= pezzi.length) { if (opz.suBocca) opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); fine({ ok: true, motore: 'sistema' }); return; }
+        var w = new SpeechSynthesisUtterance(pezzi[k]), base = fatto; k++; fatto += pezzi[k - 1].length + 1;
+        w.voice = u.voice; w.lang = u.lang; w.rate = u.rate; w.pitch = u.pitch; w.volume = 1; mio.u = w;
+        w.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: (base + ev.charIndex) / Math.max(1, testo.length) }); };
+        var andato = false; function via() { if (andato) return; andato = true; prossimo(); }
+        w.onend = via; w.onerror = function (ev) { if (ev && (ev.error === 'interrupted' || ev.error === 'canceled')) { if (mio.annullato) return; } via(); };
+        try { speechSynthesis.resume(); speechSynthesis.speak(w); } catch (e) { via(); }
+      }
+      prossimo();
     });
   }
   function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0); }
   function ferma() {
     if (corrente) { corrente.annullato = true; try { if (corrente.src) corrente.src.stop(); } catch (e) {} if (corrente.chain) corrente.chain.ferma(); if (corrente.raf) cancelAnimationFrame(corrente.raf); }
-    try { if ('speechSynthesis' in globale) speechSynthesis.cancel(); } catch (e) {}
+    try { if ('speechSynthesis' in globale && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); } catch (e) {}   /* (v261) annullare a vuoto, su Android, fa cadere la frase dopo */
   }
   /* (v243) chiamata al primo tocco: il contesto audio nasce/riprende dentro un gesto, come chiedono i browser dei telefoni */
   function sblocca() { var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }

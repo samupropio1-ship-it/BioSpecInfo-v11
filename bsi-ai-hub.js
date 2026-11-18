@@ -6401,6 +6401,9 @@ function speakRobotic(text, opz){
   if(!frasi.length) return false;
   var cera = false; try{ cera = _voceInCorso && (speechSynthesis.speaking || speechSynthesis.pending); }catch(e){}
   stopSpeaking(true);
+  /* (v261) il microfono della sentinella si libera prima di parlare: su Android, acceso, ammutolisce la voce */
+  var attesaMic = 0; try{ if(window.bsiPrimaDiParlare){ attesaMic = window.bsiPrimaDiParlare() || 0; } }catch(e){}
+  var liberato = !!window.bsiPrimaDiParlare;
   var mio = ++_voceGiro, i = 0; _voceInCorso = true;
   _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
   if(!_vocePreferita) caricaVoci();
@@ -6408,7 +6411,7 @@ function speakRobotic(text, opz){
   try{ document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: pulito.slice(0, 4000) } })); }catch(e){}
   var prossima = function(){
     if(mio !== _voceGiro) return;
-    if(i >= frasi.length){ _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); return; }
+    if(i >= frasi.length){ _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(liberato && window.bsiDopoAverParlato){ liberato = false; window.bsiDopoAverParlato(); } if(opz.fatto) opz.fatto(); return; }
     var u = new SpeechSynthesisUtterance(frasi[i++]);
     u.pitch = VOCE_ROBOTICA.pitch; u.rate = VOCE_ROBOTICA.rate; u.volume = VOCE_ROBOTICA.volume;
     /* (v248) su Android non si sceglie la voce per nome (puo' essere una voce di rete, muta): solo la lingua */
@@ -6420,12 +6423,13 @@ function speakRobotic(text, opz){
     try{ speechSynthesis.resume(); speechSynthesis.speak(u); }catch(e){ avanti(); }
   };
   /* (v248) parlare subito dopo un annullamento, su Android, fa cadere la frase: si aspetta un attimo */
-  if(cera) setTimeout(prossima, 160); else prossima();
+  if(cera || attesaMic) setTimeout(prossima, Math.max(cera ? 160 : 0, attesaMic)); else prossima();
   return true;
 }
 /** Interrompe la lettura (anche la voce della console). */
 function stopSpeaking(senzaPulsanti){
   _voceGiro++; var miaVoce = _voceInCorso; _voceInCorso = false;
+  if(miaVoce && window.bsiDopoAverParlato){ try{ window.bsiDopoAverParlato(); }catch(e){} }
   if(!senzaPulsanti){ _pulsanteInCorso = null; segnaPulsanti(false); }
   if(!voceSupportata()) return;
   /* si annulla solo la voce di questa finestra (e solo se c'e'): la console ha la sua e la gestisce da se' */
