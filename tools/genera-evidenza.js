@@ -49,6 +49,11 @@ const RADICE = path.resolve(__dirname, '..');
 const BANCHI_DIR = process.env.BSI_BANCHI || path.join(RADICE, 'tools', 'banchi');
 const USCITA = path.join(RADICE, 'docs', 'evidence', 'RAPPORTO-VERIFICA.md');
 const VELOCE = process.argv.includes('--veloce');
+/* (v255) RIPRESA DOPO UN RIAVVIO. Il contenitore che esegue la batteria può essere riavviato a metà (due volte in una
+   giornata, a 47 banchi su 107): con BSI_RIPRENDI=<file> ogni esito si scrive su quel file appena il banco finisce, e
+   una nuova corsa riusa gli esiti già SUPERATI solo se il commit è lo stesso e l'albero di lavoro è pulito. I banchi
+   falliti si rieseguono sempre. Il rapporto dice quanti esiti vengono dalla corsa interrotta. */
+const RIPRENDI = process.env.BSI_RIPRENDI || '';
 
 /* I banchi, raggruppati per cio' che dimostrano. Il raggruppamento non e'
    decorativo: in una matrice di tracciabilita' ogni requisito deve poter
@@ -223,6 +228,10 @@ function main(){
   }
 
   const risultati = [];
+  let memo = {}, ripresi = 0;
+  const pulitoOra = /^sì/.test(amb.pulito || '');
+  if (RIPRENDI && pulitoOra) { try { const x = JSON.parse(fs.readFileSync(RIPRENDI, 'utf8')); if (x.commit === amb.commit) memo = x.esiti || {}; } catch (e) {} }
+  function salvaMemo(r) { if (!RIPRENDI || !pulitoOra) return; memo[r.nome] = r; try { fs.writeFileSync(RIPRENDI, JSON.stringify({ commit: amb.commit, esiti: memo })); } catch (e) {} }
   FAMIGLIE.forEach(function(fam){
     fam.esiti = [];
     fam.banchi.forEach(function(b){
@@ -231,12 +240,14 @@ function main(){
         return;
       }
       process.stdout.write('  ' + b.padEnd(22));
-      const r = esegui(b);
+      let r = memo[b] && memo[b].stato === 'SUPERATO' ? Object.assign({}, memo[b], { ripreso: true }) : null;
+      if (r) ripresi++; else { r = esegui(b); salvaMemo(r); }
       fam.esiti.push(r);
       risultati.push(r);
-      console.log(r.stato + '  (' + (r.ms / 1000).toFixed(1) + 's)');
+      console.log(r.stato + '  (' + (r.ms / 1000).toFixed(1) + 's)' + (r.ripreso ? '  [dalla corsa interrotta, stesso commit]' : ''));
     });
   });
+  amb.ripresi = ripresi;
 
   /* E se il server è caduto DURANTE la batteria, il rapporto deve dirlo:
      altrimenti attribuisce al codice dei fallimenti che sono suoi. */
@@ -292,6 +303,7 @@ function main(){
   m += '| Campo | Valore |\n|---|---|\n';
   m += '| Istante (UTC) | `' + amb.istante + '` |\n';
   m += '| Commit | `' + amb.commit + '` |\n';
+  if (amb.ripresi) m += '| Ripresa | ' + amb.ripresi + ' banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l\'albero pulito; gli altri eseguiti in questa corsa |\n';
   m += '| Ramo | `' + amb.ramo + '` |\n';
   m += '| Albero di lavoro pulito | ' + amb.pulito + ' |\n';
   m += '| Versione applicazione | `' + amb.versione + '` |\n';
