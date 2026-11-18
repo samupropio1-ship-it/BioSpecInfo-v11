@@ -132,7 +132,14 @@
     var geoN = new T.SphereGeometry(rN, 24, 18); this.nucleoni = [];
     pn.forEach(function (p0, k) { var m = new T.Mesh(geoN, new T.ShaderMaterial({ uniforms: { c: { value: new T.Color(k % 2 ? PAL.blu : PAL.teal) }, k: { value: 1 } }, vertexShader: shNuc.vertexShader, fragmentShader: shNuc.fragmentShader })); m.position.copy(p0); m.userData.p0 = p0.clone(); m.userData.f = rnd() * 6.28; self.cuore.add(m); self.nucleoni.push(m); });
     var fl = []; for (var a1 = 0; a1 < NN; a1++) for (var b1 = a1 + 1; b1 < NN; b1++) if (pn[a1].distanceTo(pn[b1]) < 2 * rN * 1.12) fl.push(pn[a1].x, pn[a1].y, pn[a1].z, pn[b1].x, pn[b1].y, pn[b1].z);
-    var fg0 = new T.BufferGeometry(); fg0.setAttribute('position', new T.Float32BufferAttribute(fl, 3)); this.flusso = new T.LineSegments(fg0, lineMat(T, PAL.chiaro, 0.12)); this.cuore.add(this.flusso);
+    var fg0 = new T.BufferGeometry(); fg0.setAttribute('position', new T.Float32BufferAttribute(fl, 3));
+    /* (v261) l'interazione forte suggerita: ogni tubo porta un «colore» (rosso, verde, blu, attenuati) che si scambia lungo il tubo */
+    var nF = fl.length / 3, ph0 = new Float32Array(nF), uu = new Float32Array(nF); for (var q5 = 0; q5 < nF; q5 += 2) { var pf = rnd() * 3; ph0[q5] = ph0[q5 + 1] = pf; uu[q5] = 0; uu[q5 + 1] = 1; }
+    fg0.setAttribute('fase', new T.BufferAttribute(ph0, 1)); fg0.setAttribute('u', new T.BufferAttribute(uu, 1));
+    this.flusso = new T.LineSegments(fg0, new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending, uniforms: { t: { value: 0 }, op: { value: 0.12 } },
+      vertexShader: 'attribute float fase; attribute float u; varying float vF; varying float vU; void main(){ vF = fase; vU = u; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader: 'uniform float t; uniform float op; varying float vF; varying float vU; void main(){ float k = mod(vF + t*0.35 + vU*1.5, 3.0); vec3 c = k < 1.0 ? mix(vec3(1.,0.35,0.35), vec3(0.35,1.,0.45), k) : k < 2.0 ? mix(vec3(0.35,1.,0.45), vec3(0.4,0.55,1.), k - 1.0) : mix(vec3(0.4,0.55,1.), vec3(1.,0.35,0.35), k - 2.0); c = mix(c, vec3(0.84,0.97,0.95), 0.45); gl_FragColor = vec4(c*0.8, op); }' }));
+    this.cuore.add(this.flusso);
     /* la nuvola: quattro forme per ogni punto */
     var NP = 6000, ORB = ['1s', '2s', '2p', '3d'], forme = {}, gamma = function (k, th) { var x = 0; for (var q = 0; q < k; q++) x -= Math.log(rnd() + 1e-12); return x * th; };
     function campiona(nome) {
@@ -153,7 +160,15 @@
     var gN = new T.BufferGeometry(), posN = new Float32Array(NP * 3), colN = new Float32Array(NP * 3); posN.set(forme['1s']);
     for (var c3 = 0; c3 < NP; c3++) { var f1 = forme['1s'], rq = Math.hypot(f1[3 * c3], f1[3 * c3 + 1], f1[3 * c3 + 2]), lum = 0.35 + 0.65 * Math.exp(-rq / 0.28); colN[3 * c3] = 0.26 * lum; colN[3 * c3 + 1] = 0.7 * lum; colN[3 * c3 + 2] = 0.95 * lum; }   /* più luminosa vicino al nucleo */
     gN.setAttribute('position', new T.BufferAttribute(posN, 3)); gN.setAttribute('color', new T.BufferAttribute(colN, 3));
-    this.nuvola = new T.Points(gN, new T.PointsMaterial({ size: 0.011, vertexColors: true, transparent: true, opacity: 0.42, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false })); R.add(this.nuvola);
+    /* (v261) la nuvola come particelle morbide: ogni punto ha una sua fase e «sfarfalla» (la densità di probabilità si
+       legge come luce che va e viene), grandezza in prospettiva, bordo sfumato; luminanza sempre sotto 0,8 */
+    var faseN = new Float32Array(NP); for (var c4 = 0; c4 < NP; c4++) faseN[c4] = rnd() * 6.283; gN.setAttribute('fase', new T.BufferAttribute(faseN, 1));
+    var pr0 = ren && ren.getPixelRatio ? ren.getPixelRatio() : 1;
+    this.nuvola = new T.Points(gN, new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+      uniforms: { t: { value: 0 }, op: { value: 0.42 }, mis: { value: 7.5 * pr0 }, voce: { value: 0 }, calmo: { value: calmo ? 1 : 0 } },
+      vertexShader: 'attribute vec3 color; attribute float fase; uniform float t; uniform float mis; uniform float voce; uniform float calmo; varying vec3 vC; varying float vA; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); float sf = calmo > 0.5 ? 1.0 : 0.55 + 0.45*sin(t*(1.3 + fract(fase*7.0)*2.2) + fase); vC = color; vA = sf; gl_PointSize = mis*(0.8 + 0.5*sf + 0.6*voce)/max(0.3, -mv.z); gl_Position = projectionMatrix*mv; }',
+      fragmentShader: 'uniform float op; varying vec3 vC; varying float vA; void main(){ vec2 d = gl_PointCoord - 0.5; float r = dot(d, d)*4.0; if (r > 1.0) discard; float a = exp(-r*3.2); gl_FragColor = vec4(min(vC*1.15, vec3(0.8)), a*op*(0.45 + 0.55*vA)); }' }));
+    R.add(this.nuvola);
     this.orbitale = { da: '1s', a: '1s', s: 1 };
     /* gli elettroni con la scia */
     this.elettroni = [];
@@ -191,6 +206,21 @@
       this.satelliti.push({ m: m, filo: filo, a: sI / 10 * 6.283, inc: (rnd() - 0.5) * 1.2, r: 1.2 + rnd() * 0.15, v: 0.15 + rnd() * 0.15, uscita: 1.75 + rnd() * 0.35 });
     }
     this.indica = null;
+    /* (v261) LE ONDE DELLA VOCE: gusci di luce che partono dal nucleo a ogni sillaba, si allargano e svaniscono (al massimo 5) */
+    this.onde = []; var geoOnda = new T.SphereGeometry(1, 40, 28);
+    for (var o5 = 0; o5 < 5; o5++) { var mo = new T.Mesh(geoOnda, new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.FrontSide, uniforms: { a: { value: 0 }, c: { value: new T.Color(PAL.azzurro) } },
+      vertexShader: 'varying vec3 n; varying vec3 v; void main(){ n = normalize(normalMatrix*normal); vec4 mv = modelViewMatrix*vec4(position,1.0); v = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
+      fragmentShader: 'uniform float a; uniform vec3 c; varying vec3 n; varying vec3 v; void main(){ float f = pow(1.0 - abs(dot(n, v)), 3.0); gl_FragColor = vec4(c*0.7, a*f); }' }));
+      mo.visible = false; R.add(mo); this.onde.push({ m: mo, t: 9 }); }
+    this.prossimaOnda = 0;
+    /* (v261) I FOTONI: cambiando stato l'elettrone salta di orbitale ed emette un fotone del colore giusto della serie di Balmer
+       (3→2 656 nm rosso, 4→2 486 nm azzurro, 5→2 434 nm viola): un lampo che parte dal nucleo e se ne va */
+    this.fotoni = [];
+    for (var f5 = 0; f5 < 3; f5++) { var gf = new T.BufferGeometry(); gf.setAttribute('position', new T.Float32BufferAttribute([0, 0, 0, 0, 0, 0], 3)); var lf = new T.Line(gf, new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); R.add(lf);
+      var tf = new T.Sprite(new T.SpriteMaterial({ map: nebbiaTex(T), transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); tf.scale.setScalar(0.22); R.add(tf); this.fotoni.push({ linea: lf, testa: tf, t: 9, dir: new T.Vector3(1, 0, 0) }); }
+    /* (v261) PARALLASSE: il nucleo si inclina appena verso il dito o il mouse (al massimo 0,12 rad) */
+    this.punta = { x: 0, y: 0 }; this.incl = { x: 0, y: 0 };
+    if (D && !calmo) { var self2 = this; this._muovi = function (e) { var p0 = e.touches ? e.touches[0] : e; if (!p0) return; var w = g.innerWidth || 1, h = g.innerHeight || 1; self2.punta.x = (p0.clientX / w - 0.5) * 2; self2.punta.y = (p0.clientY / h - 0.5) * 2; }; g.addEventListener('pointermove', this._muovi, { passive: true }); }
     /* l'HUD in DOM */
     if (opz.hudPadre) this.hud = creaHud(opz.hudPadre);
     this.stato('online');
@@ -232,13 +262,13 @@
     if (this.parole) { this.parolaT += dt; var iw = Math.min(this.parole.length - 1, Math.floor(this.parolaT / 0.32)); voce = (0.5 + 0.5 * Math.abs(Math.sin(this.parolaT * 9.5))) * P.voce; if (this.hud && iw !== this.ultimaParola) { this.ultimaParola = iw; this.hud.didascalia(this.parole, iw); } if (this.parolaT > this.durataVoce + 1.2) this.taci(); }
     /* i nucleoni: respiro collettivo ±2 % e vibrazione minima di ognuno; con la voce un fremito appena più ampio */
     this.nucleoni.forEach(function (m) { var f = m.userData.f, j = (0.004 + 0.01 * voce) * mv; m.position.set(m.userData.p0.x * resp + j * Math.sin(tt * 3.1 + f), m.userData.p0.y * resp + j * Math.sin(tt * 2.7 + f * 1.3), m.userData.p0.z * resp + j * Math.sin(tt * 3.4 + f * 0.7)); });
-    this.cuore.rotation.y += dt * 0.05 * mv; this.cuore.rotation.x += dt * 0.017 * mv; this.flusso.material.opacity = 0.08 + 0.06 * (0.5 + 0.5 * Math.sin(tt * 1.7)) * (calmo ? 0 : 1) + 0.06 * voce;
+    this.cuore.rotation.y += dt * 0.05 * mv; this.cuore.rotation.x += dt * 0.017 * mv; this.flusso.material.uniforms.op.value = 0.1 + 0.07 * (0.5 + 0.5 * Math.sin(tt * 1.7)) * (calmo ? 0 : 1) + 0.08 * voce; this.flusso.material.uniforms.t.value = calmo ? 0 : tt;
     this.nebbia.material.opacity = 0.14 + 0.06 * P.luce + 0.06 * voce;
     /* la nuvola: forma dell'orbitale dello stato, trasformata con easeInOutSine in 0,9 s; con la voce il 2s pulsa */
     var vuoi = { pensa: '2p', parla: '2s', cerca: '3d', lavoro: '3d' }[this.nome] || '1s', O2 = this.orbitale;
     if (vuoi !== O2.a) { O2.da = O2.a; O2.a = vuoi; O2.s = 0; O2.prima = this.nuvola.geometry.attributes.position.array.slice(); }
     if (O2.s < 1) { O2.s = Math.min(1, O2.s + dt / 0.9); var es = sin01(O2.s), A0 = O2.prima, B0 = this.forme[O2.a], pp = this.nuvola.geometry.attributes.position.array; for (var q3 = 0; q3 < pp.length; q3++) pp[q3] = A0[q3] + (B0[q3] - A0[q3]) * es; this.nuvola.geometry.attributes.position.needsUpdate = true; }
-    var gonfia = 1 + 0.06 * voce; this.nuvola.scale.setScalar(gonfia * resp); this.nuvola.rotation.y += dt * 0.06 * mv; this.nuvola.material.opacity = 0.3 + 0.12 * P.luce;
+    var gonfia = 1 + 0.06 * voce; this.nuvola.scale.setScalar(gonfia * resp); this.nuvola.rotation.y += dt * 0.06 * mv; this.nuvola.material.uniforms.op.value = 0.3 + 0.12 * P.luce; this.nuvola.material.uniforms.t.value = tt; this.nuvola.material.uniforms.voce.value = voce;
     /* gli elettroni: orbite ellittiche (anomalia eccentrica), più rapide in «cerca»; la scia segue le ultime posizioni */
     this.elettroni.forEach(function (E) {
       E.fase += dt * E.v * (0.7 + 0.3 * P.vel) * mv; var Ea = E.fase, x = E.a * (Math.cos(Ea) - E.ecc), y = E.a * Math.sqrt(1 - E.ecc * E.ecc) * Math.sin(Ea); E.el.position.set(x, y, 0);
@@ -261,10 +291,22 @@
     });
     /* «indica»: un satellite vola verso il bersaglio e lo collega con un filo */
     if (this.indica) { var I = this.indica, s0 = this.satelliti[0]; I.t += dt; var f = sin01(Math.min(1, I.t / 0.9)) * (I.t > I.durata ? Math.max(0, 1 - (I.t - I.durata) / 0.9) : 1); s0.m.position.lerp(I.p, f); var fp2 = s0.filo.geometry.attributes.position.array; fp2[3] = s0.m.position.x; fp2[4] = s0.m.position.y; fp2[5] = s0.m.position.z; s0.filo.geometry.attributes.position.needsUpdate = true; s0.filo.material.opacity = 0.45 * f; if (I.t > I.durata + 0.9) this.indica = null; }
+    /* (v261) l'energia della voce vera (audio) quando c'è, altrimenti l'inviluppo delle parole */
+    var ev = this.energiaVoce != null && this.nome === 'parla' ? this.energiaVoce : voce; this.energiaVoce = this.energiaVoce != null ? this.energiaVoce * Math.pow(0.02, dt) : null;
+    /* onde della voce */
+    this.prossimaOnda -= dt;
+    if (this.nome === 'parla' && ev > 0.35 && this.prossimaOnda <= 0 && !calmo) { var lib = this.onde.filter(function (o) { return o.t > 1.4; })[0]; if (lib) { lib.t = 0; lib.forza = Math.min(1, ev); } this.prossimaOnda = 0.32; }
+    this.onde.forEach(function (o) { o.t += dt; var u = o.t / 1.4; if (u >= 1) { o.m.visible = false; return; } o.m.visible = true; var rr = 0.35 + 1.35 * sin01(u); o.m.scale.setScalar(rr); o.m.material.uniforms.a.value = 0.62 * (o.forza || 0.6) * (1 - u) * (1 - u); });
+    /* fotoni a ogni cambio di stato */
+    if (this.nome !== this._ultimoStato) { var prima = this._ultimoStato; this._ultimoStato = this.nome; if (prima && !calmo) { var colF = { pensa: 0x8fe8ff, cerca: 0xb48cff, parla: 0x6bcfff, avviso: 0xffb547 }[this.nome] || 0xff7a6a, lb = this.fotoni.filter(function (q) { return q.t > 1.2; })[0]; if (lb) { lb.t = 0; lb.dir.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(); lb.linea.material.color.setHex(colF); lb.testa.material.color.setHex(colF); } } }
+    this.fotoni.forEach(function (q) { q.t += dt; var u = q.t / 1.1; if (u >= 1) { q.linea.material.opacity = 0; q.testa.material.opacity = 0; return; } var r1 = 0.15 + 1.9 * u, r0 = Math.max(0.12, r1 - 0.7), ap = q.linea.geometry.attributes.position.array; ap[0] = q.dir.x * r0; ap[1] = q.dir.y * r0; ap[2] = q.dir.z * r0; ap[3] = q.dir.x * r1; ap[4] = q.dir.y * r1; ap[5] = q.dir.z * r1; q.linea.geometry.attributes.position.needsUpdate = true; var a2 = Math.min(1, u * 6) * (1 - u); q.linea.material.opacity = 0.75 * a2; q.testa.position.set(q.dir.x * r1, q.dir.y * r1, q.dir.z * r1); q.testa.material.opacity = 0.8 * a2; });
+    /* parallasse dolce */
+    if (!calmo) { this.incl.x += ((this.punta.y * 0.12) - this.incl.x) * Math.min(1, dt * 2.5); this.incl.y += ((this.punta.x * 0.12) - this.incl.y) * Math.min(1, dt * 2.5); this.interno.rotation.x = this.incl.x; this.interno.rotation.y = this.incl.y; }
     this.vetro.material.uniforms.w.value = P.ambra; this.nucleoni.forEach(function (m) { m.material.uniforms.k.value = 0.85 + 0.15 * P.luce; });
     if (this.hud) this.hud.ambra(P.ambra);
   };
   Nucleo.prototype.dispose = function () {
+    if (this._muovi) g.removeEventListener('pointermove', this._muovi);
     this.radice.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); } });
     if (this.radice.parent) this.radice.parent.remove(this.radice); if (this.hud) this.hud.togli();
   };
