@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v255';
+window.BSI_APP_VERSION='bsi-v256';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -31444,6 +31444,11 @@ window.exportPDF=function(){
       // Spectra sta rispondendo? Il pulsante Stop e' visibile solo allora.
       var stop = document.getElementById('bsi-hub-stop');
       if(stop && getComputedStyle(stop).display !== 'none') return true;
+      // (v256) Una finestra aperta sopra la pagina (la rete neurale di Spectra,
+      // la sequenza di risveglio, la guida agli occhiali, una sessione AR...):
+      // ricaricare la chiuderebbe sotto le mani di chi la sta guardando.
+      var modali = document.querySelectorAll('[aria-modal="true"]');
+      for(var m=0;m<modali.length;m++){ if(modali[m].getClientRects().length) return true; }
       // Testo scritto DALL'UTENTE e non ancora consegnato da nessuna parte.
       //
       // Il confronto con defaultValue non e' un dettaglio: alcune aree di
@@ -31495,8 +31500,15 @@ window.exportPDF=function(){
     navigator.serviceWorker.register('./sw.js',{scope:'./'})
       .then(function(r){console.log('SW ok');})
       .catch(function(e){console.warn('SW:',e.message);});
+    /* (v256) Alla PRIMA visita la pagina non ha ancora un service worker che la
+       controlla: il primo si installa, si attiva e annuncia BSI_SW_UPDATED anche
+       se non c'e' nessuna versione vecchia da sostituire. La pagina allora si
+       ricaricava da sola dopo ~2 s e chiudeva quello che si era appena aperto
+       (la rete neurale spariva sotto gli occhi). Una pagina non controllata e'
+       gia' arrivata dalla rete, quindi e' gia' la versione nuova: niente da fare. */
+    var _bsiControllataAllAvvio = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('message',function(e){
-      if(e.data&&e.data.type==='BSI_SW_UPDATED') _bsiAggiornamentoPronto();
+      if(e.data&&e.data.type==='BSI_SW_UPDATED'&&_bsiControllataAllAvvio) _bsiAggiornamentoPronto();
     });
   }
   window.addEventListener('beforeinstallprompt', function(e){
@@ -38111,6 +38123,10 @@ window._bsiOverlayOpen = function(){
   for(var i = 0; i < ovs.length; i++){
     if(getComputedStyle(ovs[i]).display !== 'none') return true;
   }
+  /* (v256) La rete neurale e la sequenza di risveglio di Spectra (#bsiRN,
+     #bsiRV) non seguono quella convenzione: il ✨ restava sopra e copriva la
+     casella dove si legge il neurone toccato. */
+  if(document.getElementById('bsiRN') || document.getElementById('bsiRV')) return true;
   return false;
 };
 window._bsiSyncFabs = function(){

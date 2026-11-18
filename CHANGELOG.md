@@ -7,6 +7,36 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v256] — 2026-11-18
+
+**La rete neurale di Spectra: il bug che la faceva sparire, la disposizione, il ✨ sopra la finestra**
+
+### Corretto
+- **La rete neurale spariva da sola.** Alla prima visita il service worker si installava e annunciava
+  «nuova versione» anche se non c'era nessuna versione vecchia: la pagina si ricaricava dopo circa 2 s e
+  chiudeva tutto quello che si era appena aperto (la rete, il risveglio, una sessione AR). Ora l'annuncio
+  conta solo per una pagina che all'avvio era già controllata da un service worker: una pagina non
+  controllata è arrivata dalla rete ed è già la versione nuova.
+- **Nessuna ricarica automatica sopra una finestra aperta.** `_bsiPaginaOccupata` considera lavoro aperto
+  anche ogni finestra modale visibile (`aria-modal="true"`): con una versione nuova compare la barra
+  «Aggiorna ora / Più tardi» invece di chiuderla.
+- **Disposizione della rete.** Con molti ricordi agganciati a un solo livello, la loro repulsione spingeva il
+  nucleo e gli altri livelli contro il bordo e le etichette uscivano dalla tela. Ora la struttura è ferma: il
+  nucleo al centro, i livelli e le materie su un anello, e il livello con più ricordi guarda verso il lato
+  lungo dello schermo. I ricordi nascono accanto al loro livello, i neuroni si rimpiccioliscono sul telefono,
+  le etichette restano dentro la tela e un ridimensionamento ricolloca la rete invece di lasciarla fuori.
+- **Il ✨ copriva la finestra.** Il pulsante flottante ha uno z-index massimo scritto in linea: ora si nasconde
+  mentre la rete neurale o il risveglio sono aperti e torna alla chiusura. Le due finestre stanno sopra gli
+  altri pannelli dell'app.
+
+### Verificato
+- `test_risveglio` 108 controlli (9 nuovi): prima visita con service worker vero, una sola navigazione, la rete
+  ancora aperta dopo 5 s, il ✨ nascosto e poi di nuovo visibile, il nucleo al centro (scarto < 1 px) e ogni
+  neurone dentro la tela con 60 ricordi.
+- Ripassati `test_sw` 22, `test_menu` 42, `test_lezione` 30, `test_aggiorna` 9, `test_controllaagg` 12,
+  `test_spectra_olo` 69, `test_articoli` 87, `test_spectra238` 66, `test_teoria` 24.
+
+---
 ## [bsi-v255] — 2026-11-13
 
 **Materia oscura e lenti gravitazionali, gli elementi in 3D, la parola «Spectra» senza difetti, la realtà aumentata in ogni scena 3D, l'eliosfera fino alla Galassia, fisiologia e farmacologia quantitative, la mappa dei prerequisiti, il motore in spaccato**

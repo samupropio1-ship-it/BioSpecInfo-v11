@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v255` |
+| **Versione descritta** | `bsi-v256` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -613,7 +613,7 @@ nella prima stesura una regola di stile già esistente le rendeva invisibili
 (il banco l'avrebbe preso). Infine riapre l'app con «riduci movimento» e
 pretende che tutto stia fermo ma visibile.
 
-**`test_risveglio` — 99 controlli (v251, v252).** Dalla v252 apre il menu ✨ vero, quello che si tocca sul telefono, e pretende la sezione «🤖 Spectra» come prima sezione, con le quattro voci che aprono davvero la loro finestra: nella v251 le voci stavano in un elenco che non si vede, e il banco, che cercava il testo nella pagina, non se n'era accorto. Pretende anche il riquadro delle novità, una volta sola e solo a chi ha già parlato con Spectra. Nasce dai video che l'autore ha
+**`test_risveglio` — 108 controlli (v251, v252, v256).** Dalla v256 apre la rete neurale alla **prima visita**, con il service worker vero e il profilo vuoto, e pretende che dopo 5 s sia ancora lì (una sola navigazione), che il ✨ sia nascosto mentre è aperta e torni dopo, che con 60 ricordi su un solo livello il nucleo resti al centro e ogni neurone dentro la tela. Dalla v252 apre il menu ✨ vero, quello che si tocca sul telefono, e pretende la sezione «🤖 Spectra» come prima sezione, con le quattro voci che aprono davvero la loro finestra: nella v251 le voci stavano in un elenco che non si vede, e il banco, che cercava il testo nella pagina, non se n'era accorto. Pretende anche il riquadro delle novità, una volta sola e solo a chi ha già parlato con Spectra. Nasce dai video che l'autore ha
 indicato come modello: un assistente che si sveglia con una sequenza di avvio,
 dice il meteo e gli impegni, saluta quando si torna a casa, fa il punto alle 8
 e alle 20, cambia colore con la batteria scarica e mostra la sua memoria come
@@ -1079,4 +1079,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v255`._
+_Documento aggiornato alla versione `bsi-v256`._

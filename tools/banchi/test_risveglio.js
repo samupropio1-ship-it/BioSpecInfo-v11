@@ -224,7 +224,7 @@ async function meteoFinto(ctx, stato) {
     /* tocca il neurone più collegato */
     const N = R.grafo().neuroni; let trovato = ''; for (let yy = 10; yy < rc.height && !trovato; yy += 6) for (let xx = 10; xx < rc.width && !trovato; xx += 6) {
       cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: rc.left + xx, clientY: rc.top + yy, bubbles: true }));
-      const s = P.querySelector('.scelto').textContent; if (/—/.test(s)) trovato = s; }
+      const s = P.querySelector('.scelto').textContent; if (/—/.test(s) && !/^✳️/.test(s)) trovato = s; }   // (v256) la struttura sta ferma in vista: si cerca un neurone di memoria
     o.tocco = trovato;
     o.largo = document.documentElement.scrollWidth <= innerWidth + 1;
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); o.chiusa = !document.getElementById('bsiRN');
@@ -284,6 +284,49 @@ async function meteoFinto(ctx, stato) {
   const pg3 = await ctx.newPage(); pg3.on('pageerror', e => errs.push(e.message)); await pg3.addInitScript(sintesiFinta);
   await pg3.goto(BASE + 'index.html?spectra=rete', { waitUntil: 'load', timeout: 120000 }); await pg3.waitForSelector('#bsiRN', { timeout: 30000 });
   vero('?spectra=rete apre la rete neurale', true);
+  /* (v256) il bug della rete neurale: alla PRIMA visita (service worker vero, profilo vuoto) la pagina si ricaricava da sola
+     ~2 s dopo l'avvio e la rete appena aperta spariva; i nodi della struttura finivano contro il bordo con le etichette
+     tagliate, e il ✨ restava sopra la finestra */
+  const ctxSW = await b.newContext({ viewport: { width: 390, height: 780 }, isMobile: true, hasTouch: true, locale: 'it-IT' });
+  const pgS = await ctxSW.newPage(); pgS.on('pageerror', e => errs.push(e.message));
+  let navigazioni = 0; pgS.on('framenavigated', f => { if (f === pgS.mainFrame()) navigazioni++; });
+  await pgS.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 }); await pgS.waitForFunction(() => !!window.BSISpectraRisveglio, null, { timeout: 60000 });
+  await pgS.evaluate(() => { window.__vivo = 1; BSISpectraRisveglio.apriRete(); });
+  await pgS.waitForTimeout(5000);
+  const rs = await pgS.evaluate(() => {
+    const o = { vivo: window.__vivo === 1, aperta: !!document.getElementById('bsiRN'), sw: !!navigator.serviceWorker.controller };
+    const fab = document.getElementById('bsi14-fab'); o.fab = fab ? getComputedStyle(fab).display : 'assente';
+    const c = document.querySelector('#bsiRN canvas'); if (c) { const r = c.getBoundingClientRect(); o.w = r.width; o.h = r.height; }
+    BSISpectraRisveglio.chiudiRete(); o.fabDopo = fab ? (window._bsiSyncFabs(), getComputedStyle(fab).display) : 'assente';
+    return o;
+  });
+  att('prima visita: la pagina non si ricarica da sola (una sola navigazione)', 1, navigazioni);
+  vero('e la rete aperta subito è ancora lì dopo 5 s', rs.vivo && rs.aperta);
+  vero('il service worker si è installato lo stesso (' + rs.sw + ')', rs.sw);
+  att('con la rete aperta il ✨ è nascosto', 'none', rs.fab);
+  att('chiusa la rete il ✨ torna', 'flex', rs.fabDopo);
+  /* struttura ferma al centro e dentro la tela, anche con molti ricordi su un solo livello */
+  const lay = await pgS.evaluate(async () => {
+    const f = []; for (let i = 0; i < 60; i++) f.push({ fatto: 'studio la spettroscopia infrarossa numero ' + i, categoria: 'studio' });
+    const prima = localStorage.getItem('bsi_ai_memory'); localStorage.setItem('bsi_ai_memory', JSON.stringify(f));
+    const R = BSISpectraRisveglio.apriRete(); await new Promise(r => setTimeout(r, 2500));
+    const c = document.querySelector('#bsiRN canvas').getBoundingClientRect(), W = c.width, H = c.height;
+    // l'esportazione non dà le posizioni: le si legge dai neuroni, che la rete annota (x, y) sul grafo con struttura
+    const G = R.anima && R.anima.neuroni ? R.anima.neuroni() : null;
+    const o = { W, H, n: G ? G.length : 0 };
+    if (G) {
+      const s = G.filter(n => n.struttura); o.centro = Math.hypot(s[0].x - W / 2, s[0].y - H / 2);
+      o.dentro = G.every(n => n.x >= 10 && n.x <= W - 10 && n.y >= 10 && n.y <= H - 10 && isFinite(n.x) && isFinite(n.y));
+      o.strDentro = s.every(n => n.x > 30 && n.x < W - 30 && n.y > 30 && n.y < H - 30);
+    }
+    BSISpectraRisveglio.chiudiRete(); if (prima == null) localStorage.removeItem('bsi_ai_memory'); else localStorage.setItem('bsi_ai_memory', prima);
+    return o;
+  });
+  att('60 ricordi + 9 neuroni di struttura', 69, lay.n);
+  vero('il nucleo resta al centro della tela (scarto ' + (lay.centro || 0).toFixed(1) + ' px)', lay.centro < 1);
+  vero('tutti i neuroni dentro la tela, nessuna posizione non finita', lay.dentro);
+  vero('la struttura lontana dai bordi, con spazio per le etichette', lay.strDentro);
+  await ctxSW.close();
   /* (v252) il menu ✨ VERO, quello che si apre dal pulsante sul telefono: prima le voci stavano in un elenco che non si vedeva */
   const mn = await pg.evaluate(async () => {
     const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {}, apri = async () => { document.getElementById('bsi14-fab').click(); await pausa(250); return document.getElementById('bsi14-sheet'); };

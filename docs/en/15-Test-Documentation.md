@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v255` |
+| **Version described** | `bsi-v256` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -592,7 +592,7 @@ because in the first draft an existing style rule made them invisible (the
 bench would have caught it). Finally it reopens the app with «reduce motion»
 and demands that everything stays still but visible.
 
-**`test_risveglio` — 99 checks (v251, v252).** Since v252 it opens the real ✨ menu, the one tapped on a phone, and demands the «🤖 Spectra» section as the first section, with the four entries really opening their window: in v251 the entries sat in a list that is not shown, and the bench, which looked for the text in the page, had not noticed. It also demands the news panel, once only and only for those who have already talked to Spectra. It comes from the videos the
+**`test_risveglio` — 108 checks (v251, v252, v256).** Since v256 it opens the neural network on the **first visit**, with the real service worker and an empty profile, and demands that it is still there after 5 s (a single navigation), that the ✨ is hidden while it is open and returns afterwards, and that with 60 memories on a single level the core stays centred and every neuron inside the canvas. Since v252 it opens the real ✨ menu, the one tapped on a phone, and demands the «🤖 Spectra» section as the first section, with the four entries really opening their window: in v251 the entries sat in a list that is not shown, and the bench, which looked for the text in the page, had not noticed. It also demands the news panel, once only and only for those who have already talked to Spectra. It comes from the videos the
 author pointed to as a model: an assistant that wakes up with a start-up
 sequence, tells the weather and the commitments, greets you when you come home,
 gives a briefing at 8:00 and 20:00, changes colour on a low battery and shows
@@ -1054,4 +1054,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v255`._
+_Document updated to version `bsi-v256`._

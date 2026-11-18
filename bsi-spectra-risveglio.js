@@ -209,10 +209,11 @@
     var s = D.createElement('style'); s.id = 'bsiRV-stile';
     s.textContent =
       'body.bsi-batteria-bassa #bsiJV,body.bsi-batteria-bassa #bsiRV,body.bsi-batteria-bassa #bsiRN{filter:hue-rotate(172deg) saturate(1.5)}' +
-      '#bsiRV,#bsiRN{position:fixed;inset:0;z-index:100060;background:radial-gradient(ellipse at center,#06263a 0%,#020a12 70%);color:#bff3ff;font:500 .95rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
+      '#bsiRV,#bsiRN{position:fixed;inset:0;z-index:2147483643;background:radial-gradient(ellipse at center,#06263a 0%,#020a12 70%);color:#bff3ff;font:500 .95rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
       'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(22px + env(safe-area-inset-bottom,0px))}' +
       '#bsiRV canvas,#bsiRN canvas{display:block}#bsiRV .sfondo{position:fixed;inset:0;width:100%;height:100%;opacity:.35;pointer-events:none}' +
       '#bsiRN .testa>div{display:flex;align-items:center;gap:8px;flex:0 0 auto}#bsiRN .testa h2{flex:1 1 auto;min-width:0}#bsiRN .conta2{width:min(640px,100%);font-size:.78rem;opacity:.75}' +
+      '#bsiRN .testa,#bsiRN .conta2{width:min(900px,100%)!important}' +
       '#bsiRV .testa,#bsiRN .testa{position:relative;width:min(640px,100%);display:flex;justify-content:space-between;align-items:center;gap:10px}' +
       '#bsiRV h2,#bsiRN h2{margin:0;font:700 1rem/1.2 ui-monospace,Menlo,monospace;letter-spacing:.18em;color:#7fe7ff}' +
       '.bsiRV-batt{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#bff3ff}.bsiRV-batt .corpo{position:relative;width:30px;height:14px;border:2px solid #7fe7ff;border-radius:3px;padding:1px;box-sizing:border-box}' +
@@ -257,9 +258,31 @@
     var ctx = tela.getContext('2d'), N = G.neuroni, L = G.collegamenti, W = 0, H = 0, dpr = Math.min(2, g.devicePixelRatio || 1), raf = 0, fermo = false;
     var calmo = g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var semeR = 7; function rnd() { semeR = (semeR * 16807) % 2147483647; return semeR / 2147483647; }
-    function misura() { var r = tela.getBoundingClientRect(); W = Math.max(50, r.width); H = Math.max(50, r.height); tela.width = Math.round(W * dpr); tela.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-    misura();
-    N.forEach(function (n) { n.x = W / 2 + (rnd() - 0.5) * W * 0.7; n.y = H / 2 + (rnd() - 0.5) * H * 0.7; n.vx = 0; n.vy = 0; n.fase = rnd() * 6.28; });
+    var scala = 1; function misura() { var r = tela.getBoundingClientRect(); W = Math.max(50, r.width); H = Math.max(50, r.height); scala = Math.max(0.55, Math.min(1, Math.min(W, H) / 480)); tela.width = Math.round(W * dpr); tela.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    /* (v256) La struttura sta ferma: il nucleo al centro, i livelli e le materie su un anello. Prima si muoveva con il resto e,
+       con molti ricordi agganciati a un solo livello, la loro repulsione spingeva il nucleo e gli altri livelli contro il bordo
+       (le etichette uscivano dalla tela). I neuroni dei ricordi nascono accanto al nodo a cui sono legati. */
+    var strutt = N.filter(function (n) { return n.struttura; }), padre = {};
+    L.forEach(function (l) { if (N[l.a].struttura && !N[l.b].struttura && padre[l.b] == null) padre[l.b] = l.a; else if (N[l.b].struttura && !N[l.a].struttura && padre[l.a] == null) padre[l.a] = l.b; });
+    function ancore() {
+      var pieno = strutt.length > 1 && N.length > strutt.length, R = Math.min(W, H) * (pieno ? 0.26 : 0.36), m = strutt.length - 1;
+      /* il livello con più ricordi guarda verso il lato lungo della tela (a destra in orizzontale, in basso in verticale):
+         il suo grappolo ha lo spazio per aprirsi invece di schiacciarsi contro il bordo corto */
+      var h = 1; strutt.forEach(function (n, i) { if (i && n.peso > strutt[h].peso) h = i; });
+      var a0 = (W >= H ? 0 : Math.PI / 2) - (h - 1) * 2 * Math.PI / m, ex = W >= H ? 1.3 : 1, ey = W >= H ? 1 : 1.3;
+      strutt.forEach(function (n, i) {
+        if (i === 0) { n.ax = W / 2; n.ay = H / 2; }
+        else { var a = a0 + (i - 1) * 2 * Math.PI / m; n.ax = W / 2 + R * Math.cos(a) * ex; n.ay = H / 2 + R * Math.sin(a) * ey; }
+        n.x = n.ax; n.y = n.ay;
+      });
+    }
+    misura(); ancore();
+    N.forEach(function (n, i) {
+      n.vx = 0; n.vy = 0; n.fase = rnd() * 6.28;
+      if (n.struttura) return;
+      var q = padre[i] != null ? N[padre[i]] : null, cx = q ? q.x + (q.x - W / 2) * 0.35 : W / 2, cy = q ? q.y + (q.y - H / 2) * 0.35 : H / 2;
+      n.x = cx + (rnd() - 0.5) * Math.min(W, H) * 0.2; n.y = cy + (rnd() - 0.5) * Math.min(W, H) * 0.2;
+    });
     var scelto = -1, passo = 0;
     /* (v255) Fruchterman e Reingold (1991): repulsione k²/d, attrazione d²/k, spostamento limitato da una «temperatura» che si
        raffredda, più una leggera gravità verso il centro. Prima la repulsione non aveva limite: con pochi neuroni li schiacciava
@@ -275,9 +298,10 @@
       }
       L.forEach(function (l) { var a = N[l.a], b = N[l.b], dx = a.x - b.x, dy = a.y - b.y, d = Math.sqrt(dx * dx + dy * dy) || 0.1, f = d * d / k; a.dx -= dx / d * f; a.dy -= dy / d * f; b.dx += dx / d * f; b.dy += dy / d * f; });
       N.forEach(function (n) {
+        if (n.struttura && strutt.length < N.length) { n.x = n.ax; n.y = n.ay; return; }     // (v256) la struttura è fissa
         n.dx += (W / 2 - n.x) * 0.06 * k / 40; n.dy += (H / 2 - n.y) * 0.06 * k / 40;
         var m = Math.sqrt(n.dx * n.dx + n.dy * n.dy) || 1, s = Math.min(m, temp) / m;
-        n.x = Math.max(10, Math.min(W - 10, n.x + n.dx * s)); n.y = Math.max(10, Math.min(H - 10, n.y + n.dy * s));
+        n.x = Math.max(14, Math.min(W - 14, n.x + n.dx * s)); n.y = Math.max(14, Math.min(H - 14, n.y + n.dy * s));
         if (!calmo) { n.fase += 0.02; n.x += Math.cos(n.fase) * 0.25; n.y += Math.sin(n.fase * 1.3) * 0.25; }       // fluttuano appena
       });
       temp = Math.max(0.6, temp * 0.985);
@@ -291,16 +315,18 @@
         if (!calmo && !opz.sfondo) { var t = ((passo * 0.01 + l.a * 0.13) % 1); ctx.fillStyle = 'rgba(191,243,255,.7)'; ctx.fillRect(a.x + (b.x - a.x) * t - 1, a.y + (b.y - a.y) * t - 1, 2, 2); }   // il segnale che corre
       });
       N.forEach(function (n, i) {
-        var r = 3 + Math.min(6, n.peso * 0.8) + (i === scelto ? 3 : 0);
+        var r = (3 + Math.min(6, n.peso * 0.8)) * scala + (i === scelto ? 3 : 0);
         ctx.shadowColor = COLORI[n.tipo]; ctx.shadowBlur = i === scelto ? 18 : 8; ctx.fillStyle = COLORI[n.tipo];
         ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.2832); ctx.fill(); ctx.shadowBlur = 0;
-        if (n.struttura && !opz.sfondo) { ctx.font = '600 10px ui-monospace,Menlo,monospace'; ctx.fillStyle = 'rgba(191,243,255,.8)'; var et = n.testo.split(/[:—]/)[0].trim(); ctx.textAlign = n.x > W / 2 ? 'left' : 'right'; ctx.fillText(et, n.x + (n.x > W / 2 ? 8 : -8), n.y - 6); ctx.textAlign = 'left'; }   /* (v255) i nomi della struttura */
+        if (n.struttura && !opz.sfondo) { ctx.font = '600 10px ui-monospace,Menlo,monospace'; ctx.fillStyle = 'rgba(191,243,255,.8)'; var et = n.testo.split(/[:—]/)[0].trim(), lw = ctx.measureText(et).width, lx = n.x > W / 2 ? n.x + 8 : n.x - 8 - lw;   /* (v256) l'etichetta resta dentro la tela */
+          lx = Math.max(4, Math.min(W - 4 - lw, lx)); ctx.textAlign = 'left'; ctx.fillText(et, lx, Math.max(12, n.y - 7)); }   /* (v255) i nomi della struttura */
       });
     }
     function ciclo() { if (fermo) return; passo++; fisica(); disegna(); raf = (calmo && passo > 260) ? 0 : g.requestAnimationFrame(ciclo); if (calmo && passo === 260) disegna(); }
     if (calmo) { for (var q = 0; q < 260; q++) { passo++; fisica(); } disegna(); } else ciclo();
-    var suRidim = function () { misura(); disegna(); }; g.addEventListener('resize', suRidim);
+    var suRidim = function () { var w0 = W, h0 = H; misura(); N.forEach(function (n) { if (!n.struttura) { n.x *= W / w0; n.y *= H / h0; } }); ancore(); temp = Math.min(W, H) / 16; disegna(); }; g.addEventListener('resize', suRidim);
     return {
+      neuroni: function () { return N; },
       ferma: function () { fermo = true; if (raf) g.cancelAnimationFrame(raf); g.removeEventListener('resize', suRidim); },
       scegli: function (x, y) { var m = -1, md = 26 * 26; N.forEach(function (n, i) { var d = (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y); if (d < md) { md = d; m = i; } }); scelto = m; disegna(); return m >= 0 ? N[m] : null; }
     };
@@ -341,7 +367,7 @@
     P.appendChild(el('div', { class: 'conta2' }, '+ ' + GS.struttura + ' neuroni di struttura: il nucleo, i cinque livelli della memoria, le tre materie'));
     var info = el('div', { class: 'scelto', 'aria-live': 'polite' }, G.neuroni.length ? 'Tocca un neurone per leggere il ricordo.' : 'La rete è ancora vuota: ogni conversazione, ricordo o impegno aggiunge un neurone. Intanto vedi la struttura: il nucleo di Spectra, i cinque livelli della memoria e le materie, dove i ricordi andranno ad agganciarsi.');
     P.appendChild(info);
-    D.body.appendChild(P); iconaBatteria(bt);
+    D.body.appendChild(P); D.body.classList.add('bsi-sopra'); iconaBatteria(bt);
     var A = animaRete(cv, GS);
     cv.addEventListener('pointerdown', function (e) {
       var r = cv.getBoundingClientRect(), n = A.scegli(e.clientX - r.left, e.clientY - r.top);
@@ -350,7 +376,7 @@
     rete = { el: P, anima: A, grafo: G };
     return rete;
   }
-  function chiudiRete() { if (rete) { rete.anima.ferma(); if (rete.el.parentNode) rete.el.parentNode.removeChild(rete.el); rete = null; } }
+  function chiudiRete() { if (rete) { rete.anima.ferma(); if (rete.el.parentNode) rete.el.parentNode.removeChild(rete.el); rete = null; } if (!sv) D.body.classList.remove('bsi-sopra'); }
 
   /* ── 7 bis. la modalità occhiali: Spectra risponde al suo nome ───────────
      Gli occhiali Ray-Ban Meta, per il telefono, sono cuffie Bluetooth: ciò che
@@ -445,7 +471,7 @@
     return n.length || proxy ? { ok: true, testo: 'stabilito' + (n.length ? ' (' + n.map(function (x) { return nomi[x] || x; }).slice(0, 3).join(', ') + ')' : '') } : { ok: false, testo: 'in locale: calcoli e comandi dell\'app' };
   }
   function linkScorciatoia() { var u = g.location.href.split('#')[0].split('?')[0]; return u.replace(/[^/]*$/, '') + 'index.html?spectra=sveglia'; }
-  function chiudiRisveglio() { if (sv) { if (sv.anima) sv.anima.ferma(); sv.timer.forEach(clearTimeout); if (sv.el.parentNode) sv.el.parentNode.removeChild(sv.el); sv = null; } }
+  function chiudiRisveglio() { if (sv) { if (sv.anima) sv.anima.ferma(); sv.timer.forEach(clearTimeout); if (sv.el.parentNode) sv.el.parentNode.removeChild(sv.el); sv = null; } if (!rete) D.body.classList.remove('bsi-sopra'); }
 
   /** La sequenza: le righe di avvio, poi il punto detto a voce. `opz.tocca`: aspetta un tocco prima di parlare (aperta da una scorciatoia: il browser vuole un gesto per far parlare la pagina). */
   function risveglio(opz) {
@@ -478,7 +504,7 @@
     [bc, ba, br, bs, bx].forEach(function (b) { az.appendChild(b); }); P.appendChild(az);
     var sc = guidaDispositivi(); sc.setAttribute('hidden', ''); P.appendChild(sc);
     bs.onclick = function () { var h = sc.hasAttribute('hidden'); if (h) sc.removeAttribute('hidden'); else sc.setAttribute('hidden', ''); bs.setAttribute('aria-expanded', String(h)); };
-    D.body.appendChild(P); iconaBatteria(bt);
+    D.body.appendChild(P); D.body.classList.add('bsi-sopra'); iconaBatteria(bt);
     sv = { el: P, timer: [], anima: null, testo: null };
     try { sv.anima = animaRete(sf, G, { sfondo: true }); } catch (e) {}
     var lis = ol.querySelectorAll('li'), passo = opz.rapido ? 30 : 420;
