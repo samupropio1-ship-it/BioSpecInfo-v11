@@ -41,12 +41,14 @@ function vero(d, c) { att(d, true, !!c); }
   const mem = {}, ctx = { Math, Object, Array, String, Number, setInterval: () => 0, clearInterval() {}, localStorage: { getItem: k => mem[k] || null, setItem: (k, v) => { mem[k] = v; } }, devicePixelRatio: 3, Event: function () {}, CustomEvent: function () {}, dispatchEvent() {} };
   ctx.window = ctx; vm.createContext(ctx); vm.runInContext(fs.readFileSync(path.join(RADICE, 'bsi-risoluzione.js'), 'utf8'), ctx);
   const R = ctx.BSIRisoluzione;
-  att('telefono a 3×, modo 4K (predefinito): 4× (prima 2×)', 4, R.dpr(412, 500));
+  att('telefono a 3×, modo 8K (predefinito): 6× (prima 2×)', 6, R.dpr(412, 500));
   R.imposta('nativa'); att('modo nativa: 3×', 3, R.dpr(412, 500));
   R.imposta('risparmio'); att('modo risparmio: 1×', 1, R.dpr(412, 500));
-  R.imposta('ultra'); ctx.devicePixelRatio = 1; att('schermo a 1×, modo 4K: 1,5× (supercampionamento)', 1.5, R.dpr(800, 450));
-  ctx.devicePixelRatio = 2; vero('schermo intero 1920×1080 a 2×: si disegna in 4K esatto (3840 px), non oltre', Math.abs(1920 * R.dpr(1920, 1080) - 3840) < 1);
-  ctx.devicePixelRatio = 3; { const r = R.dpr(1600, 1600); vero('tela quadrata enorme: mai oltre 3840×2160 pixel (' + Math.round(1600 * r) + '² px)', (1600 * r) ** 2 <= 3840 * 2160 + 1); }
+  R.imposta('ultra'); ctx.devicePixelRatio = 1; att('modo 4K a 1×: 1,5× (supercampionamento)', 1.5, R.dpr(800, 450));
+  R.imposta('max8k'); att('modo 8K a 1×: 2×', 2, R.dpr(800, 450));
+  ctx.devicePixelRatio = 2; vero('schermo intero 1920×1080 a 2×, modo 8K: si disegna a 7680 px (8K), non oltre', Math.abs(1920 * R.dpr(1920, 1080) - 7680) < 1);
+  ctx.devicePixelRatio = 3; { const r = R.dpr(1600, 1600); vero('tela quadrata enorme, modo 8K: mai oltre 7680×4320 pixel (' + Math.round(1600 * r) + '² px)', (1600 * r) ** 2 <= 7680 * 4320 + 1); }
+  { const r = R.dpr(4000, 2250); vero('schermo 8K reale (4000 px CSS): il lato in pixel non supera la dimensione massima di texture della GPU (8192 nel test)', 4000 * r <= 8192 + 1 && 4000 * r > 3840); }
 
   console.log('\n── La pagina, telefono a 3× ──');
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
@@ -66,18 +68,18 @@ function vero(d, c) { att(d, true, !!c); }
     o.bottone = !!a.S.box.querySelector('.bsi3d-qualita') && a.S.box.querySelector('.bsi3d-qualita').textContent;
     BSIRisoluzione.imposta('risparmio'); await P(300); o.risparmio = +(c.width / c.clientWidth).toFixed(2); o.bottone2 = a.S.box.querySelector('.bsi3d-qualita').textContent;
     BSIRisoluzione.imposta('ultra'); await P(300); o.ritorno = +(c.width / c.clientWidth).toFixed(2);
-    const url = BSIRisoluzione.foto4K(a.S.ren, () => a.S.disegna()); const im = new Image(); im.src = url; await im.decode(); o.foto = Math.max(im.width, im.height); o.dopoFoto = +(c.width / c.clientWidth).toFixed(2);
+    BSIRisoluzione.imposta('max8k'); await P(300); const url = BSIRisoluzione.fotoAlta(a.S.ren, () => a.S.disegna()); const im = new Image(); im.src = url; await im.decode(); o.foto = Math.max(im.width, im.height); o.dopoFoto = +(c.width / c.clientWidth).toFixed(2);
     /* una tela 2D del motore comune */
     const cv = [...document.querySelectorAll('canvas')].find(x => x.clientWidth > 100 && x.getContext && !x.getAttribute('data-engine') && x.width / x.clientWidth > 1);
     o.tela2d = cv ? +(cv.width / cv.clientWidth).toFixed(2) : 0;
     return o;
   });
-  att('modo predefinito: 4K', 'ultra', r.modo);
-  att('una scena 3D (Meccanismi 3D) disegna a 4× i pixel CSS (prima 2×)', 4, r.rapporto);
+  att('modo predefinito: 8K', 'max8k', r.modo);
+  vero('una scena 3D (Meccanismi 3D) disegna a 6× i pixel CSS in 8K (prima 2×): ' + r.rapporto + '×', r.rapporto >= 5.5);
   vero('resa cinema con bersaglio multicampionato (MSAA ' + r.msaa + '×) e senza grana', r.msaa >= 2 && r.grana === 0);
-  vero('il renderer è registrato, il pulsante della qualità c\'è («' + r.bottone + '» → «' + r.bottone2 + '»)', r.agganciato && r.bottone === '4K' && /Risparmio|Saver/.test(r.bottone2));
-  att('cambiando modo la scena aperta si aggiorna subito (risparmio 1×, poi di nuovo 4×)', '1 4', r.risparmio + ' ' + r.ritorno);
-  att('la foto 📷 esce a 3840 px e poi la scena torna come prima', '3840 4', r.foto + ' ' + r.dopoFoto);
+  vero('il renderer è registrato, il pulsante della qualità c\'è («' + r.bottone + '» → «' + r.bottone2 + '»)', r.agganciato && r.bottone === '8K' && /Risparmio|Saver/.test(r.bottone2));
+  att('cambiando modo la scena aperta si aggiorna subito (risparmio 1×, poi di nuovo 4K 4×)', '1 4', r.risparmio + ' ' + r.ritorno);
+  vero('la foto 📷 esce fino a 8K (' + r.foto + ' px, ≤ 7680) e poi la scena torna come prima (' + r.dopoFoto + '×)', r.foto > 3840 && r.foto <= 7680 && r.dopoFoto >= 5.5);
   vero('anche le tele 2D disegnano oltre 2× (' + r.tela2d + '×)', r.tela2d > 2);
   att('nessun errore JavaScript', 0, errs.length); errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
   await b.close();

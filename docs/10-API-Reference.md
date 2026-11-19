@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v265` |
+| **Versione descritta** | `bsi-v266` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -603,4 +603,4 @@ anche `parti` (le mesh del modello per nome).
 
 ---
 
-_Documento aggiornato alla versione `bsi-v265`._
+_Documento aggiornato alla versione `bsi-v266`._

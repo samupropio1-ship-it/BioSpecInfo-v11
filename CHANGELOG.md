@@ -7,6 +7,31 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v266] — 2026-11-19
+
+**8K per ogni animazione e la voce di Spectra potenziata**
+
+### Migliorato
+- **Risoluzione 8K** (`bsi-risoluzione.js`): il regolatore unico della risoluzione ha un nuovo gradino, **8K**, ora
+  predefinito: supercampionamento a **2× i pixel fisici dello schermo (fino a 6×)**, con un tetto di **7680 px** sul
+  lato lungo e 7680×4320 pixel per tela. A schermo intero su un monitor 4K la scena si disegna a 8K e viene
+  rimpicciolita, così i bordi sono perfettamente lisci. I modi diventano **8K → 4K → Nativa → Risparmio** (pulsante in
+  ogni scena 3D); le vecchie preferenze «4K» restano valide. Sicurezza: il lato di ogni tela 3D è limitato alla
+  dimensione massima di texture della GPU, così l'8K non lascia mai una tela nera su schede deboli. Filtro anisotropo
+  portato a 16×, saturazione della resa cinema a 4×, foto 📷 fino a **8K**.
+- **Voce di Spectra potenziata** (`bsi-spectra-voce.js`, versione 2.0): la catena Web Audio (usata con la chiave OpenAI)
+  è più ricca — sub-armonica, due bande di presenza, una banda d'aria a 10 kHz, un **de-esser** per le sibilanti,
+  **allargamento stereo (Haas)** per una voce più presente e un **limitatore** in uscita; tre timbri pronti (androide,
+  profonda, cristallo). L'audio dal servizio arriva ora **senza perdita (WAV)** e un filo più lento (0,96×) per
+  autorevolezza; le istruzioni di timbro sono più dettagliate (micro-pause, inflessione discendente, enfasi sui termini
+  chiave). Il ripiego sulla voce del sistema sceglie meglio le voci **neurali/premium** e aggiunge micro-pause naturali
+  dopo la punteggiatura. Nel pannello **🎙️ Voce** di ElevenLabs si può scegliere la **qualità audio** (128 / 192 kbps);
+  il predefinito resta 128 kbps.
+
+### Note
+- L'8K è pesante sui telefoni: se la scena scalda o rallenta, il pulsante nella scena passa a 4K, Nativa o Risparmio.
+
+---
 ## [bsi-v265] — 2026-11-19
 
 **BioSpec Quantum Studio: un unico studio olografico per tredici scienze, con il grafico calcolato nel palco**

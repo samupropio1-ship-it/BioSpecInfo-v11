@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v265` |
+| **Version described** | `bsi-v266` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -152,7 +152,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_animmat` | **The maths animations** (v262, 23 checks): Gibbs 1.179, Riemann ∝ 1/n², Taylor below Lagrange, secant → 1, Galton, Buffon, Fibonacci → φ, (1 + 1/n)ⁿ → e; then the nine animations on the phone with the HUD |
 | `test_voce_elevenlabs` | **The ElevenLabs voice** (v263, 24 checks): a fake ElevenLabs server with real audio; correct request (voice, xi-api-key, model, «ultron» style, mp3), parameters clamped, long texts in chunks with previous_text/next_text and the next chunk downloaded while the first plays, cache, queue, interruption, 401 → system fallback, 429 → retry, proxy with no key, microphone released, chat and panel |
 | `test_biolab3d` | **The Biochemistry 3D Lab** (v264, 54 checks): carbons conserved in all 46 steps of the seven pathways, the course balances (glycolysis, PDH, Krebs, β-oxidation, C8 = 50, C16 = 106, glucose 30/32), where the CO₂ comes from, the four inhibitors and Lineweaver–Burk, allostery, the ATP synthase rotor (8 H⁺ and 3 ATP per turn, L/T/O states), oxygraph (ADP, oligomycin, DNP, cyanide), 12 chapters; then the four tabs on a phone: the rotor turns and the counters follow its angle, oligomycin stops it, counted products match Michaelis–Menten, every pathway reaches its end with the right tally, theory and quiz, Spectra's tool |
-| `test_risoluzione` | **Animation resolution** (v264, 16 checks): no fixed 2× cap left in the code, BSIRisoluzione loaded first, the maths (4K = 1.5× up to 4×, native, saver, never over 3840 px), on a 3× phone the 3D scene draws at 4×, cinema render with MSAA and no grain, mode changes applied at once, photo at 3840 px, 2D canvases above 2× |
+| `test_risoluzione` | **Animation resolution** (v264, 16 checks): no fixed 2× cap left in the code, BSIRisoluzione loaded first, the maths (8K = 2× up to 6×, 4K, native, saver, never over 7680 px), on a 3× phone the 3D scene draws at 6×, cinema render with MSAA and no grain, mode changes applied at once, photo at 3840 px, 2D canvases above 2× |
 | `test_quantumstudio` | **The Quantum Studio** (v265, 57 checks): 13 areas and 16 modules with equation, theory and questions; the models (Morse, NMR, dose–response, real PCA, Van Deemter, PES and Eyring, Hodgkin–Huxley, Rabi, n-cubes, Calabi–Yau z₁ⁿ+z₂ⁿ=1, Gibbs); then the page on a phone: each module draws in 3D with the live chart and telemetry, the SPECTRA_3D_BRIDGE bridge opens a module, sets a parameter and changes representation, the quantum_studio tool. |
 | `test_spectra_nucleo` | **Spectra as a holographic core, with no automatic openings** (v259, 41 checks): for three profiles (new, with conversations, with wake-up and glasses on) nothing opens in the first 10 s, no voice, no keyboard, only tap-to-open invitations; the button does not pulse forever; states named in Italian and English, transitions without jumps, word-by-word caption, at most 6 lit tiles, amber warning, cards, «reduce motion»; the hologram neither cycles nor speaks by itself; without WebGL the 2D core |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
@@ -1067,4 +1067,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v265`._
+_Document updated to version `bsi-v266`._

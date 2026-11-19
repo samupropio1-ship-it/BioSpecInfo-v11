@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v265` |
+| **Versione descritta** | `bsi-v266` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -151,7 +151,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_animmat` | **Le animazioni matematiche** (v262, 23 controlli): Gibbs 1,179, Riemann ∝ 1/n², Taylor sotto Lagrange, secante → 1, Galton, Buffon, Fibonacci → φ, (1 + 1/n)ⁿ → e; poi le nove animazioni sul telefono con l'HUD |
 | `test_voce_elevenlabs` | **La voce ElevenLabs** (v263, 24 controlli): un server ElevenLabs finto con audio vero; richiesta giusta (voce, xi-api-key, modello, stile «ultron», mp3), parametri stretti nei limiti, testi lunghi in pezzi con previous_text/next_text e il pezzo dopo scaricato mentre suona il primo, cache, coda, interruzione, 401 → ripiego sul sistema, 429 → riprova, proxy senza chiave, microfono liberato, chat e pannello |
 | `test_biolab3d` | **Il Biochimica 3D Lab** (v264, 54 controlli): carboni conservati in tutti i 46 passi delle sette vie, bilanci della dispensa (glicolisi, PDH, Krebs, β-ossidazione, C8 = 50, C16 = 106, glucosio 30/32), da dove vengono le CO₂, i quattro inibitori e Lineweaver–Burk, allosteria, rotore dell'ATP sintasi (8 H⁺ e 3 ATP per giro, stati L/T/O), ossigrafo (ADP, oligomicina, DNP, cianuro), 12 capitoli; poi le quattro schede sul telefono: il rotore gira e i contatori seguono l'angolo, l'oligomicina lo ferma, i prodotti contati tornano con Michaelis–Menten, ogni via arriva in fondo col conto giusto, teoria e quiz, lo strumento di Spectra |
-| `test_risoluzione` | **La risoluzione delle animazioni** (v264, 16 controlli): nessun limite fisso a 2× nel codice, BSIRisoluzione caricato per primo, i conti (4K = 1,5× fino a 4×, nativa, risparmio, mai oltre 3840 px), su un telefono a 3× la scena 3D disegna a 4×, resa cinema MSAA senza grana, cambio di modo applicato subito, foto a 3840 px, tele 2D oltre 2× |
+| `test_risoluzione` | **La risoluzione delle animazioni** (v264, 16 controlli): nessun limite fisso a 2× nel codice, BSIRisoluzione caricato per primo, i conti (8K = 2× fino a 6×, 4K, nativa, risparmio, mai oltre 7680 px), su un telefono a 3× la scena 3D disegna a 6×, resa cinema MSAA senza grana, cambio di modo applicato subito, foto a 3840 px, tele 2D oltre 2× |
 | `test_quantumstudio` | **Il Quantum Studio** (v265, 57 controlli): 13 aree e 16 moduli con equazione, teoria e domande; i modelli (Morse, NMR, dose–risposta, PCA vera, Van Deemter, PES ed Eyring, Hodgkin–Huxley, Rabi, n-cubi, Calabi–Yau z₁ⁿ+z₂ⁿ=1, Gibbs); poi la pagina sul telefono: ogni modulo disegna in 3D con il grafico vivo e la telemetria, il ponte SPECTRA_3D_BRIDGE apre un modulo, imposta un parametro e cambia rappresentazione, lo strumento quantum_studio. |
 | `test_spectra_nucleo` | **Spectra come nucleo olografico, senza aperture automatiche** (v259, 41 controlli): per tre profili (nuovo, con conversazioni, con sveglia e occhiali accesi) nei primi 10 s non si apre nulla, nessuna voce, nessuna tastiera, solo inviti da toccare; il pulsante non pulsa all'infinito; stati con i nomi in italiano e inglese, transizioni senza salti, didascalia parola per parola, tessere al massimo 6, avviso in ambra, schede, «riduci movimento»; l'ologramma non gira da solo e non parla da solo; senza WebGL il nucleo 2D |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
@@ -1092,4 +1092,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v265`._
+_Documento aggiornato alla versione `bsi-v266`._

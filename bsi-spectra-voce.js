@@ -38,12 +38,24 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
+  /* (v266) catena più ricca: sub-armonica, due bande di presenza, aria, de-esser,
+     allargamento stereo (Haas), limitatore in uscita; ogni numero è regolabile. */
   var TIMBRO = {
-    bassiHz: 140, bassiDb: 5, fangoHz: 350, fangoDb: -3, presenzaHz: 2800, presenzaDb: 3,
-    anelloHz: 55, anello: 0.12, pettineMs: 4.3, pettineRetro: 0.35, pettine: 0.18, calore: 1.6,
-    stanzaS: 1.4, stanza: 0.16, volume: 0.95
+    subHz: 70, subDb: 2.5, bassiHz: 140, bassiDb: 5, fangoHz: 350, fangoDb: -3,
+    corpoHz: 900, corpoDb: 1.5, presenzaHz: 2800, presenzaDb: 3.5, ariaHz: 10500, ariaDb: 2,
+    deessHz: 6800, deessDb: -4, deessQ: 2.2,
+    anelloHz: 55, anello: 0.1, pettineMs: 4.3, pettineRetro: 0.33, pettine: 0.15, calore: 1.5,
+    larghezzaMs: 12, larghezza: 0.5, stanzaS: 1.5, stanza: 0.15, volume: 0.96, limite: -1.5
   };
-  var ISTRUZIONI = 'Voice: a deep, resonant male voice, warm but slightly metallic, like a calm scientist android. Pace: measured, confident. Tone: kind, precise, quietly enthusiastic about science. Language: same as the text.';
+  /* tre timbri pronti: 'androide' (predefinito), 'profonda', 'cristallo' */
+  var PRESET = {
+    androide: TIMBRO,
+    profonda: Object.assign({}, TIMBRO, { subDb: 4.5, bassiDb: 6.5, presenzaDb: 2.5, ariaDb: 1, anello: 0.14, calore: 1.9, stanza: 0.2, stanzaS: 1.9 }),
+    cristallo: Object.assign({}, TIMBRO, { subDb: 1, bassiDb: 3, presenzaDb: 4.5, ariaDb: 3.5, anello: 0.04, pettine: 0.06, calore: 1.1, stanza: 0.1, deessDb: -6 })
+  };
+  function timbro(opz) { opz = opz || {}; if (opz.timbro && typeof opz.timbro === 'object') return opz.timbro; return PRESET[opz.preset] || PRESET[presetSalvato()] || TIMBRO; }
+  function presetSalvato() { try { return localStorage.getItem('bsi-voce-preset') || 'androide'; } catch (e) { return 'androide'; } }
+  var ISTRUZIONI = 'Voice: a deep, resonant, cinematic male voice, warm but subtly metallic, like a calm, highly intelligent scientist android. Delivery: measured and confident, with natural micro-pauses at commas and full stops, a gentle downward inflection at the end of statements, and light emphasis on key terms. Tone: kind, precise, quietly enthusiastic about science; never robotic or monotone. Studio quality, close-mic, no background noise. Language: match the language of the text exactly.';
   var ac = null, cache = {}, corrente = null;
 
   function chiaveOpenAI() {
@@ -68,31 +80,55 @@
     }
     return b;
   }
-  /* la catena: restituisce { ingresso, uscita, analizzatore, ferma } */
+  /* la catena (v266): ingresso → EQ (sub, bassi, fango, corpo, presenza, aria) →
+     de-esser → metallo (anello + pettine) → calore → de-ess dinamico → stanza →
+     allargamento stereo (Haas) → compressore → limitatore → uscita.
+     restituisce { ingresso, uscita, analizzatore, ferma } */
   function catena(a, P) {
     P = P || TIMBRO;
     var ing = a.createGain();
-    var bassi = a.createBiquadFilter(); bassi.type = 'lowshelf'; bassi.frequency.value = P.bassiHz; bassi.gain.value = P.bassiDb;
-    var fango = a.createBiquadFilter(); fango.type = 'peaking'; fango.frequency.value = P.fangoHz; fango.Q.value = 1.1; fango.gain.value = P.fangoDb;
-    var pres = a.createBiquadFilter(); pres.type = 'peaking'; pres.frequency.value = P.presenzaHz; pres.Q.value = 0.9; pres.gain.value = P.presenzaDb;
-    ing.connect(bassi); bassi.connect(fango); fango.connect(pres);
+    function shelf(tipo, hz, db, q) { var f = a.createBiquadFilter(); f.type = tipo; f.frequency.value = hz; f.gain.value = db; if (q != null && f.Q) f.Q.value = q; return f; }
+    var sub = shelf('lowshelf', P.subHz, P.subDb);
+    var bassi = shelf('lowshelf', P.bassiHz, P.bassiDb);
+    var fango = shelf('peaking', P.fangoHz, P.fangoDb, 1.1);
+    var corpo = shelf('peaking', P.corpoHz || 900, P.corpoDb || 0, 0.8);
+    var pres = shelf('peaking', P.presenzaHz, P.presenzaDb, 0.9);
+    var aria = shelf('highshelf', P.ariaHz || 10000, P.ariaDb || 0);
+    ing.connect(sub); sub.connect(bassi); bassi.connect(fango); fango.connect(corpo); corpo.connect(pres); pres.connect(aria);
+    /* de-esser statico: una campana che addolcisce le sibilanti */
+    var deess = shelf('peaking', P.deessHz || 6800, P.deessDb || 0, P.deessQ || 2.2); aria.connect(deess);
     /* metallo: anello + pettine, in parallelo al segnale pulito */
     var secco = a.createGain(); secco.gain.value = 1 - P.anello;
     var anelloG = a.createGain(); anelloG.gain.value = 0; var anelloMix = a.createGain(); anelloMix.gain.value = P.anello;
     var osc = a.createOscillator(); osc.frequency.value = P.anelloHz; osc.connect(anelloG.gain); osc.start();
-    pres.connect(secco); pres.connect(anelloG); anelloG.connect(anelloMix);
+    deess.connect(secco); deess.connect(anelloG); anelloG.connect(anelloMix);
     var pett = a.createDelay(0.05); pett.delayTime.value = P.pettineMs / 1000; var retro = a.createGain(); retro.gain.value = P.pettineRetro; var pettMix = a.createGain(); pettMix.gain.value = P.pettine;
-    pres.connect(pett); pett.connect(retro); retro.connect(pett); pett.connect(pettMix);
+    deess.connect(pett); pett.connect(retro); retro.connect(pett); pett.connect(pettMix);
     var somma = a.createGain(); secco.connect(somma); anelloMix.connect(somma); pettMix.connect(somma);
     /* calore: saturazione morbida */
-    var sat = a.createWaveShaper(), curva = new Float32Array(1024); for (var i = 0; i < 1024; i++) { var x = i / 511.5 - 1; curva[i] = Math.tanh(P.calore * x) / Math.tanh(P.calore); } sat.curve = curva; sat.oversample = '2x';
+    var sat = a.createWaveShaper(), curva = new Float32Array(1024); for (var i = 0; i < 1024; i++) { var x = i / 511.5 - 1; curva[i] = Math.tanh(P.calore * x) / Math.tanh(P.calore); } sat.curve = curva; sat.oversample = '4x';
     somma.connect(sat);
     /* stanza */
     var conv = a.createConvolver(); conv.buffer = impulso(a, P.stanzaS); var umido = a.createGain(); umido.gain.value = P.stanza; var asciutto = a.createGain(); asciutto.gain.value = 1;
     sat.connect(asciutto); sat.connect(conv); conv.connect(umido);
+    var preMix = a.createGain(); asciutto.connect(preMix); umido.connect(preMix);
+    /* allargamento stereo (Haas): un canale ritardato, per una voce più presente e tridimensionale */
+    var largo = null, merge = null;
+    try {
+      if (P.larghezza > 0 && a.createChannelMerger) {
+        merge = a.createChannelMerger(2); var ritL = a.createDelay(0.05), gL = a.createGain(), gR = a.createGain();
+        ritL.delayTime.value = (P.larghezzaMs || 12) / 1000; gL.gain.value = P.larghezza; gR.gain.value = P.larghezza;
+        var cen = a.createGain(); cen.gain.value = 1 - P.larghezza * 0.5;
+        preMix.connect(cen); preMix.connect(ritL); ritL.connect(gL); preMix.connect(gR);
+        cen.connect(merge, 0, 0); cen.connect(merge, 0, 1); gL.connect(merge, 0, 0); gR.connect(merge, 0, 1); largo = merge;
+      }
+    } catch (e) { largo = null; }
     var comp = a.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.18;
-    var out = a.createGain(); out.gain.value = P.volume;
-    asciutto.connect(comp); umido.connect(comp); comp.connect(out);
+    (largo || preMix).connect(comp);
+    /* limitatore in uscita: rapporto alto e soglia alta, perché le bande in più non facciano clipping */
+    var lim = a.createDynamicsCompressor(); lim.threshold.value = P.limite != null ? P.limite : -1.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    comp.connect(lim);
+    var out = a.createGain(); out.gain.value = P.volume; lim.connect(out);
     var an = a.createAnalyser(); an.fftSize = 1024; an.smoothingTimeConstant = 0.55; out.connect(an);
     return { ingresso: ing, uscita: out, analizzatore: an, ferma: function () { try { osc.stop(); } catch (e) {} } };
   }
@@ -101,7 +137,8 @@
   function sintetizza(testo) {
     var k = chiaveOpenAI(); if (!k) return Promise.reject(new Error('nessuna chiave'));
     if (cache[testo]) return Promise.resolve(cache[testo]);
-    var corpo = function (modello) { var b = { model: modello, voice: 'onyx', input: String(testo).slice(0, 3800), response_format: 'mp3' }; if (modello !== 'tts-1') b.instructions = ISTRUZIONI; return JSON.stringify(b); };
+    /* (v266) formato WAV senza perdita verso la catena Web Audio, e un filo più lento per autorevolezza */
+    var corpo = function (modello) { var b = { model: modello, voice: 'onyx', input: String(testo).slice(0, 3800), response_format: 'wav', speed: 0.96 }; if (modello !== 'tts-1') b.instructions = ISTRUZIONI; return JSON.stringify(b); };
     var chiedi = function (modello) {
       return fetch('https://api.openai.com/v1/audio/speech', { method: 'POST', headers: { 'Authorization': 'Bearer ' + k, 'Content-Type': 'application/json' }, body: corpo(modello) })
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
@@ -152,7 +189,7 @@
         if (mio.annullato) return { annullato: true };
         if (a.state !== 'running') return sistema(testo, opz, mio);
         var src = a.createBufferSource(); src.buffer = audio;
-        var C = catena(a, opz.timbro); src.connect(C.ingresso); C.uscita.connect(a.destination);
+        var C = catena(a, timbro(opz)); src.connect(C.ingresso); C.uscita.connect(a.destination);
         var dati = new Uint8Array(C.analizzatore.frequencyBinCount), t0 = a.currentTime;
         mio.src = src; mio.chain = C;
         return new Promise(function (fine) {
@@ -188,14 +225,16 @@
         var w = new SpeechSynthesisUtterance(pezzi[k]), base = fatto; k++; fatto += pezzi[k - 1].length + 1;
         w.voice = u.voice; w.lang = u.lang; w.rate = u.rate; w.pitch = u.pitch; w.volume = 1; mio.u = w;
         w.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: (base + ev.charIndex) / Math.max(1, testo.length) }); };
-        var andato = false; function via() { if (andato) return; andato = true; prossimo(); }
+        /* (v266) una micro-pausa naturale dopo la punteggiatura: la lettura non è più piatta */
+        var fin = pezzi[k - 1], gap = mio.annullato ? 0 : /[.!?…]\s*$/.test(fin) ? 150 : /[;:,]\s*$/.test(fin) ? 80 : 30;
+        var andato = false; function via() { if (andato) return; andato = true; if (gap) setTimeout(prossimo, gap); else prossimo(); }
         w.onend = via; w.onerror = function (ev) { if (ev && (ev.error === 'interrupted' || ev.error === 'canceled')) { if (mio.annullato) return; } via(); };
         try { speechSynthesis.resume(); speechSynthesis.speak(w); } catch (e) { via(); }
       }
       prossimo();
     });
   }
-  function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0); }
+  function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0) + (/neural|natural|premium|enhanced|siri|multilingual/.test(n) ? 2 : 0); }
   function ferma() {
     if (corrente && corrente.el) { corrente.annullato = true; try { corrente.el.ferma(); } catch (e) { } }
     if (corrente) { corrente.annullato = true; try { if (corrente.src) corrente.src.stop(); } catch (e) {} if (corrente.chain) corrente.chain.ferma(); if (corrente.raf) cancelAnimationFrame(corrente.raf); }
@@ -205,5 +244,6 @@
   function sblocca() { try { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) globale.BSISpectraElevenLabs.voce().sblocca(); } catch (e) { } var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }
   function qualita() { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) return 'audio'; return chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext) ? 'audio' : ('speechSynthesis' in globale ? 'sistema' : 'testo'); }
 
-  globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, versione: '1.0' };
+  function impostaPreset(nome) { if (!PRESET[nome]) return presetSalvato(); try { localStorage.setItem('bsi-voce-preset', nome); } catch (e) {} return nome; }
+  globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, PRESET: PRESET, timbro: timbro, impostaPreset: impostaPreset, presetSalvato: presetSalvato, ISTRUZIONI: ISTRUZIONI, versione: '2.0' };
 })(typeof window !== 'undefined' ? window : globalThis);

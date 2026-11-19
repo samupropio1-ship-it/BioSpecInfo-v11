@@ -48,6 +48,12 @@
     eleven_flash_v2_5: 'Flash v2.5 — latenza minima (≈ 75 ms), qualità un po\' più bassa',
     eleven_v3: 'v3 — il più espressivo, accetta i tag come [calmly] o [whispers]'
   };
+  /* (v266) qualità dell'audio: il bitrate del file restituito. 128 è il predefinito, 192 il più nitido. */
+  var FORMATI = {
+    mp3_44100_128: 'MP3 44,1 kHz · 128 kbps (predefinito)',
+    mp3_44100_192: 'MP3 44,1 kHz · 192 kbps (più nitido, serve il piano adatto)',
+    mp3_22050_32: 'MP3 22 kHz · 32 kbps (leggero, per reti lente)'
+  };
   var CHIAVE_IMPOSTAZIONI = 'bsi-spectra-voce-11';
   var MAX_PEZZO = 600, MAX_CACHE = 40, TEMPO_MAX_MS = 25000, TENTATIVI = 2;
 
@@ -296,7 +302,7 @@
     var s = {}; try { s = JSON.parse(g.localStorage.getItem(CHIAVE_IMPOSTAZIONI) || '{}') || {}; } catch (e) { }
     var chiave = null; try { var k = JSON.parse(g.localStorage.getItem('bsi_api_keys') || '{}'); chiave = k && k.elevenlabs ? String(k.elevenlabs) : null; } catch (e) { }
     var proxy = ''; try { proxy = g.localStorage.getItem('bsi_proxy_url') || g.BSI_PROXY_URL || ''; } catch (e) { }
-    return { attiva: s.attiva !== false, voiceId: s.voiceId || '', preset: PRESET[s.preset] ? s.preset : 'ultron', modelId: MODELLI[s.modelId] ? s.modelId : 'eleven_multilingual_v2', viaProxy: !!s.viaProxy, apiKey: chiave, proxy: proxy.replace(/\/+$/, '') };
+    return { attiva: s.attiva !== false, voiceId: s.voiceId || '', preset: PRESET[s.preset] ? s.preset : 'ultron', modelId: MODELLI[s.modelId] ? s.modelId : 'eleven_multilingual_v2', qualita: FORMATI[s.qualita] ? s.qualita : 'mp3_44100_128', viaProxy: !!s.viaProxy, apiKey: chiave, proxy: proxy.replace(/\/+$/, '') };
   }
   function salvaImpostazioni(nuove) {
     var s = {}; try { s = JSON.parse(g.localStorage.getItem(CHIAVE_IMPOSTAZIONI) || '{}') || {}; } catch (e) { }
@@ -310,7 +316,7 @@
   function voceApp() {
     if (istanza) return istanza;
     var s = leggiImpostazioni(), lingua = (g.BSILingue && g.BSILingue.corrente && g.BSILingue.corrente() === 'en') ? 'en' : 'it';
-    istanza = new VoceSpectra(s.viaProxy && s.proxy ? { modalita: 'proxy', endpoint: s.proxy + '/voce', preset: s.preset, modelId: s.modelId, lingua: lingua } : { modalita: 'diretta', apiKey: s.apiKey, voiceId: s.voiceId, preset: s.preset, modelId: s.modelId, lingua: lingua });
+    istanza = new VoceSpectra(s.viaProxy && s.proxy ? { modalita: 'proxy', endpoint: s.proxy + '/voce', preset: s.preset, modelId: s.modelId, outputFormat: s.qualita, lingua: lingua } : { modalita: 'diretta', apiKey: s.apiKey, voiceId: s.voiceId, preset: s.preset, modelId: s.modelId, outputFormat: s.qualita, lingua: lingua });
     istanza.attiva = s.attiva;
     return istanza;
   }
@@ -336,10 +342,11 @@
       '<label for="bsiEL-chiave">Chiave API ElevenLabs (diretta)</label><input type="password" id="bsiEL-chiave" autocomplete="off" placeholder="' + (s.apiKey ? 'salvata: lasciala vuota per tenerla' : 'sk_…') + '">' +
       '<label for="bsiEL-id">Voice ID (diretta)</label><input type="text" id="bsiEL-id" autocomplete="off" value="' + String(s.voiceId).replace(/"/g, '') + '" placeholder="per esempio 21m00Tcm4TlvDq8ikWAM">' +
       '<label for="bsiEL-stile2">Stile</label><select id="bsiEL-stile2">' + opzP + '</select><label for="bsiEL-modello">Modello</label><select id="bsiEL-modello">' + opzM + '</select>' +
+      '<label for="bsiEL-qualita">Qualità audio</label><select id="bsiEL-qualita">' + Object.keys(FORMATI).map(function (k) { return '<option value="' + k + '"' + (k === s.qualita ? ' selected' : '') + '>' + FORMATI[k] + '</option>'; }).join('') + '</select>' +
       '<div class="riga"><button type="button" class="si" id="bsiEL-salva">Salva</button><button type="button" id="bsiEL-prova">🔊 Prova</button><button type="button" id="bsiEL-togli">Rimuovi la chiave</button><button type="button" id="bsiEL-chiudi">Chiudi</button></div><div class="stato" id="bsiEL-stato" aria-live="polite"></div></div>';
     D.body.appendChild(P);
     var $ = function (id) { return D.getElementById(id); }, stato = function (t) { $('bsiEL-stato').textContent = t; };
-    function salva() { var c = $('bsiEL-chiave').value.trim(), n = { attiva: $('bsiEL-attiva').checked, viaProxy: $('bsiEL-proxy').checked, voiceId: $('bsiEL-id').value.trim(), preset: $('bsiEL-stile2').value, modelId: $('bsiEL-modello').value }; if (c) n.apiKey = c; salvaImpostazioni(n); $('bsiEL-chiave').value = ''; }
+    function salva() { var c = $('bsiEL-chiave').value.trim(), n = { attiva: $('bsiEL-attiva').checked, viaProxy: $('bsiEL-proxy').checked, voiceId: $('bsiEL-id').value.trim(), preset: $('bsiEL-stile2').value, modelId: $('bsiEL-modello').value, qualita: $('bsiEL-qualita') ? $('bsiEL-qualita').value : undefined }; if (c) n.apiKey = c; salvaImpostazioni(n); $('bsiEL-chiave').value = ''; }
     $('bsiEL-salva').onclick = function () { salva(); stato(attiva() ? 'Salvato: Spectra ora parla con ElevenLabs.' : 'Salvato, ma manca qualcosa: serve la chiave e il Voice ID (o il proxy).'); };
     $('bsiEL-prova').onclick = function () { salva(); var v = voceApp(); v.sblocca(); if (!v.configurata()) { stato(MESSAGGI.configurazione); return; } stato('Sto chiedendo la voce…');
       v.parla(FRASE_PROVA, { interrompi: true, ripiego: false }).then(function (r) { stato(r.ok ? 'Funziona: hai sentito la voce di Spectra.' : r.annullato ? 'Interrotta.' : '⚠ ' + (r.messaggio || r.errore)); }); };
@@ -349,6 +356,6 @@
     return P;
   }
 
-  g.BSISpectraElevenLabs = { apriImpostazioni: apriImpostazioni, FRASE_PROVA: FRASE_PROVA, VoceSpectra: VoceSpectra, PRESET: PRESET, MODELLI: MODELLI, LIMITI: LIMITI, impostazioniVoce: impostazioniVoce, pezzi: pezzi, pulisci: pulisci, leggiImpostazioni: leggiImpostazioni, salvaImpostazioni: salvaImpostazioni, voce: voceApp, attiva: attiva, MESSAGGI: MESSAGGI };
+  g.BSISpectraElevenLabs = { apriImpostazioni: apriImpostazioni, FRASE_PROVA: FRASE_PROVA, VoceSpectra: VoceSpectra, PRESET: PRESET, MODELLI: MODELLI, FORMATI: FORMATI, LIMITI: LIMITI, impostazioniVoce: impostazioniVoce, pezzi: pezzi, pulisci: pulisci, leggiImpostazioni: leggiImpostazioni, salvaImpostazioni: salvaImpostazioni, voce: voceApp, attiva: attiva, MESSAGGI: MESSAGGI };
   if (typeof module !== 'undefined' && module.exports) module.exports = g.BSISpectraElevenLabs;
 })(typeof window !== 'undefined' ? window : globalThis);
