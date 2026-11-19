@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v261';
+window.BSI_APP_VERSION='bsi-v262';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -944,6 +944,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="ssyn">🧪 Sintesi Org.</button>
     <button class="nav-btn" data-s="sretro">🔄 Retrosintesi</button>
     <button class="nav-btn" data-s="sanimmech">🎬 Meccanismi</button>
+    <button class="nav-btn" data-s="smecc3d" style="border:1px solid #ff8fa3;background:linear-gradient(135deg,rgba(255,143,163,.14),rgba(124,111,255,.08))">🧪 Meccanismi 3D</button>
     <button class="nav-btn" data-s="shammett" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">σ Hammett e sostituenti</button>
     <button class="nav-btn" data-s="smolprop">🧮 Proprietà Mol.</button>
     <button class="nav-btn" data-s="sform">📐 Formule</button>
@@ -1115,6 +1116,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatgeo" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📐 Geometria analitica e vettori</button>
     <button class="nav-btn" data-s="smatvett" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∇ Calcolo vettoriale</button>
     <button class="nav-btn" data-s="smatfrenet" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🌀 Curve nello spazio</button>
+    <button class="nav-btn" data-s="sanimmat" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎞️ Animazioni matematiche</button>
     <button class="nav-btn" data-s="smatprob" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎲 Probabilità in movimento</button>
     <button class="nav-btn" data-s="smatvis" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎞️ Matematica visiva</button>
     <button class="nav-btn" data-s="smatnumeri" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔐 Numeri e crittografia</button>
@@ -23076,6 +23078,8 @@ document.addEventListener('click',function(e){
   <div style="text-align:center;padding:60px 20px;color:#c9d3df"><div style="font-size:48px">🥼</div></div>
 </div>
 <!-- ══ SECTION: MECCANISMI ANIMATI ════════════════════════════════════ -->
+<div id="smecc3d" class="section"></div>
+<div id="sanimmat" class="section"></div>
 <div id="sanimmech" class="section">
   <div style="text-align:center;padding:60px 20px;color:#c9d3df"><div style="font-size:48px">🎬</div></div>
 </div>
@@ -32218,6 +32222,8 @@ window.addEventListener('load', init);
 <script src="./bsi-astro-spaccato-scenari.js" defer></script>
 <script src="./bsi-astro-spaccato-eventi.js" defer></script>
 <script src="./bsi-astro-spaccato.js" defer></script>
+<script src="./bsi-chim-meccanismi3d.js" defer></script>
+<script src="./bsi-mat-animazioni.js" defer></script>
 <script src="./bsi-cosmo-sezione.js" defer></script>
 <script src="./bsi-ar.js" defer></script>
 <script src="./bsi-farm-quantitativa.js" defer></script>

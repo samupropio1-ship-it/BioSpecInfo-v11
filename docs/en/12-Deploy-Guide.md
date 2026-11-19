@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v261` |
+| **Version described** | `bsi-v262` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -451,4 +451,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v261`._
+_Document updated to version `bsi-v262`._

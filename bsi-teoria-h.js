@@ -383,4 +383,80 @@
     ],
     collegamenti: ['sastrostelle', 'sastrobh', 'sastrogw', 'scosmo']
   };
+  /* ═══ 🧪 Meccanismi 3D (v262) ═════════════════════════════════════════════ */
+  T['smecc3d'] = {
+    titolo: "Il meccanismo di reazione: dove vanno gli elettroni e quanto costa",
+    sintesi: "Un'equazione chimica dice che cosa diventa che cosa; il meccanismo dice come. Gli atomi si avvicinano, gli elettroni si spostano da un legame a un altro, si attraversano stati di transizione e a volte intermedi. Le frecce curve contano le coppie di elettroni; il profilo energetico dice quanto è alta la montagna da superare e quindi quanto è veloce la reazione.",
+    paragrafi: [
+      { titolo: "Le frecce curve", testo: "Una freccia curva parte da una coppia di elettroni (un doppietto libero o un legame) e arriva dove quella coppia formerà un nuovo legame o si fermerà come doppietto. Una mezza freccia muove un solo elettrone: è il linguaggio dei radicali. Le frecce non sono decorazioni: contando gli elettroni dicono quali cariche compaiono e scompaiono, e la carica totale non cambia mai." },
+      { titolo: "Stati di transizione e intermedi", testo: "Lo stato di transizione è il punto più alto del cammino fra due minimi: legami a metà, vita di una vibrazione molecolare, non si può isolare. Un intermedio è invece un minimo locale (un carbocatione, un complesso σ, un intermedio tetraedrico): vive abbastanza da poter essere intrappolato o osservato. La velocità dipende dalla barriera più alta, secondo Eyring: k = (k_B T/h) e^(−ΔG‡/RT)." },
+      { titolo: "Sostituzioni ed eliminazioni", testo: "L'SN2 avviene in un passo con l'attacco dal lato opposto al gruppo uscente e l'inversione della configurazione; l'SN1 passa per un carbocatione piatto e dà racemizzazione. L'E2 richiede che l'idrogeno e il gruppo uscente siano antiperiplanari. Substrato, nucleofilo o base, solvente e temperatura decidono quale strada vince." },
+      { titolo: "Leggere un profilo energetico", testo: "Il profilo energetico mette in orizzontale la coordinata di reazione, cioè l'avanzamento dai reagenti ai prodotti, e in verticale l'energia. I massimi sono gli stati di transizione, segnati con la doppia croce; le valli fra due massimi sono gli intermedi. La differenza fra reagenti e prodotti dice se la reazione libera o assorbe energia (termodinamica); l'altezza del massimo più alto rispetto al punto di partenza dice quanto è lenta (cinetica). Un catalizzatore non cambia né reagenti né prodotti: apre una strada con montagne più basse. Per questo una reazione molto favorevole può essere lentissima, come la combustione di un pezzo di legno che non brucia finché non lo si accende." },
+      { titolo: "Addizioni, aromatici, carbonili, radicali", testo: "Gli alcheni addizionano HBr passando per il carbocatione più stabile (regola di Markovnikov). Il benzene invece sostituisce, perché perdere l'aromaticità costa troppo: il complesso σ torna aromatico cedendo un protone. I carbonili vengono attaccati dai nucleofili e passano per un intermedio tetraedrico. Le reazioni pericicliche come la Diels–Alder spostano sei elettroni in cerchio in un passo solo, e le reazioni radicaliche procedono a catena." }
+    ],
+    formule: [
+      ["k = (k_B T / h) e^(−ΔG‡/RT)", "equazione di Eyring: la costante di velocità dalla barriera di energia libera"],
+      ["v = k[RX][Nu⁻]", "legge cinetica dell'SN2: secondo ordine, un passo solo"],
+      ["v = k[RX]", "legge cinetica dell'SN1: lo stadio lento è la ionizzazione"],
+      ["ΔH ≈ Σ E(legami rotti) − Σ E(legami formati)", "stima dell'entalpia di reazione dalle energie di legame"],
+      ["4n + 2 elettroni", "regola di Hückel: lo stato di transizione della Diels–Alder (6 elettroni) è aromatico"]
+    ],
+    ipotesi: [
+      "Le geometrie dei film sono semplificate: lunghezze e angoli tipici, i metili rappresentati come un'unica sfera.",
+      "I profili energetici sono indicativi (ordini di grandezza in soluzione), tranne la Diels–Alder butadiene + etene e la clorurazione radicalica, con i valori misurati."
+    ],
+    errori: [
+      "Disegnare la freccia dal nucleo verso gli elettroni: parte sempre dagli elettroni.",
+      "Confondere lo stato di transizione con un intermedio: il primo è un massimo, il secondo un minimo."
+    ],
+    esempio: {
+      testo: "La clorurazione del metano: CH₄ + Cl· → CH₃· + HCl. Con le energie di legame CH₃–H = 439 e H–Cl = 432 kJ/mol, quanto vale ΔH di questo passo?",
+      risultato: "ΔH ≈ 439 − 432 = +7 kJ/mol: leggermente endotermico"
+    },
+    fonti: [
+      "J. Clayden, N. Greeves, S. Warren, Organic Chemistry, 2ª ed., Oxford University Press 2012",
+      "E. V. Anslyn, D. A. Dougherty, Modern Physical Organic Chemistry, University Science Books 2006",
+      "R. B. Woodward, R. Hoffmann, Stereochemistry of electrocyclic reactions, Journal of the American Chemical Society 87 (1965) 395",
+      "Y.-R. Luo, Comprehensive Handbook of Chemical Bond Energies, CRC Press 2007"
+    ],
+    collegamenti: ['sanimmech', 'skin', 'schicinet']
+  };
+  /* ═══ 🎞️ Animazioni matematiche (v262) ═════════════════════════════════════ */
+  T['sanimmat'] = {
+    titolo: "Limiti, serie e caso: le idee che si vedono meglio in movimento",
+    sintesi: "Molte idee della matematica sono processi: una somma che si allunga, un intervallo che si restringe, un esperimento ripetuto. Guardarle muoversi aiuta a capire che cosa converge, quanto in fretta e verso che cosa.",
+    paragrafi: [
+      { titolo: "Serie di Fourier e fenomeno di Gibbs", testo: "Una funzione periodica si scrive come somma di seni e coseni. L'onda quadra è (4/π) Σ sin(kx)/k sulle k dispari: ogni termine è un cerchio che gira più in fretta. Vicino a un salto le somme parziali superano il valore di circa il 9 % del salto, e questo eccesso non sparisce aggiungendo termini: si stringe soltanto (fenomeno di Gibbs)." },
+      { titolo: "Integrale e derivata come limiti", testo: "L'integrale è il limite delle somme di rettangoli sempre più sottili: per una funzione liscia l'errore della somma sinistra cala come 1/n, ma se la funzione ha lo stesso valore agli estremi la somma coincide con quella dei trapezi e l'errore cala come 1/n². La derivata è il limite della pendenza della secante quando i due punti si avvicinano." },
+      { titolo: "Serie di Taylor", testo: "Una funzione liscia vicino a un punto si approssima con un polinomio che ne copia il valore e le derivate. Per sin x i termini dispari, con segni alterni e fattoriali al denominatore; il resto di Lagrange limita l'errore: |R| ≤ |x|^(n+1)/(n+1)!." },
+      { titolo: "Il cerchio, e e la sezione aurea", testo: "La formula di Eulero lega l'esponenziale alla trigonometria: un punto che gira sul cerchio di raggio uno ha come ombra orizzontale il coseno e come ombra verticale il seno, e dopo mezzo giro arriva a meno uno, da cui e^{iπ} + 1 = 0. Il numero e nasce anche da un problema di soldi: un euro al cento per cento annuo, con gli interessi aggiunti n volte l'anno, diventa (1 + 1/n)ⁿ euro, e al crescere di n si avvicina a 2,71828 senza superarlo. I numeri di Fibonacci, ognuno somma dei due precedenti, hanno rapporti che oscillano sopra e sotto la sezione aurea e la raggiungono in fretta." },
+      { titolo: "Il caso che conosce le costanti", testo: "Nella tavola di Galton ogni pallina fa 12 scelte a caso: il numero di destre segue la binomiale, che per molte prove assomiglia alla normale (teorema centrale del limite). Nell'ago di Buffon la frazione di aghi che tagliano una riga vale 2/π, e lanciandone molti si stima π, con un errore che cala come 1/√N." }
+    ],
+    formule: [
+      ["e^{iθ} = cos θ + i sin θ", "formula di Eulero: per θ = π dà e^{iπ} + 1 = 0"],
+      ["e = lim (1 + 1/n)ⁿ", "il numero di Nepero come limite degli interessi composti"],
+      ["F(n+1)/F(n) → φ = (1 + √5)/2", "il rapporto fra numeri di Fibonacci consecutivi tende alla sezione aurea"],
+      ["|R_n(x)| ≤ |x|^(n+1)/(n+1)!", "resto di Lagrange per sin x e cos x"],
+      ["P(incrocio) = 2l/(πd)", "ago di Buffon con l ≤ d"]
+    ],
+    ipotesi: [
+      "I campioni casuali (Galton, Buffon) sono generati con un seme fisso: rifacendo il film escono gli stessi numeri.",
+      "Le somme di Riemann usano la funzione sin x + 1,2 su [0, π]: siccome vale lo stesso agli estremi, l'errore della somma sinistra è quello dei trapezi."
+    ],
+    errori: [
+      "Pensare che aggiungendo armoniche l'eccesso di Gibbs sparisca: si restringe, ma la sua altezza resta circa il 9 % del salto.",
+      "Credere che un polinomio di Taylor vada bene ovunque: l'approssimazione è buona vicino al punto, e va controllata con il resto."
+    ],
+    esempio: {
+      testo: "Con 1958 aghi su 3000 che tagliano una riga (aghi lunghi quanto la distanza fra le righe), quanto vale la stima di π?",
+      risultato: "π ≈ 2·3000/1958 ≈ 3,064, entro due errori standard (~0,043) dal valore vero"
+    },
+    fonti: [
+      "T. W. Körner, Fourier Analysis, Cambridge University Press 1988, capitolo 17 (il fenomeno di Gibbs)",
+      "T. M. Apostol, Calculus, vol. 1, 2ª ed., Wiley 1967",
+      "W. Feller, An Introduction to Probability Theory and Its Applications, vol. 1, 3ª ed., Wiley 1968",
+      "G.-L. Leclerc de Buffon, Essai d'arithmétique morale, 1777"
+    ],
+    collegamenti: ['smatcalc', 'smatfrenet', 'sanimmech']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v261` |
+| Application version | `bsi-v262` |
 | Commit | `d0f512a84922b5dcf8d91e0a0a8f1492d474340d` |
 | Generated (UTC) | `2026-11-18T22:17:26.728Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
