@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v264` |
-| Commit | `66cd2253c96eb92d3ebc51b4fabeb2767332bb40` |
-| Generato (UTC) | `2026-11-19T09:57:06.736Z` |
+| Commit | `b0a9533edf21677cda61de65e469b0aa3f8cfe4c` |
+| Generato (UTC) | `2026-11-19T19:17:24.828Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4724 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4725 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 450 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -139,7 +139,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-astro-esopianeti.js` | 57 kB | Esopianeti 3D: zona abitabile, transito, velocità radiale, immagine diretta. |
 | `bsi-astro-wormhole.js` | 33 kB | Spaziotempo curvo e wormhole: curvatura e maree, metrica di Morris–Thorne, materia esotica, Casimir, dilatazione del tempo. |
 | `bsi-orbitali.js` | 39 kB | Laboratorio degli orbitali: funzioni d'onda idrogenoidi esatte, isosuperficie al 90 %, fase come colore, sovrapposizioni nel tempo, corrente di probabilità, H₂⁺ LCAO. |
-| `bsi-elementi3d.js` | 35 kB | Gli elementi in 3D: nuvola elettronica di Slater per sottoguscio, nucleo con protoni e neutroni, configurazioni della tabella, righe di emissione NIST, tavola periodica e sequenza. |
+| `bsi-elementi3d.js` | 36 kB | Gli elementi in 3D: nuvola elettronica di Slater per sottoguscio, nucleo con protoni e neutroni, configurazioni della tabella, righe di emissione NIST, tavola periodica e sequenza. |
 | `bsi-astro-materiaoscura.js` | 53 kB | Materia oscura e lenti gravitazionali: rete cosmica 3D, lente calcolata per pixel sulla GPU, rete neurale addestrata nel browser con fit fisico, curve di rotazione. |
 | `bsi-astro-materiaoscura-fisica.js` | 17 kB | Calcolo della materia oscura: cosmologia ΛCDM (Planck 2018), spettro BBKS con σ₈, FFT 3D, rete cosmica di Zel'dovich, lenti puntiforme, SIS, SIE e NFW, curve critiche e caustiche, curve di rotazione. |
 | `bsi-astro-viaggio.js` | 41 kB | Dal Sole alla Galassia: zoom logaritmico continuo con posizioni vere, flusso di Rankine, nube di Oort, Via Lattea, bolle di Fermi ed eROSITA. |
@@ -168,7 +168,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-chim-meccanismi3d.js` | 53 kB | Meccanismi 3D: otto reazioni organiche come film (atomi, legami parziali, frecce degli elettroni, cariche, profilo energetico vivo). |
 | `bsi-mat-animazioni.js` | 37 kB | Animazioni matematiche: Fourier, Riemann, Taylor, derivata, Eulero, Galton, Buffon, Fibonacci, e, con i numeri calcolati. |
 | `bsi-spectra-elevenlabs.js` | 29 kB | La voce di Spectra con ElevenLabs: coda, interruzione, testi lunghi a pezzi, cache, errori e ripiego; diretta o tramite il proxy (POST /voce). |
-| `bsi-astro-spaccato.js` | 112 kB | Motore degli Spaccati stellari: corpo tagliato a spicchio, strati a cipolla, ciambella della composizione, orologio, evento finale; strumento per Spectra. |
+| `bsi-bio-lab3d-dati.js` | 105 kB | Biochimica 3D Lab, i dati: sette vie passo per passo con i carboni seguiti, i 12 capitoli della dispensa d'esame, Michaelis–Menten e inibitori, ossigrafo e rotore dell'ATP sintasi. |
+| `bsi-bio-lab3d.js` | 98 kB | Biochimica 3D Lab: ATP sintasi rotante con l'ossigrafo, enzimi e cinetica, vie metaboliche in 3D con i carboni colorati, teoria d'esame e quiz. |
+| `bsi-risoluzione.js` | 5 kB | La risoluzione di tutte le animazioni: 4K supercampionata, nativa o risparmio, con il limite di 3840 px; aggiorna al volo i renderer three.js e le tele 2D; foto PNG in 4K. |
+| `bsi-astro-spaccato.js` | 113 kB | Motore degli Spaccati stellari: corpo tagliato a spicchio, strati a cipolla, ciambella della composizione, orologio, evento finale; strumento per Spectra. |
 | `bsi-cosmo-sezione.js` | 1 kB | La sezione «Simulazioni cosmiche» con le schede-anteprima. |
 | `bsi-costruttore.js` | 45 kB | Costruttore molecolare 3D e AR: atomi legati al tocco, valenze e cariche, VSEPR, campo di forze con raggi covalenti di Cordero, anelli aromatici, esportazione MOL/XYZ e realtà aumentata. |
 | `bsi-fis-motore.js` | 17 kB | Il motore in spaccato: ciclo Otto ad aria standard con manovellismo, flussi proporzionali, bilancio e dettaglio p–V. |
@@ -180,7 +183,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | 206 kB | Dati della teoria per sezione: matematica. |
 | `bsi-teoria-f.js` | 134 kB | Dati della teoria per sezione: chimica fisica e analitica. |
 | `bsi-teoria-g.js` | 12 kB | Dati della teoria per sezione: spaziotempo e wormhole. |
-| `bsi-teoria-h.js` | 60 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
+| `bsi-teoria-h.js` | 67 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
 | `bsi-teoria.js` | 19 kB | Teoria di ogni sezione: pulsante, scheda di lettura, indice e ricerca, strumento leggi_teoria per Spectra. |
 | `bsi-chim-hammett.js` | 19 kB | Equazione di Hammett: costanti σ (Hansch, Leo, Taft 1991), cinque reazioni con ρ, previsioni di k/k₀ e pKa, ρ ricavato dai dati. |
 | `bsi-fis-foucault.js` | 15 kB | Pendolo di Foucault (Runge–Kutta nel riferimento terrestre), precessione per latitudine, deviazione di Coriolis. |
@@ -208,7 +211,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
 | `bsi-spectra-voce.js` | 16 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
-| `bsi-spectra-olointerattivo.js` | 75 kB | Ologramma interattivo di Spectra: spettri IR/¹H/¹³C/massa/UV di molecole di riferimento o della traccia scritta, con attribuzione di ogni segnale; universo con dati NASA, Keplero e vis-viva; matematica e fisica con lo svolgimento dell'assistente; ogni passaggio spiegato a voce e per iscritto. |
+| `bsi-spectra-olointerattivo.js` | 76 kB | Ologramma interattivo di Spectra: spettri IR/¹H/¹³C/massa/UV di molecole di riferimento o della traccia scritta, con attribuzione di ogni segnale; universo con dati NASA, Keplero e vis-viva; matematica e fisica con lo svolgimento dell'assistente; ogni passaggio spiegato a voce e per iscritto. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili, dieci capitoli dalle superiori al PhD avanzato con previsione, cursore che ricalcola, visione dal vivo nell'ologramma e spiegazione completa. |
 | `bsi-spectra-spiega.js` | 36 kB | «🧠 Spiega»: la spiegazione completa ed esaustiva di chimica, fisica e matematica dalle superiori al PhD avanzato, anche di ciò che è sullo schermo (testo, valori, tabelle e immagine di spettri, grafici e scene 3D); senza modello mostra ciò che l'app sa da sola. |
 | `bsi-spectra-figura.js` | 63 kB | Spectra col corpo in un modulo solo: il controllore del corpo (incorporato nell'app e impacchettato, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
@@ -226,7 +229,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-numerici.js` | 24 kB | Metodi numerici: zeri, integrazione, EDO, interpolazione con gli ordini misurati. |
 | `bsi-mat-geometria.js` | 24 kB | Geometria analitica e vettori: vettori, rette e piani in 3D, coniche. |
 | `bsi-chi-equilibrio.js` | 27 kB | Equilibrio chimico e Le Chatelier: simulatore cinetico e K(T). |
-| `bsi-lab3d.js` | 69 kB | Laboratorio 3D: superfici, orbitali |ψ|², moti nello spazio, strutture cristalline e piani di Miller, linee di campo (three.js). |
+| `bsi-lab3d.js` | 70 kB | Laboratorio 3D: superfici, orbitali |ψ|², moti nello spazio, strutture cristalline e piani di Miller, linee di campo (three.js). |
 | `bsi-vista-molecole.js` | 8 kB | Qualità e barra dei comandi per tutti i visori molecolari 3Dmol. |
 | `bsi-assistente.js` | 71 kB | Le tre macro-aree Chimica, Fisica e Matematica: assistente in linguaggio naturale con svolgimento e problema inverso, catalogo degli strumenti, livelli. |
 | `bsi-chi-esame.js` | 98 kB | Esame di chimica dalla base all’avanzatissimo: 40 modelli di problema, prove svolte. |
@@ -239,12 +242,12 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 275 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 276 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 10 kB | Service Worker: funzionamento offline e strategia di rete. |
 | `rdkit_lab.html` | 260 kB | Laboratorio di chemioinformatica. |
-| `astro.html` | 2660 kB | Modulo di astrochimica. |
+| `astro.html` | 2661 kB | Modulo di astrochimica. |
 | `chimorga.html` | 195 kB | Modulo di chimica organica. |
 | `proxy/spectra-proxy.js` | 15 kB | Proxy opzionale (Cloudflare Worker) per le chiamate all'AI. |
 
@@ -252,21 +255,21 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `6adc5b4251d00bd17b8985ef87ffbe66cf2206f5eeb7766825f91ea4113b3e2a` |
+| `index.html` | `ec8382920e91af0c3f2c9d26859b3dd16aa126ee519b1b54e8aea93ee1bc82f9` |
 | `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
-| `bsi-fisica-comune.js` | `5fe08ef43a14a93e09caef439a07f0742221bdf1d395ce1c50dfed9e90cc73bb` |
+| `bsi-fisica-comune.js` | `44760cd853891e01013d21747c85fbb957e523270a6872cdfce8de6366c36e18` |
 | `bsi-fis-schrodinger.js` | `9954f7b14d9c84a2539480c2e61b468f2c37c72d03b3a6147d414c9870480d9b` |
-| `bsi-fis-hartreefock.js` | `541b5340edbb392f5f85d473f430a586282a848e0dc432b752ab898407582c84` |
+| `bsi-fis-hartreefock.js` | `14ed82aa2b49f594be17309fdcd3c64fafac2906de952a5e04b474e3b444710d` |
 | `bsi-fis-rotovib.js` | `0ce3ad61451a86506e9e653776d73b9e2cd21986c84a00e65db0fb6290ebbdde` |
 | `bsi-fis-termostat.js` | `0bb9f04d7d5b144791764fa4efd9f8e658be5b5d78b40f94e18752c2366589a9` |
-| `bsi-fis-dinamica.js` | `0b1ab11071eab8a1af5def46919bc73aa2dbd9dd58c77cea30aa6dee020f4755` |
-| `bsi-fis-matematica.js` | `616a2d4f338fe1d371f5ba3fd4fe569e94b2d94626a8d323bba8ae58f8550f62` |
-| `bsi-fis-cristalli.js` | `02e2224e77713d071720d6394452a21eb8e9e1c9103871f41193e82f346fe805` |
+| `bsi-fis-dinamica.js` | `21d875c1ec03df186b800561bb6d03d64d25ba6a17df2954ee63cd018d04a290` |
+| `bsi-fis-matematica.js` | `d798151cd43cf8a10e6a661b2d80044e45eadf200a943aa53d61a6bd48bd3533` |
+| `bsi-fis-cristalli.js` | `bece779514a8fcfd912ce5008cfacea4dfd522b79f8cb0ddd95b543ca464c9e2` |
 | `bsi-fis-nucleare.js` | `8ae148a2f37a40f6902faa4148e44468b4d659b6c7d1230378de92c2703a5874` |
 | `bsi-mat-cas.js` | `eea3a1eef74d31d3fde78b7e4a2795169e8af0f357edc10050eb98d8eaf386ac` |
 | `bsi-mat-basi.js` | `db30e16c58bde3638f13de5c3311a00598628676b7b418dc023b175efa77c214` |
@@ -281,14 +284,14 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
 | `bsi-percorsi.js` | `950c686202f2934009827bc300c787063b325528b7d5ab5385a8ab3b6706345c` |
 | `bsi-mat-probabilita.js` | `adc628789ec90772c14ce0e61aed74981cf60b261ac15ff6076d1d4b3e8d0bec` |
-| `bsi-mat-visiva.js` | `cb624f3e1e6c6df94c287f961d0f21a9d8ec852e8245ff5aeed09a083f2c5b14` |
+| `bsi-mat-visiva.js` | `8b95de6d41dc7c363d562c372b35ec8b61620c5af7bceb8884cf8b011a2ed57e` |
 | `bsi-fis-em.js` | `1c45fb608ccda1e500ab3038998cee4cb9c27b091c0b1d1b4f7af0137bf9a6ab` |
 | `bsi-fis-suono.js` | `fead9e5dde961fc56c3a649cce6e8eed23046f327c8392dbfd8de5024cf0a1bf` |
 | `bsi-fis-solido.js` | `bd2fa03fccfe2198757c0828e53edf50a2cf97636e28e69e419662085fa9b223` |
 | `bsi-chi-distillazione.js` | `5bcf3c3064bb8b7dd66be3f34f15deb8cf4b08fe12ce92133d0db1622a16b0e7` |
 | `bsi-chi-voltammetria.js` | `4db1a71e0ac3569b821f6cc5280470453f3a4df5c62b9695a3339367c5aa3e41` |
 | `bsi-mat-numeri.js` | `f30d041cd9963342aa476e128e4b29d543e113d3483253377ea486de3d46484f` |
-| `bsi-mat-grafi.js` | `4670e67bd25b97d4c7d2b8e72b03ed8ed4f6e6aa5c1c43dd74c56b437c1c8c33` |
+| `bsi-mat-grafi.js` | `2b9c4c377ae6702dd2101927e5d0470759566e40549145e4786be504e965bf18` |
 | `bsi-mat-serie.js` | `722b1a1b7397b7710689af555d1fd60de73ee405f5061819d9e59d7f4631d060` |
 | `bsi-mat-variazioni.js` | `ccb7379618067a0412d27fe95cb19d5823e0c0b739a371afc7cc69f162a5ca7a` |
 | `bsi-mat-topologia.js` | `87a8df768b8fa968608b52462df4340484ccaeb7ed3e6a987987a62603ceb8fa` |
@@ -301,7 +304,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-calore.js` | `81b9c1c60c7ba5a022f2f95e36ac17274ed1e2027d0ba36bcc24f8d6243ad3b8` |
 | `bsi-fis-ising.js` | `8ccd29082a4388ce63bdc1e39d9aa5fa92322e378384df0951d98bde6fe79b8c` |
 | `bsi-fis-particelle.js` | `4dce551cb464150e0faae0bcddcea8340596921873104503bd6a2dd10b41140c` |
-| `bsi-fis-analitica.js` | `01b4178998372c6db7d18a312c5a5ed1c8c26267bd0b72ae63ad6fbf92ba2895` |
+| `bsi-fis-analitica.js` | `579eb7e744d6011f35b5751ac091ea5b896c17d4d1812165893be4c355bf62c2` |
 | `bsi-fis-laser.js` | `dd11045b8e99d4f34e2204b6b6a8b354738eb05d2741426560ac8b938bdc1fd4` |
 | `bsi-fis-clima.js` | `8e136c02f7559cd22d57ccd857d06f8d6a6a89b2f38790d2782e6a45a7f2c822` |
 | `bsi-chi-fasi.js` | `99854760b11db89cf853bb4c2be08d00f018fb510fd6a56aff1c3006e68ed1af` |
@@ -321,29 +324,29 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-astro-orbite.js` | `32c8123ac5a7b39a9a4a816713d0305a9d90ddb8fb714614fcbba3eb3e834c4b` |
 | `bsi-astro-matcelesti.js` | `b2ee40c8a53fb25baf42020693539d91dc5278a14436115c69643470d57cda56` |
 | `bsi-astro-stelle.js` | `84064a5bdf8fdc1111011201cf97a11a47396acbd3c7442d52e2c5ba74a388a3` |
-| `bsi-astro-buchineri.js` | `c75a84cba9be45c5fec1b4f77f4ca79f9d898067006a3c309d951147ddde083c` |
+| `bsi-astro-buchineri.js` | `25180d5dad3142dc823c67781930a061749e6f6d8777b3619e24713b1bce6e38` |
 | `bsi-astro-ondegrav.js` | `dcbc8ea2e45f55a463ea344c26e0de8e0aa6a14f6adc73d6b2a2e43aee9736db` |
 | `bsi-astro-galassie.js` | `893eee603ec4af64ceaf440f3a22da3dab77a55333911e80e06212459e5f7125` |
 | `bsi-astro-cosmo.js` | `356152c5251593c68e8dd66b1182f5ee3f7c5f4f1cb26c722bdd384f8fe66d47` |
 | `bsi-astro-cielo.js` | `26b3e33cefe7d1606d0abf8d47be6d7d9b412891ab193d386835d4e40f9fdcf6` |
 | `bsi-astro-esopianeti.js` | `5a540d026927fc13f0081f3ba4cbfcb6de4c44056530571c77574e71f9003a49` |
-| `bsi-astro-wormhole.js` | `3df1dd15aef1d8e5a64a2e88597d2e1b707391c9e2218efb0e75bca8b7ee650b` |
-| `bsi-orbitali.js` | `c5d09511ed2307ceb7598755ea6e3f339a51b7a16a2cc1b2905426be3565c9ef` |
-| `bsi-elementi3d.js` | `2a1d91581b9a8e316baee42e5ee4cbd009887e07cfe4913b4b823a9b661e3e94` |
-| `bsi-astro-materiaoscura.js` | `305ac2c3485ee2519683804afceba60b49494b31a4528f712aba256868e33c51` |
+| `bsi-astro-wormhole.js` | `8a3501b1cda54586eb626d760dbf6f095c302851f0cd8d045b51a2287114bfb9` |
+| `bsi-orbitali.js` | `52cdd6a8ed949ea7b5d9849e0606bdbaa67700b856bbf5655c3f5219e34d42be` |
+| `bsi-elementi3d.js` | `7a5a8bc2ded2b503e8e3aa1fe1b13b1c2fc99f2969b4db30da544a33bac25cda` |
+| `bsi-astro-materiaoscura.js` | `c2afb8668ef5f9a219c975285ce3530432fb06fbadd1ed5d90282fe88d09d24e` |
 | `bsi-astro-materiaoscura-fisica.js` | `cf2aafd6a31d157487da6c810be87a3da455a3e57e691cdebeb79ccf2df35f59` |
 | `bsi-astro-viaggio.js` | `ffe4571f8ddc703748d04bba1d72f8453964c2ffeb89b92c4716204947287a1a` |
 | `bsi-orbitali-cinema.js` | `49ef811dd19c742cce558abbe60937d60716e1d2502ccace42fcbb46c7fbc3d8` |
-| `bsi-ar.js` | `14f2aa373d1cf9c7a53317fc362cf5bd7b5146caf565059ef4d3d73b92f75e0c` |
+| `bsi-ar.js` | `d271fdbcf9ef0cfe0c92f34eeb4cb61a749340e10f6beaff1b584e60e13240e0` |
 | `bsi-astro-eliosfera.js` | `9f1eef05b2f55b5305bf1e8f0e387e73a3345af08a392ec07d5b9ab0c73edb1e` |
 | `bsi-med-fisiologia.js` | `cb0ad121cb2cc7171ae94a37a59a0308514332fd2e5394314c60654e4da2f7f4` |
 | `bsi-farm-quantitativa.js` | `a32733c0abbe6010eba25d5ddd1d4c942f9ff75c51a5d4a7676bd251fb90a7ca` |
-| `bsi-mat-mappa.js` | `0e5ab1941db60aec5dd10c36d79585e93cf4daac34900248ee8beb9d008a15ea` |
-| `bsi-fis-scene3d.js` | `b675466692f03e72ce84a47c32abf71ac937add0a8e2c06add084090b95e7a04` |
+| `bsi-mat-mappa.js` | `46d113d070be7ccd09d8c70f9d7564a300e44206b53974bf9bb2cf0083658842` |
+| `bsi-fis-scene3d.js` | `80c94966971b487609012a9c329194cb46316af5f80fbdd12c21a07dd082e69d` |
 | `bsi-spectra-ponte.js` | `9d5d10e17383625b199eeb0c4b22748cf96b19ca87b470a0e00eea4287ebd206` |
-| `bsi-spectra-nucleo.js` | `3ac506ceeeccf79579b5db6481878d9931462a59b8c156778301a7ef1f72ce58` |
-| `bsi-spectra-cervello.js` | `4676d6660ae1518f94c007f95d90c99c50365da3cae2ea047736e6ebcbe33780` |
-| `bsi-cosmo-core.js` | `d87870dd58a6cc1abf3ed4e9dae463bd50e6b7fdfbc00c4f4a93e1e9f5fe5dd5` |
+| `bsi-spectra-nucleo.js` | `edf6e8b86124d23b3eb857795dbe72f238a864d87cbf34422a58df5b6213d942` |
+| `bsi-spectra-cervello.js` | `63256150f3f8d592b3e807dfbd49f204ede84946cad1d768c0ad895503df0ba7` |
+| `bsi-cosmo-core.js` | `47894f1a6f592477196878a3122fef69a58cc72695b60e874392a828da1368b3` |
 | `bsi-cosmo-h2.js` | `e4b6605e11026675df475965a527631a45b21873037acaae88428e058c802334` |
 | `bsi-cosmo-geodetiche.js` | `7f4d7c28d7b885bfbc4f975204a8e1fde25725831fe6e49e1ab00dc4736dcaee` |
 | `bsi-cosmo-galassia.js` | `710507b978cfbfda6c47e0d4c5e17e243f8e17c57187e6c28afaf796883716de` |
@@ -355,14 +358,17 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cosmo-sole.js` | `914cd12a6b11a5fa65a1f77ba1e3e2de0f788d04d9bc3f7198940b1db186fce9` |
 | `bsi-astro-spaccato-scenari.js` | `a4022dcc6b6ea9aaec48c0438757ea918399acf2e6c7bb833567342d0471e18b` |
 | `bsi-astro-spaccato-eventi.js` | `17874d4997fe2d2f29dac8e7d0d3d0f8daa20656f0eb94a51a32225e0e141b50` |
-| `bsi-chim-meccanismi3d.js` | `ad99ef29c4837324dbcf772ccedad40993d20fa2df92365557382cf6d0a13830` |
-| `bsi-mat-animazioni.js` | `70cdb335bebeadbab6500869abac22c7238ace4ae559e449f43f4697b3b9627c` |
+| `bsi-chim-meccanismi3d.js` | `1fdbfcff7e3bd69446c3ef91b0c316a79d3f497eb3b54a817a4988669a708eb0` |
+| `bsi-mat-animazioni.js` | `a87daee0bee2a87f72d81807d244fe69cef42ec2f5921cc95442b6edf1d2cf24` |
 | `bsi-spectra-elevenlabs.js` | `88db172cfc351608853a627d9df9db75361f5847eff318ec73c31aa6e2b2fa4c` |
-| `bsi-astro-spaccato.js` | `1d11fd3ddb82e72526e9a815daca9ce4152ef792e49512fac0360517d49868f7` |
+| `bsi-bio-lab3d-dati.js` | `672a11a6d5f19ce174f78cb870023b238050026325a6ea3aab758ce8a5e296f2` |
+| `bsi-bio-lab3d.js` | `f2017a270a7504150bb9ed866ebee8de7f6bd6edcac86e51d19e04f7900c6503` |
+| `bsi-risoluzione.js` | `e5d897a6a0d0ff823974e10c672da296e8b6dba2e2c4dea13f09a9f98638c992` |
+| `bsi-astro-spaccato.js` | `84996d27c77c0aaf2cf2774914d62787b318467a1ce543f0be877046ffdff88e` |
 | `bsi-cosmo-sezione.js` | `41ff5ee439c53082972eb3ddf8cce1aa0cec6eff84ea909a922fedcce0c5021a` |
 | `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
-| `bsi-fis-motore.js` | `69784decc437c85a417c3527b9251f30f8f6ec4f7dd9f9972bc6be1a8425a9b1` |
-| `bsi-fis-spaccati.js` | `d408eb0a996eebe491ab64de2b5907e6d65ca0c9dcc7b478ea17efafcae7470b` |
+| `bsi-fis-motore.js` | `ea1fc78972b6bb1fe95c784b3876cdc45bce32d43f5765bb6de6114fa7342ac3` |
+| `bsi-fis-spaccati.js` | `d844ebe26d182fa193e1c6cf7f531241ee4d0d6038ac11bae570ea75d0c758b3` |
 | `bsi-teoria-a.js` | `0ba0332aeffec0436d33cf12c9e27954ac214233efc1c50068f06eaabb208e84` |
 | `bsi-teoria-b.js` | `90d286234ee20a7196d12716bab1b33d636af950051dfbf93ee859285124396e` |
 | `bsi-teoria-c.js` | `727e6d0c7df27adc70a0230a9f9d8fe24c576ebcccf359aea06572ec166259c6` |
@@ -370,11 +376,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | `cbdd56af03008bb1b14d25693e924dcc5fd3d4d8b2d866ce80ca9ce02bf89735` |
 | `bsi-teoria-f.js` | `82de383a52f65b6f897139e36c26e4df0aac9ef7e73180e9192cafdb63fc0678` |
 | `bsi-teoria-g.js` | `e1a573f57fdaac6fdfedb8b1ee4d5059a11f0178a75317b4d50c6b220231d2cd` |
-| `bsi-teoria-h.js` | `c02740ec074b504ed0968b481ec7d295ca0d08a1ae800842f416de9d93894b17` |
+| `bsi-teoria-h.js` | `beb2e1786c588e58f2c0975198d17de01ff9a1e403b118b1baf7fe134b089581` |
 | `bsi-teoria.js` | `cf049a56873408a35f0ca1854dc841454477cb8fe8f12ba59719c7085437ec61` |
 | `bsi-chim-hammett.js` | `2a2a7077ed6d6e8026d10c68a69b7227835c857e697f650d5d83567701e3b351` |
-| `bsi-fis-foucault.js` | `1504e733dc6d0fcf7c9504c8bb05bdb9f00d7a239fcf6992d5a100e28268f9f1` |
-| `bsi-mat-frenet.js` | `dbe8adb45f7c3b0a4f103ce335ff68c89a2e15e921ace94b010457c6c17b7e4f` |
+| `bsi-fis-foucault.js` | `c4ddd93939cf0756de4506b898ce6d4f9142c3d41b5e263580f5f010db3e3f85` |
+| `bsi-mat-frenet.js` | `105d3c64787c01b8eae79983c53f943207de6c3c84f4a9d5821f43d0e8d2b9bd` |
 | `bsi-astro-chimica.js` | `28d88175973c82e3736e24e231efa1a2b67db0c6bd4b52e358f189b3d4b4c464` |
 | `bsi-chem-mappe.js` | `594d53b5a6675791d66df42d0d3dead84e670b4672f962392f9241c5ce8b8add` |
 | `bsi-fis-spin.js` | `a24dc05385fbff4826a02f95315ae1d8c57c8ee555da868a08620f24127fe3ad` |
@@ -387,21 +393,21 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `db08cdcc8f3df68f8af78c97ca65df2158870d4cc894ed3d67eece0a9dafb73e` |
-| `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
+| `bsi-spectra-live.js` | `b13e893460758540b5baa30b978df2a94415eddd836a0075bd2f5cd247bd5e48` |
+| `bsi-spectra-androide.js` | `cb20786c198a6f172b396edd0b5b6d4ac0ec80bc3cb2cc916d2b2dad8392cfec` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
-| `bsi-spectra-risveglio.js` | `77de1c01309057272f8d2dedc6a18199950bdb85f6f58d87a9a5d732497692df` |
+| `bsi-spectra-risveglio.js` | `a31c753d468eb92d7c639b0b7600d08c3dbce57b2a9c821d5951928e8b361b5b` |
 | `bsi-spectra-memoria.js` | `02ad82dced9bb4b176734d96408153150cd35b7d0e2919f3db48aed6789bc8e3` |
-| `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
+| `bsi-spectra-robot.js` | `aad16296bfe21f1298ba8eb6bcc6fc59dd67afa859519f06bb75c64c48c370e3` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
 | `bsi-spectra-voce.js` | `f662a95244b44e95d7f61fccbe319250987fd4c8932f5a7e10bcfd6c3585aa77` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
-| `bsi-spectra-olointerattivo.js` | `61a0a7492bbc506a776312c8ea858b8231fe9cd17916f02c63c119efab520fde` |
+| `bsi-spectra-olointerattivo.js` | `ba6124d18d5899c81d43aab328e6373b60cf944666fb73fee83d0e4b20fd92b7` |
 | `bsi-spectra-esplora.js` | `abca4cd053689e2499c90a0937b300d4c1abea3635cf6bcd6b1c117f1fa97d76` |
 | `bsi-spectra-spiega.js` | `789b3560c1372da180a86a486e9ce26f1d471768d39bd39fe1c6f55b85dc8b95` |
-| `bsi-spectra-figura.js` | `7d68489dbdac86da630d19505b79b1609f40d9cad9116c7e3124a5bb1a417e53` |
+| `bsi-spectra-figura.js` | `a5b6a07017272f03242211486cacb144f04a74b41870ef698b06b599046126b7` |
 | `bsi-spectra-rig.js` | `fcdd67c468f543a6e98f682d49c45b26173bb987c1aa529cb63d4e3e2a40918b` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `73954030d3fac2a5b12fd26c92f61a1c8bb986813941d33fb6b154e8cf89bee2` |
@@ -416,7 +422,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-numerici.js` | `8656bdf657dcc3468f78951ed3d8e1056d953b147e04595c6bfaad647fa8ca93` |
 | `bsi-mat-geometria.js` | `609bf6c951d438aa0b0639fd2e736a52b340a363294ee564acfe9510966334be` |
 | `bsi-chi-equilibrio.js` | `15d9d99c63c1db49dc3834b7b1db83f5ad2e03d1b9cc1b2f69cdb8ba6cffcefd` |
-| `bsi-lab3d.js` | `e9f187e67d9e385fef262f723005c06420b8ebd4cce4f4035da633c82dfe1d59` |
+| `bsi-lab3d.js` | `951ff308f12f74e8be009542a5ead6b8a582cf3ba47ebcc4aaadf44932c825df` |
 | `bsi-vista-molecole.js` | `4a7eb7cd7d8a0033ad0381d936d8e36b2b2e6b75af04988ecc5e9f4e8022cbc4` |
 | `bsi-assistente.js` | `103375186ee638e89e324a0d737be266c8464df20d763bb85edafe0e6af4daef` |
 | `bsi-chi-esame.js` | `ddb5d73fcf887e03770b3f0794fecaa2f8c918f4fae445bf57ff7a637f4643e7` |
@@ -429,13 +435,13 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `c7a86fb01ffb998f74426a5d3a65fea453d8ba1c6eb8bbdfa4c875d05c51ee04` |
+| `bsi-lingue.js` | `8ee165820df34cce5e8921c2dacdbe4d58468484b3d905f475152cdb35368e05` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `399becb4a9b35a13515f6f433f8eba20ef6375b86cf7cc19346b226cea4cda32` |
-| `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
-| `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
-| `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
+| `sw.js` | `b1d0ca1bc2872d3aab4275b65f1739ef794f9c17c501507857fa00346efe3a65` |
+| `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
+| `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
+| `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
 | `proxy/spectra-proxy.js` | `d8d65875a19da8357180c4ac079ce36835b95c2c993c8aec9d97b3f88690b499` |
 
 ---
@@ -486,4 +492,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-19T09:57:06.736Z._
+_Generato il 2026-11-19T19:17:24.828Z._

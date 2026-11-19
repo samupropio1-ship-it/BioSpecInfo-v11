@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v263` |
+| **Versione documentata** | Service Worker `bsi-v264` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 54 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 55 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 54 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 55 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 54 strumenti
+## 3. I 55 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -979,7 +979,7 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 217 sezioni dalla v242 (chimica 84, fisica 70,
+  (`BSIMaterie.materiaDi`), 218 sezioni dalla v242 (chimica 85, fisica 70,
   matematica 34, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
