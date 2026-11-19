@@ -497,4 +497,43 @@
     ],
     collegamenti: ['sglic', 'skrebs', 'setc', 'sbeta']
   };
+  /* ═══ 🌌 BioSpec Quantum Studio (v265) ═════════════════════════════════════ */
+  T['squantum'] = {
+    titolo: "Un unico studio per tredici scienze: il modello 3D e il grafico calcolato, insieme",
+    sintesi: "Il Quantum Studio tiene in un solo posto tredici aree che di solito stanno su libri diversi: biochimica, chimica e legame, chimica organica, spettroscopia, farmacologia, data science, biologia molecolare, tossicologia, laboratorio, chimica computazionale, biofisica, fisica quantistica con gli spazi iperdimensionali e le stringhe, e termodinamica. Ogni argomento è un modulo con il suo modello 3D a sinistra, il grafico calcolato dentro il palco, la telemetria e i cursori dei parametri; a destra l'equazione, la teoria, il focus d'esame e una domanda. Il filo che li lega è sempre lo stesso: una legge con pochi parametri che, mossi, cambiano insieme la scena e la curva.",
+    paragrafi: [
+      { titolo: "Perché un modello e non un disegno", testo: "Un disegno fermo mostra un caso; un modello mostra la legge. Nel Quantum Studio il grafico non è decorativo: viene dalla stessa funzione che muove la scena, ricalcolata a ogni fotogramma. Quando sposti [S] nella cinetica, la curva di Michaelis–Menten e gli enzimi che si chiudono sul substrato cambiano insieme; quando alzi il campo B₀ nell'NMR, i multipletti si stringono in ppm perché la costante di accoppiamento J, in hertz, non dipende dal campo mentre la distanza fra i chemical shift sì. Così un numero che cambia si vede prima come forma e poi come valore, ed è più difficile impararlo sbagliato." },
+      { titolo: "Le leggi con pochi parametri", testo: "Quasi ogni modulo è una formula con due o tre manopole. La curva di Morse descrive il legame dell'idrogeno con una buca di profondità Dₑ a una distanza di equilibrio rₑ. La dose–risposta è una sigmoide che un antagonista competitivo sposta a destra di un fattore 1 + [B]/K_B, senza toccare l'effetto massimo. L'equazione di Van Deemter dice qual è il flusso che rende più stretti i picchi in cromatografia. L'energia libera di Gibbs, ΔG = ΔH − TΔS, cambia segno alla temperatura ΔH/ΔS e decide se una reazione è spontanea. La stessa idea torna ovunque: capisci i parametri e hai capito il fenomeno." },
+      { titolo: "Dove i conti diventano veri", testo: "Alcuni moduli non illustrano una formula ma eseguono un calcolo completo. L'analisi delle componenti principali ruota per davvero una nube di dati a dieci dimensioni sulle direzioni di massima varianza, trovando gli autovalori della matrice di covarianza: i punti nello spazio tridimensionale sono i punteggi veri sulle prime tre componenti. Il potenziale d'azione è il modello di Hodgkin–Huxley integrato passo per passo: se porti a zero la conduttanza del sodio, come fa la tetrodotossina, il nervo non spara più. La sezione di Calabi–Yau è la curva di Hanson della quintica di Fermat, e ogni punto disegnato soddisfa davvero l'equazione z₁⁵ + z₂⁵ = 1." },
+      { titolo: "Lo spazio di Hilbert e le dimensioni in più", testo: "La tredicesima area porta la fisica quantistica e la geometria oltre le tre dimensioni. Lo stato di un qubit è un vettore unitario dello spazio di Hilbert a due dimensioni complesse, che si disegna come un punto sulla sfera di Bloch; un campo risonante lo fa ruotare da |0⟩ a |1⟩ e indietro, le oscillazioni di Rabi. Un ipercubo in n dimensioni ha 2ⁿ vertici e si guarda proiettandolo in tre dimensioni un asse alla volta, come un'ombra: il cubo che sembra «dentro» l'altro è in realtà più lontano lungo la quarta direzione. Nella teoria delle stringhe le sei dimensioni spaziali in più sono arrotolate in una varietà di Calabi–Yau: non si può disegnare, ma una sua sezione sì." },
+      { titolo: "Il ponte per Spectra", testo: "Lo studio espone un ponte, SPECTRA_3D_BRIDGE, che l'assistente può usare a voce o per iscritto per aprire un modulo, impostare un parametro o cambiare rappresentazione. Così si può chiedere a Spectra di «aprire la superficie di energia potenziale» o di «portare la temperatura a cinquecento kelvin nell'energia di Gibbs», e lo studio obbedisce mostrando insieme la scena e il grafico." }
+    ],
+    formule: [
+      ["V(r) = Dₑ(1 − e^(−a(r − rₑ)))² − Dₑ", "curva di Morse del legame covalente: buca di profondità Dₑ a distanza rₑ"],
+      ["ν₀ = γB₀/2π", "frequenza di Larmor in NMR: proporzionale al campo magnetico"],
+      ["E/Eₘₐₓ = [A]/(EC₅₀(1 + [B]/K_B) + [A])", "dose–risposta con antagonista competitivo (Gaddum–Schild)"],
+      ["P₁(t) = (Ω²/Ω′²)·sin²(Ω′t/2), Ω′ = √(Ω² + Δ²)", "oscillazioni di Rabi di un qubit nello spazio di Hilbert ℂ²"],
+      ["ΔG = ΔH − TΔS = −RT·ln K", "energia libera di Gibbs: spontaneità ed equilibrio"]
+    ],
+    ipotesi: [
+      "Le strutture 3D sono schematiche: forme e scale approssimate, non coordinate atomiche reali.",
+      "I valori marcati «indicativo» sono ordini di grandezza da letteratura; gli altri grafici vengono da modelli standard dei libri, non da simulazioni ab initio."
+    ],
+    errori: [
+      "Credere che l'antagonista competitivo abbassi l'effetto massimo: sposta solo la curva a destra, aumentando l'EC₅₀.",
+      "Pensare che in quattro dimensioni si ruoti attorno a un asse: si ruota attorno a un piano, che resta fermo."
+    ],
+    esempio: {
+      testo: "Una reazione ha ΔH° = −40 kJ/mol e ΔS° = −100 J/(mol·K). Fino a che temperatura è spontanea?",
+      risultato: "Fino a T* = ΔH/ΔS = 40 000/100 = 400 K; sopra, ΔG diventa positivo"
+    },
+    fonti: [
+      "D. L. Nelson, M. M. Cox, Lehninger Principles of Biochemistry, 8ª ed., W. H. Freeman 2021",
+      "P. Atkins, J. de Paula, Physical Chemistry, 11ª ed., Oxford University Press 2018",
+      "A. L. Hodgkin, A. F. Huxley, A quantitative description of membrane current, Journal of Physiology 117 (1952) 500",
+      "A. J. Hanson, A construction for computer visualization of certain complex curves, Notices of the AMS 41 (1994) 1156",
+      "M. A. Nielsen, I. L. Chuang, Quantum Computation and Quantum Information, Cambridge University Press 2010"
+    ],
+    collegamenti: ['sbiolab3d', 'smecc3d', 'snmrpred', 'sorbitali']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -7,6 +7,36 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v265] — 2026-11-19
+
+**BioSpec Quantum Studio: un unico studio olografico per tredici scienze, con il grafico calcolato nel palco**
+
+### Aggiunto
+- **🌌 BioSpec Quantum Studio** (`squantum`, nella barra della chimica/biochimica): un sistema integrato con **13 aree**
+  e **16 moduli**. A sinistra il modello 3D con il grafico calcolato DENTRO il palco (ridisegnato nello stesso
+  fotogramma della scena, dagli stessi numeri), la telemetria e i cursori dei parametri; a destra l'equazione, la
+  teoria, il focus d'esame e una domanda. Quattro rappresentazioni: densità (nuvola stile crio-EM), atomi, orbitale,
+  proiezione iperdimensionale.
+  - **Aree**: biochimica (ATP sintasi, cinetica), chimica e legame (orbitali ibridi + Morse), organica (SN2), spettroscopia
+    (¹H-NMR, Larmor, J), farmacologia (dose–risposta, Schild), data science (**PCA vera** con autovalori), biologia
+    molecolare (CRISPR–Cas9, PAM), tossicologia (nomogramma di Rumack–Matthew del paracetamolo), laboratorio
+    (HPLC, Van Deemter), in silico (superficie di energia potenziale, Eyring), biofisica (**Hodgkin–Huxley** integrato),
+    **fisica quantistica** con gli spazi di Hilbert (qubit, sfera di Bloch, Rabi), la geometria iperdimensionale
+    (n-cubi, tesseratto, matrice di rotazione dal vivo) e le stringhe (**Calabi–Yau**, sezione di Hanson della quintica),
+    e termodinamica (Gibbs, equilibrio, cella). La 13ª area è nata dal secondo video (fisica quantistica e stringhe).
+  - Ogni grafico viene da un **modello calcolato**, non decorativo: il banco `test_quantumstudio` (57 controlli)
+    verifica Morse, NMR, dose–risposta, PCA, Van Deemter, PES, Hodgkin–Huxley, Rabi, n-cubi, Calabi–Yau (ogni punto
+    soddisfa z₁ⁿ + z₂ⁿ = 1) e Gibbs.
+- **Ponte `SPECTRA_3D_BRIDGE`** e strumento di Spectra **`quantum_studio`** (56 strumenti): aprono un modulo, impostano
+  un parametro, cambiano rappresentazione; con gli alias `openSection`/`setParameter` della proposta originale.
+- Scheda di teoria `squantum`; i cinque file `bsi-quantum-studio*.js`.
+
+### Note
+- La proposta ricevuta (`biospec-quantum-studio.js`) usava three.js 0.169 e OrbitControls/EffectComposer/UnrealBloom da
+  una CDN come modulo ES: qui è stata riscritta sul motore 3D locale dell'app (three r128, BSILab3D, resa cinema, 4K),
+  che funziona anche offline. Il modulo di tossicologia è stato reso clinico (paracetamolo e N-acetilcisteina).
+
+---
 ## [bsi-v264] — 2026-11-19
 
 **Biochimica 3D Lab: l'esame di biochimica in movimento, dalla dispensa dell'autore**
