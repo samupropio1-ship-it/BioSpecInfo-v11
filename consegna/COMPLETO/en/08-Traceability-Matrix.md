@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v262` |
+| **Version described** | `bsi-v263` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -160,6 +160,7 @@
 | **AI-23** | Spectra Prime (v258): seven-agent orchestrator (LangGraph) with a WebSocket bridge that sees the open 3D scene and commands it (load, update, toggle_layer, focus); wss:// only, authorised origins, four actions, checked values, high/critical actions blocked until confirmed | `spectra_core/` (10 Python tests), `bsi-spectra-ponte.js` | `test_spectra_ponte` (41 checks) |
 | **AI-24** | Spectra is a particle-shaped holographic core, not a robot (v259): no body, face or portrait to download; states with smooth transitions (easeInOutSine), no saturating additive element; no window, voice or keyboard opening without a user action | `bsi-spectra-nucleo.js`, `bsi-spectra-figura.js`, `bsi-spectra-risveglio.js`, `bsi-spectra-olointerattivo.js`, `bsi-spectra-live.js`, `spectra-studio.html` | `test_spectra_nucleo` (41 checks) |
 | **AI-25** | Spectra's voice must be heard even with the sentinel on: before speaking (console, chat, quality voice) the microphone is released and Android is given time to let go of it, the sentinel does not restart while speaking, and restarts afterwards; no sentence is dropped | `bsi-spectra-live.js`, `bsi-spectra-voce.js`, `bsi-ai-hub.js` | `test_voce_microfono` (20 checks) |
+| **AI-26** | Spectra's ElevenLabs voice (v263) must never expose the key nor waste characters: key only on the device or as a proxy secret; the `/voce` route fixes the voice on the server, clamps the parameters, caps characters per request and per day, rotates keys; the client splits long texts with `previous_text`/`next_text`, queues, interrupts, retries 429/5xx, falls back to the system voice and releases the microphone | `bsi-spectra-elevenlabs.js`, `proxy/spectra-proxy.js` | `test_voce_elevenlabs` (24 checks), `test_worker.mjs` (§14) |
 
 ---
 
@@ -203,7 +204,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 764 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 768 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -250,14 +251,14 @@ manual testing, and their automation is planned.
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
 | Scientific (SCI-01…84) | 82 | 82 | 100 % |
-| AI agent (AI-01…25) | 24 | 24 | 100 % |
+| AI agent (AI-01…26) | 25 | 25 | 100 % |
 | Stability (STA-01…11) | 11 | 11 | 100 % |
 | Interface (UI-01…36) | 33 | 33 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **160** | **160** | **100 %** |
+| **Automated total** | **161** | **161** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **167** | **160** | **96 %** |
+| **Declared total** | **168** | **161** | **96 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -292,4 +293,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v262`._
+_Document updated to version `bsi-v263`._

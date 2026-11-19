@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Autore | Samuele Pio Provenzano |
-| Versione | `bsi-v262` |
-| Commit | `085228f` |
+| Versione | `bsi-v263` |
+| Commit | `66cd225` |
 | Preparato il | 2026-11-19 |
 | Applicazione | https://samupropio1-ship-it.github.io/BioSpecInfo-v11/ |
 | Repository | github.com/samupropio1-ship-it/BioSpecInfo-v11 |
@@ -93,4 +93,4 @@ La dichiarazione di conformità (09) è firmata dall'autore e dichiara esplicita
 
 ---
 
-_Pacchetto **AZIENDA** · versione `bsi-v262` · commit `085228f`._
+_Pacchetto **AZIENDA** · versione `bsi-v263` · commit `66cd225`._

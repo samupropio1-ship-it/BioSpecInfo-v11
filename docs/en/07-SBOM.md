@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v263` |
-| Commit | `085228f0b26309ff698bc3752f64f228c8e996b4` |
-| Generated (UTC) | `2026-11-19T03:07:08.070Z` |
+| Commit | `66cd2253c96eb92d3ebc51b4fabeb2767332bb40` |
+| Generated (UTC) | `2026-11-19T09:57:06.736Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -63,7 +63,7 @@ availability.
 | File | Size | Role |
 |---|---:|---|
 | `index.html` | 4724 kB | Main application: interface, teaching sections, chemical data. |
-| `bsi-ai-hub.js` | 449 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
+| `bsi-ai-hub.js` | 450 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 36 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
@@ -167,6 +167,7 @@ availability.
 | `bsi-astro-spaccato-eventi.js` | 59 kB | Fourteen more cosmic events for the stellar cutaways (star birth, brown and red dwarfs, Cepheids, novae, X-ray bursts, pulsars and magnetars, tidal disruptions, gamma-ray bursts, pair instability, GW150914, quasars, white-dwarf crystallisation, recombination) with computed numbers and sources. |
 | `bsi-chim-meccanismi3d.js` | 53 kB | 3D mechanisms: eight organic reactions as films (atoms, partial bonds, electron arrows, charges, live energy profile). |
 | `bsi-mat-animazioni.js` | 37 kB | Maths animations: Fourier, Riemann, Taylor, derivative, Euler, Galton, Buffon, Fibonacci, e, with computed numbers. |
+| `bsi-spectra-elevenlabs.js` | 29 kB | Spectra's voice with ElevenLabs: queue, interruption, long texts in chunks, cache, errors and fallback; direct or through the proxy (POST /voce). |
 | `bsi-astro-spaccato.js` | 112 kB | Stellar cutaway engine: wedge-cut body, onion layers, composition donut, clock, final event; Spectra tool. |
 | `bsi-cosmo-sezione.js` | 1 kB | The «Cosmic simulations» section with preview cards. |
 | `bsi-costruttore.js` | 45 kB | 3D and AR molecule builder: atoms bonded by tapping, valences and charges, VSEPR, force field with Cordero covalent radii, aromatic rings, MOL/XYZ export and augmented reality. |
@@ -205,7 +206,7 @@ availability.
 | `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Last-resort face: SVG vector portrait. |
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
-| `bsi-spectra-voce.js` | 15 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
+| `bsi-spectra-voce.js` | 16 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
 | `bsi-spectra-corpo.js` | 49 kB | Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin. |
 | `bsi-spectra-olointerattivo.js` | 75 kB | Spectra's interactive hologram: IR/¹H/¹³C/mass/UV spectra of reference molecules or of a written trace with each signal assigned; universe with NASA data, Kepler and vis-viva; maths and physics with the assistant's working; every step explained aloud and in writing. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Explore with Spectra»: one section per subject in the style of explorable lessons, ten chapters from high school to advanced PhD with prediction, a recomputing slider, live view in the hologram and full explanation. |
@@ -245,14 +246,14 @@ availability.
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2660 kB | Astrochemistry module. |
 | `chimorga.html` | 195 kB | Organic chemistry module. |
-| `proxy/spectra-proxy.js` | 10 kB | Optional proxy (Cloudflare Worker) for the AI calls. |
+| `proxy/spectra-proxy.js` | 15 kB | Optional proxy (Cloudflare Worker) for the AI calls. |
 
 ### Digests
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3758274a8aa7e7c2e91990fbeab211636d03d39a7d1a0f2c30c1d2cac12e8bcd` |
-| `bsi-ai-hub.js` | `e7cda4cfee8b1621aa4dd3f26e528b4a378b0c955410536c86d233b44ef6bcdb` |
+| `index.html` | `6adc5b4251d00bd17b8985ef87ffbe66cf2206f5eeb7766825f91ea4113b3e2a` |
+| `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -356,6 +357,7 @@ availability.
 | `bsi-astro-spaccato-eventi.js` | `17874d4997fe2d2f29dac8e7d0d3d0f8daa20656f0eb94a51a32225e0e141b50` |
 | `bsi-chim-meccanismi3d.js` | `ad99ef29c4837324dbcf772ccedad40993d20fa2df92365557382cf6d0a13830` |
 | `bsi-mat-animazioni.js` | `70cdb335bebeadbab6500869abac22c7238ace4ae559e449f43f4697b3b9627c` |
+| `bsi-spectra-elevenlabs.js` | `88db172cfc351608853a627d9df9db75361f5847eff318ec73c31aa6e2b2fa4c` |
 | `bsi-astro-spaccato.js` | `1d11fd3ddb82e72526e9a815daca9ce4152ef792e49512fac0360517d49868f7` |
 | `bsi-cosmo-sezione.js` | `41ff5ee439c53082972eb3ddf8cce1aa0cec6eff84ea909a922fedcce0c5021a` |
 | `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
@@ -394,7 +396,7 @@ availability.
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
-| `bsi-spectra-voce.js` | `c044d64919338d70e1b99af628c67fdb5dd17355a6603542b2cbf0ac5834c86d` |
+| `bsi-spectra-voce.js` | `f662a95244b44e95d7f61fccbe319250987fd4c8932f5a7e10bcfd6c3585aa77` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-olointerattivo.js` | `61a0a7492bbc506a776312c8ea858b8231fe9cd17916f02c63c119efab520fde` |
 | `bsi-spectra-esplora.js` | `abca4cd053689e2499c90a0937b300d4c1abea3635cf6bcd6b1c117f1fa97d76` |
@@ -430,11 +432,11 @@ availability.
 | `bsi-lingue.js` | `c7a86fb01ffb998f74426a5d3a65fea453d8ba1c6eb8bbdfa4c875d05c51ee04` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `a939e8ba76e92b707a64b6b24a94b9ca42beb62bc33175b90d7e38c789f353e7` |
+| `sw.js` | `399becb4a9b35a13515f6f433f8eba20ef6375b86cf7cc19346b226cea4cda32` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `cf0a850b5780649ce496d673645f9e8829110e9bf9722a43d2d0020dade17c54` |
-| `proxy/spectra-proxy.js` | `808c0a12891ae9c6f45cf0c676b033075089e064df9047be844f03badf940962` |
+| `proxy/spectra-proxy.js` | `d8d65875a19da8357180c4ac079ce36835b95c2c993c8aec9d97b3f88690b499` |
 
 ---
 
@@ -484,4 +486,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-19T03:07:08.070Z._
+_Generated on 2026-11-19T09:57:06.736Z._

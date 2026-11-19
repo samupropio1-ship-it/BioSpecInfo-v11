@@ -7,6 +7,34 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v263] — 2026-11-19
+
+**La voce di Spectra con ElevenLabs: fredda, calma e precisa, con la chiave al sicuro**
+
+### Aggiunto
+- **`bsi-spectra-elevenlabs.js`**: Spectra parla con una voce progettata su ElevenLabs (un personaggio: un'IA fredda,
+  controllata, un po' superiore; NON l'imitazione di un attore). Coda delle frasi, interruzione (`interrompi`, `ferma`),
+  testi lunghi spezzati per frasi con `previous_text`/`next_text` e il pezzo successivo scaricato mentre suona il
+  precedente, cache (la stessa frase non si ripaga), errori classificati (chiave, permesso, voce, testo, quota, servizio,
+  rete, tempo, audio) con nuovi tentativi su 429/5xx e ripiego sulla voce del sistema, energia per il labiale, il
+  microfono della sentinella liberato prima di parlare. Tre stili: **ultron** (stability 0,60 · similarity 0,85 · style
+  0,25 · speed 0,93), minaccioso, chiaro; quattro modelli (multilingual v2 predefinito).
+- **🎙️ Voce** nella chat di Spectra: chiave (solo sul dispositivo, campo password), Voice ID, stile, modello, prova.
+  Console, chat e figura parlano con questa voce quando è configurata.
+- **Proxy, `POST /voce`**: la versione sicura. Il client manda solo testo e stile; voce (`SPECTRA_VOICE_ID`), chiavi
+  (`ELEVENLABS_KEYS`, a rotazione), modelli ammessi e limiti (1000 caratteri per richiesta, 20 000 al giorno) stanno
+  sul server. Non è un inoltro generico: nessuno può usare la chiave per clonare o cancellare voci.
+- **`tools/spectra-voce-design.mjs`**: genera le anteprime con Voice Design dalla descrizione del personaggio, le salva
+  come mp3, e salva quella scelta stampando il Voice ID. La chiave solo da variabile d'ambiente.
+- **`docs/Guida-Voce-Spectra-ElevenLabs.md`**: il prompt di Voice Design, i parametri e perché, le tre strade
+  (nell'app, con il proxy, in un'altra PWA) con l'esempio.
+- Banco **`test_voce_elevenlabs`** (24 controlli, server ElevenLabs simulato con audio vero); `test_worker.mjs` controlla
+  anche `/voce` (12 controlli in più).
+
+### Da verificare con un account ElevenLabs
+- La resa delle anteprime e la pronuncia italiana della voce scelta; la latenza sul telefono; il consumo di caratteri.
+
+---
 ## [bsi-v262] — 2026-11-19
 
 **Meccanismi di chimica in 3D e animazioni di matematica: film calcolati, con il grafico che segue la scena**
