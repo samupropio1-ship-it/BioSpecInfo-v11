@@ -7,6 +7,40 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v262] — 2026-11-19
+
+**Meccanismi di chimica in 3D e animazioni di matematica: film calcolati, con il grafico che segue la scena**
+
+### Aggiunto
+- **🧪 Meccanismi 3D** (`bsi-chim-meccanismi3d.js`, sezione `smecc3d`, accanto a «🎬 Meccanismi»): otto reazioni della
+  chimica organica come film tridimensionali che si fermano, si scorrono e si ruotano col dito. Gli atomi si muovono lungo
+  la coordinata di reazione; i legami si formano e si rompono (tratteggiati quando sono a metà, doppi quando sono doppi);
+  le frecce curve rosse spostano coppie di elettroni, le mezze frecce ambra un elettrone solo; cariche (δ+, δ−, +, −) e
+  radicali (•) compaiono e scompaiono. Dentro il palco il **profilo energetico** con il punto che segue la reazione:
+  reagenti, stati di transizione (‡), intermedi, prodotti. Sotto, la spiegazione di ogni passo; ⏮ ⏭ saltano fra i passi.
+  - **SN2** (attacco da dietro, stato di transizione pentacoordinato, inversione di Walden 109,5° → 70,5°);
+  - **SN1** (ionizzazione lenta, carbocatione piatto, attacco dell'acqua dalle due facce, deprotonazione);
+  - **E2** (H e Br antiperiplanari, tutto in un passo);
+  - **addizione di HBr al propene** (regola di Markovnikov, carbocatione secondario);
+  - **Diels–Alder** butadiene + etene (sei elettroni in cerchio; Ea ≈ 115 e ΔH ≈ −166 kJ/mol MISURATE);
+  - **nitrazione del benzene** (ione nitronio, complesso σ con la carica su orto e para, ritorno all'aromaticità);
+  - **saponificazione di un estere** (attacco di Bürgi–Dunitz, intermedio tetraedrico, metossido, carbossilato);
+  - **clorurazione radicalica del metano** (hν, propagazioni con le energie di legame vere: 243, +7, −109 kJ/mol).
+  Geometrie SEMPLIFICATE ed energie INDICATIVE dove non c'è la misura: lo dice la pagina.
+- **🎞️ Animazioni matematiche** (`bsi-mat-animazioni.js`, sezione `sanimmat`): nove film calcolati, nello stile dei reel
+  scientifici, in 2D e leggeri sul telefono: **Fourier** con i cerchi che disegnano l'onda quadra e il fenomeno di Gibbs
+  (picco 1,179); **somme di Riemann** che diventano l'integrale (errore ∝ 1/n², con il grafico in scala log);
+  **Taylor** per sin x con il limite di Lagrange; **la secante che diventa tangente**; **e^{iθ}** con seno e coseno che
+  nascono dal cerchio e e^{iπ} + 1 = 0; **la tavola di Galton** con la curva normale; **l'ago di Buffon** che stima π;
+  **Fibonacci** e la spirale aurea → φ; **(1 + 1/n)ⁿ → e** con gli interessi composti. Ogni numero nell'HUD è calcolato.
+- Schede di teoria per le due sezioni; banchi **`test_meccanismi3d`** (25 controlli: carica costante in ogni istante,
+  lunghezze di legame tipiche, nessun atomo che ne attraversa un altro, frecce su atomi veri) e **`test_animmat`** (23).
+
+### Da verificare sul telefono
+- Fluidità dei meccanismi ruotando la scena; leggibilità del profilo energetico e delle frecce; le animazioni di matematica
+  in verticale sotto i pulsanti flottanti.
+
+---
 ## [bsi-v261] — 2026-11-18
 
 **Tutti gli eventi cosmici: ventitré spaccati con il grafico vivo nel palco; la voce di Spectra non è più muta; il nucleo più vivo; il diagramma H-R spiegato**

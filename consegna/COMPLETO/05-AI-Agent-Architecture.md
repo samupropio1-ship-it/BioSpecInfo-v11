@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v261` |
+| **Versione documentata** | Service Worker `bsi-v262` |
 
 ---
 
@@ -979,8 +979,8 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 215 sezioni dalla v242 (chimica 83, fisica 70,
-  matematica 33, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
+  (`BSIMaterie.materiaDi`), 217 sezioni dalla v242 (chimica 84, fisica 70,
+  matematica 34, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
   (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),
