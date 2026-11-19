@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="it">
 <head>
+<script src="./bsi-risoluzione.js"></script>
 <script>
 /* ===== BSI GUARD v14 — localStorage sicuro (incognito / cookie bloccati / WebView) =====
    Senza questa guardia, un accesso a localStorage in modalita' privata lancia
@@ -1746,7 +1747,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
    disegno cambia. Va chiamata DOPO aver fissato le dimensioni del canvas. */
 function bsiNitido(c){
   if(!c) return null;
-  var d = Math.min(window.devicePixelRatio || 1, 3);
+  var d = (window.BSIRisoluzione?BSIRisoluzione.dpr():Math.min(window.devicePixelRatio||1,3));
   if(c.__nit) return c.getContext('2d');
   var box = c.getBoundingClientRect();
   var lw = c.width, lh = c.height;

@@ -71,7 +71,7 @@
     var T = globale.THREE, self = this;
     this.T = T; this.padre = padre;
     var ren = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: !!opz.foto });
-    ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1));
+    ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)));
     ren.setClearColor(0x000000, 0);
     ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 1.05;
     ren.domElement.style.width = '100%'; ren.domElement.style.height = '100%'; ren.domElement.style.display = 'block';

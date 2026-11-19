@@ -84,7 +84,7 @@
     dx.appendChild(tela);
     var M = motore(p);
     function disegna() {
-      var W = Math.max(300, dx.clientWidth || 600), H = Math.round(Math.min(560, Math.max(380, W * 0.78))), dpr = Math.min(2, globale.devicePixelRatio || 1);
+      var W = Math.max(300, dx.clientWidth || 600), H = Math.round(Math.min(560, Math.max(380, W * 0.78))), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1));
       tela.style.height = H + 'px'; if (tela.width !== W * dpr || tela.height !== H * dpr) { tela.width = W * dpr; tela.height = H * dpr; }
       var q = tela.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
       var S = statoAngolo(theta, p, M), piccolo = W < 520;

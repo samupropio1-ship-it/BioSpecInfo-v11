@@ -132,7 +132,7 @@
       disegna();
     });
     function disegna() {
-      var dpr = Math.min(2, globale.devicePixelRatio || 1), Wc = Math.max(280, cv.clientWidth || 600), Hc = Math.round(Wc * cv._rapporto), w = Math.round(Wc * dpr * 0.6), h = Math.round(Hc * dpr * 0.6);
+      var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), Wc = Math.max(280, cv.clientWidth || 600), Hc = Math.round(Wc * cv._rapporto), w = Math.round(Wc * dpr * 0.6), h = Math.round(Hc * dpr * 0.6);
       cv.width = w; cv.height = h; var q = cv.getContext('2d'), img = q.createImageData(w, h), d = img.data, sc = st.w / w;
       for (var j = 0; j < h; j++) for (var i = 0; i < w; i++) {
         var x = st.cx + (i - w / 2) * sc, y = st.cy - (j - h / 2) * sc, n = st.tipo === 'mandel' ? mandelbrot(x, y, st.it) : julia(x, y, st.jx, st.jy, st.it), k = 4 * (j * w + i);

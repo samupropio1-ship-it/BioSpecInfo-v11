@@ -255,7 +255,7 @@
     c.style.touchAction = 'none';
   }
   function preparaTela(c) {
-    var dpr = Math.min(2, globale.devicePixelRatio || 1), W = Math.max(260, c.clientWidth || 500), H = Math.round(W * c._rapporto), q = c.getContext('2d');
+    var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), W = Math.max(260, c.clientWidth || 500), H = Math.round(W * c._rapporto), q = c.getContext('2d');
     c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); q.setTransform(dpr, 0, 0, dpr, 0, 0);
     q.fillStyle = '#081522'; q.fillRect(0, 0, W, H);
     return q;

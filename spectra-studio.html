@@ -78,6 +78,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
   <div class="az" id="az"></div>
 </section>
 
+<script src="./bsi-risoluzione.js"></script>
 <script src="./three.min.js"></script>
 <script src="./gltf_loader.js"></script>
 <script src="./bsi-spectra-mente.js"></script>
@@ -106,7 +107,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     if (!T || !(c.getContext('webgl2') || c.getContext('webgl'))) { cont.textContent = ''; return; }
     var ren = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     /* alta definizione: fino a 3 pixel per punto (schermi 4K e telefoni recenti) */
-    ren.setPixelRatio(Math.min(3, devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 1.0;
+    ren.setPixelRatio((window.BSIRisoluzione?BSIRisoluzione.dpr():Math.min(window.devicePixelRatio||1,3))); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 1.0;
     ren.domElement.setAttribute('aria-hidden', 'true'); cont.appendChild(ren.domElement);
     var sc = new T.Scene(); sc.background = new T.Color(0x040814); sc.fog = new T.FogExp2(0x040814, 0.09);
     /* l'ambiente per i riflessi: pannelli luminosi in una stanza buia */

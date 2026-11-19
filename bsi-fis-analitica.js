@@ -171,7 +171,7 @@
     function prepSfondo(W, H) {
       var nx = 121, ny = 61, f = [], i, j;
       for (j = 0; j < ny; j++) { f.push([]); for (i = 0; i < nx; i++) f[j].push(pendoloH(-TX + 2 * TX * i / (nx - 1), PY - 2 * PY * j / (ny - 1))); }
-      var off = document.createElement('canvas'), dpr = Math.min(2, globale.devicePixelRatio || 1); off.width = Math.round(W * dpr); off.height = Math.round(H * dpr);
+      var off = document.createElement('canvas'), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)); off.width = Math.round(W * dpr); off.height = Math.round(H * dpr);
       var q = off.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, W, H);
       var sx = W / (nx - 1), sy = H / (ny - 1);
       for (var c = -0.75; c <= 3.5; c += 0.25) {

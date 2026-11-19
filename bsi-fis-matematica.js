@@ -188,7 +188,7 @@
     function disegna() {
       var s = PI[mol], r = huckel(s);
       /* il diagramma dei livelli: x sull'asse verticale (α in 0), elettroni come punti */
-      var P = c.getContext('2d'), dpr = Math.min(2, globale.devicePixelRatio || 1), W = Math.max(280, c.clientWidth || 500), H = Math.round(W * c._rapporto);
+      var P = c.getContext('2d'), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), W = Math.max(280, c.clientWidth || 500), H = Math.round(W * c._rapporto);
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); P.setTransform(dpr, 0, 0, dpr, 0, 0);
       P.fillStyle = '#081522'; P.fillRect(0, 0, W, H);
       var Y = function (x) { return H / 2 - x * (H * 0.2); };

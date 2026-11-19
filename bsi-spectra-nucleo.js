@@ -360,7 +360,7 @@
     opz = opz || {}; var q = tela.getContext('2d'), self = this; this.nome = 'online'; this.t = 0; this.corpo = { gesto: null, emo: null, testo: false }; this.caricato = true;
     if (opz.hudPadre) this.hud = creaHud(opz.hudPadre);
     this.disegna = function (dt) {
-      self.t += dt; var W = tela.clientWidth || 300, H = tela.clientHeight || 300, dpr = Math.min(2, g.devicePixelRatio || 1); if (tela.width !== Math.round(W * dpr)) { tela.width = Math.round(W * dpr); tela.height = Math.round(H * dpr); }
+      self.t += dt; var W = tela.clientWidth || 300, H = tela.clientHeight || 300, dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)); if (tela.width !== Math.round(W * dpr)) { tela.width = Math.round(W * dpr); tela.height = Math.round(H * dpr); }
       q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = PAL.fondo1; q.fillRect(0, 0, W, H); var cx = W / 2, cy = H * 0.5, R = Math.min(W, H) * 0.33, v = calmo ? 0 : (self.nome === 'cerca' ? 0.2 : 0.05);
       /* (v259) la particella in 2D: nuvola sfumata, nucleo di nucleoni, elettroni su orbite ellittiche, archi HUD */
       var gr = q.createRadialGradient(cx, cy, 0, cx, cy, R * 0.9); gr.addColorStop(0, 'rgba(107,207,255,.28)'); gr.addColorStop(1, 'rgba(47,107,255,0)'); q.fillStyle = gr; q.beginPath(); q.arc(cx, cy, R * 0.9, 0, 6.283); q.fill();

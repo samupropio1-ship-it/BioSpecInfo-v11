@@ -35,6 +35,13 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - Strumento di Spectra **`biochimica_3d`** (55 strumenti): apre una scheda, una via o un capitolo.
 - Scheda di teoria `sbiolab3d`; banco **`test_biolab3d`** (54 controlli).
 
+- **Animazioni in 4K, non più sgranate** (`bsi-risoluzione.js`): ogni tela limitava i pixel a 2× quelli CSS (su un
+  telefono a 3× l'immagine veniva ingrandita), la resa «cinema» disegnava su un buffer senza antialiasing e ci
+  aggiungeva una grana. Ora un solo regolatore decide per tutte le 58 tele dell'app: **4K** (predefinita: 1,5× i pixel
+  fisici, fino a 4×, mai oltre 3840 px sul lato lungo né 3840×2160 per tela), **nativa** o **risparmio**; pulsante
+  «4K» nella barra di ogni scena 3D, cambio applicato al volo. Resa cinema con **MSAA** fino a 8× e senza grana; testi
+  delle scene 3D disegnati a 2,5×; filtro anisotropo 8×; foto 📷 in **4K (3840 px)**. Banco **`test_risoluzione`**.
+
 ### Note
 - La proposta ricevuta usava three.js 0.169 da una CDN come modulo ES: qui è stata riscritta sul motore 3D dell'app
   (three r128 locale, BSILab3D), che funziona anche offline. Il video di riferimento non era allegato: è stata usata

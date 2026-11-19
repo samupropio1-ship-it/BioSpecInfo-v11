@@ -403,7 +403,7 @@
     /* la mappa dell'orbitale nel piano che contiene la molecola (xy per H₂O, xz per le lineari) */
     function mappa() {
       if (!ris) return;
-      var P = c2.getContext('2d'), dpr = Math.min(2, globale.devicePixelRatio || 1), W = Math.max(280, c2.clientWidth || 600), H = Math.round(W * c2._rapporto);
+      var P = c2.getContext('2d'), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), W = Math.max(280, c2.clientWidth || 600), H = Math.round(W * c2._rapporto);
       c2.width = Math.round(W * dpr); c2.height = Math.round(H * dpr); P.setTransform(dpr, 0, 0, dpr, 0, 0);
       var lin = ris.atomi.every(function (a) { return a.r[0] === 0 && a.r[1] === 0; });
       var xs = ris.atomi.map(function (a) { return lin ? a.r[2] : a.r[0]; }), ys = ris.atomi.map(function (a) { return lin ? a.r[0] : a.r[1]; });

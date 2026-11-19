@@ -255,7 +255,7 @@
     var ren = this.esterno ? opz.renderer : new T.WebGLRenderer({ antialias: true, alpha: true });
     if (!this.esterno) {
     /* la definizione (v238): la densita' vera dello schermo, fino a 3 (i telefoni moderni sono a 2,6-3,5) */
-    ren.setPixelRatio(Math.min(3, globale.devicePixelRatio || 1)); ren.setClearColor(0, 0);
+    ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(3, globale.devicePixelRatio || 1))); ren.setClearColor(0, 0);
     ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.9;
     ren.domElement.style.cssText = 'width:100%;height:100%;display:block'; ren.domElement.setAttribute('aria-hidden', 'true');
     padre.appendChild(ren.domElement); }

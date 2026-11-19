@@ -302,9 +302,9 @@
   var CPK = { H: ['#f2f6fa', 0.26], C: ['#4a5466', 0.38], O: ['#ff4d4d', 0.36], N: ['#4d7bff', 0.36], Br: ['#b04030', 0.5], Cl: ['#3fd06b', 0.45], Me: ['#7d8ea8', 0.46] };
   var ETICH = { O: 'O', N: 'N', Br: 'Br', Cl: 'Cl', Me: 'CH₃' };
   function testoTex(T, s, col, px) {
-    var c = D.createElement('canvas'), q = c.getContext('2d'); px = px || 44; q.font = '700 ' + px + 'px system-ui,sans-serif'; var w = Math.ceil(q.measureText(s).width) + 14; c.width = w; c.height = px + 14;
-    q.font = '700 ' + px + 'px system-ui,sans-serif'; q.textBaseline = 'middle'; q.lineWidth = 6; q.strokeStyle = 'rgba(3,6,14,.85)'; q.strokeText(s, 7, c.height / 2); q.fillStyle = col || '#fff'; q.fillText(s, 7, c.height / 2);
-    var tx = new T.CanvasTexture(c); tx.minFilter = T.LinearFilter; return { tx: tx, r: w / c.height };
+    var c = D.createElement('canvas'), q = c.getContext('2d'); px = px || 44; q.font = '700 ' + px + 'px system-ui,sans-serif'; var w = Math.ceil(q.measureText(s).width) + 14, H0 = px + 14, K = 2.5; c.width = Math.ceil(w * K); c.height = Math.ceil(H0 * K); q.setTransform(K, 0, 0, K, 0, 0);   /* v264: nitido in 4K */
+    q.font = '700 ' + px + 'px system-ui,sans-serif'; q.textBaseline = 'middle'; q.lineWidth = 6; q.strokeStyle = 'rgba(3,6,14,.85)'; q.strokeText(s, 7, H0 / 2); q.fillStyle = col || '#fff'; q.fillText(s, 7, H0 / 2);
+    var tx = new T.CanvasTexture(c); tx.minFilter = T.LinearFilter; return { tx: tx, r: w / H0 };
   }
   function sprite(T, s, col, h) { var o = testoTex(T, s, col), sp = new T.Sprite(new T.SpriteMaterial({ map: o.tx, transparent: true, depthTest: false, depthWrite: false })); sp.scale.set(h * o.r, h, 1); sp.renderOrder = 20; return sp; }
 
@@ -419,7 +419,7 @@
       function segna() { bP.textContent = gioca ? '⏸' : '▶'; bP.setAttribute('aria-pressed', String(gioca)); }
       segna();
       barra.addEventListener('input', function () { x = +barra.value; gioca = false; segna(); S.avvia(); });
-      function misura() { var dpr = Math.min(2, g.devicePixelRatio || 1), w = S.box.clientWidth - 16, h = Math.round(Math.min(150, S.ren.domElement.clientHeight * 0.26)); if (w === Wc && h === Hc) return; Wc = w; Hc = h; cv.style.height = h + 'px'; cv.width = w * dpr; cv.height = h * dpr; q.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      function misura() { var dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)), w = S.box.clientWidth - 16, h = Math.round(Math.min(150, S.ren.domElement.clientHeight * 0.26)); if (w === Wc && h === Hc) return; Wc = w; Hc = h; cv.style.height = h + 'px'; cv.width = w * dpr; cv.height = h * dpr; q.setTransform(dpr, 0, 0, dpr, 0, 0); }
       function profilo() {
         misura(); var W = Wc, H = Hc; q.clearRect(0, 0, W, H);
         q.fillStyle = 'rgba(4,8,18,.66)'; q.strokeStyle = 'rgba(120,150,200,.22)'; q.beginPath(); if (q.roundRect) q.roundRect(0.5, 0.5, W - 1, H - 1, 10); else q.rect(0.5, 0.5, W - 1, H - 1); q.fill(); q.stroke();

@@ -150,7 +150,7 @@
     var info = F.el('div', { 'class': 'bsiFX-nota', 'aria-live': 'polite' }); g0.pan.appendChild(info);
     var S = null, T = null, nA = null, nB = null, leg = null, nuv = null, rOra = M.re;
     function curva() {
-      var W = tela.clientWidth || 300, H = 230, dpr = Math.min(2, globale.devicePixelRatio || 1); tela.width = W * dpr; tela.height = H * dpr; var q = tela.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
+      var W = tela.clientWidth || 300, H = 230, dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)); tela.width = W * dpr; tela.height = H * dpr; var q = tela.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
       var r0 = 0.35, r1 = 3.2, e0 = -M.De - 0.2, e1 = 0.6, X = function (r) { return 34 + (r - r0) / (r1 - r0) * (W - 44); }, Y = function (e) { return 10 + (e1 - e) / (e1 - e0) * (H - 34); };
       q.strokeStyle = '#2a3b4d'; q.lineWidth = 1; q.beginPath(); q.moveTo(X(r0), Y(0)); q.lineTo(X(r1), Y(0)); q.stroke();
       if (st.armonica) { q.strokeStyle = 'rgba(159,179,200,.6)'; q.setLineDash([4, 3]); q.beginPath(); for (var i = 0; i <= 200; i++) { var r = r0 + (r1 - r0) * i / 200, e = M.Varm(r); if (e > e1) { q.moveTo(X(r), Y(Math.min(e1, e))); continue; } q.lineTo(X(r), Y(e)); } q.stroke(); q.setLineDash([]); }

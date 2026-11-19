@@ -64,7 +64,7 @@
 
   function anima(tela, G, opz) {
     opz = opz || {};
-    var ctx = tela.getContext('2d'), N = G.neuroni, L = G.collegamenti, W = 0, H = 0, dpr = Math.min(2, g.devicePixelRatio || 1), raf = 0, fermo = false;
+    var ctx = tela.getContext('2d'), N = G.neuroni, L = G.collegamenti, W = 0, H = 0, dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)), raf = 0, fermo = false;
     var calmo = g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var seme = 11; function rnd() { seme = (seme * 16807) % 2147483647; return seme / 2147483647; }
     function gauss() { var u = rnd() || 1e-9, v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }

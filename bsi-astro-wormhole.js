@@ -106,7 +106,7 @@
     c._r = rapporto; dx.appendChild(c); return c;
   }
   function prepara(c) {
-    var W = Math.max(220, c.parentNode.clientWidth || 300), H = Math.round(W * c._r), dpr = Math.min(2, globale.devicePixelRatio || 1);
+    var W = Math.max(220, c.parentNode.clientWidth || 300), H = Math.round(W * c._r), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1));
     c.style.height = H + 'px'; c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
     var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H); return { q: q, W: W, H: H };
   }

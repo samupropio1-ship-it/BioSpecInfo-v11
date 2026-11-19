@@ -475,7 +475,7 @@
   function disegna() {
     if (!ST.aperto || !ST.dati || ST.dati.tipo === 'universo') return;
     var cv = D.getElementById('bsiOI-2d'), W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
-    var dpr = Math.min(2.5, globale.devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2.5, globale.devicePixelRatio || 1)); cv.width = W * dpr; cv.height = H * dpr; var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H); g.shadowColor = 'rgba(0,201,183,.6)';
     if (ST.dati.tipo === 'app') { ST.mappa = []; disegnaApp(g, W, H); return; }
     var m = { l: 56, r: 18, t: 22, b: 46 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
@@ -546,7 +546,7 @@
   function avviaUniverso() {
     var T = globale.THREE, box = D.getElementById('bsiOI-tela'); if (!T) return;
     if (!U) {
-      var ren = new T.WebGLRenderer({ antialias: true, alpha: true }); ren.setPixelRatio(Math.min(2.5, globale.devicePixelRatio || 1)); ren.domElement.id = 'bsiOI-3d'; box.appendChild(ren.domElement);
+      var ren = new T.WebGLRenderer({ antialias: true, alpha: true }); ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2.5, globale.devicePixelRatio || 1))); ren.domElement.id = 'bsiOI-3d'; box.appendChild(ren.domElement);
       var sc = new T.Scene(), cam = new T.PerspectiveCamera(40, 1, 0.01, 200); sc.add(new T.AmbientLight(0xffffff, 0.6));
       var sole = new T.Mesh(new T.SphereGeometry(0.16, 32, 24), new T.MeshBasicMaterial({ color: 0xffd27a })); sc.add(sole); sc.add(new T.Mesh(new T.SphereGeometry(0.26, 32, 24), new T.MeshBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.18, blending: T.AdditiveBlending, depthWrite: false })));
       U = { T: T, ren: ren, sc: sc, cam: cam, gruppi: [], t: 0, az: 0.6, el: 0.55, r: 9 };

@@ -470,7 +470,7 @@
             '<br>' + t('Passi RK4 per pixel ≤ ', 'RK4 steps per pixel ≤ ') + QUALITA[st.q].passi;
         }
         var dis = S.disegna; S.disegna = function () { uniformi(); dis.call(S); };
-        function risoluzione() { S.ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1) * QUALITA[st.q].px); S.adatta(); }
+        function risoluzione() { S.ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)) * QUALITA[st.q].px); S.adatta(); }
         risoluzione();
         S.ogniFotogramma(function (dt) { if (!st.gira) return false; tempo += dt * 6; return true; });
         S.didascalia.textContent = t('Buco nero di Schwarzschild con disco di accrescimento, calcolato fotone per fotone', 'Schwarzschild black hole with accretion disk, computed photon by photon');

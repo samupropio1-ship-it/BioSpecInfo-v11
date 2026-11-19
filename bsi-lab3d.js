@@ -42,7 +42,7 @@
     if (attesaThree) return attesaThree;
     attesaThree = new Promise(function (ok, ko) {
       var s = D.createElement('script'); s.src = './three.min.js';
-      s.onload = function () { globale.THREE ? ok(globale.THREE) : ko(new Error('three.js')); };
+      s.onload = function () { if (globale.BSIRisoluzione) globale.BSIRisoluzione.aggancia(); globale.THREE ? ok(globale.THREE) : ko(new Error('three.js')); };
       s.onerror = function () { attesaThree = null; ko(new Error(t('three.js non caricato', 'three.js not loaded'))); };
       D.head.appendChild(s);
     });
@@ -56,7 +56,7 @@
     this.T = T;
     var box = F.el('div', { 'class': 'bsi3d-box' }); padre.appendChild(box); this.box = box;
     var ren = new T.WebGLRenderer({ antialias: true, alpha: false });
-    ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1));
+    ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)));
     ren.setClearColor(0x081522, 1);
     box.appendChild(ren.domElement);
     ren.domElement.className = 'bsi3d-tela';
@@ -77,7 +77,9 @@
     var bg = tasto('⟳', t('Rotazione automatica', 'Auto-rotate'), function (b) { self.gira = !self.gira; b.setAttribute('aria-pressed', String(self.gira)); self.avvia(); });
     bg.setAttribute('aria-pressed', 'false');
     tasto('⌖', t('Vista iniziale', 'Reset view'), function () { if (self.vistaIniziale) { var v = self.vistaIniziale; self.vista.r = v.r; self.vista.th = v.th; self.vista.ph = v.ph; } self.sporca = true; self.avvia(); });
-    tasto('📷', t('Salva immagine PNG', 'Save PNG image'), function () { self.disegna(); var a = D.createElement('a'); a.href = ren.domElement.toDataURL('image/png'); a.download = 'laboratorio-3d.png'; D.body.appendChild(a); a.click(); a.remove(); });
+    tasto('📷', t('Salva immagine PNG in 4K', 'Save PNG image in 4K'), function () { var url; if (globale.BSIRisoluzione) url = globale.BSIRisoluzione.foto4K(ren, function () { self.disegna(); }); else { self.disegna(); url = ren.domElement.toDataURL('image/png'); } var a = D.createElement('a'); a.href = url; a.download = 'laboratorio-3d-4k.png'; D.body.appendChild(a); a.click(); a.remove(); });
+    /* v264: la qualità di tutte le animazioni: 4K (supercampionata) → nativa → risparmio */
+    if (globale.BSIRisoluzione) { var bq = tasto(globale.BSIRisoluzione.nome(), t('Qualità delle animazioni: 4K, nativa o risparmio', 'Animation quality: 4K, native or saver'), function (b) { globale.BSIRisoluzione.prossimo(); }); bq.className = 'bsi3d-qualita'; bq.style.minWidth = '40px'; bq.style.font = '800 11px system-ui,sans-serif'; var segnaQ = function () { bq.textContent = globale.BSIRisoluzione.nome(); bq.setAttribute('aria-label', t('Qualità delle animazioni: ', 'Animation quality: ') + globale.BSIRisoluzione.nome()); }; globale.addEventListener('bsi-risoluzione', function () { segnaQ(); self.adatta(); }); }
     tasto('⛶', t('Schermo intero', 'Full screen'), function () { var fs = D.fullscreenElement || D.webkitFullscreenElement; try { if (fs) (D.exitFullscreen || D.webkitExitFullscreen).call(D); else (box.requestFullscreen || box.webkitRequestFullscreen).call(box); } catch (e) { } setTimeout(function () { self.adatta(); }, 250); });
     box.appendChild(barra);
     this.didascalia = F.el('div', { 'class': 'bsi3d-dida' }); box.appendChild(this.didascalia);
@@ -109,6 +111,7 @@
        secondi con molte scene. Si adatta quando torna visibile (IntersectionObserver). */
     if (!fs && !this.box.clientWidth) { this.sporca = true; return; }
     var w = Math.max(260, this.box.clientWidth || 600), h = fs ? (globale.innerHeight || 700) : Math.round(Math.min(w * this.rapporto, (globale.innerHeight || 900) * 0.7));
+    if (globale.BSIRisoluzione) this.ren.setPixelRatio(globale.BSIRisoluzione.dpr(w, h));
     this.ren.setSize(w, h, true); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); this.sporca = true; this.avvia();
   };
   Scena.prototype.inquadra = function (r, th, ph) { this.vista.r = r; if (th != null) this.vista.th = th; if (ph != null) this.vista.ph = ph; this.vistaIniziale = { r: this.vista.r, th: this.vista.th, ph: this.vista.ph }; this.sporca = true; this.avvia(); };
@@ -144,9 +147,14 @@
   function Cinema(S, opz) {
     var T = S.T; opz = opz || {};
     this.S = S; this.forza = opz.forza == null ? 0.85 : opz.forza; this.soglia = opz.soglia == null ? 0.55 : opz.soglia; this.esposizione = opz.esposizione || 1.05; this.vignetta = opz.vignetta == null ? 0.32 : opz.vignetta;
-    this.grana = (globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : (opz.grana == null ? 0.018 : opz.grana);
+    /* v264: niente grana di serie (si vedeva come «sgranato»); chi la vuole la chiede con opz.grana */
+    this.grana = (globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : (opz.grana == null ? 0 : opz.grana);
     var p = { minFilter: T.LinearFilter, magFilter: T.LinearFilter, format: T.RGBAFormat };
-    this.rt = new T.WebGLRenderTarget(4, 4, p); this.a = new T.WebGLRenderTarget(2, 2, p); this.b = new T.WebGLRenderTarget(2, 2, p);
+    /* v264: la scena si disegna su un bersaglio MULTICAMPIONATO (MSAA fino a 8×) quando c'è WebGL2: prima il
+       passaggio intermedio non aveva antialiasing e i bordi uscivano seghettati */
+    var caps = S.ren.capabilities || {};
+    if (caps.isWebGL2 && T.WebGLMultisampleRenderTarget) { this.rt = new T.WebGLMultisampleRenderTarget(4, 4, p); this.rt.samples = Math.max(0, Math.min(8, caps.maxSamples || 4)); this.msaa = this.rt.samples; }
+    else this.rt = new T.WebGLRenderTarget(4, 4, p); this.a = new T.WebGLRenderTarget(2, 2, p); this.b = new T.WebGLRenderTarget(2, 2, p);
     this.cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); this.sc = new T.Scene(); this.quad = new T.Mesh(new T.PlaneGeometry(2, 2)); this.sc.add(this.quad);
     this.mLuce = new T.ShaderMaterial({ vertexShader: VQ, fragmentShader: F_LUCE, uniforms: { t: { value: null }, soglia: { value: this.soglia } }, depthTest: false });
     this.mSfoca = new T.ShaderMaterial({ vertexShader: VQ, fragmentShader: F_SFOCA, uniforms: { t: { value: null }, dir: { value: new T.Vector2() } }, depthTest: false });

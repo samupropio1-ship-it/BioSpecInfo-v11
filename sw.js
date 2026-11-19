@@ -154,6 +154,7 @@ var PRECACHE = [
   './bsi-mat-animazioni.js',
   './bsi-bio-lab3d-dati.js',
   './bsi-bio-lab3d.js',
+  './bsi-risoluzione.js',
   './bsi-cosmo-sezione.js',
   './bsi-farm-quantitativa.js',
   './bsi-med-fisiologia.js',

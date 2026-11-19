@@ -271,7 +271,7 @@
       '<div class="bsiAR-aiuto" aria-live="polite">' + t('Muovi piano il telefono per trovare il tavolo, poi tocca per posare la scena.', 'Move the phone slowly to find the table, then tap to place the scene.') + '</div>' +
       '<div class="bsiAR-basso"><button type="button" data-a="meno" aria-label="' + t('Più piccola', 'Smaller') + '">−</button><button type="button" data-a="ruota" aria-label="' + t('Ruota', 'Rotate') + '">⟳</button><button type="button" data-a="piu" aria-label="' + t('Più grande', 'Larger') + '">+</button></div>';
     D.body.appendChild(ov);
-    var ren = new T.WebGLRenderer({ antialias: true, alpha: true }); ren.setPixelRatio(Math.min(2, g.devicePixelRatio || 1)); ren.setSize(g.innerWidth, g.innerHeight); ren.xr.enabled = true; ren.domElement.className = 'bsiAR-tela'; D.body.appendChild(ren.domElement);
+    var ren = new T.WebGLRenderer({ antialias: true, alpha: true }); ren.setPixelRatio((g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1))); ren.setSize(g.innerWidth, g.innerHeight); ren.xr.enabled = true; ren.domElement.className = 'bsiAR-tela'; D.body.appendChild(ren.domElement);
     var sc = new T.Scene(), cam = new T.PerspectiveCamera(70, g.innerWidth / g.innerHeight, 0.01, 40);
     sc.add(new T.HemisphereLight(0xffffff, 0x444466, 1.0)); var dl = new T.DirectionalLight(0xffffff, 0.6); dl.position.set(1, 3, 2); sc.add(dl);
     var modello = costruisci(dati); modello.visible = false; sc.add(modello);

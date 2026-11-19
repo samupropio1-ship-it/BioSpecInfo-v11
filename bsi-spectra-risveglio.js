@@ -255,7 +255,7 @@
   /** Anima la rete in una tela. Restituisce {ferma, scegli(x,y)}. */
   function animaRete(tela, G, opz) {
     opz = opz || {};
-    var ctx = tela.getContext('2d'), N = G.neuroni, L = G.collegamenti, W = 0, H = 0, dpr = Math.min(2, g.devicePixelRatio || 1), raf = 0, fermo = false;
+    var ctx = tela.getContext('2d'), N = G.neuroni, L = G.collegamenti, W = 0, H = 0, dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)), raf = 0, fermo = false;
     var calmo = g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var semeR = 7; function rnd() { semeR = (semeR * 16807) % 2147483647; return semeR / 2147483647; }
     var scala = 1; function misura() { var r = tela.getBoundingClientRect(); W = Math.max(50, r.width); H = Math.max(50, r.height); scala = Math.max(0.55, Math.min(1, Math.min(W, H) / 480)); tela.width = Math.round(W * dpr); tela.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }

@@ -73,7 +73,7 @@
     dx.appendChild(c); return c;
   }
   function pavimento(c, pts, lat) {
-    var W = Math.max(200, Math.min(c.parentNode.clientWidth || 300, 520)), dpr = Math.min(2, globale.devicePixelRatio || 1);
+    var W = Math.max(200, Math.min(c.parentNode.clientWidth || 300, 520)), dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1));
     c.style.height = W + 'px'; c.style.maxWidth = W + 'px'; c.width = Math.round(W * dpr); c.height = Math.round(W * dpr);
     var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, W);
     var R = W * 0.42, cx = W / 2, cy = W / 2;

@@ -827,7 +827,7 @@
   /* il reattore: anelli, archi, scansione, spettro della voce */
   function disegna(ts) {
     if (!hud.el || !hud.el.classList.contains('aperto')) { hud.raf = 0; return; }
-    var cv = hud.cv, dpr = Math.min(2, globale.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+    var cv = hud.cv, dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), W = cv.clientWidth, H = cv.clientHeight;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     var q = cv.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
     var lento = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;

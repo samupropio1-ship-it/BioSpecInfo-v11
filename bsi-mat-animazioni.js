@@ -235,7 +235,7 @@
     var barra = F.el('input', { type: 'range', 'class': 'bsiAM-tempo', min: '0', max: String(a.durata), step: '0.01', value: '0', 'aria-label': t('Tempo dell\'animazione', 'Animation time') }), com = F.el('div', { 'class': 'bsiAM-com', role: 'toolbar' });
     cont.appendChild(palco); cont.appendChild(barra); cont.appendChild(com);
     var q = cv.getContext('2d'), W = 0, H = 0, tt = Math.max(0, Math.min(a.durata, opz.t || 0)), gioca = !MENO_MOTO && opz.gioca !== false, vivo = true, prec = 0, raf = 0, visibile = true, ultimaDida = '';
-    function misura() { var w = cont.clientWidth || 360, hmax = (g.innerHeight || 800) * 0.78, ww = largo ? w : Math.min(w, hmax * 9 / 16), hh = largo ? Math.min(hmax, ww * 9 / 16) : ww * 16 / 9, dpr = Math.min(2, g.devicePixelRatio || 1); palco.style.width = ww + 'px'; palco.style.height = hh + 'px'; W = ww; H = hh; cv.width = Math.round(ww * dpr); cv.height = Math.round(hh * dpr); q.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    function misura() { var w = cont.clientWidth || 360, hmax = (g.innerHeight || 800) * 0.78, ww = largo ? w : Math.min(w, hmax * 9 / 16), hh = largo ? Math.min(hmax, ww * 9 / 16) : ww * 16 / 9, dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)); palco.style.width = ww + 'px'; palco.style.height = hh + 'px'; W = ww; H = hh; cv.width = Math.round(ww * dpr); cv.height = Math.round(hh * dpr); q.setTransform(dpr, 0, 0, dpr, 0, 0); }
     function disegna() {
       q.clearRect(0, 0, W, H);
       var s = a.disegna(q, W, H, tt, hud) || ''; if (s !== ultimaDida) { ultimaDida = s; dida.textContent = s; }

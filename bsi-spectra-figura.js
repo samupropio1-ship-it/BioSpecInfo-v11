@@ -365,7 +365,7 @@
     var ren = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     /* alta definizione: fino a 2,5 pixel per punto in un riquadro (sugli schermi 4K e sui telefoni recenti resta nitido) */
     var LEGG = opz.leggero != null ? !!opz.leggero : leggero();
-    ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.85;   /* (v259) al massimo 2 pixel per punto: meno calore e batteria */
+    ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1))); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.85;   /* (v259) al massimo 2 pixel per punto: meno calore e batteria */
     ren.domElement.setAttribute('aria-hidden', 'true'); box.appendChild(ren.domElement);
     var hud = D.createElement('div'); hud.className = 'bsiSF-hud'; hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + t('IN ASCOLTO', 'LISTENING') + '</b>'; box.appendChild(hud);
     var nota = D.createElement('div'); nota.className = 'bsiSF-nota'; box.appendChild(nota);
@@ -530,7 +530,7 @@
     function adattaQualita(dt, attivo) {
       if (!attivo) return; qualita.somma += dt; qualita.n++;
       if (qualita.n < 90) return; var media = qualita.somma / qualita.n; qualita.somma = 0; qualita.n = 0;
-      var nuovo = qualita.pr; if (media > 0.026 && qualita.pr > 1) nuovo = Math.max(1, qualita.pr - 0.4); else if (media < 0.0175 && qualita.pr < Math.min(2, globale.devicePixelRatio || 1)) nuovo = Math.min(Math.min(2, globale.devicePixelRatio || 1), qualita.pr + 0.25);
+      var nuovo = qualita.pr; if (media > 0.026 && qualita.pr > 1) nuovo = Math.max(1, qualita.pr - 0.4); else if (media < 0.0175 && qualita.pr < (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1))) nuovo = Math.min((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), qualita.pr + 0.25);
       if (Math.abs(nuovo - qualita.pr) > 0.01) { qualita.pr = nuovo; ren.setPixelRatio(nuovo); var c = ren.domElement; ren.setSize(c.clientWidth, c.clientHeight, false); F.qualita = nuovo; }
     }
     var visibile = true, prec = 0, idleT = 0;

@@ -123,7 +123,7 @@
       var x = stato.obiettivo, per = percorso(x, stato.noti) || [], ant = antenati(x), sb = sblocca(x);
       /* il grafo */
       var W = Math.max(280, dx.clientWidth || 600), righe = [0, 0, 0, 0]; A.forEach(function (a) { righe[a[1]]++; });
-      var piccolo = W < 560, hR = piccolo ? 22 : 26, H = 34 + Math.max.apply(null, righe) * hR + 10, dpr = Math.min(2, globale.devicePixelRatio || 1);
+      var piccolo = W < 560, hR = piccolo ? 22 : 26, H = 34 + Math.max.apply(null, righe) * hR + 10, dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1));
       tela.style.height = H + 'px'; tela.width = W * dpr; tela.height = H * dpr; var q = tela.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
       var cw = W / 4, k = [0, 0, 0, 0]; posizioni = {};
       A.forEach(function (a) { var l = a[1]; posizioni[a[0]] = { x: cw * l + 6, y: 34 + k[l] * hR, w: cw - 12, h: hR - 5 }; k[l]++; });

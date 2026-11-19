@@ -177,7 +177,7 @@
     function uniformi() { if (!mat) return; var U = mat.uniforms; U.tipo.value = { punto: 0, sis: 1, sie: 2, nfw: 3 }[m.tipo]; U.te.value = m.te; U.q.value = m.tipo === 'sie' ? m.q : 1; U.ang.value = m.ang; U.ks.value = m.ks; U.rs.value = m.rs; U.gam.value = m.gamma; U.phig.value = m.phig; U.sorg.value.set(src.x, src.y); U.kappaOn.value = mostra.kappa ? 1 : 0; U.luceOn.value = mostra.luce && m.tipo !== 'punto' ? 1 : 0; U.rSorg.value = src.r; U.ellS.value = src.ell; U.tempo.value = fase; }
     function modello() { return { tipo: m.tipo, te: m.te, q: m.tipo === 'sie' ? m.q : 1, ang: m.ang, ks: m.ks, rs: m.rs, gamma: m.gamma, phig: m.phig }; }
     function disegnaSovra() {
-      var W = box.clientWidth || 400, dpr = Math.min(2, globale.devicePixelRatio || 1); sovra.width = W * dpr; sovra.height = W * dpr; var q2 = sovra.getContext('2d'); q2.setTransform(dpr, 0, 0, dpr, 0, 0); q2.clearRect(0, 0, W, W);
+      var W = box.clientWidth || 400, dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)); sovra.width = W * dpr; sovra.height = W * dpr; var q2 = sovra.getContext('2d'); q2.setTransform(dpr, 0, 0, dpr, 0, 0); q2.clearRect(0, 0, W, W);
       var X = function (x) { return (x / FOV + 0.5) * W; }, Y = function (y) { return (0.5 - y / FOV) * W; };
       var ch = JSON.stringify(modello()); if (ch !== chiaveCurve) { curve = MO().curveCritiche(modello(), FOV / 2, (globale.innerWidth || 1000) < 700 ? 130 : 200); chiaveCurve = ch; }
       q2.lineWidth = 1.4;
@@ -211,7 +211,7 @@
     box.addEventListener('pointerdown', function (e) { var r = box.getBoundingClientRect(), muovi = function (ev) { src.x = ((ev.clientX - r.left) / r.width - 0.5) * FOV; src.y = (0.5 - (ev.clientY - r.top) / r.height) * FOV; ridisegna(); }; corre = false; bm.textContent = '▶ ' + t('Muovi la sorgente', 'Move the source'); muovi(e); var su = function () { box.removeEventListener('pointermove', muovi); globale.removeEventListener('pointerup', su); }; box.addEventListener('pointermove', muovi); globale.addEventListener('pointerup', su); });
     var L3 = globale.BSILab3D;
     (L3 ? L3.caricaThree() : Promise.reject(new Error('three.js'))).then(function () {
-      T = globale.THREE; ren = new T.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: true }); ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1));
+      T = globale.THREE; ren = new T.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: true }); ren.setPixelRatio((globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)));
       ren.domElement.setAttribute('role', 'img'); ren.domElement.setAttribute('aria-label', t('Lente gravitazionale calcolata pixel per pixel', 'Gravitational lens computed pixel by pixel'));
       box.appendChild(ren.domElement); box.appendChild(sovra);
       sc = new T.Scene(); cam = new T.Camera();

@@ -723,7 +723,7 @@
       /* ═══ (v261) IL GRAFICO VIVO, dentro il palco: legenda in alto, curve che brillano, il punto che segue la simulazione ═══ */
       var cvV = D.createElement('canvas'); cvV.className = 'bsiSP-vivo'; cvV.setAttribute('role', 'img'); box.appendChild(cvV);
       var qV = cvV.getContext('2d'), Wv = 0, Hv = 0;
-      function misuraVivo() { var dpr = Math.min(2, g.devicePixelRatio || 1), w = box.clientWidth, hb = S.ren.domElement.clientHeight, hp = pan.el.offsetHeight || 120, w2 = w - 16, h2 = Math.round(Math.min(hb * 0.24, 190)); cvV.style.top = Math.max(60, hb - hp - 14 - h2) + 'px'; if (w2 === Wv && h2 === Hv) return; Wv = w2; Hv = h2; cvV.style.left = '8px'; cvV.style.width = Wv + 'px'; cvV.style.height = Hv + 'px'; cvV.width = Wv * dpr; cvV.height = Hv * dpr; qV.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      function misuraVivo() { var dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)), w = box.clientWidth, hb = S.ren.domElement.clientHeight, hp = pan.el.offsetHeight || 120, w2 = w - 16, h2 = Math.round(Math.min(hb * 0.24, 190)); cvV.style.top = Math.max(60, hb - hp - 14 - h2) + 'px'; if (w2 === Wv && h2 === Hv) return; Wv = w2; Hv = h2; cvV.style.left = '8px'; cvV.style.width = Wv + 'px'; cvV.style.height = Hv + 'px'; cvV.width = Wv * dpr; cvV.height = Hv * dpr; qV.setTransform(dpr, 0, 0, dpr, 0, 0); }
       var tipoV = tipoG;
       cvV.style.display = tipoV ? '' : 'none';
       var gUlt = -1;

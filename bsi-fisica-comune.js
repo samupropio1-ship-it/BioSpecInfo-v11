@@ -119,7 +119,7 @@
       var pan = c.closest && c.closest('[role=tabpanel]');
       if (pan && pan.dataset.bsiNome) c.setAttribute('aria-label', tt(['Grafico: ', 'Chart: ']) + pan.dataset.bsiNome);
     }
-    var dpr = Math.min(2, globale.devicePixelRatio || 1);
+    var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1));
     var w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600);
     var h = Math.round(w * c._rapporto);
     if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
@@ -448,7 +448,7 @@
   if (globale.document && document.addEventListener) document.addEventListener('visibilitychange', function () { if (!document.hidden) animazioni.forEach(function (a) { var s = a.stato(); if (!s.pausa && !s.finita) a.riprendi(); }); });
   /* il pennello: una tela pulita della dimensione giusta, per chi disegna da se' */
   function pennello(c) {
-    var dpr = Math.min(2, globale.devicePixelRatio || 1), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
+    var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
     if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
     var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, w, h);
     return { q: q, W: w, H: h };

@@ -85,7 +85,7 @@
       var hud = F.el('div', { 'class': 'bsiCO-hud', 'aria-live': 'off' }), stato = F.el('div', { 'class': 'bsiCO-stato' }), dida = F.el('div', { 'class': 'bsiCO-dida', 'aria-live': 'polite' });
       S.box.appendChild(hud); S.box.appendChild(stato); S.box.appendChild(dida);
       var overlay = F.el('canvas', { 'class': 'bsiCO-tela2d' }); S.box.appendChild(overlay);
-      function misuraOverlay() { var r = S.ren.domElement, dpr = Math.min(2, g.devicePixelRatio || 1); overlay.style.left = '0'; overlay.style.top = '0'; overlay.style.width = r.clientWidth + 'px'; overlay.style.height = r.clientHeight + 'px'; overlay.width = r.clientWidth * dpr; overlay.height = r.clientHeight * dpr; var q = overlay.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); return q; }
+      function misuraOverlay() { var r = S.ren.domElement, dpr = (g.BSIRisoluzione ? g.BSIRisoluzione.dpr() : Math.min(2, g.devicePixelRatio || 1)); overlay.style.left = '0'; overlay.style.top = '0'; overlay.style.width = r.clientWidth + 'px'; overlay.style.height = r.clientHeight + 'px'; overlay.width = r.clientWidth * dpr; overlay.height = r.clientHeight * dpr; var q = overlay.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); return q; }
       var q2 = misuraOverlay();
       var ultimaDida = null;
       function didascalia(html) { if (html === ultimaDida) return; ultimaDida = html; dida.classList.remove('on'); setTimeout(function () { dida.innerHTML = html || ''; if (html) dida.classList.add('on'); }, html ? 200 : 0); }

@@ -201,7 +201,7 @@
       anim = requestAnimationFrame(giro);
     }
     function disegna() {
-      var dpr = Math.min(2, globale.devicePixelRatio || 1), W = Math.max(260, cs.clientWidth || 500), q = cs.getContext('2d');
+      var dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)), W = Math.max(260, cs.clientWidth || 500), q = cs.getContext('2d');
       cs.width = Math.round(W * dpr); cs.height = Math.round(W * dpr); q.setTransform(dpr, 0, 0, dpr, 0, 0);
       q.fillStyle = '#081522'; q.fillRect(0, 0, W, W);
       var sc = W / S.L, rr = Math.max(2, 0.42 * sc);

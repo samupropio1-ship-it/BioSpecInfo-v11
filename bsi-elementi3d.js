@@ -168,7 +168,7 @@
       disegnaSpettro(e[1]); disegnaRadiale();
     }
     function disegnaSpettro(sim) {
-      var W = spet.clientWidth || 300, H = 92, dpr = Math.min(2, globale.devicePixelRatio || 1); spet.width = W * dpr; spet.height = H * dpr; var q = spet.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
+      var W = spet.clientWidth || 300, H = 92, dpr = (globale.BSIRisoluzione ? globale.BSIRisoluzione.dpr() : Math.min(2, globale.devicePixelRatio || 1)); spet.width = W * dpr; spet.height = H * dpr; var q = spet.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
       var L0 = 200, L1 = 900, X = function (l) { return (l - L0) / (L1 - L0) * W; };
       for (var l = 380; l <= 750; l += 2) { var c = coloreLambda(l); q.fillStyle = 'rgba(' + Math.round(c[0] * 255) + ',' + Math.round(c[1] * 255) + ',' + Math.round(c[2] * 255) + ',0.10)'; q.fillRect(X(l), 14, X(l + 2) - X(l) + 0.5, H - 34); }
       var R = righe(sim);
