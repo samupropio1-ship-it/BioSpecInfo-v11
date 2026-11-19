@@ -28,7 +28,7 @@
 | Commit | `66cd2253c96eb92d3ebc51b4fabeb2767332bb40` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
-| Versione applicazione | `bsi-v263` |
+| Versione applicazione | `bsi-v264` |
 | Node.js | `v22.22.0` |
 | Piattaforma | `linux x64` |
 | Chromium | `Google Chrome for Testing 153.0.8010.12` |

@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v263';
+window.BSI_APP_VERSION='bsi-v264';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -972,7 +972,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="scostruttore" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧪 Costruttore molecolare 3D e AR</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
-  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button><button class="nav-btn" data-s="sppp" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔀 Pentosi Fosfati</button><button class="nav-btn" data-s="surea" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">💧 Ciclo dell'Urea</button><button class="nav-btn" data-s="sgluco" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Gluconeogenesi</button></div>
+  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button><button class="nav-btn" data-s="sppp" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔀 Pentosi Fosfati</button><button class="nav-btn" data-s="surea" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">💧 Ciclo dell'Urea</button><button class="nav-btn" data-s="sgluco" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Gluconeogenesi</button><button class="nav-btn" data-s="sbiolab3d" style="border:1px solid #63e6be;background:linear-gradient(135deg,rgba(99,230,190,.16),rgba(124,111,255,.1))">🧬 Biochimica 3D Lab</button></div>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
@@ -23079,6 +23079,7 @@ document.addEventListener('click',function(e){
 </div>
 <!-- ══ SECTION: MECCANISMI ANIMATI ════════════════════════════════════ -->
 <div id="smecc3d" class="section"></div>
+<div id="sbiolab3d" class="section"></div>
 <div id="sanimmat" class="section"></div>
 <div id="sanimmech" class="section">
   <div style="text-align:center;padding:60px 20px;color:#c9d3df"><div style="font-size:48px">🎬</div></div>
@@ -32224,6 +32225,8 @@ window.addEventListener('load', init);
 <script src="./bsi-astro-spaccato.js" defer></script>
 <script src="./bsi-chim-meccanismi3d.js" defer></script>
 <script src="./bsi-mat-animazioni.js" defer></script>
+<script src="./bsi-bio-lab3d-dati.js" defer></script>
+<script src="./bsi-bio-lab3d.js" defer></script>
 <script src="./bsi-cosmo-sezione.js" defer></script>
 <script src="./bsi-ar.js" defer></script>
 <script src="./bsi-farm-quantitativa.js" defer></script>

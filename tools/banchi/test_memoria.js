@@ -140,7 +140,7 @@ function vero(d, c) { att(d, true, !!c); }
   vero('il modello riceve [RICORDI] con il ricordo pertinente (titolazione dell\'ammoniaca)', /\[RICORDI\][\s\S]*titolazion/i.test(sys));
   vero('e [PROCEDURE] e [STORIA]', /\[PROCEDURE\][\s\S]*esercizio/.test(sys) && /\[STORIA\]/.test(sys));
   vero('la catena non si è rotta: ci sono ancora [CONTINUITÀ] e [AGENDA]', /\[CONTINUITÀ\]/.test(sys) && /\[AGENDA\]/.test(sys));
-  att('lo strumento cerca_nella_memoria registrato una volta, 54 strumenti (dalla v260 anche spaccato_stellare)', '1 54', h.strumento + ' ' + h.totale);
+  att('lo strumento cerca_nella_memoria registrato una volta, 55 strumenti (dalla v260 anche spaccato_stellare, dalla v264 biochimica_3d)', '1 55', h.strumento + ' ' + h.totale);
   vero('lo strumento risponde con i ricordi e la data', h.tool.ok && h.tool.ricordi.length >= 1 && /^\d{4}-\d\d-\d\d$/.test(h.tool.ricordi[0].quando));
   vero('«ricorda» della Chat scrive anche nell\'archivio', h.ricordaQui);
 

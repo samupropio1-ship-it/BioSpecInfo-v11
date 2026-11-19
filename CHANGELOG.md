@@ -7,6 +7,40 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v264] — 2026-11-19
+
+**Biochimica 3D Lab: l'esame di biochimica in movimento, dalla dispensa dell'autore**
+
+### Aggiunto
+- **🧬 Biochimica 3D Lab** (`sbiolab3d`, nella barra della biochimica), quattro schede:
+  - **⚙️ ATP sintasi**: il motore F₀F₁ in 3D (anello c₈ nella membrana interna, fusto γ/ε, testa α₃β₃, subunità a con i
+    due semicanali, braccio periferico e OSCP). I protoni entrano dallo spazio intermembrana, salgono sull'anello, fanno
+    quasi un giro ed escono nella matrice; le tre β passano per L → T → O (Boyer) e ogni 120° esce un ATP. Viste
+    montata, **spaccato** (un piano di taglio sempre rivolto alla camera) ed **esplosa**; anello c₈/c₁₀/c₁₅ con H⁺/ATP e
+    P/O che cambiano. Il motore è pilotato da un **ossigrafo** (elettrodo di Clark) disegnato dentro il palco: ADP,
+    oligomicina, DNP/UCP1, cianuro, e l'«esperimento guidato» chiesto all'orale. I contatori (giri, H⁺, ATP) vengono
+    dall'angolo del rotore: 8 H⁺ e 3 ATP per giro per costruzione.
+  - **🧪 Enzimi**: sei enzimi a due lobi che si chiudono sul substrato (adattamento indotto); substrato, prodotto e
+    inibitore come particelle; inibizione competitiva, non competitiva, mista, incompetitiva; allosteria (glucochinasi,
+    PFK-1 con attivatore e inibitore). Grafico nel palco: Michaelis–Menten, Lineweaver–Burk, profilo ΔG‡. La velocità
+    contata dai prodotti torna con la formula.
+  - **🗺️ Vie e carboni**: glicolisi, piruvato deidrogenasi, Krebs, β-ossidazione, gluconeogenesi, sintesi degli acidi
+    grassi, ciclo dell'urea — 46 passi. Ogni carbonio ha il suo colore dall'inizio alla fine (i carboni del glucosio fino
+    al piruvato, acetile e ossalacetato nel Krebs), la CO₂ esce da un carbonio vero, ATP/NADH/FADH₂ entrano ed escono
+    come gettoni; ispettore del passo (enzima, classe EC, cofattori, ΔG°′, reversibilità, regolazione, meccanismo) e,
+    nel palco, la scala dei ΔG°′ e il conto di ATP, NADH, FADH₂, GTP, CO₂, NADPH.
+  - **🎓 Teoria d'esame**: i 12 capitoli della dispensa «Biochimica — definitivo mese» (sintesi, da sapere, perché,
+    errori da non dire, domande del professore, la risposta da dare all'orale letta da Spectra), i conti degli ATP
+    (acido grasso Cn, glucosio con le due navette) e un quiz sugli enzimi regolati del capitolo 12.
+- Strumento di Spectra **`biochimica_3d`** (55 strumenti): apre una scheda, una via o un capitolo.
+- Scheda di teoria `sbiolab3d`; banco **`test_biolab3d`** (54 controlli).
+
+### Note
+- La proposta ricevuta usava three.js 0.169 da una CDN come modulo ES: qui è stata riscritta sul motore 3D dell'app
+  (three r128 locale, BSILab3D), che funziona anche offline. Il video di riferimento non era allegato: è stata usata
+  la sua descrizione (ATP sintasi umana, PDB 8H9T).
+
+---
 ## [bsi-v263] — 2026-11-19
 
 **La voce di Spectra con ElevenLabs: fredda, calma e precisa, con la chiave al sicuro**

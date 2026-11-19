@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v263` |
+| **Versione descritta** | `bsi-v264` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -108,6 +108,7 @@
 | **SCI-82** | I quattordici eventi cosmici della v261 devono calcolare i loro numeri: caduta libera e Kelvin–Helmholtz, legge di Leavitt per δ Cephei, campo ed età della pulsar del Granchio, raggio di marea e ricaduta ∝ t^−5/3, Eddington e Salpeter, chirp di GW150914, ionizzazione di Saha; il grafico vivo nel palco segue la simulazione; percorsi H-R schematici e composizioni indicative dichiarati | `bsi-astro-spaccato-eventi.js`, `bsi-astro-spaccato.js` | `test_spaccato` (113 controlli) |
 | **SCI-83** | I meccanismi 3D (v262) non devono rompere la chimica mentre scorrono: carica totale costante in ogni istante, legami di lunghezza tipica agli estremi, atomi non legati mai a meno di 1,15 Å, frecce su atomi e legami veri, stati di transizione nei massimi; Diels–Alder (Ea 115, ΔH −166 kJ/mol) e clorurazione (243, +7, −109 kJ/mol) con i valori misurati; geometrie semplificate ed energie indicative dichiarate | `bsi-chim-meccanismi3d.js` | `test_meccanismi3d` (25 controlli) |
 | **SCI-84** | Le animazioni matematiche (v262) devono mostrare numeri veri: picco di Gibbs 1,179, errore di Riemann ∝ 1/n² con f(0) = f(π), resto di Taylor sotto il limite di Lagrange, Galton con media 6 e varianza 3, Buffon entro 3 errori standard, Fibonacci → φ, (1 + 1/n)ⁿ a e/(2n) da e | `bsi-mat-animazioni.js` | `test_animmat` (23 controlli) |
+| **SCI-85** | Il Biochimica 3D Lab (v264) non deve insegnare numeri sbagliati: in ognuno dei 46 passi delle sette vie nessun carbonio nasce o sparisce; bilanci della dispensa (glicolisi +2 ATP +2 NADH, Krebs 3 NADH 1 FADH₂ 1 GTP 2 CO₂, C8 = 50 ATP, palmitato 106, glucosio 30/32); la CO₂ della PDH viene dai C3·C4 del glucosio e quelle del Krebs dall'ossalacetato; inibitori con Km e Vmax giuste; ATP sintasi 8 H⁺ e 3 ATP per giro; ossigrafo con stato 3 > 3 × stato 2, oligomicina, disaccoppiante e cianuro come all'esame | `bsi-bio-lab3d-dati.js`, `bsi-bio-lab3d.js` | `test_biolab3d` (54 controlli) |
 | **UI-23** | Ogni scheda delle 29 sezioni con la scheda 3D nuova deve aprirsi piena, senza avvisi, con le tele disegnate e un nome accessibile, e l'ultima scheda deve essere una scena 3D che disegna; un grafico senza nome deve prendere quello della scheda | `bsi-fisica-comune.js` — `prepara()` e `mostra()` danno alle tele senza nome (o con un nome di una sola lettera) «Grafico: <scheda> — <sezione>»; la scena 3D si costruisce dopo il clic, fuori dal gestore | `test_3d238` — a 1280 e a 390 px, per ogni sezione: tutte le schede piene, senza ⚠, ogni tela disegna e ha un nome di almeno tre caratteri; l'ultima scheda è una scena con `Scena.campiona() > 0`; **lavoro sincrono al clic sotto i 250 ms** (WebGL in SwiftShader); a 390 px niente sborda; nessun errore JavaScript |
 | **UI-22** | La console di Spectra Live deve restare usabile su un telefono con la barra di stato e i tasti di Android sopra la pagina, senza elementi sovrapposti, e da lì si deve raggiungere ogni sezione | `bsi-spectra-live.js` — margini `env(safe-area-inset-*)` con minimi di 34 e 46 px (classe `.bsiJV-bordi`) quando la finestra copre lo schermo su un dispositivo touch o l'app è installata; impaginazione calcolata nel ciclo di disegno; navigatore 🧭 per materia; scorciatoie di contesto; pulsante 💬; pulsante tondo Spectra Live (dalla v239 l'unico pulsante di Spectra, UI-25) | `test_spectra238` — su un telefono simulato (412×915, touch): margini sicuri attivi, primo pulsante ≥ 34 px dal bordo alto, comandi ≥ 46 px dal bordo basso, telemetria in due colonne che non copre il volto; su schermo grande nessun margine forzato; in entrambi testata, volto, stato, dialogo, comandi e attribuzione senza sovrapposizioni; il navigatore elenca per ognuna delle tre materie esattamente le sezioni della barra, gli strumenti rapidi e le frasi; aprire una sezione di un'altra materia cambia materia e lascia il pulsante di Spectra Live |
 | **UI-24** | Ogni sezione deve avere una lezione guidata che parte dalla sezione stessa: un capitolo per scheda, i comandi mostrati al lavoro e rimessi com'erano, una verifica con la spiegazione, un riepilogo; durante la lezione nessun pulsante flottante sopra il pannello, e alla fine tutto com'era | `bsi-lezione.js` — `BSILezione.costruisci()` legge titolo, sottotitolo, schede, spiegazioni, tele, cursori e scelte; domanda di verifica dal kit di studio della materia (più parole in comune con la sezione); lettore `#bsiLZ` con riflettore, ◀ ▶, pausa e voce; pulsante «🎓 Lezione guidata con Spectra» in ogni sezione; i comandi dimostrati tornano al valore di partenza anche se si passa oltre o si chiude; pulsanti flottanti nascosti e ripristinati; «riduci movimento» rispettato. `bsi-spectra-live.js` — comando «fammi lezione» e scorciatoia 🎓 | `test_lezione` — 30 controlli: attraversando tutte le **194** sezioni della barra nelle tre materie, ognuna ha la lezione (apertura … riepilogo) e il pulsante, e ognuna delle **99** con schede ha un capitolo per scheda; almeno 60 lezioni con una domanda di verifica (**79** alla stesura); a 390 e a 1280 px: la lezione parte dall'apertura, i pulsanti flottanti si nascondono, un cursore cambia davvero valore sotto il riflettore e torna al valore di partenza saltando avanti a metà, una scelta passa le opzioni e torna, la verifica mostra la risposta giusta e la spiegazione, il riepilogo elenca i capitoli, niente sborda, alla chiusura pannello tolto e pulsanti di nuovo visibili; «fammi lezione» avvia la lezione; nessun errore JavaScript. La voce non è provata dal banco |
@@ -204,7 +205,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 768 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 771 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -250,15 +251,15 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…84) | 82 | 82 | 100 % |
+| Scientifici (SCI-01…85) | 83 | 83 | 100 % |
 | Agente AI (AI-01…26) | 25 | 25 | 100 % |
 | Stabilità (STA-01…11) | 11 | 11 | 100 % |
 | Interfaccia (UI-01…36) | 33 | 33 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **161** | **161** | **100 %** |
+| **Totale automatizzato** | **162** | **162** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **168** | **161** | **96 %** |
+| **Totale dichiarato** | **169** | **162** | **96 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -294,4 +295,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v263`._
+_Documento aggiornato alla versione `bsi-v264`._

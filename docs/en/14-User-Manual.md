@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 217 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 218 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right, the face in a circle | The assistant that answers questions: a tap opens the console, and from there 💬 the chat |
 | **🎓 Guided lesson** | Under the title of every section | A lesson in chapters on the section, led by Spectra |
@@ -871,4 +871,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v263`._
+_Guide updated to version `bsi-v264`._

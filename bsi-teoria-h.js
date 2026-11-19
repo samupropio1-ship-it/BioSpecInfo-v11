@@ -459,4 +459,42 @@
     ],
     collegamenti: ['smatcalc', 'smatfrenet', 'sanimmech']
   };
+  /* ═══ 🧬 Biochimica 3D Lab (v264) ═════════════════════════════════════════ */
+  T['sbiolab3d'] = {
+    titolo: "Il metabolismo come macchina: enzimi, carboni e il motore che fa l'ATP",
+    sintesi: "Il metabolismo si capisce seguendo tre cose: quanto è veloce un enzima e che cosa lo frena (la cinetica), dove va ogni carbonio di una molecola lungo una via, e come l'energia degli elettroni diventa ATP. Il laboratorio le mostra in movimento: gli enzimi che si chiudono sul substrato, le vie metaboliche con i carboni colorati dall'inizio alla fine, e l'ATP sintasi che gira spinta dai protoni mentre un ossigrafo misura l'ossigeno consumato.",
+    paragrafi: [
+      { titolo: "Michaelis–Menten senza formule da imparare a memoria", testo: "Un enzima lega il substrato, lo trasforma e lo rilascia. Con poco substrato quasi tutti gli enzimi sono liberi e la velocità cresce in proporzione al substrato; con tanto substrato sono tutti occupati e la velocità si ferma a un massimo, Vmax, che dipende solo da quanto enzima c'è e da quanto è rapido (kcat). La Km è la concentrazione di substrato a cui si arriva a metà di Vmax. Nel laboratorio la velocità non è calcolata a parte: si contano i prodotti che escono dagli enzimi occupati, e il numero torna con la formula. Un inibitore competitivo occupa il sito attivo e sposta la curva a destra senza cambiare Vmax; uno non competitivo toglie enzima funzionante e abbassa Vmax; uno incompetitivo blocca solo il complesso enzima–substrato e abbassa entrambe. Gli enzimi allosterici, come la PFK-1, hanno più subunità che si aiutano: la curva diventa una sigmoide." },
+      { titolo: "Seguire i carboni", testo: "Ogni via è una catena di piccoli cambiamenti su pochi atomi. Se si dà a ogni carbonio un colore e lo si segue, molte domande d'esame diventano domande di geometria: nella glicolisi l'aldolasi rompe il legame fra C3 e C4, e il carbossile del piruvato viene dai carboni 3 e 4 del glucosio, proprio quello che la piruvato deidrogenasi elimina come CO₂. Nel ciclo di Krebs le due CO₂ di un giro escono dai carboni dell'ossalacetato, non da quelli dell'acetile appena entrato: per questo l'acetil-CoA non può dare glucosio. In ogni passo il numero di carboni si conserva: quelli che spariscono escono come CO₂, quelli che compaiono entrano come bicarbonato." },
+      { titolo: "La fosforilazione ossidativa e il motore rotante", testo: "La catena respiratoria pompa protoni dalla matrice allo spazio intermembrana e crea un gradiente. I protoni tornano indietro attraverso l'ATP sintasi: entrano da un semicanale della subunità a, si legano a un glutammato dell'anello c, fanno quasi un giro intero insieme all'anello ed escono dall'altro semicanale. L'anello trascina il fusto γ, che ruota dentro la testa α₃β₃ e cambia a turno la forma delle tre subunità β: una lega ADP e fosfato, una forma l'ATP, una lo rilascia. Nell'uomo l'anello ha 8 subunità: 8 protoni per giro e 3 ATP per giro, cioè 8/3 di protone per ATP più uno per trasportare ADP e fosfato." },
+      { titolo: "L'ossigrafo: l'esperimento che dimostra l'accoppiamento", testo: "Un elettrodo di Clark misura l'ossigeno in una camera con mitocondri e substrato. Senza ADP l'ATP sintasi non lavora, il gradiente arriva al massimo e frena la catena: si consuma poco ossigeno. Aggiungendo ADP il motore gira e il consumo sale: è il controllo respiratorio. L'oligomicina blocca il canale del motore e il consumo ricade; un disaccoppiante lascia rientrare i protoni attraverso la membrana, il gradiente crolla e l'ossigeno si consuma più di prima, ma senza ATP; il cianuro blocca il complesso IV e ferma tutto. Il laboratorio riproduce la traccia con un modello qualitativo: i numeri sono indicativi, l'andamento è quello misurato." },
+      { titolo: "Come ripassare per l'orale", testo: "La scheda di teoria raccoglie i dodici capitoli della dispensa: per ognuno l'idea in poche righe, i perché, gli errori già fatti davanti al professore e la risposta da dare all'orale, che si può ascoltare. Il metodo consigliato è disegnare ogni via a memoria con enzimi, cofattori e carboni, rifare i conti degli ATP, e ripetere ad alta voce le risposte." }
+    ],
+    formule: [
+      ["V₀ = Vmax[S] / (Km + [S])", "equazione di Michaelis–Menten: velocità iniziale in funzione del substrato"],
+      ["1/V₀ = (Km/Vmax)·(1/[S]) + 1/Vmax", "Lineweaver–Burk: una retta che taglia l'asse y in 1/Vmax e l'asse x in −1/Km"],
+      ["Km,app = α·Km con α = 1 + [I]/Ki", "inibizione competitiva: aumenta la Km apparente e lascia uguale la Vmax"],
+      ["H⁺/ATP = c/3 + 1", "protoni per ATP con un anello di c subunità, più uno per il trasporto"],
+      ["ATP(Cn) = 4·(n/2 − 1) + 10·(n/2) − 2", "resa in ATP di un acido grasso saturo con un numero pari n di carboni"]
+    ],
+    ipotesi: [
+      "Le molecole delle vie sono disegnate a catena aperta per leggere i carboni; gli zuccheri in soluzione sono ad anello.",
+      "L'ossigrafo e la frazione di enzimi occupati sono modelli qualitativi con numeri indicativi; la rotazione del motore è rallentata e continua."
+    ],
+    errori: [
+      "Dire che l'enzima abbassa il ΔG della reazione: abbassa la barriera ΔG‡, non cambia né ΔG°′ né l'equilibrio.",
+      "Dire che l'oligomicina blocca la catena respiratoria: blocca l'ATP sintasi, e la catena rallenta solo di conseguenza."
+    ],
+    esempio: {
+      testo: "Quanti ATP si ottengono dall'acido ottanoico (C8), contando 2,5 ATP per NADH e 1,5 per FADH₂?",
+      risultato: "3 giri di β-ossidazione (12 ATP) e 4 acetil-CoA nel Krebs (40 ATP), meno 2 per l'attivazione: 50 ATP"
+    },
+    fonti: [
+      "D. L. Nelson, M. M. Cox, Lehninger Principles of Biochemistry, 8ª ed., W. H. Freeman 2021",
+      "P. D. Boyer, The ATP synthase — a splendid molecular machine, Annual Review of Biochemistry 66 (1997) 717",
+      "I. N. Watt et al., Bioenergetic cost of making an adenosine triphosphate molecule in animal mitochondria, PNAS 107 (2010) 16823",
+      "B. Chance, G. R. Williams, Respiratory enzymes in oxidative phosphorylation, Journal of Biological Chemistry 217 (1955) 383"
+    ],
+    collegamenti: ['sglic', 'skrebs', 'setc', 'sbeta']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
