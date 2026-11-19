@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v262` |
+| **Versione descritta** | `bsi-v263` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -160,6 +160,7 @@
 | **AI-23** | Spectra Prime (v258): orchestratore a sette agenti (LangGraph) con un ponte WebSocket che vede la scena 3D aperta e la comanda (load, update, toggle_layer, focus); solo wss://, origini autorizzate, quattro azioni, valori controllati, azioni high/critical bloccate fino alla conferma | `spectra_core/` (10 test Python), `bsi-spectra-ponte.js` | `test_spectra_ponte` (41 controlli) |
 | **AI-24** | Spectra è un nucleo olografico a forma di particella, non un robot (v259): nessun corpo, volto o ritratto da scaricare; stati con transizioni morbide (easeInOutSine), nessun elemento additivo che saturi; nessuna finestra, voce o tastiera che si apra senza un'azione dell'utente | `bsi-spectra-nucleo.js`, `bsi-spectra-figura.js`, `bsi-spectra-risveglio.js`, `bsi-spectra-olointerattivo.js`, `bsi-spectra-live.js`, `spectra-studio.html` | `test_spectra_nucleo` (41 controlli) |
 | **AI-25** | La voce di Spectra deve sentirsi anche con la sentinella accesa: prima di parlare (console, chat, voce di qualità) il microfono si libera e si aspetta che Android lo rilasci, mentre parla la sentinella non riparte, finita la voce riparte; nessuna frase cade | `bsi-spectra-live.js`, `bsi-spectra-voce.js`, `bsi-ai-hub.js` | `test_voce_microfono` (20 controlli) |
+| **AI-26** | La voce ElevenLabs di Spectra (v263) non deve mai esporre la chiave né spendere caratteri inutili: chiave solo sul dispositivo o come segreto del proxy; la route `/voce` fissa la voce sul server, stringe i parametri, limita i caratteri per richiesta e al giorno, ruota le chiavi; il client spezza i testi lunghi con `previous_text`/`next_text`, mette in coda, interrompe, ritenta 429/5xx, ripiega sulla voce del sistema e libera il microfono | `bsi-spectra-elevenlabs.js`, `proxy/spectra-proxy.js` | `test_voce_elevenlabs` (24 controlli), `test_worker.mjs` (§14) |
 
 ---
 
@@ -203,7 +204,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 764 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 768 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -250,14 +251,14 @@ manuale, e la loro automazione è in programma.
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
 | Scientifici (SCI-01…84) | 82 | 82 | 100 % |
-| Agente AI (AI-01…25) | 24 | 24 | 100 % |
+| Agente AI (AI-01…26) | 25 | 25 | 100 % |
 | Stabilità (STA-01…11) | 11 | 11 | 100 % |
 | Interfaccia (UI-01…36) | 33 | 33 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **160** | **160** | **100 %** |
+| **Totale automatizzato** | **161** | **161** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **167** | **160** | **96 %** |
+| **Totale dichiarato** | **168** | **161** | **96 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -293,4 +294,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v262`._
+_Documento aggiornato alla versione `bsi-v263`._

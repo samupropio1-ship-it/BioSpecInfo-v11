@@ -125,5 +125,30 @@ r = await worker.fetch(req('/groq/openai/v1/chat/completions', { origin:'https:/
                        Object.assign({}, ENV, { ORIGINI: '' }));
 att('ammesso', 200, r.status);
 
+console.log('\n14) (v263) POST /voce: la voce di Spectra con voce e limiti fissati sul server');
+const ENVV = Object.assign({}, ENV, { ELEVENLABS_KEYS: 'el1,el2', SPECTRA_VOICE_ID: 'VOCE_SERVER', VOCE_TESTO_MAX: '300', VOCE_CARATTERI_GIORNO: '500', LIMITE_IP: '50' });
+r = await worker.fetch(req('/stato', { method:'GET', ip:'8.8.0.1' }), ENVV); j = await r.json();
+att('/stato annuncia la voce', true, j.fornitori.includes('voce'));
+upstream = []; rispondi = () => new Response(new Uint8Array(400), { status:200, headers:{'Content-Type':'audio/mpeg'} });
+r = await worker.fetch(req('/voce', { ip:'8.8.0.2', body: JSON.stringify({ text: 'Ciao, sono Spectra.', preset: 'ultron', voice_settings: { stability: 7, speed: 3 }, model_id: 'modello_inventato', voice_id: 'VOCE_DEL_CLIENT', previous_text: 'Prima.' }) }), ENVV);
+att('audio restituito', '200 audio/mpeg', r.status + ' ' + r.headers.get('Content-Type'));
+att('la voce è quella del server, non quella chiesta dal client', 'https://api.elevenlabs.io/v1/text-to-speech/VOCE_SERVER?output_format=mp3_44100_128', upstream[0].url);
+att('chiave iniettata nell\'header xi-api-key', 'el1', upstream[0].o.headers['xi-api-key']);
+const cv = JSON.parse(upstream[0].o.body);
+att('parametri stretti nei limiti (stability ≤ 1, speed ≤ 1,2), modello sconosciuto → multilingual v2', '1 1.2 eleven_multilingual_v2', cv.voice_settings.stability + ' ' + cv.voice_settings.speed + ' ' + cv.model_id);
+att('previous_text passa, voice_id del client no', 'Prima. undefined', cv.previous_text + ' ' + cv.voice_id);
+r = await worker.fetch(req('/voce', { ip:'8.8.0.3', body: JSON.stringify({ text: 'x'.repeat(301) }) }), ENVV);
+att('testo oltre il massimo per richiesta → 413', 413, r.status);
+r = await worker.fetch(req('/voce', { ip:'8.8.0.4', body: JSON.stringify({ text: 'y'.repeat(290) }) }), ENVV);
+r = await worker.fetch(req('/voce', { ip:'8.8.0.4', body: JSON.stringify({ text: 'z'.repeat(290) }) }), ENVV);
+att('tetto giornaliero di caratteri → 429', 429, r.status);
+upstream = []; rispondi = (n) => n === 1 ? new Response('{"detail":{"status":"quota_exceeded"}}', { status:401 }) : new Response(new Uint8Array(400), { status:200, headers:{'Content-Type':'audio/mpeg'} });
+r = await worker.fetch(req('/voce', { ip:'8.8.0.5', body: JSON.stringify({ text: 'Breve.' }) }), Object.assign({}, ENVV, { VOCE_CARATTERI_GIORNO: '100000' }));
+att('prima chiave rifiutata → seconda chiave', '200 el2', r.status + ' ' + upstream[1].o.headers['xi-api-key']);
+r = await worker.fetch(req('/voce', { ip:'8.8.0.6', body: JSON.stringify({ text: 'Ciao.' }) }), ENV);
+att('senza chiavi o senza voce sul server → 503 che dice cosa fare', true, r.status === 503 && /SPECTRA_VOICE_ID/.test((await r.json()).error.message));
+r = await worker.fetch(req('/voce', { ip:'8.8.0.7', origin:'https://altro.example', body: JSON.stringify({ text: 'Ciao.' }) }), ENVV);
+att('origine non ammessa → 403', 403, r.status);
+
 console.log('\n' + (ko ? '✗ '+ko+' FALLITI, ' : '') + ok + ' passati');
 process.exit(ko ? 1 : 0);

@@ -122,6 +122,66 @@ function daRitentare(stato){
   return stato === 401 || stato === 403 || stato === 429;
 }
 
+/* --- La voce di Spectra (ElevenLabs) -------------------------------- */
+/* POST /voce non è un inoltro generico verso ElevenLabs: con la chiave del
+   proprietario chiunque potrebbe clonare o cancellare voci. Il client manda
+   SOLO il testo e lo stile; voce, chiave, modelli ammessi e limiti stanno qui.
+   Segreti:   ELEVENLABS_KEYS (lista separata da virgole), SPECTRA_VOICE_ID
+   Variabili: VOCE_TESTO_MAX (caratteri per richiesta, 1000),
+              VOCE_CARATTERI_GIORNO (tetto giornaliero per istanza, 20000)    */
+var VOCE_PRESET = {
+  ultron:     { stability: 0.60, similarity_boost: 0.85, style: 0.25, use_speaker_boost: true, speed: 0.93 },
+  minaccioso: { stability: 0.48, similarity_boost: 0.85, style: 0.42, use_speaker_boost: true, speed: 0.88 },
+  chiaro:     { stability: 0.72, similarity_boost: 0.80, style: 0.10, use_speaker_boost: true, speed: 1.00 }
+};
+var VOCE_MODELLI = ['eleven_multilingual_v2', 'eleven_turbo_v2_5', 'eleven_flash_v2_5', 'eleven_v3'];
+var VOCE_LIMITI = { stability: [0, 1], similarity_boost: [0, 1], style: [0, 1], speed: [0.7, 1.2] };
+var _voceGiorno = { data: '', caratteri: 0 };
+function stringi(v, lim){ v = +v; return isFinite(v) ? Math.max(lim[0], Math.min(lim[1], v)) : null; }
+function impostazioniVoce(dati){
+  var base = VOCE_PRESET[dati && dati.preset] || VOCE_PRESET.ultron, chieste = (dati && dati.voice_settings) || {}, s = {};
+  ['stability', 'similarity_boost', 'style', 'speed'].forEach(function(k){
+    var v = stringi(chieste[k] != null ? chieste[k] : base[k], VOCE_LIMITI[k]); if(v !== null) s[k] = v;
+  });
+  s.use_speaker_boost = chieste.use_speaker_boost === false ? false : true;
+  return s;
+}
+async function voce(request, env, origin){
+  var chiavi = chiaviDi(env, 'ELEVENLABS_KEYS'), idVoce = String(env.SPECTRA_VOICE_ID || '').trim();
+  if(!chiavi.length || !idVoce) return errore('La voce non è configurata sul proxy: wrangler secret put ELEVENLABS_KEYS e SPECTRA_VOICE_ID.', 503, origin);
+  var dati;
+  try{ dati = await request.json(); }catch(e){ return errore('Corpo JSON non valido.', 400, origin); }
+  var testo = String((dati && dati.text) || '').trim(), max = parseInt(env.VOCE_TESTO_MAX, 10) || 1000;
+  if(!testo) return errore('Testo vuoto.', 400, origin);
+  if(testo.length > max) return errore('Testo troppo lungo: al massimo ' + max + ' caratteri per richiesta (il client lo spezza da sé).', 413, origin);
+  var g = oggi(), tetto = parseInt(env.VOCE_CARATTERI_GIORNO, 10) || 20000;
+  if(_voceGiorno.data !== g){ _voceGiorno.data = g; _voceGiorno.caratteri = 0; }
+  if(_voceGiorno.caratteri + testo.length > tetto) return errore('Tetto giornaliero di caratteri della voce raggiunto. Riprova domani.', 429, origin);
+  var modello = VOCE_MODELLI.indexOf(dati.model_id) >= 0 ? dati.model_id : 'eleven_multilingual_v2';
+  var corpo = { text: testo, model_id: modello, voice_settings: impostazioniVoce(dati) };
+  ['previous_text', 'next_text'].forEach(function(k){ if(typeof dati[k] === 'string' && dati[k].trim()) corpo[k] = dati[k].slice(0, max); });
+  if(typeof dati.language_code === 'string' && /^[a-z]{2}$/.test(dati.language_code) && /v2_5$/.test(modello)) corpo.language_code = dati.language_code;
+  var dest = 'https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(idVoce) + '?output_format=mp3_44100_128';
+  var ultima = null;
+  for(var i = 0; i < chiavi.length; i++){
+    var r;
+    try{
+      r = await fetch(dest, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'audio/mpeg', 'xi-api-key': chiavi[i] }, body: JSON.stringify(corpo) });
+    }catch(e){ ultima = errore('Impossibile contattare ElevenLabs: ' + e.message, 502, origin); continue; }
+    if(r.ok){
+      _voceGiorno.caratteri += testo.length;
+      var out = new Headers(intestazioniCors(origin));
+      out.set('Content-Type', r.headers.get('Content-Type') || 'audio/mpeg'); out.set('Cache-Control', 'no-store');
+      return new Response(r.body, { status: 200, headers: out });
+    }
+    var t = ''; try{ t = await r.text(); }catch(e){}
+    /* il messaggio del servizio passa, la chiave mai */
+    ultima = new Response(t.split(chiavi[i]).join('***') || JSON.stringify({ error: { message: 'HTTP ' + r.status } }), { status: r.status, headers: Object.assign({ 'Content-Type': 'application/json' }, intestazioniCors(origin)) });
+    if(!daRitentare(r.status)) return ultima;
+  }
+  return ultima || errore('Nessuna chiave ElevenLabs utilizzabile.', 503, origin);
+}
+
 /* --- Worker --------------------------------------------------------- */
 export default {
   async fetch(request, env){
@@ -141,6 +201,7 @@ export default {
       var attivi = Object.keys(FORNITORI).filter(function(n){
         return chiaviDi(env, FORNITORI[n].segreto).length > 0;
       });
+      if(chiaviDi(env, 'ELEVENLABS_KEYS').length && String(env.SPECTRA_VOICE_ID || '').trim()) attivi.push('voce');
       return new Response(JSON.stringify({ fornitori: attivi }),
         { headers: Object.assign({ 'Content-Type': 'application/json' }, intestazioniCors(origin)) });
     }
@@ -151,6 +212,15 @@ export default {
       return errore('Metodo non consentito.', 405, origin);
     }
     if(!origineAmmessa(origin, env)) return errore('Origine non ammessa da questo proxy.', 403, '');
+
+    /* POST /voce: la voce di Spectra, con voce e limiti fissati qui */
+    if(url.pathname === '/voce' || url.pathname === '/voce/'){
+      if(request.method !== 'POST') return errore('Metodo non consentito.', 405, origin);
+      var limV = parseInt(env.LIMITE_IP, 10) || LIMITE_IP_DEFAULT, tetV = parseInt(env.TETTO_GIORNO, 10) || TETTO_GIORNO_DEFAULT;
+      var stopV = tropoRichieste(request.headers.get('CF-Connecting-IP') || 'ignoto', limV, tetV);
+      if(stopV) return errore(stopV, 429, origin);
+      return voce(request, env, origin);
+    }
 
     // /<fornitore>/<resto del percorso>
     var pezzi = url.pathname.replace(/^\/+/, '').split('/');

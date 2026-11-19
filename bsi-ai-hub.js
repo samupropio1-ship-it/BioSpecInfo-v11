@@ -6394,8 +6394,16 @@ function segnaPulsanti(attivo){
 var _pulsanteInCorso = null;
 /** Fa parlare Spectra con la voce maschile robotica. Restituisce false se il browser non ha la sintesi. */
 function speakRobotic(text, opz){
-  if(!voceSupportata()) return false;
   opz = opz || {};
+  /* (v263) con la voce ElevenLabs configurata la chat parla con quella (stessa voce della console e della figura) */
+  var EL = window.BSISpectraElevenLabs, VQ = window.BSISpectraVoce;
+  if(EL && VQ && EL.attiva()){
+    stopSpeaking(true); var mioEL = ++_voceGiro; _voceInCorso = true; _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
+    try{ document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: testoPerVoce(text).slice(0, 4000) } })); }catch(e){}
+    VQ.parla(testoPerVoce(text)).then(function(){ if(mioEL !== _voceGiro) return; _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); });
+    return true;
+  }
+  if(!voceSupportata()) return false;
   var pulito = testoPerVoce(text);
   var frasi = (pulito.match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function(x){ return x.trim(); }).filter(function(x){ return x.length > 1; });
   if(!frasi.length) return false;
@@ -6429,6 +6437,7 @@ function speakRobotic(text, opz){
 /** Interrompe la lettura (anche la voce della console). */
 function stopSpeaking(senzaPulsanti){
   _voceGiro++; var miaVoce = _voceInCorso; _voceInCorso = false;
+  if(miaVoce && window.BSISpectraElevenLabs && window.BSISpectraElevenLabs.attiva() && window.BSISpectraVoce){ try{ window.BSISpectraVoce.ferma(); }catch(e){} }
   if(miaVoce && window.bsiDopoAverParlato){ try{ window.bsiDopoAverParlato(); }catch(e){} }
   if(!senzaPulsanti){ _pulsanteInCorso = null; segnaPulsanti(false); }
   if(!voceSupportata()) return;
@@ -6723,7 +6732,7 @@ function buildChatPane(){
       '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-prova" title="Prova quali fornitori il tuo browser riesce davvero a contattare — bastano pochi secondi e non serve una chiave">🔌 Prova</button>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
-      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-prova-voce" title="Suona un bip e dice una frase: per capire se la voce arriva">🔔 Prova voce</button>' : '') +
+      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-prova-voce" title="Suona un bip e dice una frase: per capire se la voce arriva">🔔 Prova voce</button><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-voce-el" title="La voce di Spectra con ElevenLabs: chiave, Voice ID e stile">🎙️ Voce</button>' : '') +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-provabox" style="display:none"></div>' +
@@ -7290,6 +7299,8 @@ function buildChatPane(){
   /* (v246) l'interruttore della lettura automatica, ricordato fra una visita e l'altra */
   var tgV = document.getElementById('spectra-auto-speak-toggle');
   /* (v261) «è sparito il pulsante per il ding della voce»: un bip e una frase di prova, sempre qui accanto alla lettura automatica */
+  var pvE = document.getElementById('spectra-voce-el');
+  if(pvE){ pvE.onclick = function(){ if(window.BSISpectraElevenLabs) window.BSISpectraElevenLabs.apriImpostazioni(); }; }
   var pv = document.getElementById('spectra-prova-voce');
   if(pv){ pv.onclick = function(){ var L = window.BSISpectraLive; if(L && L.provaAudio){ L.provaAudio(); } else { speakRobotic('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); } }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }

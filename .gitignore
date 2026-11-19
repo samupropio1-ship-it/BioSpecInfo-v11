@@ -44,3 +44,6 @@ spectra2/**/__pycache__/
 # Spectra Prime (spectra_core): file compilati e cache dei test
 spectra_core/**/__pycache__/
 spectra_core/.pytest_cache/
+
+# anteprime audio di Voice Design (tools/spectra-voce-design.mjs): restano sul computer
+spectra-voce-anteprime/

@@ -133,6 +133,13 @@
   }
   function fine2(opz, errore) { return function (r) { if (opz._libera && globale.bsiDopoAverParlato) try { globale.bsiDopoAverParlato(); } catch (e) {} opz._libera = false; if (errore) throw r; return r; }; }
   function parla2(testo, opz) {
+    /* (v263) la voce ElevenLabs (stile freddo e controllato), se l'utente l'ha configurata: ha la precedenza */
+    var EL = globale.BSISpectraElevenLabs;
+    if (EL && EL.attiva() && !opz.soloSistema) {
+      var V = EL.voce(), mio2 = corrente = { annullato: false, el: V };
+      V.opz.onEnergia = function (e) { if (opz.suBocca) try { opz.suBocca({ energia: e, apertura: Math.min(1, e * 1.15), rotondo: 0, largo: 0 }); } catch (er) { } };
+      return V.parla(testo, { interrompi: true }).then(function (r) { if (mio2.annullato) return { annullato: true }; if (opz.suBocca) try { opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); } catch (e) { } return r; });
+    }
     var mio = corrente = { annullato: false };
     var a = contesto();
     if (a && chiaveOpenAI() && navigator.onLine !== false && !opz.soloSistema) {
@@ -190,12 +197,13 @@
   }
   function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0); }
   function ferma() {
+    if (corrente && corrente.el) { corrente.annullato = true; try { corrente.el.ferma(); } catch (e) { } }
     if (corrente) { corrente.annullato = true; try { if (corrente.src) corrente.src.stop(); } catch (e) {} if (corrente.chain) corrente.chain.ferma(); if (corrente.raf) cancelAnimationFrame(corrente.raf); }
     try { if ('speechSynthesis' in globale && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); } catch (e) {}   /* (v261) annullare a vuoto, su Android, fa cadere la frase dopo */
   }
   /* (v243) chiamata al primo tocco: il contesto audio nasce/riprende dentro un gesto, come chiedono i browser dei telefoni */
-  function sblocca() { var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }
-  function qualita() { return chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext) ? 'audio' : ('speechSynthesis' in globale ? 'sistema' : 'testo'); }
+  function sblocca() { try { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) globale.BSISpectraElevenLabs.voce().sblocca(); } catch (e) { } var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }
+  function qualita() { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) return 'audio'; return chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext) ? 'audio' : ('speechSynthesis' in globale ? 'sistema' : 'testo'); }
 
   globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, versione: '1.0' };
 })(typeof window !== 'undefined' ? window : globalThis);

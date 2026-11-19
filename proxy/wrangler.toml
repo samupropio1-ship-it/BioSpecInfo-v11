@@ -11,6 +11,8 @@ ORIGINI = "https://samupropio1-ship-it.github.io"
 # un pomeriggio se qualcuno trova l'indirizzo del proxy.
 LIMITE_IP = "20"        # richieste al minuto per singolo visitatore
 TETTO_GIORNO = "2000"   # richieste totali al giorno
+VOCE_TESTO_MAX = "1000"          # caratteri per richiesta di voce
+VOCE_CARATTERI_GIORNO = "20000"  # caratteri di voce al giorno (ElevenLabs si paga a caratteri)
 
 # ATTENZIONE: le chiavi NON vanno qui — questo file finisce su GitHub.
 # Si impostano come segreti, che restano solo su Cloudflare:
@@ -18,3 +20,5 @@ TETTO_GIORNO = "2000"   # richieste totali al giorno
 #   npx wrangler secret put GEMINI_KEYS      (documenti lunghi)
 #   npx wrangler secret put NVIDIA_KEYS      (solo via proxy: dal browser NVIDIA non risponde)
 #   npx wrangler secret put ZAI_KEYS         (rincalzo senza scadenza)
+#   npx wrangler secret put ELEVENLABS_KEYS  (la voce di Spectra: POST /voce)
+#   npx wrangler secret put SPECTRA_VOICE_ID (l'ID della voce progettata: il client non lo sceglie)
