@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v267` |
+| **Version described** | `bsi-v268` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -110,6 +110,7 @@
 | **SCI-84** | The maths animations (v262) must show true numbers: Gibbs peak 1.179, Riemann error ∝ 1/n² with f(0) = f(π), Taylor remainder below the Lagrange bound, Galton with mean 6 and variance 3, Buffon within 3 standard errors, Fibonacci → φ, (1 + 1/n)ⁿ e/(2n) from e | `bsi-mat-animazioni.js` | `test_animmat` (23 checks) |
 | **SCI-85** | The Biochemistry 3D Lab (v264) must not teach wrong numbers: in each of the 46 steps of the seven pathways no carbon appears or vanishes; the course balances (glycolysis +2 ATP +2 NADH, Krebs 3 NADH 1 FADH₂ 1 GTP 2 CO₂, C8 = 50 ATP, palmitate 106, glucose 30/32); the PDH CO₂ comes from glucose C3·C4 and the Krebs CO₂ from oxaloacetate; inhibitors with the right Km and Vmax; ATP synthase 8 H⁺ and 3 ATP per turn; oxygraph with state 3 > 3 × state 2, oligomycin, uncoupler and cyanide as at the exam | `bsi-bio-lab3d-dati.js`, `bsi-bio-lab3d.js` | `test_biolab3d` (54 checks) |
 | **SCI-86** | The Quantum Studio (v265) must give true numbers in all 16 modules: H₂ Morse (−458 kJ/mol at 74 pm), NMR (ν₀ = 42.577·B₀, J in ppm = J/ν₀, CH₂ quartet 1:3:3:1), dose–response (EC₅₀′ = EC₅₀(1 + [B]/K_B)), real PCA (Σλ = trace, more separation → more variance on PC1), HPLC (N plates, Rs ∝ √N, optimum u = √(B/C)), PES (saddle = maximum on the path, Eyring with T), Hodgkin–Huxley (fires with g_Na, silent at g_Na = 0; E_K from Nernst), Rabi (π → P₁ = 1), n-cubes (2ⁿ vertices, tesseract 16/32/24), Calabi–Yau (z₁ⁿ + z₂ⁿ = 1), Gibbs (ΔG = ΔH − TΔS, T* = ΔH/ΔS) | `bsi-quantum-studio-dati.js`, `bsi-quantum-studio*.js` | `test_quantumstudio` (57 checks) |
+| **SCI-87** | Quantum inorganic chemistry (v268) must solve the four pillars with textbook numbers: Slater (boron 2p σ = 2.40 ζ = 2.60; sodium 3s σ = 8.80; for I and Xe the 4f stays empty, valence 5s5p; |Y|² of 2p_z peaks at 0°, d_z² nodal cones at 54.7° and 125.3°); Hückel with exact diagonalisation (allyl α±√2β, benzene E_deloc = 2β, butadiene 0.472β, cyclobutadiene 0, cyclopropenyl⁺ 2β; normalised eigenvectors); SALC with a ΔE threshold (more threshold → more interactions; bonding + antibonding + non-bonding = total AOs); VBT+CFT+LFT complexes ([FeCl₄]⁻ d⁵ Td μ = 5.92 CFSE 0; [IrCl₆]²⁻ d⁵ low spin μ = 1.73 CFSE −2Δ; [Ni(CN)₄]²⁻ square planar diamagnetic; [Ni(CO)₄] EAN 36; μ = √(n(n+2)); Jahn–Teller from occupancy) | `bsi-inorganica-quantum-dati.js`, `bsi-inorganica-quantum.js` | `test_inorganica` (39 checks) |
 | **UI-23** | Every tab of the 29 sections with the new 3D tab must open full, without warnings, with its canvases drawn and an accessible name, and the last tab must be a 3D scene that draws; a chart without a name must take the tab's | `bsi-fisica-comune.js` — `prepara()` and `mostra()` give canvases without a name (or with a one-letter name) «Chart: <tab> — <section>»; the 3D scene is built after the click, outside the handler | `test_3d238` — at 1280 and 390 px, for every section: all tabs full, no ⚠, every canvas draws and has a name of at least three characters; the last tab is a scene with `Scena.campiona() > 0`; **synchronous work on click under 250 ms** (WebGL in SwiftShader); nothing overflows at 390 px; no JavaScript error |
 | **UI-22** | The Spectra Live console must stay usable on a phone with Android's status bar and navigation keys over the page, with no overlapping elements, and every section must be reachable from it | `bsi-spectra-live.js` — `env(safe-area-inset-*)` margins with minimums of 34 and 46 px (class `.bsiJV-bordi`) when the window covers the screen on a touch device or the app is installed; layout computed in the drawing loop; 🧭 navigator per subject; context shortcuts; 💬 button; round Spectra Live button (since v239 Spectra's only button, UI-25) | `test_spectra238` — on a simulated phone (412×915, touch): safe margins active, first button ≥ 34 px from the top edge, controls ≥ 46 px from the bottom edge, telemetry in two columns not covering the face; on a large screen no forced margins; on both, header, face, state, dialogue, controls and attribution without overlaps; the navigator lists, for each of the three subjects, exactly the sections of the bar, the quick tools and the phrases; opening a section of another subject switches subject and leaves the Spectra Live button |
 | **UI-24** | Every section must have a guided lesson built from the section itself: one chapter per tab, the controls shown at work and put back as they were, a check question with its explanation, a summary; during the lesson no floating button over the panel, and at the end everything as it was | `bsi-lezione.js` — `BSILezione.costruisci()` reads title, subtitle, tabs, explanations, canvases, sliders and selects; check question from the subject's study kit (most words in common with the section); player `#bsiLZ` with spotlight, ◀ ▶, pause and voice; «🎓 Guided lesson with Spectra» button in every section; demonstrated controls return to their starting value even when skipping ahead or closing; floating buttons hidden and restored; «reduce motion» respected. `bsi-spectra-live.js` — «give me a lesson» («fammi lezione») command and 🎓 shortcut | `test_lezione` — 30 checks: going through all **194** sections of the bar in the three subjects, each has its lesson (opening … summary) and the button, and each of the **99** with tabs has one chapter per tab; at least 60 lessons with a check question (**79** at the time of writing); at 390 and 1280 px: the lesson starts from the opening, floating buttons are hidden, a slider really changes value under the spotlight and returns to its starting value when skipping ahead half-way, a select goes through its options and returns, the check shows the right answer and the explanation, the summary lists the chapters, nothing overflows, on closing the panel is gone and the buttons are visible again; «fammi lezione» starts the lesson; no JavaScript errors. The voice is not tested by the bench |
@@ -209,7 +210,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 782 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 785 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -255,15 +256,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…86) | 84 | 84 | 100 % |
+| Scientific (SCI-01…87) | 85 | 85 | 100 % |
 | AI agent (AI-01…26) | 25 | 25 | 100 % |
 | Stability (STA-01…11) | 11 | 11 | 100 % |
 | Interface (UI-01…39) | 36 | 36 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **166** | **166** | **100 %** |
+| **Automated total** | **167** | **167** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **173** | **166** | **96 %** |
+| **Declared total** | **174** | **167** | **96 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -298,4 +299,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v267`._
+_Document updated to version `bsi-v268`._

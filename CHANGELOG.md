@@ -7,6 +7,37 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v268] — 2026-11-20
+
+**Inorganica quantistica: un motore di calcolo per le tracce d'esame di Chimica Inorganica II**
+
+### Aggiunto
+- **⚗️ Inorganica quantistica** (`sinorganica`, `bsi-inorganica-quantum-dati.js` + `bsi-inorganica-quantum.js`):
+  un risolutore con il modello 3D e il calcolo insieme, in quattro schede.
+  - **⚛️ Slater**: regole di Slater standard — costante di schermo σ, carica efficace ζ = Z − σ, numero quantico
+    efficace n*, raggio più probabile e raggio medio idrogenoidi, e la forma angolare |Y_lm|² con l'angolo del
+    massimo e i piani/coni nodali. Riempimento corretto (per I e Xe il 4f resta vuoto).
+  - **🔷 Hückel**: metodo variazionale / determinante secolare con **diagonalizzazione esatta** (Jacobi) e autovettori
+    normalizzati; livelli E = α + xβ, energia π totale ed **energia di delocalizzazione** (allile, ciclopropenile⁺,
+    butadiene, ciclobutadiene, benzene = 2β, LiH eteronucleare).
+  - **🧩 SALC**: combinazioni adattate alla simmetria con **soglia energetica ΔE** regolabile, per le molecole
+    ipervalenti e interalogene (XeOF₄, IOF₅, XeF₄, SF₄, BrF₃, SO₂, SO₃, I₃⁻): la tabella delle interazioni σ/π
+    cambia con il cursore della soglia.
+  - **🧲 Complessi**: la **tripla teoria** VBT + CFT + LFT con ibridazione, EAN, splitting Δo/Δt, alto/basso spin,
+    **CFSE**, **momento magnetico μ = √(n(n+2))**, **Jahn–Teller** dall'occupazione, e il carattere σ/π-donatore o
+    π-accettore con la retrodonazione ([FeCl₄]⁻, [MnF₆]⁴⁻, [IrCl₆]²⁻, [Ni(NH₃)₆]²⁺, [Ni(CN)₄]²⁻, [Pd(CN)₄]²⁻,
+    [Ni(CO)₄], [Ag(CN)₂]⁻).
+- Strumento di Spectra **`inorganica_quantica`** (58 strumenti) e strumento vocale **`inorganica`** nella console
+  Spectra Prime: si può chiedere a voce «risolvi il benzene col metodo di Hückel» o «[IrCl₆]²⁻ in tripla teoria».
+- Scheda di teoria `sinorganica`; banco **`test_inorganica`** (39 controlli, i solutori si verificano senza browser).
+
+### Note
+- La proposta ricevuta (`spectra-inorganic-quantum-solver.js`) importava three.js da una CDN come modulo ES: qui è
+  riscritta sul motore 3D locale dell'app. **Onestà scientifica**: dove una traccia d'esame usa numeri non standard
+  (per esempio σ del boro 3,70), il motore tiene la **regola di Slater corretta** (2,40) e lo dichiara; i conteggi
+  SALC di orbitali leganti/antileganti sono un modello didattico, etichettati come indicativi.
+
+---
 ## [bsi-v267] — 2026-11-20
 
 **Spectra Prime: la voce full-duplex che pilota il laboratorio 3D**

@@ -11,7 +11,7 @@
    · gli strumenti puri dell'audio: Float32 ⇄ Int16 ⇄ base64 tornano
      identici, l'RMS è giusto, il codice dell'AudioWorklet registra il
      processore;
-   · i tre strumenti vocali coprono le 13 aree; i nomi della proposta
+   · i quattro strumenti vocali coprono le 13 aree e l'inorganica; i nomi della proposta
      originale (biologia_molecolare, spazi_iperdimensionali, …) sono mappati
      sulle aree reali; assembled/cutaway/exploded diventano rappresentazioni;
    · con un WebSocket finto: alla connessione parte il setup giusto (modello,
@@ -49,8 +49,8 @@ const vicino = (a, b, e) => Math.abs(a - b) <= (e || 1e-9);
     vero('PCM Float32 → Int16 → base64 → Float32 torna identico (errore ' + e.toExponential(1) + ' < un passo di quantizzazione)', e < 2 / 32768); }
   vero('RMS giusto (onda quadra ±1 → 1; silenzio → 0)', vicino(V.util.rms(new Float32Array([1, -1, 1, -1])), 1) && vicino(V.util.rms(new Float32Array([0, 0, 0])), 0));
   vero('il codice dell\'AudioWorklet registra il processore e converte in Int16 con RMS', /registerProcessor\("bsi-pcm16"/.test(V.codiceWorklet()) && /Int16Array/.test(V.codiceWorklet()) && /postMessage/.test(V.codiceWorklet()));
-  att('tre strumenti vocali', 'apri_sezione,imposta_parametro,cambia_vista', V.STRUMENTI.map(s => s.name).join(','));
-  { const d = V.strumentiGemini()[0].functionDeclarations; vero('nel formato Gemini: 3 dichiarazioni, tipi in MAIUSCOLO (OBJECT/STRING/NUMBER)', d.length === 3 && d[0].parameters.type === 'OBJECT' && d[0].parameters.properties.sezione.type === 'STRING' && d[1].parameters.properties.valore.type === 'NUMBER'); }
+  att('quattro strumenti vocali (con l\'inorganica)', 'apri_sezione,imposta_parametro,cambia_vista,inorganica', V.STRUMENTI.map(s => s.name).join(','));
+  { const d = V.strumentiGemini()[0].functionDeclarations; vero('nel formato Gemini: 4 dichiarazioni, tipi in MAIUSCOLO (OBJECT/STRING/NUMBER)', d.length === 4 && d[0].parameters.type === 'OBJECT' && d[0].parameters.properties.sezione.type === 'STRING' && d[1].parameters.properties.valore.type === 'NUMBER'); }
   const aree = ctx.BSIQuantumDati.AREE.map(a => a.id);
   vero('ogni area del Quantum Studio è raggiungibile a voce (13 aree)', aree.length === 13 && aree.every(a => { const m = V.mapSezione(a); return m && m.area === a; }));
   { const leg = { biologia_molecolare: 'biomol', spazi_iperdimensionali: 'quantistica', chimica_computazionale: 'insilico', biofisica_membrana: 'biofisica', termodinamica_cinetica: 'termodinamica', laboratorio_3d: 'laboratorio' };
@@ -87,7 +87,7 @@ const vicino = (a, b, e) => Math.abs(a - b) <= (e || 1e-9);
     window.__wsInv.length = 0;
     await m.connetti(); const ws = window.__wsUltimo; ws.apri(); await P(50);
     const setup = window.__wsInv.find(x => x && x.setup);
-    o.setup = setup ? { tools: !!(setup.setup.tools && setup.setup.tools[0].functionDeclarations.length === 3), voce: setup.setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName, modello: setup.setup.model, prompt: /Spectra Prime/.test(setup.setup.systemInstruction.parts[0].text) } : null;
+    o.setup = setup ? { tools: !!(setup.setup.tools && setup.setup.tools[0].functionDeclarations.length === 4), voce: setup.setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName, modello: setup.setup.model, prompt: /Spectra Prime/.test(setup.setup.systemInstruction.parts[0].text) } : null;
     o.connesso = m.s.connesso;
     /* un toolCall: apri qm_qubit */
     window.__wsInv.length = 0;
@@ -110,7 +110,7 @@ const vicino = (a, b, e) => Math.abs(a - b) <= (e || 1e-9);
     o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth; return o;
   });
   vero('la console costruisce l\'HUD: orb, stato, barge-in, soglia VAD, voce, parola di attivazione, registro', Object.values(r.hud).every(Boolean));
-  vero('alla connessione parte il setup giusto (3 strumenti, voce ' + (r.setup && r.setup.voce) + ', modello, prompt di Spectra Prime)', r.setup && r.setup.tools && r.setup.voce === 'Aoede' && /models\//.test(r.setup.modello) && r.setup.prompt && r.connesso);
+  vero('alla connessione parte il setup giusto (4 strumenti, voce ' + (r.setup && r.setup.voce) + ', modello, prompt di Spectra Prime)', r.setup && r.setup.tools && r.setup.voce === 'Aoede' && /models\//.test(r.setup.modello) && r.setup.prompt && r.connesso);
   vero('un comando vocale «apri_sezione qm_qubit» apre davvero il modulo nel Quantum Studio e rimanda la risposta', r.apri.modulo === 'qm_qubit' && r.apri.risposta);
   vero('«imposta_parametro detuning 1,5» pilota il ponte (valore ' + r.param + ')', vicino(r.param, 1.5, 1e-9));
   vero('«cambia_vista cutaway» cambia la rappresentazione (' + r.vista.prima + ' → ' + r.vista.dopo + '), 4 comandi eseguiti', r.vista.prima === 'densita' && r.vista.dopo === 'schema' && r.vista.comandi === 4);

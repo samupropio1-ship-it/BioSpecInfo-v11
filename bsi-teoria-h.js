@@ -574,4 +574,42 @@
     ],
     collegamenti: ['squantum', 'sbiolab3d']
   };
+  /* ═══ ⚗️ Inorganica quantistica (v268) ═════════════════════════════════════ */
+  T['sinorganica'] = {
+    titolo: "Quattro modi di guardare un atomo e un legame: Slater, Hückel, SALC e la tripla teoria dei complessi",
+    sintesi: "La chimica inorganica avanzata non è una galleria di forme: è un calcolo. Quanto è schermato un elettrone di valenza, dove sono i suoi lobi, come si delocalizzano gli elettroni π, quali orbitali dell'atomo centrale possono davvero combinarsi con quelli dei leganti, e perché un complesso è colorato, magnetico o deformato. Questa sezione risolve numericamente le quattro domande con i metodi dei testi: le regole di Slater, il determinante secolare di Hückel, le combinazioni adattate alla simmetria con una soglia di energia, e la tripla teoria VBT, campo cristallino e campo dei leganti.",
+    paragrafi: [
+      { titolo: "Le regole di Slater: carica efficace e dimensione", testo: "Un elettrone di valenza non sente tutta la carica del nucleo: gli elettroni interni la schermano. Le regole di Slater stimano la costante di schermo σ sommando contributi fissi — un elettrone dello stesso gruppo scherma 0,35, uno del guscio n−1 scherma 0,85, uno più interno 1,00, con i d e gli f che fanno gruppo a sé. La carica nucleare efficace è ζ = Z − σ, e con un numero quantico efficace n* dà il raggio più probabile n*²/ζ e il raggio medio idrogenoide: così si capisce perché, lungo un periodo, gli atomi si rimpiccioliscono. Attenzione all'ordine di riempimento: per iodio e xeno il 4f resta vuoto e la valenza è 5s5p." },
+      { titolo: "Il metodo di Hückel e la delocalizzazione", testo: "Per gli elettroni π il metodo variazionale cerca le combinazioni degli orbitali p che minimizzano l'energia, risolvendo il determinante secolare: la matrice ha l'energia dell'atomo (α) sulla diagonale e l'integrale di legame (β) fra atomi adiacenti. Gli autovalori sono i livelli E = α + xβ, gli autovettori i coefficienti di ogni orbitale molecolare, normalizzati. Confrontando l'energia totale con quella di doppi legami isolati si ottiene l'energia di delocalizzazione: zero per il butadiene aperto è 0,472β, per il benzene 2β (aromatico), per il ciclobutadiene zero (antiaromatico, diradicale). È la base quantitativa dell'aromaticità." },
+      { titolo: "Le SALC e la soglia di energia", testo: "In una molecola ipervalente o interalogena l'atomo centrale ha orbitali ns, np e nd a energie diverse, e i leganti i loro. Non tutti possono combinarsi: due orbitali interagiscono tanto più quanto più sono vicini in energia e giusti per simmetria. Il metodo d'esame fissa una soglia ΔE — per esempio venti o venticinque elettronvolt — e tiene solo le interazioni sotto soglia, separando quelle σ da quelle π. Da lì si costruiscono le combinazioni adattate alla simmetria e si contano gli orbitali leganti, antileganti e di non legame. Spostando la soglia si vede quali legami «si accendono»." },
+      { titolo: "La tripla teoria dei complessi", testo: "Un complesso di coordinazione si spiega a tre livelli che non si contraddicono. La teoria del legame di valenza dà l'ibridazione (interna d²sp³ o esterna sp³d²) e il numero atomico effettivo. La teoria del campo cristallino spiega lo splitting degli orbitali d — Δo in ottaedrico, Δt ≈ 4/9 Δo in tetraedrico — e da lì l'alto o basso spin, l'energia di stabilizzazione del campo cristallino, il momento magnetico di spin √(n(n+2)) e le deformazioni di Jahn–Teller. La teoria del campo dei leganti, cioè gli orbitali molecolari, aggiunge ciò che manca: la σ-donazione, la π-donazione dei leganti come il cloruro e la retrodonazione verso i leganti π-accettori come il cianuro e il monossido di carbonio, che allarga il gap e rende i complessi a basso spin e diamagnetici." },
+      { titolo: "Perché il calcolo, e non solo la regola", testo: "Ogni risultato qui è ricavato, non memorizzato: il raggio dalla carica efficace, i livelli π dalla diagonalizzazione esatta della matrice, le interazioni dalla differenza di energia, il momento magnetico dal numero di elettroni spaiati. Vedere il numero nascere dal metodo è il modo migliore per non sbagliarlo all'orale — e per accorgersi quando una «regola veloce» di un formulario non torna con il conto fatto bene." }
+    ],
+    formule: [
+      ["ζ = Z − σ", "carica nucleare efficace dalle regole di Slater"],
+      ["r_mp = n*² / ζ (a₀)", "raggio più probabile idrogenoide con n* e ζ di Slater"],
+      ["det|H_ij − E·S_ij| = 0", "determinante secolare del metodo variazionale di Hückel"],
+      ["μ = √(n(n+2)) (BM)", "momento magnetico di spin da n elettroni spaiati"],
+      ["Δt ≈ (4/9)·Δo", "splitting tetraedrico rispetto all'ottaedrico"]
+    ],
+    ipotesi: [
+      "Le energie orbitali di valenza in eV sono valori di letteratura (ordini di grandezza); i raggi vengono dalle formule idrogenoidi con ζ e n*, indicativi dove un esame usa convenzioni diverse.",
+      "Il conteggio SALC di orbitali leganti, antileganti e di non legame è un modello didattico che conta le interazioni sotto soglia; i numeri esatti di un testo possono differire."
+    ],
+    errori: [
+      "Usare le regole di Slater con il 4f pieno per iodio e xeno: il 4f è vuoto, la valenza è 5s5p.",
+      "Dire che il ciclobutadiene è aromatico come il benzene: ha energia di delocalizzazione nulla ed è un diradicale, antiaromatico."
+    ],
+    esempio: {
+      testo: "Per il benzene, quanto vale l'energia di delocalizzazione rispetto a tre doppi legami isolati?",
+      risultato: "E_π = 6α + 8β contro 6α + 6β: E_deloc = 2β, la stabilità aromatica"
+    },
+    fonti: [
+      "J. C. Slater, Atomic Shielding Constants, Physical Review 36 (1930) 57",
+      "E. Hückel, Zur Quantentheorie der Doppelbindung, Zeitschrift für Physik 70 (1931) 204",
+      "C. J. Ballhausen, Introduction to Ligand Field Theory, McGraw-Hill 1962",
+      "F. A. Cotton, G. Wilkinson, P. L. Gaus, Basic Inorganic Chemistry, 3ª ed., Wiley 1995"
+    ],
+    collegamenti: ['squantum', 'sorbitali', 'smecc3d']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

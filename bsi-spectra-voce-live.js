@@ -72,7 +72,8 @@
   var STRUMENTI = [
     { name: 'apri_sezione', description: 'Apre una delle 13 aree scientifiche del Quantum Studio (o un modulo preciso) e la mostra in 3D.', parameters: { type: 'object', properties: { sezione: { type: 'string', description: 'id dell\'area (biochimica, chimica, organica, spettroscopia, farmacologia, datascience, biomol, tossicologia, laboratorio, insilico, biofisica, quantistica, termodinamica) o di un modulo (es. bio_atp, qm_qubit, hyper_ncubo).' }, modulo: { type: 'integer', description: 'indice del modulo nell\'area (0 di default).' } }, required: ['sezione'] } },
     { name: 'imposta_parametro', description: 'Cambia in tempo reale un parametro della simulazione attiva (es. drive, uncoupler, substrate, inhibitor, b0, logDose, dimN, focalD, tempK, kOut, naCond, rabi, detuning).', parameters: { type: 'object', properties: { chiave: { type: 'string' }, valore: { type: 'number' } }, required: ['chiave', 'valore'] } },
-    { name: 'cambia_vista', description: 'Cambia la rappresentazione del modello (assembled = intero/atomi, cutaway = schema/densità, exploded = proiezione) ed eventualmente mette in pausa o riavvia.', parameters: { type: 'object', properties: { modo: { type: 'string', enum: ['assembled', 'cutaway', 'exploded'] }, pausa: { type: 'boolean' } }, required: ['modo'] } }
+    { name: 'cambia_vista', description: 'Cambia la rappresentazione del modello (assembled = intero/atomi, cutaway = schema/densità, exploded = proiezione) ed eventualmente mette in pausa o riavvia.', parameters: { type: 'object', properties: { modo: { type: 'string', enum: ['assembled', 'cutaway', 'exploded'] }, pausa: { type: 'boolean' } }, required: ['modo'] } },
+    { name: 'inorganica', description: 'Apre il risolutore di Inorganica quantistica e calcola: scheda slater (regole di Slater per un elemento, con elemento: B, C, N, O, F, Na, Si, P, S, Cl, Se, Br, I, Xe), huckel (sistema π, con sistema: allile, ciclopropenile, butadiene, ciclobutadiene, benzene, LiH), salc (molecola ipervalente, con molecola: XeOF4, IOF5, XeF4, SF4, BrF3, SO2, SO3, I3, e soglia ΔE in eV), complessi (con complesso: FeCl4-, MnF6-4, IrCl6-2, Ni(NH3)6-2, Ni(CN)4-2, Pd(CN)4-2, Ni(CO)4, Ag(CN)2-).', parameters: { type: 'object', properties: { scheda: { type: 'string', enum: ['slater', 'huckel', 'salc', 'complessi'] }, elemento: { type: 'string' }, sistema: { type: 'string' }, molecola: { type: 'string' }, complesso: { type: 'string' }, soglia: { type: 'number' } }, required: ['scheda'] } }
   ];
   /* nel formato «function calling» di Gemini Live */
   function strumentiGemini() { return [{ functionDeclarations: STRUMENTI.map(function (s) { return { name: s.name, description: s.description, parameters: maiuscolo(s.parameters) }; }) }]; }
@@ -243,6 +244,11 @@
       if (B && B.rappresentazione) B.rappresentazione(mapVista(modo, rappr));
       if (B && B.pausa && typeof args.pausa === 'boolean') B.pausa(args.pausa);
       this._nota('3D', t('Vista ', 'View ') + modo, '#38bdf8'); return { status: 'ok', vista: modo };
+    }
+    if (nome === 'inorganica') {
+      var T2 = (g.BSI_AI_TOOLS || []).filter(function (x) { return x.name === 'inorganica_quantica'; })[0];
+      if (T2) { try { T2.execute(args); } catch (e) { } this._nota('⚗️', (args.scheda || '') + ' ' + (args.elemento || args.sistema || args.molecola || args.complesso || ''), '#f5c451'); return { status: 'ok', scheda: args.scheda }; }
+      return { status: 'non_disponibile' };
     }
     return { status: 'strumento_sconosciuto' };
   };
