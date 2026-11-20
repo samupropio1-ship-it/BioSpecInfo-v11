@@ -95,7 +95,7 @@ const vicino = (a, b, e) => Math.abs(a - b) <= (e || 1e-9);
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
   const cx = await b.newContext({ serviceWorkers: 'block', viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }), pg = await cx.newPage(), errs = [];
   pg.on('pageerror', e => errs.push(e.message.slice(0, 200)));
-  await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {} });
+  await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); localStorage.setItem('bsi-risoluzione', 'ultra'); } catch (e) {} });
   await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
   await pg.waitForFunction(() => !!(window.BSIBioLab3D && window.BSIBioDati && window.BSISpectraLive && window.BSILab3D), null, { timeout: 60000 });
   vero('il pulsante «Biochimica 3D Lab» è nella barra della biochimica', await pg.evaluate(() => !!document.querySelector('.nav-btn[data-s="sbiolab3d"]')));
