@@ -536,4 +536,42 @@
     ],
     collegamenti: ['sbiolab3d', 'smecc3d', 'snmrpred', 'sorbitali']
   };
+  /* ═══ 🎙️ Spectra Prime — voce dal vivo (v267) ═════════════════════════════ */
+  T['svocelive'] = {
+    titolo: "Parlare con uno strumento: come funziona un assistente vocale full-duplex",
+    sintesi: "Spectra Prime è una console che trasforma la voce in comandi e risposte senza turni rigidi: mentre parla puoi interromperla, e mentre spieghi lei apre e regola il laboratorio 3D. Dietro la semplicità c'è una catena precisa: il microfono diventa numeri, i numeri viaggiano su un canale sempre aperto, il modello risponde con audio e con chiamate di funzione, e il browser le esegue sul Quantum Studio. Capire questa catena serve anche fuori di qui: è la stessa di ogni interfaccia vocale moderna.",
+    paragrafi: [
+      { titolo: "Dal suono ai numeri: campionamento e PCM", testo: "Un microfono misura la pressione dell'aria molte migliaia di volte al secondo. Qui si campiona a 16 kilohertz in mono, un buon compromesso per la voce: il teorema del campionamento di Nyquist dice che per rappresentare un suono fino a una certa frequenza bisogna campionare al doppio, e 16 kHz copre bene la banda della parola. Ogni campione, un numero con la virgola fra meno uno e uno, viene convertito in un intero a 16 bit (PCM): un formato compatto e senza perdita che occupa due byte per campione. Il microfono applica anche cancellazione dell'eco, soppressione del rumore e guadagno automatico, così la voce resta pulita e la macchina non sente se stessa." },
+      { titolo: "Perché un AudioWorklet e non il vecchio ScriptProcessor", testo: "Elaborare l'audio nel thread principale della pagina, come faceva il ScriptProcessorNode, significa competere con il disegno e con il resto: bastano un grafico pesante o una scena 3D per introdurre ritardi e scatti. L'AudioWorklet esegue invece il codice in un thread audio dedicato, a priorità alta, che non si ferma mai: la conversione in PCM e la misura dell'energia avvengono lì, puntuali. La console lo crea al volo da una stringa di codice, senza file in più, e se il browser è troppo vecchio ripiega sul ScriptProcessor." },
+      { titolo: "Full-duplex e barge-in: interrompere come in una conversazione vera", testo: "«Full-duplex» vuol dire che i due versi, ascolto e parlato, sono aperti insieme, come al telefono e a differenza di una ricetrasmittente. Il vantaggio si sente quando interrompi: la console misura di continuo l'energia della tua voce (un rilevatore di attività vocale, VAD, con una soglia regolabile) e, appena superi la soglia mentre Spectra parla, tronca immediatamente l'audio in uscita, svuota la coda e avvisa il modello. Questo «barge-in» è ciò che rende il dialogo naturale: non devi aspettare che finisca." },
+      { titolo: "Riprodurre senza buchi: la coda schedulata", testo: "L'audio della risposta arriva a pezzi, non tutto insieme. Se li suonassi appena arrivano sentiresti click e silenzi. La console tiene un orologio: ogni pezzo viene programmato per iniziare esattamente dove finisce il precedente (una variabile «prossimo istante»), così lo stream esce continuo. L'audio in arrivo è a 24 kilohertz, più alto di quello del microfono, perché la voce sintetica di qualità usa una banda più larga." },
+      { titolo: "La voce che agisce: chiamata di funzione e il ponte 3D", testo: "Il modello non risponde solo a parole: può decidere di chiamare una funzione. Alla console sono dichiarati tre strumenti — aprire una sezione, impostare un parametro, cambiare vista — con i loro argomenti. Quando dici «apri l'ATP sintasi e porta il disaccoppiante al settanta per cento», il modello emette due chiamate; il browser le esegue sul ponte del Quantum Studio e rimanda l'esito, mentre la voce spiega. È lo stesso schema del function calling che regge gli agenti di oggi, qui applicato a un laboratorio 3D." }
+    ],
+    formule: [
+      ["f_campionamento ≥ 2 · f_max", "teorema di Nyquist: per la voce bastano 16 kHz"],
+      ["PCM Int16 = round(x · 32767), x ∈ [−1, 1]", "da campione in virgola mobile a intero a 16 bit"],
+      ["RMS = √(media(x²))", "energia del segnale: la base del rilevatore di attività vocale"],
+      ["byte/s = f · bit/8 · canali", "16000 · 16/8 · 1 = 32 kB/s per il flusso del microfono"],
+      ["t_inizio = max(t_ora, t_prossimo)", "scheduling continuo dei pezzi audio, senza buchi"]
+    ],
+    ipotesi: [
+      "La «parola di attivazione» qui è una soglia di energia locale, non un riconoscitore di parole: apre il microfono quando parli, non quando dici esattamente «Spectra».",
+      "La voce vera richiede un canale «Live» di un fornitore, con la chiave salvata su questo dispositivo o un proxy; la console funziona e si verifica anche senza rete, con un canale simulato."
+    ],
+    errori: [
+      "Credere che full-duplex significhi solo «senza pulsante»: significa che ascolto e parlato sono aperti insieme, ed è questo a permettere il barge-in.",
+      "Pensare che il PCM a 16 bit perda qualità come un MP3: è un formato senza perdita; la perdita, semmai, è nella compressione, non nella codifica PCM."
+    ],
+    esempio: {
+      testo: "Un flusso vocale PCM a 16 kHz, 16 bit, mono: quanti kilobyte al secondo occupa?",
+      risultato: "16000 × 2 byte = 32 000 byte/s ≈ 32 kB/s (circa 256 kbit/s)"
+    },
+    fonti: [
+      "C. E. Shannon, Communication in the presence of noise, Proceedings of the IRE 37 (1949) 10",
+      "W3C, Web Audio API — AudioWorklet (Candidate Recommendation, 2021)",
+      "J. Schalkwyk et al., Google's voice search, in: Speech Technologies (2010) — architetture di riconoscimento in streaming",
+      "Google, Multimodal Live API — Bidirectional streaming (documentazione per sviluppatori, 2024)"
+    ],
+    collegamenti: ['squantum', 'sbiolab3d']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

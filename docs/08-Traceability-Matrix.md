@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v266` |
+| **Versione descritta** | `bsi-v267` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -127,6 +127,7 @@
 | **UI-36** | La matematica deve avere percorsi per livello con i prerequisiti espliciti: grafo aciclico, percorso in ordine topologico verso un obiettivo, «lo so già» che lo accorcia, sezioni che insegnano e che usano ogni argomento presenti nella barra | `bsi-mat-mappa.js` — `antenati`, `sblocca`, `percorso`, `verifica`; sezione `smatmappa` | `test_matmappa` (21 controlli) |
 | **UI-37** | Tutte le animazioni devono essere nitide (richiesta: «4K, non sgranato»): nessuna tela limitata a 2× i pixel CSS, un solo regolatore della risoluzione (8K supercampionata 2× i pixel fisici fino a 6×, nativa, risparmio) con al massimo 7680 px sul lato lungo, la resa cinema con antialiasing multicampionato e senza grana, il cambio di qualità applicato subito alle scene aperte, la foto 📷 fino a 8K (7680 px) | `bsi-risoluzione.js`, `bsi-lab3d.js` (Cinema MSAA, pulsante 4K, foto4K), 58 punti in 39 file | `test_risoluzione` (16 controlli) |
 | **UI-38** | Un unico studio olografico integra 13 aree e 16 moduli (v265): a sinistra il modello 3D con quattro rappresentazioni (densità crio-EM, atomi, orbitale, proiezione nD) e il grafico calcolato dentro il palco, ridisegnato nello stesso fotogramma; a destra teoria, equazioni, focus d'esame e domande; il ponte SPECTRA_3D_BRIDGE e lo strumento quantum_studio permettono a Spectra di aprire un modulo, impostare un parametro e cambiare rappresentazione | `bsi-quantum-studio-pagina.js` | `test_quantumstudio` |
+| **UI-39** | Spectra Prime (v267) deve dare un assistente vocale full-duplex collegato al Quantum Studio: pipeline audio PCM 16 kHz in / 24 kHz out con AudioWorklet creato al volo (ripiego su ScriptProcessor), VAD con soglia regolabile e barge-in che tronca subito l'audio quando l'utente parla, riproduzione schedulata senza buchi, tre strumenti vocali (apri_sezione, imposta_parametro, cambia_vista) che pilotano le 13 aree tramite SPECTRA_3D_BRIDGE con function calling, HUD olografico (orb a 60 fps, stato, soglia VAD, voce, barge-in, parola di attivazione, registro), riconnessione a tentativi crescenti; la chiave resta sul dispositivo o sul proxy | `bsi-spectra-voce-live.js` | `test_vocelive` (21 controlli) |
 | **UI-14** | Una stessa funzione non deve avere due porte d'ingresso. Gli spettri stavano in **nove sezioni** su due menù diversi; Spectra in tre posti; e nel pannello ✨ comparivano **due «Data Science», due «File Manager», due «Articoli», due «Aggiornamenti»**, perché il pannello ha un elenco cablato che apriva le stesse sezioni inserite dal modulo del menù — e nessuno confrontava le due liste fra loro | `bsi-centrospettri.js` — i pannelli vengono **spostati** (`appendChild` muove, non copia) in una sola sezione a schede; i vecchi pulsanti restano nascosti perché sono il bersaglio di `goSection()`, e la scheda **clicca il pulsante** invece di mostrare il pannello, così l'inizializzazione pigra passa per l'unica strada che già c'era. `bsi-menu.js` — la categoria «Utility» è nel **menù principale** con tutte le sue voci, e la regola è: se una cosa ha un pulsante **raggiungibile** nella barra non sta nel menù ✨, se non ce l'ha sta solo nel menù. «Raggiungibile» non si misura con `offsetParent` — nella barra un gruppo per volta è mostrato, e un pulsante perfettamente raggiungibile ha `offsetParent` nullo | `test_articoli` §5-6 — le **dieci** schede sono dentro il centro, e ogni identificatore esiste nel documento **una volta sola** (la prova che si è spostato e non copiato); `goSection()` su ognuna apre il centro sulla scheda giusta e ne mostra **solo** una. `test_menu` — Utility visibile nella barra con tutte e **quindici** le voci più le due delle lingue, **nessuna** voce del menù che ripeta una sezione della barra, **nessuna** etichetta doppia nel pannello, e su **due viewport**: schermo grande e telefono. **Nei due versi**: nessun id ripetuto, nessun pulsante doppio, Spectra e il lettore fuori dalla barra ma con il pulsante ancora nel documento perché `goSection()` lo usa |
 | **UI-17** | Ogni contenuto che si muove deve potersi fermare, rallentare e ricominciare, non deve consumare quando non si vede, e deve rispettare «riduci movimento» (WCAG 2.2.2) | `bsi-fisica-comune.js` — `F.anima`: barra con ⏸/▶, ↺, velocità ×¼…×4 e tempo; passo con dt reale limitato a 1/20 s; arresto fuori schermo (IntersectionObserver), con la pagina nascosta e quando la tela è tolta; con «riduci movimento» parte in pausa con il primo fotogramma disegnato. Tutti i laboratori lo usano | `test_scienze` — il tempo avanza, in pausa si ferma, a ×4 va più veloce che a ×¼, fuori dallo schermo si ferma e tornando riparte; con «riduci movimento» parte fermo e ▶ lo avvia; ogni barra ha i nomi accessibili |
 | **UI-15** | Una tabella di dati non deve esistere due volte: due copie divergono, e chi legge ottiene una risposta diversa a seconda di dove entra | Le costanti di accoppiamento J esistevano in due tabelle indipendenti con numeri **diversi** (³J orto aromatico 6–9 Hz contro 7–10 Hz). Resta quella dentro il Centro spettri, che è nella sezione con la sua lista di riferimenti; `_apriCostantiJ()` è l'unica strada e porta lì | `test_articoli` §6 — chiedere le costanti J apre il centro sulla scheda delle tabelle di riferimento, sulla sotto-scheda giusta, e la tabella ha le sue righe |
@@ -208,7 +209,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 780 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 782 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -257,12 +258,12 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…86) | 84 | 84 | 100 % |
 | Agente AI (AI-01…26) | 25 | 25 | 100 % |
 | Stabilità (STA-01…11) | 11 | 11 | 100 % |
-| Interfaccia (UI-01…38) | 35 | 35 | 100 % |
+| Interfaccia (UI-01…39) | 36 | 36 | 100 % |
 | Sicurezza (SEC-01…10) | 8 | 8 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **165** | **165** | **100 %** |
+| **Totale automatizzato** | **166** | **166** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **172** | **165** | **96 %** |
+| **Totale dichiarato** | **173** | **166** | **96 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -298,4 +299,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v266`._
+_Documento aggiornato alla versione `bsi-v267`._

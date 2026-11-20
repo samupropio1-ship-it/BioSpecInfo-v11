@@ -7,6 +7,39 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v267] — 2026-11-20
+
+**Spectra Prime: la voce full-duplex che pilota il laboratorio 3D**
+
+### Aggiunto
+- **🎙️ Spectra Prime — voce dal vivo** (`svocelive`, `bsi-spectra-voce-live.js`): un assistente vocale full-duplex
+  collegato al Quantum Studio tramite `SPECTRA_3D_BRIDGE`. Si parla e Spectra risponde a voce mentre apre e regola il
+  laboratorio 3D.
+  - **Pipeline audio a bassa latenza**: microfono 16 kHz mono (cancellazione d'eco, soppressione del rumore, guadagno
+    automatico) catturato da un **AudioWorklet creato al volo** (Blob, nessun file in più) che converte in PCM Int16 e
+    misura l'energia; se l'AudioWorklet non c'è, ripiego su ScriptProcessor. L'audio in arrivo (PCM 24 kHz) si riproduce
+    con **scheduling continuo** senza click né buchi.
+  - **Barge-in**: un rilevatore di attività vocale con soglia regolabile tronca subito l'audio in uscita quando
+    l'utente parla sopra la voce, azzera la coda e avvisa il modello.
+  - **Controllo 3D a voce**: tre strumenti dichiarati al modello (`apri_sezione`, `imposta_parametro`, `cambia_vista`)
+    pilotano le **13 aree** del Quantum Studio con il function calling; i nomi della proposta originale
+    (`biologia_molecolare`, `spazi_iperdimensionali`, …) sono mappati sulle aree reali, e assembled/cutaway/exploded
+    diventano rappresentazioni.
+  - **HUD olografico**: orb che pulsa con lo spettro a 60 fps, stato (STANDBY, ASCOLTO, PENSA, PARLA, BARGE-IN),
+    interruttori per barge-in, soglia VAD, voce, mani libere / premi-per-parlare, parola di attivazione e registro dei
+    comandi 3D. Riconnessione automatica a tentativi crescenti.
+  - Scheda di teoria `svocelive` (campionamento, PCM, AudioWorklet, full-duplex, function calling); banco
+    **`test_vocelive`** (21 controlli, con un WebSocket finto: nessuna rete necessaria per la verifica).
+- Strumento di Spectra **`voce_dal_vivo`** (57 strumenti): apre la console.
+
+### Note
+- La proposta ricevuta (`spectra-voice-quantum-engine.js`) importava BioSpecQuantumStudio come modulo ES e usava
+  l'endpoint diretto di un fornitore: qui è riscritta sul motore locale dell'app (niente moduli ES né CDN), legge la
+  chiave dal portachiavi dell'app o usa il proxy, e si aggancia al ponte `SPECTRA_3D_BRIDGE` già presente. La parola di
+  attivazione è una soglia d'energia locale, non un riconoscitore di parole. La voce vera richiede un fornitore con API
+  «Live»; tutto il resto funziona e si verifica anche senza rete.
+
+---
 ## [bsi-v266] — 2026-11-19
 
 **8K per ogni animazione e la voce di Spectra potenziata**
