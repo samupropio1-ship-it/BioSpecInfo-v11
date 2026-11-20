@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| **Banchi superati** | 119 |
-| **Banchi falliti** | 1 |
-| **Durata totale** | 7714 s |
-| **Esito** | ⚠️ **NON CONFORME** — vedere §3 |
+| **Banchi superati** | 120 |
+| **Banchi falliti** | 0 |
+| **Durata totale** | 7711 s |
+| **Esito** | ✅ **CONFORME** |
 
 ---
 
@@ -24,9 +24,9 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-11-20T01:19:33.932Z` |
-| Commit | `83ce3aeee24ea99fc047cd4e2a1876e9254801ad` |
-| Ripresa | 91 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
+| Istante (UTC) | `2026-11-20T01:48:48.969Z` |
+| Commit | `36bde7bc41695572d2bcf511fdcf322c499d2248` |
+| Ripresa | 119 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
 | Versione applicazione | `bsi-v266` |
@@ -133,7 +133,7 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 | `test_filemanager` | ✅ SUPERATO | 11.2 s | 15 passati |
 | `test_visore3d` | ✅ SUPERATO | 9.6 s | 5 passati |
 
-### Interfaccia  ⚠️
+### Interfaccia
 
 _I pannelli e i comandi rispondono come documentato._
 
@@ -182,7 +182,7 @@ _I pannelli e i comandi rispondono come documentato._
 | `test_meccanismi3d` | ✅ SUPERATO | 19.7 s | 25 controlli passati |
 | `test_animmat` | ✅ SUPERATO | 4.3 s | 23 controlli passati |
 | `test_voce_elevenlabs` | ✅ SUPERATO | 5.7 s | 24 controlli passati |
-| `test_biolab3d` | ❌ FALLITO | 48.8 s | ✗ 1 FALLITI, 53 controlli passati |
+| `test_biolab3d` | ✅ SUPERATO | 46.6 s | 54 controlli passati |
 | `test_risoluzione` | ✅ SUPERATO | 17.0 s | 18 controlli passati |
 | `test_quantumstudio` | ✅ SUPERATO | 56.4 s | 57 controlli passati |
 | `test_spectra_nucleo` | ✅ SUPERATO | 74.4 s | 41 controlli passati |
@@ -7090,7 +7090,7 @@ Chiave condivisa nella UI
 </details>
 
 <details>
-<summary><code>test_biolab3d</code> — FALLITO (codice di uscita 1)</summary>
+<summary><code>test_biolab3d</code> — SUPERATO (codice di uscita 0)</summary>
 
 ```
 ── Le vie: carboni e bilanci ──
@@ -7139,27 +7139,25 @@ Chiave condivisa nella UI
   ✓ il pulsante «Biochimica 3D Lab» è nella barra della biochimica  → true
   ✓ Spectra ha lo strumento biochimica_3d  → true
   ✓ quattro schede  → 4
-  ✓ ATP sintasi: disegna (3218 px), ossigrafo vivo (2041), montata/spaccato/esplosa (3231, 3269 px)  → true
-  ✓ ATP sintasi: in 30 s il rotore gira (10.26 giri) e i contatori seguono l'angolo (83 H⁺, 31 ATP: ≈ 8 e 3 per giro)  → true
-  ✓ le tre β in tre stati diversi (OTL)  → true
+  ✓ ATP sintasi: disegna (3251 px), ossigrafo vivo (1169), montata/spaccato/esplosa (3257, 3224 px)  → true
+  ✓ ATP sintasi: in 30 s il rotore gira (10.34 giri) e i contatori seguono l'angolo (83 H⁺, 31 ATP: ≈ 8 e 3 per giro)  → true
+  ✓ le tre β in tre stati diversi (LOT)  → true
   ✓ con l'oligomicina il rotore si ferma  → true
-  ✓ enzimi: disegnano (2230 px), grafici MM e LB vivi (1425, 1585), 11 prodotti contati  → true
-  ✗ enzimi: la velocità contata (0.09) torna con la formula (0.20) entro 0,1
-      atteso: true
-      avuto:  false
-  ✓ glicolisi: disegna (263 px), grafico vivo (1402), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ pdh: disegna (227 px), grafico vivo (419), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ krebs: disegna (108 px), grafico vivo (1323), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ beta: disegna (215 px), grafico vivo (352), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ gluconeo: disegna (364 px), grafico vivo (339), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ sintesiag: disegna (255 px), grafico vivo (390), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ urea: disegna (259 px), grafico vivo (278), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ enzimi: disegnano (2231 px), grafici MM e LB vivi (843, 897), 40 prodotti contati  → true
+  ✓ enzimi: la velocità contata (0.23) torna con la formula (0.20) entro 0,1  → true
+  ✓ glicolisi: disegna (264 px), grafico vivo (734), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ pdh: disegna (225 px), grafico vivo (227), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ krebs: disegna (105 px), grafico vivo (777), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ beta: disegna (218 px), grafico vivo (192), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ gluconeo: disegna (357 px), grafico vivo (197), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ sintesiag: disegna (260 px), grafico vivo (228), ispettore del passo, arriva in fondo col conto giusto  → true
+  ✓ urea: disegna (259 px), grafico vivo (159), ispettore del passo, arriva in fondo col conto giusto  → true
   ✓ teoria: 12 capitoli, risposta all'orale, 3 «non dire» nel cap. 6, quiz con 4 risposte, C8 = 50 ATP  → true
   ✓ lo strumento di Spectra apre la via chiesta (Ciclo di Krebs)  → true
   ✓ non sborda  → 0
   ✓ nessun errore JavaScript  → 0
 
-✗ 1 FALLITI, 53 controlli passati
+54 controlli passati
 ```
 
 </details>
@@ -8299,7 +8297,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 83ce3aeee24e
+git checkout 36bde7bc4169
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -8330,4 +8328,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-11-20T01:19:33.932Z._
+_Generato il 2026-11-20T01:48:48.969Z._
