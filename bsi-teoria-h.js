@@ -612,4 +612,42 @@
     ],
     collegamenti: ['squantum', 'sorbitali', 'smecc3d']
   };
+  /* ═══ ✏️ Arrow Lab e Retrosintesi (v269) ═════════════════════════════════ */
+  T['sarrowlab'] = {
+    titolo: "Le frecce curve e la retrosintesi: il linguaggio con cui i chimici organici pensano",
+    sintesi: "La chimica organica si ragiona con due strumenti grafici. Le frecce curve raccontano un meccanismo: ogni freccia è una coppia di elettroni che si sposta, e tenerne il conto spiega perché i legami si formano e si rompono. La retrosintesi fa il percorso inverso: parte dalla molecola bersaglio e la taglia, disconnessione dopo disconnessione, fino a reagenti semplici. Disegnare le frecce giuste e scegliere la disconnessione migliore è ciò che separa il memorizzare dal capire.",
+    paragrafi: [
+      { titolo: "Cosa dice davvero una freccia curva", testo: "Una freccia curva a punta intera muove due elettroni; parte sempre da una sorgente di densità elettronica — un doppietto solitario o un legame, mai un atomo «vuoto» — e arriva dove quella coppia formerà un nuovo legame o si poserà come carica. Le mezze frecce muovono un elettrone solo, il linguaggio dei radicali. Contare gli elettroni che si spostano è un controllo severo: se una freccia nasce dal nulla o fa superare l'ottetto, il meccanismo è sbagliato. Nella riduzione del propanone, per esempio, l'idruro porta la sua coppia sul carbonio del carbonile mentre la coppia del doppio legame si ritira sull'ossigeno, che diventa alcossido." },
+      { titolo: "Nucleofili, elettrofili e gruppi uscenti", testo: "Il meccanismo è una storia di opposti che si attraggono. Il nucleofilo è ricco di elettroni e li offre: un anione, un doppietto, un legame π. L'elettrofilo è povero di elettroni e li accetta: un carbonio di un carbonile, un carbonio legato a un buon gruppo uscente. Il gruppo uscente è un frammento che se ne va portandosi la coppia di legame, tanto meglio quanto più stabile diventa da solo: il bromuro è un ottimo gruppo uscente, l'ossidrile no. Nella sostituzione SN2 il nucleofilo attacca dal lato opposto al gruppo uscente, nello stesso istante in cui questo parte, e il carbonio si rovescia come un ombrello." },
+      { titolo: "Pensare all'indietro: la retrosintesi", testo: "Progettare una sintesi guardando avanti, per tentativi, è difficile; Corey propose di guardare indietro. Si parte dalla molecola bersaglio e la si «disconnette»: si immagina di rompere un legame strategico, ottenendo frammenti più semplici detti sintoni, a cui corrispondono reagenti reali. Ogni disconnessione è una reazione nota letta al contrario, più eventuali interconversioni di gruppo funzionale che aggiustano l'ossidazione. Ripetendo si arriva a building block disponibili. Spesso ci sono più strade per lo stesso bersaglio: confrontarle è parte del mestiere." },
+      { titolo: "Scegliere la strada: economia atomica e chimica verde", testo: "Non tutti i percorsi che funzionano sulla carta sono buoni. L'economia atomica misura quanta parte dei reagenti finisce nel prodotto invece che negli scarti; una reazione che non produce sali stechiometrici e usa un catalizzatore recuperabile vale più di una che consuma un metallo in quantità stechiometrica. Il numero di passaggi conta: ogni stadio perde resa e aggiunge costi. Un pianificatore utile mostra accanto a ogni percorso il punteggio di «chimica verde», i building block necessari e se li hai in inventario." },
+      { titolo: "Perché esercitarsi disegnando", testo: "Leggere un meccanismo già disegnato dà l'illusione di averlo capito; disegnarlo da soli svela i buchi. Uno strumento che accetta solo le frecce giuste, e dice quali mancano o sono di troppo, allena l'occhio a vedere dove sono gli elettroni e dove vogliono andare. È lo stesso per la retrosintesi: provare più disconnessioni sullo stesso bersaglio, con un inventario e un filtro di sostenibilità, insegna a scegliere, non solo a ricordare." }
+    ],
+    formule: [
+      ["Nu:⁻ + E⁺ → Nu–E", "una freccia curva: la coppia del nucleofilo forma il legame con l'elettrofilo"],
+      ["freccia intera = 2 e⁻ · mezza freccia = 1 e⁻", "il conto degli elettroni che si spostano"],
+      ["v = k[Nu⁻][R–X]", "cinetica della SN2: secondo ordine, concertata"],
+      ["economia atomica = M(prodotto) / Σ M(reagenti)", "la frazione di massa che finisce nel prodotto"],
+      ["bersaglio ⇒ sintoni ⇒ reagenti", "la logica retrosintetica di Corey, letta all'indietro"]
+    ],
+    ipotesi: [
+      "I meccanismi e i percorsi dello strumento sono schematici e a scopo didattico; le posizioni degli atomi sono disegnate, non ottimizzate.",
+      "I punteggi di «chimica verde» sono indicativi (atom economy, catalisi, stechiometria), non una misura di laboratorio."
+    ],
+    errori: [
+      "Far partire una freccia curva da un atomo invece che da una coppia di elettroni (doppietto o legame): la freccia nasce sempre dalla densità elettronica.",
+      "Credere che la retrosintesi dia una sola risposta: quasi sempre esistono più disconnessioni valide, da confrontare per passaggi e sostenibilità."
+    ],
+    esempio: {
+      testo: "Nella riduzione del propanone con il boroidruro di sodio, quante frecce curve servono per descrivere il primo stadio, l'attacco dell'idruro al carbonile?",
+      risultato: "Due: una da H:⁻ al carbonio, una dal legame π del C=O verso l'ossigeno"
+    },
+    fonti: [
+      "E. J. Corey, X.-M. Cheng, The Logic of Chemical Synthesis, Wiley 1989",
+      "J. Clayden, N. Greeves, S. Warren, Organic Chemistry, 2ª ed., Oxford University Press 2012",
+      "B. M. Trost, The atom economy — a search for synthetic efficiency, Science 254 (1991) 1471",
+      "P. Anastas, J. Warner, Green Chemistry: Theory and Practice, Oxford University Press 1998"
+    ],
+    collegamenti: ['smecc3d', 'sinorganica', 'squantum']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

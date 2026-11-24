@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v268` |
+| **Version described** | `bsi-v269` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -129,6 +129,7 @@
 | **UI-37** | Every animation must be sharp (request: «4K, not grainy»): no canvas capped at 2× CSS pixels, a single resolution controller (8K supersampled 2× the physical pixels up to 6×, native, saver) with at most 7680 px on the long side, the cinema render with multisample antialiasing and no grain, quality changes applied at once to open scenes, the 📷 photo up to 8K (7680 px) | `bsi-risoluzione.js`, `bsi-lab3d.js` (Cinema MSAA, 4K button, foto4K), 58 call sites in 39 files | `test_risoluzione` (16 checks) |
 | **UI-38** | One holographic studio integrates 13 areas and 16 modules (v265): on the left the 3D model with four representations (cryo-EM density, atoms, orbital, nD projection) and the computed chart inside the stage, redrawn in the same frame; on the right theory, equations, exam focus and questions; the SPECTRA_3D_BRIDGE bridge and the quantum_studio tool let Spectra open a module, set a parameter and change representation | `bsi-quantum-studio-pagina.js` | `test_quantumstudio` |
 | **UI-39** | Spectra Prime (v267) must provide a full-duplex voice assistant wired to the Quantum Studio: PCM audio pipeline 16 kHz in / 24 kHz out with an on-the-fly AudioWorklet (ScriptProcessor fallback), VAD with an adjustable threshold and barge-in that truncates the audio the moment the user speaks, gap-free scheduled playback, three voice tools (apri_sezione, imposta_parametro, cambia_vista) driving the 13 areas through SPECTRA_3D_BRIDGE via function calling, a holographic HUD (60 fps orb, status, VAD threshold, voice, barge-in, wake word, log), reconnection with growing backoff; the key stays on the device or the proxy | `bsi-spectra-voce-live.js` | `test_vocelive` (21 checks) |
+| **UI-40** | The Arrow Lab (v269) must help learn mechanisms and retrosynthesis without misleading: in the two mechanisms (propanone+NaBH₄ 3 steps, SN2 2 steps) every bond and every expected arrow points to existing nodes/bonds, clonaPassi makes a deep copy; drawing the right arrows turns the diagnostics green and «+ Step» advances, «Solve it» completes; retrosynthesis has two targets with two routes each (one green, one not), building blocks, a disconnection and a board, the «green only» filter and the steps slider hide routes, the inventory counts coverage; the arrow_lab tool opens the requested view | `bsi-arrowlab.js` | `test_arrowlab` (22 checks) |
 | **UI-14** | One function must not have two entry points. The spectra lived in **nine sections** across two menus; Spectra in three places; and the ✨ panel showed **two "Data Science", two "File Manager", two "Articles", two "Updates"**, because the panel has a hardwired list that opened the very sections the menu module was inserting — and nobody compared the two lists | `bsi-centrospettri.js` — the panels are **moved** (`appendChild` moves, it does not copy) into a single tabbed section; the old buttons stay hidden because they are the target of `goSection()`, and a tab **clicks the button** instead of showing the panel, so lazy initialisation goes through the one road that already existed. `bsi-menu.js` — the "Utility" category is in the **main bar** with all its entries, and the rule is: if something has a **reachable** button in the bar it is not in the ✨ menu, if it has none it is only in the menu. "Reachable" is not measured with `offsetParent` — the bar shows one group at a time, and a perfectly reachable button has a null `offsetParent` | `test_articoli` §5-6 — the **ten** tabs are inside the centre, and each identifier exists in the document **exactly once** (the proof that it was moved and not copied); `goSection()` on each opens the centre on the right tab and shows **only** one. `test_menu` — Utility visible in the bar with all **fifteen** entries plus the two language ones, **no** menu entry repeating a bar section, **no** duplicate label in the panel, across **two viewports**: large screen and phone. **Both ways**: no repeated id, no duplicate button, Spectra and the reader out of the bar but with their button still in the document because `goSection()` uses it |
 | **UI-17** | Anything that moves must be pausable, slowable and restartable, must not consume when not visible, and must honour «reduce motion» (WCAG 2.2.2) | `bsi-fisica-comune.js` — `F.anima`: bar with ⏸/▶, ↺, speed ×¼…×4 and time; step with real dt capped at 1/20 s; stops off-screen (IntersectionObserver), with the page hidden and when the canvas is removed; with «reduce motion» it starts paused with the first frame drawn. Every laboratory uses it | `test_scienze` — time advances, stops when paused, runs faster at ×4 than at ×¼, stops off-screen and resumes when visible; with «reduce motion» it starts paused and ▶ starts it; every bar has accessible names |
 | **UI-15** | A data table must not exist twice: two copies diverge, and the reader gets a different answer depending on where they came in | The J coupling constants existed in two independent tables with **different** numbers (aromatic ortho ³J 6–9 Hz against 7–10 Hz). The one inside the Spectra centre remains, which sits in the section with its own reference list; `_apriCostantiJ()` is the single road and leads there | `test_articoli` §6 — asking for the J constants opens the centre on the reference-tables tab, on the right sub-tab, and the table has its rows |
@@ -210,7 +211,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 785 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 787 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -259,12 +260,12 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…87) | 85 | 85 | 100 % |
 | AI agent (AI-01…26) | 25 | 25 | 100 % |
 | Stability (STA-01…11) | 11 | 11 | 100 % |
-| Interface (UI-01…39) | 36 | 36 | 100 % |
+| Interface (UI-01…40) | 37 | 37 | 100 % |
 | Security (SEC-01…10) | 8 | 8 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **167** | **167** | **100 %** |
+| **Automated total** | **168** | **168** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **174** | **167** | **96 %** |
+| **Declared total** | **175** | **168** | **96 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -299,4 +300,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v268`._
+_Document updated to version `bsi-v269`._

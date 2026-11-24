@@ -7,6 +7,31 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v269] — 2026-11-24
+
+**Arrow Lab e Retrosintesi: disegnare le frecce curve e pianificare una sintesi, offline**
+
+### Aggiunto
+- **✏️ Arrow Lab e Retrosintesi** (`sarrowlab`, `bsi-arrowlab.js`): due strumenti di chimica organica interamente
+  offline (SVG, niente 3D), in una sola schermata con due viste.
+  - **Frecce curve**: una lavagna interattiva dove si disegna il meccanismo. Strumenti Seleziona, Freccia, Atomo,
+    Legame, Catena, Anello, Cancella; coppie solitarie e cariche formali; si clicca la sorgente di elettroni (un
+    doppietto o un legame) e poi la destinazione, e **il banco verifica passo per passo** che le frecce siano quelle
+    giuste (diagnostica che diventa verde, «+ Passo» che avanza solo se è corretto, «Risolvi» che completa). Annulla/Redo,
+    «Le mie reazioni», Ispettore della specie. Due meccanismi: riduzione del propanone con NaBH₄ (3 stadi) e SN2 di un
+    bromuro primario (2 stadi).
+  - **Retrosintesi** (stile SYNTHIA): per ogni molecola bersaglio, più **percorsi alternativi** con la disconnessione,
+    i building block, il **punteggio di chimica verde**, la lavagna dei passaggi, un **inventario personalizzabile** con
+    il calcolo della copertura dei reagenti, e i filtri «solo percorsi verdi» e numero massimo di passaggi.
+- Strumento di Spectra **`arrow_lab`** (59 strumenti): apre la vista o un meccanismo. Scheda di teoria `sarrowlab`
+  (frecce curve, nucleofili/elettrofili, retrosintesi di Corey, economia atomica); banco **`test_arrowlab`** (22 controlli).
+
+### Note
+- La proposta ricevuta (`arrowLabRetrosynthesisSection.js`) era un modulo ES con `export`: qui è riscritta in stile
+  locale dell'app (IIFE su window), senza perdere nulla. Lo stato resta sul dispositivo (localStorage). È uno strumento
+  **didattico**: i meccanismi e i percorsi sono schematici e i punteggi di «chimica verde» sono indicativi.
+
+---
 ## [bsi-v268] — 2026-11-20
 
 **Inorganica quantistica: un motore di calcolo per le tracce d'esame di Chimica Inorganica II**

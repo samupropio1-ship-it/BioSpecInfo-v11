@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 221 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 222 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra, il volto in un cerchio | L'assistente che risponde alle domande: un tocco apre la console, e da lì 💬 la chat |
 | **🎓 Lezione guidata** | Sotto il titolo di ogni sezione | Una lezione in capitoli sulla sezione, condotta da Spectra |
@@ -873,4 +873,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v268`._
+_Guida aggiornata alla versione `bsi-v269`._
