@@ -577,7 +577,7 @@
   /* ═══ ⚗️ Inorganica quantistica (v268) ═════════════════════════════════════ */
   T['sinorganica'] = {
     titolo: "Quattro modi di guardare un atomo e un legame: Slater, Hückel, SALC e la tripla teoria dei complessi",
-    sintesi: "La chimica inorganica avanzata non è una galleria di forme: è un calcolo. Quanto è schermato un elettrone di valenza, dove sono i suoi lobi, come si delocalizzano gli elettroni π, quali orbitali dell'atomo centrale possono davvero combinarsi con quelli dei leganti, e perché un complesso è colorato, magnetico o deformato. Questa sezione risolve numericamente le quattro domande con i metodi dei testi: le regole di Slater, il determinante secolare di Hückel, le combinazioni adattate alla simmetria con una soglia di energia, e la tripla teoria VBT, campo cristallino e campo dei leganti.",
+    sintesi: "La chimica inorganica avanzata non è una galleria di forme: è un calcolo. Quanto è schermato un elettrone di valenza, come si delocalizzano gli elettroni π, quali orbitali del centrale si combinano con quelli dei leganti, perché un complesso è magnetico o deformato. Questa sezione risolve le quattro domande con i metodi dei testi: le regole di Slater, il determinante secolare di Hückel, le combinazioni adattate alla simmetria con una soglia di energia, e la tripla teoria VBT, campo cristallino e campo dei leganti.",
     paragrafi: [
       { titolo: "Le regole di Slater: carica efficace e dimensione", testo: "Un elettrone di valenza non sente tutta la carica del nucleo: gli elettroni interni la schermano. Le regole di Slater stimano la costante di schermo σ sommando contributi fissi — un elettrone dello stesso gruppo scherma 0,35, uno del guscio n−1 scherma 0,85, uno più interno 1,00, con i d e gli f che fanno gruppo a sé. La carica nucleare efficace è ζ = Z − σ, e con un numero quantico efficace n* dà il raggio più probabile n*²/ζ e il raggio medio idrogenoide: così si capisce perché, lungo un periodo, gli atomi si rimpiccioliscono. Attenzione all'ordine di riempimento: per iodio e xeno il 4f resta vuoto e la valenza è 5s5p." },
       { titolo: "Il metodo di Hückel e la delocalizzazione", testo: "Per gli elettroni π il metodo variazionale cerca le combinazioni degli orbitali p che minimizzano l'energia, risolvendo il determinante secolare: la matrice ha l'energia dell'atomo (α) sulla diagonale e l'integrale di legame (β) fra atomi adiacenti. Gli autovalori sono i livelli E = α + xβ, gli autovettori i coefficienti di ogni orbitale molecolare, normalizzati. Confrontando l'energia totale con quella di doppi legami isolati si ottiene l'energia di delocalizzazione: zero per il butadiene aperto è 0,472β, per il benzene 2β (aromatico), per il ciclobutadiene zero (antiaromatico, diradicale). È la base quantitativa dell'aromaticità." },
@@ -601,7 +601,7 @@
       "Dire che il ciclobutadiene è aromatico come il benzene: ha energia di delocalizzazione nulla ed è un diradicale, antiaromatico."
     ],
     esempio: {
-      testo: "Per il benzene, quanto vale l'energia di delocalizzazione rispetto a tre doppi legami isolati?",
+      testo: "Per la molecola di benzene, quanto vale l'energia di delocalizzazione calcolata con il metodo di Hückel, rispetto al riferimento di tre doppi legami isolati e localizzati?",
       risultato: "E_π = 6α + 8β contro 6α + 6β: E_deloc = 2β, la stabilità aromatica"
     },
     fonti: [
