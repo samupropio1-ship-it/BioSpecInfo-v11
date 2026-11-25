@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v269` |
-| Commit | `36bde7bc41695572d2bcf511fdcf322c499d2248` |
-| Generated (UTC) | `2026-11-20T01:49:40.371Z` |
+| Commit | `7f4da6bcd2894f59f3c1bcb65474282d4c5f5a19` |
+| Generated (UTC) | `2026-11-25T06:36:58.733Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -62,7 +62,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4726 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4727 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 450 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 36 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -176,6 +176,10 @@ availability.
 | `bsi-quantum-studio-motori.js` | 26 kB | Quantum Studio motors 1–7: ATP synthase, enzymes, orbitals, SN2, NMR, receptor, PCA. |
 | `bsi-quantum-studio-motori2.js` | 28 kB | Quantum Studio motors 8–16: CRISPR, paracetamol, HPLC, PES, Hodgkin–Huxley, qubit, n-cubes, Calabi–Yau, Gibbs. |
 | `bsi-quantum-studio-pagina.js` | 18 kB | Quantum Studio page: squantum section, 3D stage with chart, sliders, theory, SPECTRA_3D_BRIDGE bridge and quantum_studio tool. |
+| `bsi-spectra-voce-live.js` | 32 kB | Spectra Prime: full-duplex voice assistant wired to the Quantum Studio (SPECTRA_3D_BRIDGE). 16 kHz AudioWorklet, 24 kHz playback, VAD and barge-in, holographic HUD, three voice tools, reconnection. |
+| `bsi-inorganica-quantum-dati.js` | 23 kB | Quantum inorganic chemistry solvers: Slater rules, Hückel method (secular determinant, Jacobi), SALC with an energy threshold, triple-theory VBT+CFT+LFT complexes. |
+| `bsi-inorganica-quantum.js` | 31 kB | Quantum inorganic chemistry 3D page: four tabs (Slater, Hückel, SALC, complexes) with 3D model and computed report; inorganica_quantica tool. |
+| `bsi-arrowlab.js` | 44 kB | Arrow Lab & RetroSynth: SVG board for mechanism curved arrows (propanone+NaBH₄, SN2) with step-by-step checking, and a retrosynthesis planner with routes, green chemistry and inventory; arrow_lab tool. Offline. |
 | `bsi-astro-spaccato.js` | 113 kB | Stellar cutaway engine: wedge-cut body, onion layers, composition donut, clock, final event; Spectra tool. |
 | `bsi-cosmo-sezione.js` | 1 kB | The «Cosmic simulations» section with preview cards. |
 | `bsi-costruttore.js` | 45 kB | 3D and AR molecule builder: atoms bonded by tapping, valences and charges, VSEPR, force field with Cordero covalent radii, aromatic rings, MOL/XYZ export and augmented reality. |
@@ -188,7 +192,7 @@ availability.
 | `bsi-teoria-e.js` | 206 kB | Per-section theory data: matematica. |
 | `bsi-teoria-f.js` | 134 kB | Per-section theory data: chimica fisica e analitica. |
 | `bsi-teoria-g.js` | 12 kB | Per-section theory data: spaziotempo e wormhole. |
-| `bsi-teoria-h.js` | 73 kB | Per-section theory data: orbitals, heliosphere, dark matter, physiology, quantitative pharmacology, prerequisite map. |
+| `bsi-teoria-h.js` | 90 kB | Per-section theory data: orbitals, heliosphere, dark matter, physiology, quantitative pharmacology, prerequisite map. |
 | `bsi-teoria.js` | 19 kB | Theory of every section: button, reading sheet, index and search, leggi_teoria tool for Spectra. |
 | `bsi-chim-hammett.js` | 19 kB | Hammett equation: σ constants (Hansch, Leo, Taft 1991), five reactions with ρ, predictions of k/k₀ and pKa, ρ fitted to data. |
 | `bsi-fis-foucault.js` | 15 kB | Foucault pendulum (Runge–Kutta in the Earth frame), precession by latitude, Coriolis deflection. |
@@ -247,10 +251,10 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 277 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 279 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
-| `sw.js` | 10 kB | Service Worker: offline operation and network strategy. |
+| `sw.js` | 11 kB | Service Worker: offline operation and network strategy. |
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2661 kB | Astrochemistry module. |
 | `chimorga.html` | 195 kB | Organic chemistry module. |
@@ -260,7 +264,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `27178364f013d186f47364b3e32c56bdc161c9b1b273840e587a4962cb74947a` |
+| `index.html` | `3b569c479e68a1e0c4b1d5f7c6c34d5d0c02a298cfd7bdc04126b38e738207bd` |
 | `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -374,6 +378,10 @@ availability.
 | `bsi-quantum-studio-motori.js` | `0ea37761f590008c0fce248c6426752c459f6279c792a31cabe20a770a8c31c1` |
 | `bsi-quantum-studio-motori2.js` | `aa1fbf91017bd55ef17207caeafa1bab0cf4f43f716582fabeacc78ce4f689a2` |
 | `bsi-quantum-studio-pagina.js` | `d1fa018d390a0d7582fe77af285bdfa94e4b34c64327989d959233833927a77a` |
+| `bsi-spectra-voce-live.js` | `61864bd0a6d23b8b931c46eb793cac4126901dad114bb313040381c2f7847253` |
+| `bsi-inorganica-quantum-dati.js` | `5b2dc4e8eec36c63e93c27af1d9bab71f1765a3ceafca17166d5f96229353f1b` |
+| `bsi-inorganica-quantum.js` | `6841a0dd90fb24d8b4c83ace2d23114e966696741285bfa82cc89723cfb4ec0a` |
+| `bsi-arrowlab.js` | `a0bd203a9c827db5e22ef379530744f6835184c91d60d74595cbf65ae43f0bee` |
 | `bsi-astro-spaccato.js` | `84996d27c77c0aaf2cf2774914d62787b318467a1ce543f0be877046ffdff88e` |
 | `bsi-cosmo-sezione.js` | `41ff5ee439c53082972eb3ddf8cce1aa0cec6eff84ea909a922fedcce0c5021a` |
 | `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
@@ -386,7 +394,7 @@ availability.
 | `bsi-teoria-e.js` | `cbdd56af03008bb1b14d25693e924dcc5fd3d4d8b2d866ce80ca9ce02bf89735` |
 | `bsi-teoria-f.js` | `82de383a52f65b6f897139e36c26e4df0aac9ef7e73180e9192cafdb63fc0678` |
 | `bsi-teoria-g.js` | `e1a573f57fdaac6fdfedb8b1ee4d5059a11f0178a75317b4d50c6b220231d2cd` |
-| `bsi-teoria-h.js` | `b9c71edeaba662ec6c80f7eb543b46f2e90bc25b798e5891fe18db2a09516438` |
+| `bsi-teoria-h.js` | `7a5a813417a2445d28217f2550422e0a93b1c11e6ae90a2c7bb64623688b1a68` |
 | `bsi-teoria.js` | `cf049a56873408a35f0ca1854dc841454477cb8fe8f12ba59719c7085437ec61` |
 | `bsi-chim-hammett.js` | `2a2a7077ed6d6e8026d10c68a69b7227835c857e697f650d5d83567701e3b351` |
 | `bsi-fis-foucault.js` | `c4ddd93939cf0756de4506b898ce6d4f9142c3d41b5e263580f5f010db3e3f85` |
@@ -445,10 +453,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `9a8f122fad76c74db5dbafc9fa36ad29b219414eb4ba6988d1e73495c899794c` |
+| `bsi-lingue.js` | `34ecc0245295fd350aa6efb2ac47e735aa059a6688ad5221fdeac6b25222949e` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `427fb1166416e40c432987fca419e5d77414417be35dad7c6f890864fe01314f` |
+| `sw.js` | `67c85cb222405640c41f3168c5db3fbbe96074b4803dd291e86390f29ce56b55` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -502,4 +510,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-20T01:49:40.371Z._
+_Generated on 2026-11-25T06:36:58.733Z._
