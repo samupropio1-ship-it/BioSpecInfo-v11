@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v271` |
-| Commit | `417f533c87198cea3a426097be9eada5875d759c` |
-| Generated (UTC) | `2026-11-25T10:30:36.132Z` |
+| Commit | `15a050cdc77ffab771a5c68e52ff22b8f21d6b99` |
+| Generated (UTC) | `2026-11-25T17:00:39.257Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -185,7 +185,7 @@ availability.
 | `bsi-costruttore.js` | 45 kB | 3D and AR molecule builder: atoms bonded by tapping, valences and charges, VSEPR, force field with Cordero covalent radii, aromatic rings, MOL/XYZ export and augmented reality. |
 | `bsi-fis-motore.js` | 17 kB | The engine in cutaway: air-standard Otto cycle with slider-crank, proportional flows, balance and p–V detail. |
 | `bsi-fis-spaccati.js` | 38 kB | The physics technical cutaways: two-loop circuit with Kirchhoff and drift in copper, Nd:YAG laser with power balance and four levels, p–n junction with the field integrated from Poisson. |
-| `bsi-teoria-a.js` | 174 kB | Per-section theory data: chimica, spettroscopia, farmacologia. |
+| `bsi-teoria-a.js` | 180 kB | Per-section theory data: chimica, spettroscopia, farmacologia. |
 | `bsi-teoria-b.js` | 138 kB | Per-section theory data: biochimica e chimica fisica. |
 | `bsi-teoria-c.js` | 174 kB | Per-section theory data: fisica. |
 | `bsi-teoria-d.js` | 188 kB | Per-section theory data: fisica moderna e astrofisica. |
@@ -251,7 +251,7 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 280 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 281 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
 | `sw.js` | 11 kB | Service Worker: offline operation and network strategy. |
@@ -264,7 +264,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `40b7428f37f0e921c8d513b9a8999bd568e6eb603f2516d9ac3ddb78dd0ac286` |
+| `index.html` | `26c535621a7a96c2d7157e1bd5481e8bdad18e5e103653025e2858842125163e` |
 | `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -387,7 +387,7 @@ availability.
 | `bsi-costruttore.js` | `69425b32b8041e94e4d031bde46b648a163b2258894083892fcbd9d6dad251e3` |
 | `bsi-fis-motore.js` | `ea1fc78972b6bb1fe95c784b3876cdc45bce32d43f5765bb6de6114fa7342ac3` |
 | `bsi-fis-spaccati.js` | `d844ebe26d182fa193e1c6cf7f531241ee4d0d6038ac11bae570ea75d0c758b3` |
-| `bsi-teoria-a.js` | `0ba0332aeffec0436d33cf12c9e27954ac214233efc1c50068f06eaabb208e84` |
+| `bsi-teoria-a.js` | `765aee556116c58395e5077709f36d96fe96c720e0531e3b862777119a41b9cf` |
 | `bsi-teoria-b.js` | `90d286234ee20a7196d12716bab1b33d636af950051dfbf93ee859285124396e` |
 | `bsi-teoria-c.js` | `727e6d0c7df27adc70a0230a9f9d8fe24c576ebcccf359aea06572ec166259c6` |
 | `bsi-teoria-d.js` | `a073487caee19010fb362621d14124caa63e66f04a4f89e5d29057657752abc4` |
@@ -453,10 +453,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `460c3fa56efc34d649139574f8fe3ab527257e5743f3d035662006484cd7154b` |
+| `bsi-lingue.js` | `ed2f111eecd8a6e40a7d178c9e2cb299fa84e3d3986ba45925b7aa56fe3d6a0b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `2704fe3ec334f836041806959bb669b73c660ccf619150f5bb6604194ecdaf38` |
+| `sw.js` | `10cf19079d52cb34aca19007c157c740cfa38a4ef65f7a062dbc1f947bf627f6` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -510,4 +510,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-25T10:30:36.132Z._
+_Generated on 2026-11-25T17:00:39.257Z._
