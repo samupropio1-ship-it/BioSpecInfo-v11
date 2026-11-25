@@ -32,7 +32,7 @@ function vero(d, c) { att(d, true, !!c); }
   pg.on('pageerror', e => errs.push(e.message.slice(0, 200)));
   await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {} });
   await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
-  await pg.waitForFunction(() => !!(window.BSIHub && window.BSICentroSpettri && window.BSICentroOrganica), null, { timeout: 60000 });
+  await pg.waitForFunction(() => !!(window.BSIHub && window.BSICentroSpettri && window.BSICentroOrganica && window.BSICentroBiochimica && window.BSICentroFarmacologia), null, { timeout: 60000 });
   await pg.waitForTimeout(1800);
 
   console.log('── Il Centro spettri ha inglobato Metodi Fisici e Deconvoluzione ──');
@@ -74,6 +74,30 @@ function vero(d, c) { att(d, true, !!c); }
   att('otto schede disegnate', 8, org.tabN);
   vero('una scheda apre il pannello DENTRO l\'hub (Arrow Lab)', org.arrowInHub);
   att('non sborda', 0, org.sb);
+
+  console.log('\n── Biochimica e Farmacologia (v272) ──');
+  for (const hub of [{ g: 'BSICentroBiochimica', nome: 'Biochimica', n: 18, prova: 'skrebs' }, { g: 'BSICentroFarmacologia', nome: 'Farmacologia', n: 8, prova: 'spkcurve' }]) {
+    const h = await pg.evaluate(async (cfg) => {
+      const P = ms => new Promise(r => setTimeout(r, ms)), o = {};
+      const api = window[cfg.g]; o.st = api.stato();
+      const btn = document.querySelector('.nav-btn[data-s="' + api.ID + '"]');
+      o.btn = !!btn; if (btn) btn.click(); await P(600);
+      const sec = document.getElementById(api.ID);
+      const tab = sec && sec.querySelector('.bsiHub-sc[data-bsi-sc="' + cfg.prova + '"]'); if (tab) tab.click(); await P(700);
+      const pv = document.getElementById(cfg.prova), corpo = sec && sec.querySelector('.bsiHub-corpo');
+      o.provaInHub = !!(pv && corpo && pv.parentNode === corpo && pv.style.display === 'block');
+      o.copieMax = Math.max.apply(null, api.schede().map(id => document.querySelectorAll('#' + id).length));
+      o.sheet = !!(window.BSITeoriaDati && window.BSITeoriaDati[api.ID]);
+      o.sb = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      return o;
+    }, hub);
+    att(hub.nome + ': raccoglie ' + hub.n + ' sezioni', hub.n, h.st.dentroIlCentro);
+    att(hub.nome + ': tutti i pulsanti nascosti', hub.n, h.st.pulsantiNascosti);
+    att(hub.nome + ': nessuna sezione duplicata', 1, h.copieMax);
+    vero(hub.nome + ': una scheda apre il pannello dentro l\'hub', h.provaInHub);
+    vero(hub.nome + ': ha il pulsante e la scheda di teoria', h.btn && h.sheet);
+    att(hub.nome + ': non sborda', 0, h.sb);
+  }
 
   console.log('\n── Pulito ──');
   /* la scheda di teoria dell'hub organica esiste e i conteggi del catalogo tornano */

@@ -571,6 +571,77 @@
     collegamenti: ['smecc3d', 'sarrowlab', 'sretro', 'shammett', 'sdbe']
   };
 
+  T['scentrobiochimica'] = {
+    titolo: 'La biochimica come sistema: biomolecole, strutture e vie del metabolismo',
+    sintesi: 'La biochimica studia come la materia vivente immagazzina, trasforma e spende energia e informazione. Quattro classi di biomolecole — proteine, acidi nucleici, carboidrati e lipidi — si costruiscono da pochi mattoni e si ripiegano in strutture tridimensionali che ne determinano la funzione. Su quelle strutture lavorano gli enzimi, che incanalano il metabolismo in vie ordinate: la glicolisi, il ciclo di Krebs, la catena respiratoria, la β-ossidazione e le altre. Riunirle in un solo centro permette di seguire il filo che va dalla singola molecola al bilancio energetico della cellula.',
+    paragrafi: [
+      { titolo: 'Dai mattoni alle macromolecole', testo: 'Venti amminoacidi, quattro nucleotidi, pochi monosaccaridi e un repertorio di acidi grassi bastano a costruire quasi tutte le molecole della vita. La sequenza, scelta fra queste possibilità, porta l’informazione; il ripiegamento la traduce in forma. Una proteina diventa enzima, canale o impalcatura a seconda di come la catena si avvolge, e la stessa logica vale per gli acidi nucleici che si appaiano in doppia elica. I viewer tridimensionali e il costruttore servono proprio a vedere questa relazione fra sequenza, struttura e funzione, che nessuna formula piatta restituisce.' },
+      { titolo: 'Gli enzimi e la velocità della vita', testo: 'Senza catalisi le reazioni della cellula sarebbero troppo lente per sostenere la vita. Gli enzimi abbassano l’energia di attivazione legando il substrato in un sito attivo complementare e stabilizzando lo stato di transizione. La cinetica di Michaelis-Menten descrive come la velocità dipenda dalla concentrazione di substrato, con una velocità massima e una costante che misura l’affinità. La regolazione — per inibizione, per modificazione covalente, per controllo allosterico — accende e spegne le vie secondo il bisogno, ed è ciò che rende il metabolismo una rete governata, non un insieme di reazioni scollegate.' },
+      { titolo: 'Le vie del metabolismo', testo: 'Il metabolismo si organizza in vie: sequenze di reazioni in cui il prodotto di una è il substrato della successiva. La glicolisi demolisce il glucosio fino a piruvato producendo un poco di ATP; il ciclo di Krebs ossida l’acetil-CoA raccogliendo elettroni su NADH e FADH₂; la catena respiratoria li cede all’ossigeno costruendo il gradiente protonico che l’ATP sintasi usa per fosforilare l’ADP. In parallelo la β-ossidazione smonta gli acidi grassi, la via dei pentoso fosfati produce NADPH e ribosio, il ciclo dell’urea smaltisce l’azoto e la gluconeogenesi ricostruisce il glucosio quando serve.' },
+      { titolo: 'Il bilancio dell’energia', testo: 'Il filo che lega tutte le vie è l’energia, trasportata da poche molecole: l’ATP come moneta spendibile, i coenzimi ridotti NADH, FADH₂ e NADPH come portatori di elettroni. Contare quante di queste molecole entrano ed escono da ciascuna via è il modo onesto di confrontarle: l’ossidazione completa di una molecola di glucosio rende molto più ATP della sola glicolisi, e questo spiega perché la respirazione aerobica domina quando c’è ossigeno. Le animazioni passo per passo e il laboratorio tridimensionale servono a rendere visibile questo bilancio.' },
+      { titolo: 'Perché un centro unico', testo: 'Amminoacidi, strutture, macromolecole, enzimi e vie erano voci sparse in un menù affollato. Riunirle in un solo centro, con i viewer, il costruttore, il laboratorio e le vie animate, rende visibile che sono capitoli di una stessa storia: come la cellula costruisce ciò che le serve e come ne paga il costo in energia. È lo stesso filo che un corso di biochimica segue dall’inizio alla fine.' }
+    ],
+    formule: [
+      ['v = V_max · [S] / (K_M + [S])', 'equazione di Michaelis-Menten: velocità enzimatica in funzione del substrato'],
+      ['glucosio + 6 O₂ → 6 CO₂ + 6 H₂O', 'ossidazione completa del glucosio, il bilancio della respirazione aerobica'],
+      ['ADP + Pᵢ + energia → ATP', 'la fosforilazione che immagazzina energia nella moneta della cellula'],
+      ['ΔG = ΔG°′ + RT ln([prodotti]/[reagenti])', 'variazione di energia libera reale di una reazione metabolica']
+    ],
+    ipotesi: [
+      'Le animazioni e i modelli tridimensionali sono schematici e didattici: le strutture sono rappresentate, non risolte sperimentalmente, e le rese in ATP sono i valori convenzionali dei libri di testo.',
+      'La cinetica di Michaelis-Menten presuppose uno stato stazionario e un singolo substrato; i casi allosterici o multisubstrato richiedono modelli più ricchi.'
+    ],
+    errori: [
+      'Confondere la resa teorica di ATP con quella reale: il rendimento dipende dal costo del trasporto dei coenzimi nei mitocondri e varia fra tessuti.',
+      'Trattare le vie come indipendenti: glicolisi, Krebs e catena sono accoppiate dai coenzimi condivisi, e bloccarne una altera le altre.'
+    ],
+    esempio: {
+      testo: 'Quante molecole di NADH e FADH₂ produce un giro del ciclo di Krebs a partire da una molecola di acetil-CoA, e quanta CO₂ libera?',
+      risultato: 'Tre NADH, un FADH₂, un GTP (o ATP) e due molecole di CO₂ per giro'
+    },
+    fonti: [
+      'Nelson D. L., Cox M. M., Lehninger Principles of Biochemistry, W. H. Freeman, 7ª ed., parti II–III (bioenergetica e metabolismo).',
+      'Berg J. M., Tymoczko J. L., Gatto G. J., Stryer L., Biochemistry, W. H. Freeman, 9ª ed., cap. 15–30.',
+      'Voet D., Voet J. G., Biochemistry, Wiley, 4ª ed., cap. 17–27.'
+    ],
+    collegamenti: ['sglic', 'skrebs', 'sbeta', 'sbiolab3d']
+  };
+
+  T['scentrofarmacologia'] = {
+    titolo: 'La farmacologia come sistema: dalla molecola al paziente',
+    sintesi: 'La farmacologia collega una molecola a un effetto clinico con due domande. La farmacocinetica descrive che cosa fa l’organismo al farmaco: assorbimento, distribuzione, metabolismo ed escrezione, cioè come la concentrazione cambia nel tempo. La farmacodinamica descrive che cosa fa il farmaco all’organismo: il legame a un bersaglio, di solito un recettore o un enzima, e la risposta che ne segue. Attorno stanno le interazioni fra farmaci, la fisiologia dei sistemi, le patologie e i casi clinici in cui tutto si mette alla prova.',
+    paragrafi: [
+      { titolo: 'Che cosa fa l’organismo al farmaco', testo: 'Dopo la somministrazione un farmaco viene assorbito, si distribuisce nei tessuti, viene metabolizzato soprattutto dal fegato ed escreto soprattutto dal rene. La farmacocinetica mette numeri su questo percorso: il volume di distribuzione lega la dose alla concentrazione nel plasma, la clearance misura quanto sangue viene depurato per unità di tempo, l’emivita dice in quanto tempo la concentrazione si dimezza. Da queste grandezze si ricava quanto somministrare e ogni quanto, e le curve di concentrazione nel tempo rendono visibile l’accumulo fino allo stato stazionario.' },
+      { titolo: 'Che cosa fa il farmaco all’organismo', testo: 'La farmacodinamica parte dal legame fra il farmaco e il suo bersaglio. Un agonista lo attiva, un antagonista lo blocca; la potenza misura a quale concentrazione si ottiene metà dell’effetto, l’efficacia misura l’effetto massimo raggiungibile. La curva dose-risposta, di solito sigmoidale su scala logaritmica, riassume questa relazione, e l’indice terapeutico — la distanza fra la dose che cura e quella che danneggia — dice quanto il farmaco è maneggevole. Recettori di riserva, antagonismo competitivo e non competitivo completano il quadro.' },
+      { titolo: 'Interazioni, fisiologia e patologia', testo: 'Nessun farmaco agisce da solo. Due farmaci possono competere per lo stesso enzima che li metabolizza, spostarsi a vicenda dai siti di legame alle proteine plasmatiche, o sommare e contrastare i loro effetti: le interazioni cambiano dosi e rischi. Per capire dove un farmaco agisce serve conoscere la fisiologia del sistema — cardiovascolare, nervoso, endocrino — come rete di regolazioni. E per sapere perché lo si usa serve la patologia: il meccanismo della malattia indica il bersaglio, e il bersaglio indica il farmaco.' },
+      { titolo: 'Dalla teoria al paziente', testo: 'Il punto di arrivo è il caso clinico, dove farmacocinetica e farmacodinamica si incontrano in una persona reale con la sua età, la sua funzione renale, le sue altre terapie. Scegliere il farmaco, la dose e l’intervallo, prevedere gli effetti avversi e le interazioni, aggiustare in corso d’opera: è qui che la farmacologia smette di essere un insieme di grandezze e diventa una decisione. Riunire in un centro l’atlante, i calcoli, le curve, la fisiologia e i casi permette di seguire tutta questa catena in un posto solo.' }
+    ],
+    formule: [
+      ['C = dose / V_d', 'la concentrazione plasmatica dalla dose e dal volume di distribuzione'],
+      ['t½ = 0,693 · V_d / Cl', 'emivita di eliminazione dal volume di distribuzione e dalla clearance'],
+      ['E = E_max · [D] / (EC₅₀ + [D])', 'curva dose-risposta: effetto in funzione della concentrazione del farmaco'],
+      ['IT = DL₅₀ / DE₅₀', 'indice terapeutico: distanza fra dose tossica e dose efficace']
+    ],
+    ipotesi: [
+      'I modelli farmacocinetici dell’app sono a uno o due compartimenti e i parametri sono valori tipici: un paziente reale può discostarsene per età, funzione d’organo o genetica.',
+      'Le curve dose-risposta presuppongono un sistema all’equilibrio e un singolo bersaglio; recettori multipli o cinetiche lente cambiano la forma della risposta.'
+    ],
+    errori: [
+      'Confondere potenza ed efficacia: un farmaco molto potente (EC₅₀ bassa) non è necessariamente quello con l’effetto massimo maggiore.',
+      'Dimenticare che emivita e intervallo di somministrazione determinano l’accumulo: dosare un farmaco a emivita lunga troppo spesso porta a tossicità.'
+    ],
+    esempio: {
+      testo: 'Un farmaco ha volume di distribuzione 50 L e clearance 10 L/h. Quanto vale l’emivita di eliminazione?',
+      risultato: 't½ = 0,693 × 50 / 10 ≈ 3,5 ore'
+    },
+    fonti: [
+      'Katzung B. G., Basic and Clinical Pharmacology, McGraw-Hill, 15ª ed., cap. 1–3 (farmacocinetica e farmacodinamica).',
+      'Rang H. P., Dale M. M., Ritter J. M., Flower R. J., Henderson G., Rang and Dale’s Pharmacology, Elsevier, 9ª ed.',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics, McGraw-Hill, 13ª ed., cap. 2–4.'
+    ],
+    collegamenti: ['sfarm', 'spkcalc', 'sfarmquant', 'smorb']
+  };
+
   T['sspec'] = {
     titolo: 'Tabelle spettroscopiche di riferimento: spostamenti chimici, costanti di accoppiamento e bande IR',
     sintesi: 'Le tabelle di riferimento condensano l’esperienza di migliaia di spettri: intervalli di spostamento chimico ¹H e ¹³C per ciascun tipo di nucleo, costanti di accoppiamento J tipiche e frequenze caratteristiche delle bande IR. Per usarle bene bisogna conoscere le ragioni fisiche dei valori, cioè schermatura, anisotropia, relazione di Karplus e massa ridotta, e ricordare che sono intervalli, non numeri esatti.',

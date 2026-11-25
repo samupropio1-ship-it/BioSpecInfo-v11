@@ -7,6 +7,27 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v272] — 2026-11-25
+
+**Hub per argomento, seconda ondata: Biochimica e Farmacologia**
+
+### Aggiunto
+- **🧬 Biochimica** (`scentrobiochimica`): un'unica voce che riunisce 18 sezioni prima sparse nel menù più affollato —
+  amminoacidi, biomolecole, biosintesi, strutture e viewer 3D, costruttore, macromolecole, Biochimica 3D Lab, le vie
+  metaboliche animate (glicolisi, Krebs, catena respiratoria, β-ossidazione, pentosi fosfati, urea, gluconeogenesi), più
+  quiz e guida. Scheda di teoria dedicata.
+- **💊 Farmacologia** (`scentrofarmacologia`): atlante dei farmaci, interazioni, farmacocinetica e curve PK, farmacologia
+  quantitativa, fisiologia come sistema, patologie e casi clinici (8 sezioni). Scheda di teoria dedicata.
+
+### Note
+- Stessa fabbrica non distruttiva della v271 (`bsi-hub.js`): pannelli **spostati** (una sola copia), pulsanti
+  **nascosti** ma lasciati nel DOM. Le voci che erano finite nel menù Biochimica ma non sono biochimica — Quantum Studio,
+  Spectra Prime, Inorganica quantistica — restano **fuori**, come sezioni a sé; Arrow Lab e Metodi Fisici sono già nei
+  loro hub. 125 banchi, 226 voci di navigazione, 60 strumenti, 793 file tracciati. Banco `test_hub` esteso a 28 controlli.
+- I gruppi a materia unica (Chimica Fisica, Fisica, Matematica, Astrofisica) restano accessibili dalla loro linguetta di
+  gruppo, che funge già da voce d'argomento; non avevano sezioni sparse fra menù diversi da unificare.
+
+---
 ## [bsi-v271] — 2026-11-25
 
 **Una sezione per argomento, senza ripetizioni: gli hub per argomento**
