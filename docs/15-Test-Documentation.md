@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v270` |
+| **Versione descritta** | `bsi-v271` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**124 banchi**, raggruppati per ciò che dimostrano.
+**125 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -423,7 +423,7 @@ sezione dell'AI, Spectra col corpo, «e non altro». Prova
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → Spectra prima indica l'ologramma (gesto «indica»), poi accompagna la spiegazione con le mani («spiega»), gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
 | «🧠 Spiega» (14 per larghezza) | «🧠 Spiega» è la seconda scheda della finestra di Spectra e «Lezione» non c'è più; la figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel Centro spettri) legge lo schermo: almeno un grafico, i valori dei comandi, l'immagine; cinque livelli; il modello riceve il testo dello schermo, la domanda e **l'immagine**; la richiesta chiede una spiegazione esaustiva e non semplificata, con la lettura quantitativa dello spettro (δ, molteplicità, J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta; la domanda successiva continua la conversazione senza rimandare l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura primaria; senza modello non finge; legge come immagine i grafici SVG (dalla v242 il banco inserisce nella sezione aperta uno spettro SVG noto, deterministico, invece di dipendere dal quiz degli spettri, che è casuale); legge una scena 3D («Meccanica orbitale 3D»: 2 tele, immagine); con quella scena aperta dietro «🧠 Spiega» l'ologramma la mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre ma al modello vanno solo la domanda, senza testo né immagine dello schermo |
 | Ologramma (7 per larghezza) | Sta **alla destra di Spectra** (x sullo schermo); ci sono **sei scene vive**; Keplero: il rapporto fra la velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro l'8 %; **il soggetto segue la conversazione** (una risposta sull'IR → spettro, una domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco sull'etichetta apre «Sistema solare 3D» **dietro** la finestra «🧠 Spiega»: Spectra resta visibile davanti e l'ologramma mostra la sezione dal vivo; chiusa la finestra, l'app torna alla sezione di Spectra e la figura è lì |
-| Catalogo (5 per larghezza) | Il catalogo ha **tutte** le sezioni della barra (223/223 dalla v250: chimica 90, fisica 70, matematica 34, comuni 29); una domanda che nomina un argomento trova la sua sezione (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma; «🎞️ Mostrami tutto» scorre le sezioni della materia |
+| Catalogo (5 per larghezza) | Il catalogo ha **tutte** le sezioni della barra (224/224 dalla v250: chimica 91, fisica 70, matematica 34, comuni 29); una domanda che nomina un argomento trova la sua sezione (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma; «🎞️ Mostrami tutto» scorre le sezioni della materia |
 | Telefono | I pulsanti della figura non finiscono sotto quelli flottanti |
 | Errori | Nessun errore JavaScript, a ogni larghezza |
 
@@ -469,7 +469,7 @@ ogni passaggio spiegato. Prova `bsi-spectra-olointerattivo.js`.
 | La finestra (3 per larghezza) | Il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra in «spettri» (perché l'ologramma mostrava uno spettro); Spectra col corpo ci si sposta; i pulsanti flottanti dell'app spariscono |
 | Spettri dal vivo (3 per larghezza) | Cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 e 2950 cm⁻¹ fra i passaggi); una traccia di massa con due picchi dà due passaggi; toccando il picco a m/z 43 si sceglie il suo passaggio e Spectra lo dice |
 | Il menu ✨ nell'ologramma (v248: 3 per larghezza) | Nell'elenco ci sono anche le **19 voci del menu ✨** (8 pagine e 11 finestre, fra cui dalla v252 Sveglia Spectra, Occhiali e dispositivi, Agenda e Rete neurale: Astrochimica 3D, Lab Quantistico, Accademia, Glossario…) e il Centro spettri; «Astrochimica 3D PRO» si apre **dentro il riquadro** (la sua pagina vera) e cambiando modo si toglie; per una finestra (Lab Quantistico) «↗ Apri la sezione» chiude l'ologramma e la apre |
-| «🗂️ Tutta l'app» (v248: 4 per larghezza) | L'elenco ha **tutte** le sezioni della barra (223/223, letto dal catalogo, non scritto a mano), filtrabile per materia e per nome; la Tavola Periodica, senza grafici, è **ospitata davvero** nel riquadro (la sezione vera, spostata e viva); scelta un'altra sezione torna al suo posto e «Sistema solare 3D» si vede **dal vivo** con la sua lezione; chiusa la finestra l'app è di nuovo nella sezione di partenza |
+| «🗂️ Tutta l'app» (v248: 4 per larghezza) | L'elenco ha **tutte** le sezioni della barra (224/224, letto dal catalogo, non scritto a mano), filtrabile per materia e per nome; la Tavola Periodica, senza grafici, è **ospitata davvero** nel riquadro (la sezione vera, spostata e viva); scelta un'altra sezione torna al suo posto e «Sistema solare 3D» si vede **dal vivo** con la sua lezione; chiusa la finestra l'app è di nuovo nella sezione di partenza |
 | Lettura sul telefono e prova audio (v248: 2 a 412 px, 1 a 1280 px) | Sul telefono **tutta la finestra scorre**: l'ultimo passaggio arriva ad almeno 70 px dal bordo (sopra i tasti di Android), la testata resta in alto, i passaggi sono a 15,5 px; «🔔 Prova audio» suona un bip, dice una frase di prova e spiega che cosa fare se non si sente (muto, volume «Multimedia», voce del telefono) |
 | Voce, tocco e Spiega senza chiave (3 per larghezza) | Scritta una traccia, Spectra la spiega **da sola a voce** dopo 1,4 s, senza toccare «🔊»; un tocco **sull'ologramma stesso** (il pannello alla destra di Spectra, colpito con un raggio dalla telecamera) lo apre interattivo; «🧠 Spiega» **senza chiave** risponde comunque alla domanda (pH di HCl 0,01 M: lo svolgimento dell'assistente locale per intero) e lo dice a voce |
 | Universo, matematica, fisica (5 per larghezza) | Marte con i suoi sei passaggi, nella scena 3D; «studia f(x)=x^3-3x» → zeri −√3, 0, √3 e punti stazionari ±1, con almeno otto passaggi dell'assistente; il proiettile con gittata **35,31 m**; il pendolo da 2 m con periodo **2,837 s** |
@@ -1075,7 +1075,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 789 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 792 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -1095,4 +1095,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v270`._
+_Documento aggiornato alla versione `bsi-v271`._

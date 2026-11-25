@@ -535,6 +535,42 @@
     collegamenti: ['sspec', 'sirvis', 'sms', 'suvvis', 'snoe', 'selucid']
   };
 
+  T['scentrorganica'] = {
+    titolo: 'Il ragionamento della chimica organica: meccanismi, retrosintesi e reattività',
+    sintesi: 'La chimica organica non si impara a memoria: si ragiona. Tre strumenti bastano a tenerne insieme i pezzi. Le frecce curve raccontano come si muovono gli elettroni in un meccanismo, dai nucleofili agli elettrofili. La retrosintesi smonta la molecola bersaglio a ritroso, fino a reagenti semplici. Le relazioni struttura-reattività, come l’equazione di Hammett, quantificano quanto un sostituente accelera o rallenta una reazione. Attorno stanno il conteggio dei gradi di insaturazione e il bilanciamento: l’aritmetica che tiene onesto il ragionamento.',
+    paragrafi: [
+      { titolo: 'Gli elettroni si muovono, e la freccia lo dice', testo: 'Un meccanismo è il racconto di come gli elettroni si spostano mentre i legami si formano e si rompono. Ogni freccia curva a punta intera muove una coppia di elettroni, e parte sempre da una sorgente di densità elettronica — un doppietto solitario o un legame — verso un centro povero di elettroni. Il nucleofilo offre elettroni, l’elettrofilo li accetta, il gruppo uscente se ne va portandosi la coppia di legame. Contare gli elettroni che si spostano è il controllo più severo: se una freccia nasce dal nulla o fa superare l’ottetto, il meccanismo è sbagliato.' },
+      { titolo: 'Pensare all’indietro: la retrosintesi', testo: 'Progettare una sintesi guardando avanti, per tentativi, è difficile; Corey propose di guardare indietro. Si parte dalla molecola bersaglio e la si disconnette: si immagina di rompere un legame strategico ottenendo frammenti più semplici, i sintoni, a cui corrispondono reagenti reali. Ogni disconnessione è una reazione nota letta al contrario, più le interconversioni di gruppo funzionale che aggiustano lo stato di ossidazione. Ripetendo si arriva a building block disponibili, e spesso esistono più strade per lo stesso bersaglio: confrontarle per numero di passaggi, resa e sostenibilità è parte del mestiere.' },
+      { titolo: 'Come un sostituente cambia la reattività', testo: 'Lo stesso scheletro reagisce in modo diverso secondo i gruppi che porta. L’equazione di Hammett mette un numero su questo: una costante del sostituente, sigma, dice quanto esso attira o dona elettroni dalla posizione meta o para, e una costante di reazione, rho, dice quanto quella reazione ne risente e con che segno. Così si prevede come varia una costante di velocità o un pKa lungo una serie di derivati, e il segno di rho rivela se nello stato di transizione si sviluppa carica positiva o negativa. È il ponte quantitativo fra struttura e reattività.' },
+      { titolo: 'L’aritmetica che tiene onesto il ragionamento', testo: 'Prima di interpretare serve contare. I gradi di insaturazione, ricavati dalla sola formula, dicono quanti anelli e legami multipli la molecola deve avere: un valore di quattro o più suggerisce subito un anello aromatico. Il bilanciamento di una reazione, con la conservazione degli atomi e, nelle redox, degli elettroni, impedisce di scrivere trasformazioni impossibili. Sono passaggi di pura aritmetica, non di interpretazione, e per questo sono il punto di partenza sicuro da cui fare le ipotesi più fragili.' },
+      { titolo: 'Perché un centro unico', testo: 'Meccanismi, retrosintesi e relazioni struttura-reattività sono facce dello stesso ragionamento, e tenerli in sezioni separate costringe a saltare da un posto all’altro. Riunirli in un unico centro, con i meccanismi in tre e due dimensioni, la lavagna delle frecce curve, il pianificatore retrosintetico, le costanti di Hammett e gli strumenti di conteggio, rende visibile il filo che li lega: dall’idea di come reagisce un legame al progetto di come costruirlo.' }
+    ],
+    formule: [
+      ['Nu:⁻ + E⁺ → Nu–E', 'una freccia curva: la coppia del nucleofilo forma il legame con l’elettrofilo'],
+      ['log(k/k₀) = ρ · σ', 'equazione di Hammett: effetto del sostituente (σ) scalato dalla sensibilità della reazione (ρ)'],
+      ['IDI = C − H/2 − X/2 + N/2 + 1', 'gradi di insaturazione da una formula con C, H, alogeni X e azoto N'],
+      ['bersaglio ⇒ sintoni ⇒ reagenti', 'la logica retrosintetica di Corey, letta all’indietro']
+    ],
+    ipotesi: [
+      'I meccanismi e i percorsi degli strumenti sono schematici e didattici: le posizioni degli atomi sono disegnate, non ottimizzate, e i punteggi di sostenibilità sono indicativi.',
+      'L’equazione di Hammett vale per sostituenti in meta e para; in orto entrano effetti sterici che σ non descrive.'
+    ],
+    errori: [
+      'Far partire una freccia curva da un atomo invece che da una coppia di elettroni (un doppietto o un legame): la freccia nasce sempre dalla densità elettronica.',
+      'Credere che la retrosintesi dia una sola risposta: quasi sempre esistono più disconnessioni valide, da confrontare.'
+    ],
+    esempio: {
+      testo: 'Per l’acido benzoico la reazione di riferimento ha ρ = 1. Stimare il pKa del derivato para-nitro, sapendo che σ(p-NO₂) = 0,78 e che il pKa dell’acido benzoico è 4,20.',
+      risultato: 'pKa ≈ 4,20 − ρ·σ = 4,20 − 1 × 0,78 = 3,42 (il nitro, elettron-attrattore, rende l’acido più forte)'
+    },
+    fonti: [
+      'Clayden J., Greeves N., Warren S., Organic Chemistry, Oxford University Press, 2ª ed., cap. 5–6 e 28–30.',
+      'Corey E. J., Cheng X.-M., The Logic of Chemical Synthesis, Wiley, 1989.',
+      'Anslyn E. V., Dougherty D. A., Modern Physical Organic Chemistry, University Science Books, 2006, cap. 7 (relazioni lineari di energia libera).'
+    ],
+    collegamenti: ['smecc3d', 'sarrowlab', 'sretro', 'shammett', 'sdbe']
+  };
+
   T['sspec'] = {
     titolo: 'Tabelle spettroscopiche di riferimento: spostamenti chimici, costanti di accoppiamento e bande IR',
     sintesi: 'Le tabelle di riferimento condensano l’esperienza di migliaia di spettri: intervalli di spostamento chimico ¹H e ¹³C per ciascun tipo di nucleo, costanti di accoppiamento J tipiche e frequenze caratteristiche delle bande IR. Per usarle bene bisogna conoscere le ragioni fisiche dei valori, cioè schermatura, anisotropia, relazione di Karplus e massa ridotta, e ricordare che sono intervalli, non numeri esatti.',

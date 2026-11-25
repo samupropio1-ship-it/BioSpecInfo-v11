@@ -1,7 +1,7 @@
 // BioSpecInfo Service Worker v134 — network-first + precache di pagine e librerie
 'use strict';
 
-var CACHE = 'bsi-v270';
+var CACHE = 'bsi-v271';
 
 // Precarico solo file che esistono davvero nel deploy (una voce inesistente
 // costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
@@ -164,6 +164,8 @@ var PRECACHE = [
   './bsi-inorganica-quantum.js',
   './bsi-arrowlab.js',
   './bsi-metodi-fisici.js',
+  './bsi-hub.js',
+  './bsi-centro-organica.js',
   './bsi-risoluzione.js',
   './bsi-cosmo-sezione.js',
   './bsi-farm-quantitativa.js',

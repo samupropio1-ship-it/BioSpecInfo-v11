@@ -7,6 +7,31 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v271] — 2026-11-25
+
+**Una sezione per argomento, senza ripetizioni: gli hub per argomento**
+
+### Aggiunto
+- **Fabbrica degli hub** (`bsi-hub.js`, `BSIHub.crea`): generalizza lo schema già usato dal Centro spettri. Un hub
+  raccoglie in schede le sezioni collegate, **spostando** i pannelli (una sola copia) e **nascondendo** i loro pulsanti
+  dalla barra. I pulsanti restano nel DOM: navigazione (`goSection`), catalogo, schede di teoria e strumenti di Spectra
+  non cambiano. Reversibile, non distruttivo.
+- **⚗️ Centro di Chimica Organica** (`scentrorganica`, `bsi-centro-organica.js`): un'unica voce che riunisce meccanismi
+  3D, meccanismi animati, Arrow Lab, retrosintesi, sintesi organica, Hammett, bilanciamento e insaturazioni (DBE) — otto
+  sezioni prima sparse fra i menù Chimica e Biochimica. Scheda di teoria `scentrorganica`; etichetta tradotta in 13 lingue.
+
+### Cambiato
+- **🔬 Centro spettri**: ora ingloba anche **Metodi Fisici** (`smetodi`, aggiunto nella v270 come voce separata) e la
+  **Deconvoluzione** (`sdeconv`). Dodici schede in tutto, nessun doppione nella barra.
+
+### Note
+- Nessun pannello è duplicato: `appendChild` sposta. Nessuna sezione è cancellata: i 124 banchi, le schede di teoria e
+  gli strumenti continuano a funzionare sugli stessi identificatori. **125 banchi**, 224 voci di navigazione (gli hub
+  ne mostrano una sola per argomento, nascondendo le altre), 60 strumenti di Spectra.
+- Prima ondata della riorganizzazione per argomento chiesta dall'autore. Le prossime porteranno lo stesso schema a
+  Biochimica, Chimica Fisica, Farmacologia, Fisica, Matematica e Astrofisica.
+
+---
 ## [bsi-v270] — 2026-11-25
 
 **Metodi Fisici in Chimica Organica: la teoria delle dispense, i calcoli e il risolutore delle tracce — una sola base di conoscenza**

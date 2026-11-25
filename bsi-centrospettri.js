@@ -72,6 +72,10 @@
         nota: t('bande e gruppi funzionali', 'bands and functional groups') },
       { id: 'suvvis', ic: '🌈', nm: 'UV-Vis',
         nota: t('cromofori e λmax', 'chromophores and λmax') },
+      { id: 'sdeconv', ic: '〰️', nm: t('Deconvoluzione', 'Deconvolution'),
+        nota: t('separa i segnali sovrapposti', 'separate overlapping signals') },
+      { id: 'smetodi', ic: '📐', nm: t('Metodi fisici', 'Physical methods'),
+        nota: t('Hooke, Woodward, Karplus; tracce', 'Hooke, Woodward, Karplus; traces') },
       { id: 'sspec', ic: '📊', nm: t('Tabelle di riferimento', 'Reference tables'),
         nota: t('¹H, ¹³C, IR, costanti J', '¹H, ¹³C, IR, J constants') },
       /* `scentro` è il «CENTRO SPETTROSCOPICO» che esisteva già: una sezione
@@ -143,12 +147,12 @@
     if (i) {
       i.innerHTML = t(
         'Tutto quello che si fa con uno spettro, in un posto solo. Prima stava in ' +
-        '<b>nove sezioni</b> sparse in due menù diversi, per una domanda sola: ' +
+        '<b>dodici sezioni</b> sparse in più menù diversi, per una domanda sola: ' +
         '«ho uno spettro, cosa ci faccio?». Le schede qui sotto sono gli stessi ' +
         'pannelli di prima — <b>spostati</b>, non copiati: non esiste una seconda ' +
         'copia di niente.',
         'Everything you do with a spectrum, in one place. It used to live in ' +
-        '<b>nine sections</b> across two different menus, for a single question: ' +
+        '<b>twelve sections</b> across several different menus, for a single question: ' +
         '"I have a spectrum, what do I do with it?". The tabs below are the same ' +
         'panels as before — <b>moved</b>, not copied: there is no second copy of ' +
         'anything.');
