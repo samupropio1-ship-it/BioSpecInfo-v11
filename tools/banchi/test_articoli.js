@@ -425,7 +425,7 @@ function sopra(d, minimo, avuto) {
   const copiate = cs.copieNelDocumento.filter(c => c.quante !== 1);
   att('ogni pannello esiste nel documento UNA volta sola', 0, copiate.length);
   copiate.forEach(c => console.log('      ! ' + c.id + ' ×' + c.quante));
-  att('i vecchi pulsanti restano nel documento', cs.schede ? cs.schede.length : 10,
+  att('i vecchi pulsanti restano nel documento', cs.copieNelDocumento.length,
       cs.pulsantiAncoraNelDom);
   att('  · ma nascosti: la barra non li mostra più', cs.pulsantiAncoraNelDom,
       cs.pulsantiNascosti);
