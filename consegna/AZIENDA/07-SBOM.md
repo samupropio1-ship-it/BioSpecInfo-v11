@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v269` |
-| Commit | `7f4da6bcd2894f59f3c1bcb65474282d4c5f5a19` |
-| Generato (UTC) | `2026-11-25T06:36:58.733Z` |
+| Versione applicazione | `bsi-v270` |
+| Commit | `417f533c87198cea3a426097be9eada5875d759c` |
+| Generato (UTC) | `2026-11-25T10:30:36.132Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -192,7 +192,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | 206 kB | Dati della teoria per sezione: matematica. |
 | `bsi-teoria-f.js` | 134 kB | Dati della teoria per sezione: chimica fisica e analitica. |
 | `bsi-teoria-g.js` | 12 kB | Dati della teoria per sezione: spaziotempo e wormhole. |
-| `bsi-teoria-h.js` | 90 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
+| `bsi-teoria-h.js` | 96 kB | Dati della teoria per sezione: orbitali, eliosfera, materia oscura, fisiologia, farmacologia quantitativa, mappa dei prerequisiti. |
 | `bsi-teoria.js` | 19 kB | Teoria di ogni sezione: pulsante, scheda di lettura, indice e ricerca, strumento leggi_teoria per Spectra. |
 | `bsi-chim-hammett.js` | 19 kB | Equazione di Hammett: costanti σ (Hansch, Leo, Taft 1991), cinque reazioni con ρ, previsioni di k/k₀ e pKa, ρ ricavato dai dati. |
 | `bsi-fis-foucault.js` | 15 kB | Pendolo di Foucault (Runge–Kutta nel riferimento terrestre), precessione per latitudine, deviazione di Coriolis. |
@@ -251,7 +251,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 279 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 280 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 11 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -264,7 +264,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3b569c479e68a1e0c4b1d5f7c6c34d5d0c02a298cfd7bdc04126b38e738207bd` |
+| `index.html` | `40b7428f37f0e921c8d513b9a8999bd568e6eb603f2516d9ac3ddb78dd0ac286` |
 | `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -394,7 +394,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-teoria-e.js` | `cbdd56af03008bb1b14d25693e924dcc5fd3d4d8b2d866ce80ca9ce02bf89735` |
 | `bsi-teoria-f.js` | `82de383a52f65b6f897139e36c26e4df0aac9ef7e73180e9192cafdb63fc0678` |
 | `bsi-teoria-g.js` | `e1a573f57fdaac6fdfedb8b1ee4d5059a11f0178a75317b4d50c6b220231d2cd` |
-| `bsi-teoria-h.js` | `7a5a813417a2445d28217f2550422e0a93b1c11e6ae90a2c7bb64623688b1a68` |
+| `bsi-teoria-h.js` | `6df2923d89011550a4be1fadc27530351a2d450e06c79439293cfe16e3568195` |
 | `bsi-teoria.js` | `cf049a56873408a35f0ca1854dc841454477cb8fe8f12ba59719c7085437ec61` |
 | `bsi-chim-hammett.js` | `2a2a7077ed6d6e8026d10c68a69b7227835c857e697f650d5d83567701e3b351` |
 | `bsi-fis-foucault.js` | `c4ddd93939cf0756de4506b898ce6d4f9142c3d41b5e263580f5f010db3e3f85` |
@@ -453,10 +453,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `34ecc0245295fd350aa6efb2ac47e735aa059a6688ad5221fdeac6b25222949e` |
+| `bsi-lingue.js` | `460c3fa56efc34d649139574f8fe3ab527257e5743f3d035662006484cd7154b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `67c85cb222405640c41f3168c5db3fbbe96074b4803dd291e86390f29ce56b55` |
+| `sw.js` | `2704fe3ec334f836041806959bb669b73c660ccf619150f5bb6604194ecdaf38` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -510,4 +510,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-25T06:36:58.733Z._
+_Generato il 2026-11-25T10:30:36.132Z._
