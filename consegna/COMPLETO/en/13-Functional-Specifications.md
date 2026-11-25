@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v266` |
+| **Version described** | `bsi-v269` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **219 sections**, grouped by area of study.
+The application has **222 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -292,7 +292,7 @@ produced a name from three peaks would make a claim the data cannot support.
 
 ### 3.8 The "Spectra" assistant
 
-An AI agent with **56 tools** that can interrogate the application itself:
+An AI agent with **59 tools** that can interrogate the application itself:
 compute descriptors, generate spectra, look up constants, balance reactions,
 open sections, read the open tab and act on its controls. It supports ten
 providers, and stays usable when one of them fails (§5.2).
@@ -433,8 +433,8 @@ and mathematics must be there, nothing may be missing from this hologram:
 everything must be explainable and showable). The catalogue is not written by
 hand: it is read from the app bar (every section button, with its group —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — and its subject): 219 sections
-(chemistry 86, physics 70, mathematics 34, shared 29, since v242); a new section appears by
+Utility, Fisica, Matematica, Astrofisica — and its subject): 222 sections
+(chemistry 89, physics 70, mathematics 34, shared 29, since v242); a new section appears by
 itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
 nell'ologramma»** lists them by group, with a search box and a subject
 filter; one tap opens the section behind the Spectra window (switching subject
@@ -725,4 +725,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v266`._
+_Document updated to version `bsi-v269`._

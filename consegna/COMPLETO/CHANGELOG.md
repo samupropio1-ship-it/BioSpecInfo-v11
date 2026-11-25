@@ -7,6 +7,95 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v269] — 2026-11-24
+
+**Arrow Lab e Retrosintesi: disegnare le frecce curve e pianificare una sintesi, offline**
+
+### Aggiunto
+- **✏️ Arrow Lab e Retrosintesi** (`sarrowlab`, `bsi-arrowlab.js`): due strumenti di chimica organica interamente
+  offline (SVG, niente 3D), in una sola schermata con due viste.
+  - **Frecce curve**: una lavagna interattiva dove si disegna il meccanismo. Strumenti Seleziona, Freccia, Atomo,
+    Legame, Catena, Anello, Cancella; coppie solitarie e cariche formali; si clicca la sorgente di elettroni (un
+    doppietto o un legame) e poi la destinazione, e **il banco verifica passo per passo** che le frecce siano quelle
+    giuste (diagnostica che diventa verde, «+ Passo» che avanza solo se è corretto, «Risolvi» che completa). Annulla/Redo,
+    «Le mie reazioni», Ispettore della specie. Due meccanismi: riduzione del propanone con NaBH₄ (3 stadi) e SN2 di un
+    bromuro primario (2 stadi).
+  - **Retrosintesi** (stile SYNTHIA): per ogni molecola bersaglio, più **percorsi alternativi** con la disconnessione,
+    i building block, il **punteggio di chimica verde**, la lavagna dei passaggi, un **inventario personalizzabile** con
+    il calcolo della copertura dei reagenti, e i filtri «solo percorsi verdi» e numero massimo di passaggi.
+- Strumento di Spectra **`arrow_lab`** (59 strumenti): apre la vista o un meccanismo. Scheda di teoria `sarrowlab`
+  (frecce curve, nucleofili/elettrofili, retrosintesi di Corey, economia atomica); banco **`test_arrowlab`** (22 controlli).
+
+### Note
+- La proposta ricevuta (`arrowLabRetrosynthesisSection.js`) era un modulo ES con `export`: qui è riscritta in stile
+  locale dell'app (IIFE su window), senza perdere nulla. Lo stato resta sul dispositivo (localStorage). È uno strumento
+  **didattico**: i meccanismi e i percorsi sono schematici e i punteggi di «chimica verde» sono indicativi.
+
+---
+## [bsi-v268] — 2026-11-20
+
+**Inorganica quantistica: un motore di calcolo per le tracce d'esame di Chimica Inorganica II**
+
+### Aggiunto
+- **⚗️ Inorganica quantistica** (`sinorganica`, `bsi-inorganica-quantum-dati.js` + `bsi-inorganica-quantum.js`):
+  un risolutore con il modello 3D e il calcolo insieme, in quattro schede.
+  - **⚛️ Slater**: regole di Slater standard — costante di schermo σ, carica efficace ζ = Z − σ, numero quantico
+    efficace n*, raggio più probabile e raggio medio idrogenoidi, e la forma angolare |Y_lm|² con l'angolo del
+    massimo e i piani/coni nodali. Riempimento corretto (per I e Xe il 4f resta vuoto).
+  - **🔷 Hückel**: metodo variazionale / determinante secolare con **diagonalizzazione esatta** (Jacobi) e autovettori
+    normalizzati; livelli E = α + xβ, energia π totale ed **energia di delocalizzazione** (allile, ciclopropenile⁺,
+    butadiene, ciclobutadiene, benzene = 2β, LiH eteronucleare).
+  - **🧩 SALC**: combinazioni adattate alla simmetria con **soglia energetica ΔE** regolabile, per le molecole
+    ipervalenti e interalogene (XeOF₄, IOF₅, XeF₄, SF₄, BrF₃, SO₂, SO₃, I₃⁻): la tabella delle interazioni σ/π
+    cambia con il cursore della soglia.
+  - **🧲 Complessi**: la **tripla teoria** VBT + CFT + LFT con ibridazione, EAN, splitting Δo/Δt, alto/basso spin,
+    **CFSE**, **momento magnetico μ = √(n(n+2))**, **Jahn–Teller** dall'occupazione, e il carattere σ/π-donatore o
+    π-accettore con la retrodonazione ([FeCl₄]⁻, [MnF₆]⁴⁻, [IrCl₆]²⁻, [Ni(NH₃)₆]²⁺, [Ni(CN)₄]²⁻, [Pd(CN)₄]²⁻,
+    [Ni(CO)₄], [Ag(CN)₂]⁻).
+- Strumento di Spectra **`inorganica_quantica`** (58 strumenti) e strumento vocale **`inorganica`** nella console
+  Spectra Prime: si può chiedere a voce «risolvi il benzene col metodo di Hückel» o «[IrCl₆]²⁻ in tripla teoria».
+- Scheda di teoria `sinorganica`; banco **`test_inorganica`** (39 controlli, i solutori si verificano senza browser).
+
+### Note
+- La proposta ricevuta (`spectra-inorganic-quantum-solver.js`) importava three.js da una CDN come modulo ES: qui è
+  riscritta sul motore 3D locale dell'app. **Onestà scientifica**: dove una traccia d'esame usa numeri non standard
+  (per esempio σ del boro 3,70), il motore tiene la **regola di Slater corretta** (2,40) e lo dichiara; i conteggi
+  SALC di orbitali leganti/antileganti sono un modello didattico, etichettati come indicativi.
+
+---
+## [bsi-v267] — 2026-11-20
+
+**Spectra Prime: la voce full-duplex che pilota il laboratorio 3D**
+
+### Aggiunto
+- **🎙️ Spectra Prime — voce dal vivo** (`svocelive`, `bsi-spectra-voce-live.js`): un assistente vocale full-duplex
+  collegato al Quantum Studio tramite `SPECTRA_3D_BRIDGE`. Si parla e Spectra risponde a voce mentre apre e regola il
+  laboratorio 3D.
+  - **Pipeline audio a bassa latenza**: microfono 16 kHz mono (cancellazione d'eco, soppressione del rumore, guadagno
+    automatico) catturato da un **AudioWorklet creato al volo** (Blob, nessun file in più) che converte in PCM Int16 e
+    misura l'energia; se l'AudioWorklet non c'è, ripiego su ScriptProcessor. L'audio in arrivo (PCM 24 kHz) si riproduce
+    con **scheduling continuo** senza click né buchi.
+  - **Barge-in**: un rilevatore di attività vocale con soglia regolabile tronca subito l'audio in uscita quando
+    l'utente parla sopra la voce, azzera la coda e avvisa il modello.
+  - **Controllo 3D a voce**: tre strumenti dichiarati al modello (`apri_sezione`, `imposta_parametro`, `cambia_vista`)
+    pilotano le **13 aree** del Quantum Studio con il function calling; i nomi della proposta originale
+    (`biologia_molecolare`, `spazi_iperdimensionali`, …) sono mappati sulle aree reali, e assembled/cutaway/exploded
+    diventano rappresentazioni.
+  - **HUD olografico**: orb che pulsa con lo spettro a 60 fps, stato (STANDBY, ASCOLTO, PENSA, PARLA, BARGE-IN),
+    interruttori per barge-in, soglia VAD, voce, mani libere / premi-per-parlare, parola di attivazione e registro dei
+    comandi 3D. Riconnessione automatica a tentativi crescenti.
+  - Scheda di teoria `svocelive` (campionamento, PCM, AudioWorklet, full-duplex, function calling); banco
+    **`test_vocelive`** (21 controlli, con un WebSocket finto: nessuna rete necessaria per la verifica).
+- Strumento di Spectra **`voce_dal_vivo`** (57 strumenti): apre la console.
+
+### Note
+- La proposta ricevuta (`spectra-voice-quantum-engine.js`) importava BioSpecQuantumStudio come modulo ES e usava
+  l'endpoint diretto di un fornitore: qui è riscritta sul motore locale dell'app (niente moduli ES né CDN), legge la
+  chiave dal portachiavi dell'app o usa il proxy, e si aggancia al ponte `SPECTRA_3D_BRIDGE` già presente. La parola di
+  attivazione è una soglia d'energia locale, non un riconoscitore di parole. La voce vera richiede un fornitore con API
+  «Live»; tutto il resto funziona e si verifica anche senza rete.
+
+---
 ## [bsi-v266] — 2026-11-19
 
 **8K per ogni animazione e la voce di Spectra potenziata**
