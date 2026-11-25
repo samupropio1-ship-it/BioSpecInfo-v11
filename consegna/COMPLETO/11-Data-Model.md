@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v271` |
+| **Versione descritta** | `bsi-v272` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -338,4 +338,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v271`._
+_Documento aggiornato alla versione `bsi-v272`._

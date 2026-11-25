@@ -15,7 +15,7 @@
 |---|---|
 | **Banchi superati** | 125 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 7913 s |
+| **Durata totale** | NaN s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,12 +24,12 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-11-25T17:00:09.107Z` |
-| Commit | `15a050cdc77ffab771a5c68e52ff22b8f21d6b99` |
-| Ripresa | 124 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
+| Istante (UTC) | `2026-11-25T21:50:12.201Z` |
+| Commit | `a1779c96fa7b5641a03e7e283eb4068a2a6672cb` |
+| Ripresa | 115 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
-| Versione applicazione | `bsi-v271` |
+| Versione applicazione | `bsi-v272` |
 | Node.js | `v22.22.0` |
 | Piattaforma | `linux x64` |
 | Chromium | `Google Chrome for Testing 153.0.8010.12` |
@@ -41,10 +41,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.840.409 | `26c535621a7a96c2d7157e1bd5481e8bdad18e5e103653025e2858842125163e` |
+| `index.html` | 4.840.488 | `0910759499e2c762c5aa1c083761ed4e9442d5d5908a217053eed76ae995ccaf` |
 | `bsi-ai-hub.js` | 460.578 | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
 | `bsi-spettri.js` | 37.207 | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
-| `sw.js` | 10.890 | `10cf19079d52cb34aca19007c157c740cfa38a4ef65f7a062dbc1f947bf627f6` |
+| `sw.js` | 10.919 | `d7f6b7ed5b2057b297ca5decaa63407dd0d0407d8deaf90ce606d49f5fa8c330` |
 | `bsi-pretsch.js` | 38.320 | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | 58.695 | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | 46.729 | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
@@ -65,40 +65,40 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-farmaci` | ✅ SUPERATO | 5.9 s | ✓ CONFORME |
-| `audit_farmaci` | ✅ SUPERATO | 5.6 s | 263 farmaci controllati — nessun errore, 21 avvisi |
-| `verifica_farmaci_v187` | ✅ SUPERATO | 6.7 s | 36/36 formule coincidono |
-| `test_spettri` | ✅ SUPERATO | 5.0 s | 41 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 11.3 s | 16 passati |
-| `test_assi` | ✅ SUPERATO | 6.6 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 9.5 s | 6 passati |
-| `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
-| `audit_dati` | ✅ SUPERATO | 0.1 s | ✓ 29 controlli superati |
-| `test_simmetria` | ✅ SUPERATO | 4.4 s | 26 passati |
-| `test_cheminfo` | ✅ SUPERATO | 12.8 s | 192 controlli passati |
-| `test_farm_ui` | ✅ SUPERATO | 7.3 s | 11 controlli passati |
-| `test_datasci` | ✅ SUPERATO | 8.4 s | 23 controlli passati |
-| `test_astro` | ✅ SUPERATO | 6.9 s | 13 controlli passati |
-| `test_spettrolettore` | ✅ SUPERATO | 60.4 s | 66 controlli passati |
-| `test_documento` | ✅ SUPERATO | 21.8 s | 50 controlli passati |
-| `test_nmr` | ✅ SUPERATO | 25.5 s | 66 controlli passati |
-| `test_nmr2d` | ✅ SUPERATO | 13.9 s | 40 controlli passati |
-| `test_geom3d` | ✅ SUPERATO | 9.0 s | 29 controlli passati |
-| `test_elucida` | ✅ SUPERATO | 7.9 s | 32 controlli passati |
-| `test_digitalizza` | ✅ SUPERATO | 8.0 s | 45 controlli passati |
-| `test_fisica` | ✅ SUPERATO | 152.0 s | 92 controlli passati |
-| `test_matematica` | ✅ SUPERATO | 142.0 s | 154 controlli passati |
-| `test_esami` | ✅ SUPERATO | 134.2 s | 235 controlli passati |
-| `test_assistente` | ✅ SUPERATO | 49.9 s | 159 controlli passati |
-| `test_grafica3d` | ✅ SUPERATO | 77.8 s | 115 controlli passati |
-| `test_laboratori` | ✅ SUPERATO | 188.2 s | 151 controlli passati |
-| `test_scienze` | ✅ SUPERATO | 199.0 s | 91 controlli passati |
-| `test_esplorazioni` | ✅ SUPERATO | 162.9 s | 82 controlli passati |
-| `test_approfondimenti` | ✅ SUPERATO | 194.1 s | 114 controlli passati |
-| `test_pareggio` | ✅ SUPERATO | 285.4 s | 527 controlli passati |
-| `test_v237` | ✅ SUPERATO | 669.5 s | 1061 controlli passati |
-| `test_3d238` | ✅ SUPERATO | 763.1 s | 488 controlli passati |
-| `test_potenzia250` | ✅ SUPERATO | 30.0 s | 65 controlli passati |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
 
 ### Agente AI
 
@@ -106,19 +106,19 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 5.0 s | 13 passati |
-| `test_ko` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 35 controlli |
-| `test_404` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 36 controlli |
-| `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
-| `test_firma` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 31 controlli |
-| `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
-| `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
-| `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 39.6 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 54.9 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 5.7 s | 7 passati |
-| `test_doppioinvio` | ✅ SUPERATO | 12.1 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 66.5 s | 22 passati |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
 
 ### Stabilita
 
@@ -126,12 +126,12 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 282.9 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 117.7 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 44.7 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 37.8 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 11.3 s | 15 passati |
-| `test_visore3d` | ✅ SUPERATO | 9.8 s | 5 passati |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
 
 ### Interfaccia
 
@@ -139,66 +139,66 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 11.9 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 10.0 s | 15 passati |
-| `browser_proxyui` | ✅ SUPERATO | 12.8 s | 17 passati |
-| `browser_rdkit` | ✅ SUPERATO | 4.8 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 11.4 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 6.8 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 6.1 s | 9 passati |
-| `test_controllaagg` | ✅ SUPERATO | 9.6 s | 12 controlli passati |
-| `test_spectra238` | ✅ SUPERATO | 25.6 s | 66 controlli passati |
-| `test_lezione` | ✅ SUPERATO | 491.0 s | 30 controlli passati |
-| `test_spectra_studio` | ✅ SUPERATO | 195.3 s | 79 controlli passati |
-| `test_spectra_rig` | ✅ SUPERATO | 1.2 s | 30 controlli passati |
-| `test_spectra_figura` | ✅ SUPERATO | 117.4 s | 113 controlli passati |
-| `test_spectra_esplora` | ✅ SUPERATO | 751.2 s | 75 controlli passati |
-| `test_spectra_olo` | ✅ SUPERATO | 56.4 s | 69 controlli passati |
-| `test_impronta` | ✅ SUPERATO | 18.9 s | 25 controlli passati |
-| `test_voce` | ✅ SUPERATO | 10.0 s | 21 controlli passati |
-| `test_agenda` | ✅ SUPERATO | 4.8 s | 59 controlli passati |
-| `test_risveglio` | ✅ SUPERATO | 53.5 s | 110 controlli passati |
-| `test_potenzia252` | ✅ SUPERATO | 36.5 s | 80 controlli passati |
-| `test_teoria` | ✅ SUPERATO | 15.7 s | 24 controlli passati |
-| `test_spaziotempo` | ✅ SUPERATO | 13.1 s | 33 controlli passati |
-| `test_correzioni` | ✅ SUPERATO | 4.9 s | 24 controlli passati |
-| `test_memoria` | ✅ SUPERATO | 5.0 s | 29 controlli passati |
-| `test_orbitali` | ✅ SUPERATO | 33.5 s | 48 controlli passati |
-| `test_ar` | ✅ SUPERATO | 51.0 s | 33 controlli passati |
-| `test_eliosfera` | ✅ SUPERATO | 22.9 s | 49 controlli passati |
-| `test_medfarm` | ✅ SUPERATO | 18.4 s | 53 controlli passati |
-| `test_matmappa` | ✅ SUPERATO | 5.3 s | 21 controlli passati |
-| `test_motore` | ✅ SUPERATO | 6.9 s | 22 controlli passati |
-| `test_cinema` | ✅ SUPERATO | 18.8 s | 34 controlli passati |
-| `test_materiaoscura` | ✅ SUPERATO | 29.5 s | 32 controlli passati |
-| `test_elementi3d` | ✅ SUPERATO | 14.4 s | 24 controlli passati |
-| `test_sentinella` | ✅ SUPERATO | 11.8 s | 29 controlli passati |
-| `test_costruttore` | ✅ SUPERATO | 9.7 s | 57 controlli passati |
-| `test_spaccati` | ✅ SUPERATO | 16.5 s | 51 controlli passati |
-| `test_spectra_ponte` | ✅ SUPERATO | 28.9 s | 41 controlli passati |
-| `test_cosmo` | ✅ SUPERATO | 30.3 s | 44 controlli passati |
-| `test_spaccato` | ✅ SUPERATO | 145.9 s | 113 controlli passati |
-| `test_voce_microfono` | ✅ SUPERATO | 11.1 s | 20 controlli passati |
-| `test_meccanismi3d` | ✅ SUPERATO | 20.8 s | 25 controlli passati |
-| `test_animmat` | ✅ SUPERATO | 4.6 s | 23 controlli passati |
-| `test_voce_elevenlabs` | ✅ SUPERATO | 6.0 s | 24 controlli passati |
-| `test_biolab3d` | ✅ SUPERATO | 47.9 s | 54 controlli passati |
-| `test_risoluzione` | ✅ SUPERATO | 17.0 s | 18 controlli passati |
-| `test_quantumstudio` | ✅ SUPERATO | 56.2 s | 57 controlli passati |
-| `test_vocelive` | ✅ SUPERATO | 6.2 s | 21 controlli passati |
-| `test_inorganica` | ✅ SUPERATO | 14.7 s | 39 controlli passati |
-| `test_arrowlab` | ✅ SUPERATO | 5.2 s | 22 controlli passati |
-| `test_metodi` | ✅ SUPERATO | 3.5 s | 25 controlli passati |
-| `test_hub` | ✅ SUPERATO | 5.0 s | 16 controlli passati |
-| `test_spectra_nucleo` | ✅ SUPERATO | 80.9 s | 41 controlli passati |
-| `test_avvio` | ✅ SUPERATO | 31.8 s | 9 controlli passati |
-| `test_giro` | ✅ SUPERATO | 445.2 s | 24 controlli passati |
-| `test_guidaproxy` | ✅ SUPERATO | 6.0 s | 12 passati |
-| `test_fluidita` | ✅ SUPERATO | 67.7 s | 16 controlli passati |
-| `test_lingue` | ✅ SUPERATO | 16.9 s | 64 controlli passati |
-| `test_sellingua` | ✅ SUPERATO | 23.2 s | 30 controlli passati |
-| `test_mol3d` | ✅ SUPERATO | 13.5 s | 46 controlli passati |
-| `test_menu` | ✅ SUPERATO | 27.8 s | 42 controlli passati |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
 
 ### Sicurezza e accessibilita
 
@@ -206,11 +206,11 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-sicurezza` | ✅ SUPERATO | 0.7 s | 10 controlli passati |
-| `audit_storia` | ✅ SUPERATO | 75.7 s | 7 controlli passati |
-| `audit_rete` | ✅ SUPERATO | 100.6 s | 5 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 274.1 s | 6 controlli passati |
-| `audit_mobile` | ✅ SUPERATO | 101.2 s | 4 controlli passati |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `undefined` | ✅ SUPERATO | — | undefined |
+| `audit_rete` | ✅ SUPERATO | 94.4 s | 5 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 268.0 s | 6 controlli passati |
+| `audit_mobile` | ✅ SUPERATO | 102.9 s | 4 controlli passati |
 
 ### Coerenza documentazione/codice
 
@@ -220,8 +220,8 @@ _Cio che la documentazione promette esiste davvero nel codice._
 |---|---|---:|---|
 | `verifica_guida` | ✅ SUPERATO | 0.3 s | 71 controlli passati |
 | `@verifica-documenti` | ✅ SUPERATO | 0.2 s | 18 controlli passati |
-| `@verifica-affermazioni` | ✅ SUPERATO | 11.0 s | 10 controlli passati |
-| `audit_copertura` | ✅ SUPERATO | 121.9 s | 4 controlli passati |
+| `@verifica-affermazioni` | ✅ SUPERATO | 11.3 s | 10 controlli passati |
+| `audit_copertura` | ✅ SUPERATO | 124.9 s | 4 controlli passati |
 
 ### Una sola casa per funzione
 
@@ -230,7 +230,7 @@ _Lo stack React/FastAPI esegue gli STESSI file dell'applicazione, non una copia;
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
 | `test_stack` | ✅ SUPERATO | 0.4 s | 9 controlli passati, il resto saltato |
-| `test_articoli` | ✅ SUPERATO | 24.1 s | 87 controlli passati |
+| `test_articoli` | ✅ SUPERATO | 24.2 s | 87 controlli passati |
 | `audit_statico` | ✅ SUPERATO | 0.5 s | nessuna delle tre misure e' cresciuta |
 
 ---
@@ -240,7778 +240,1036 @@ _Lo stack React/FastAPI esegue gli STESSI file dell'applicazione, non una copia;
 Trascrizione non filtrata, nell'ordine di esecuzione.
 
 <details>
-<summary><code>@verifica-farmaci</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Verifica della banca dati farmacologica
-Metodo: peso ricalcolato da RDKit sulla struttura ⟷ peso dichiarato
-Tolleranza: 0.6 u
-
-Voci esaminate: 263  (con struttura: 242)
-
-── Difetti ──
-  ✓ nessuno
-
-── Deviazioni dichiarate e accettate ──
-  ▪ [D-02] Semaglutide                       analogo peptidico del GLP-1: 31 residui piu' catena lipidica, non rappresentabile in SMILES
-  ▪ [D-02] Insulina (umana ricombinante)     proteina, 51 residui
-  ▪ [D-02] Ciclosporina A                    undecapeptide ciclico
-  ▪ [D-02] Sacubitril/Valsartan (Entresto)   complesso supramolecolare di due principi attivi
-  ▪ [D-02] Trastuzumab (Herceptin)           anticorpo monoclonale
-  ▪ [D-02] Pembrolizumab (Keytruda)          anticorpo monoclonale
-  ▪ [D-02] Rituximab (MabThera)              anticorpo monoclonale
-  ▪ [D-02] Natalizumab (Tysabri)             anticorpo monoclonale
-  ▪ [D-02] Liraglutide (Victoza/Saxenda)     analogo peptidico del GLP-1
-  ▪ [D-02] Octreotide                        octapeptide ciclico
-  ▪ [D-01] Artemetere/Lumefantrina (Coartem) associazione di due principi attivi: una singola notazione SMILES non rappresenta la voce
-  ▪ [D-01] Ivermectina                       non e' una molecola singola ma una MISCELA di omologhi: almeno 80 % di ivermectina B1a (C48H74O14) e non piu' del 20 % di B1b (C47H72O14). Il peso dichiarato, 875,10, e' quello del solo componente B1a. Una notazione SMILES descriverebbe un componente e non la voce: si e' preferito non mostrarne nessuna piuttosto che far passare l'omologo maggioritario per l'intero farmaco
-  ▪ [D-02] Adalimumab (Humira)               anticorpo monoclonale
-  ▪ [D-02] Infliximab (Remicade)             anticorpo monoclonale chimerico
-  ▪ [D-02] Secukinumab (Cosentyx)            anticorpo monoclonale
-  ▪ [D-02] Dupilumab (Dupixent)              anticorpo monoclonale
-  ▪ [D-02] Caspofungina                      lipopeptide echinocandinico
-  ▪ [D-02] Tocilizumab (Actemra)             anticorpo monoclonale
-  ▪ [D-02] Palivizumab (Synagis)             anticorpo monoclonale
-  ▪ [D-02] Eculizumab (Soliris)              anticorpo monoclonale
-  ▪ [D-02] Benralizumab (Fasenra)            anticorpo monoclonale
-
-263 voci · 0 difetti · 21 deviazioni dichiarate · 0 non registrate · 0 esenzioni inutili
-✓ CONFORME
-```
-
-</details>
-
-<details>
-<summary><code>audit_farmaci</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── SMILES mancanti o non validi ──
-  ⚠ Semaglutide — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Insulina (umana ricombinante) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Ciclosporina A — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Sacubitril/Valsartan (Entresto) — nessuno SMILES  (associazione: atteso)
-  ⚠ Trastuzumab (Herceptin) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Pembrolizumab (Keytruda) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Rituximab (MabThera) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Natalizumab (Tysabri) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Liraglutide (Victoza/Saxenda) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Octreotide — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Artemetere/Lumefantrina (Coartem) — nessuno SMILES  (associazione: atteso)
-  ⚠ Ivermectina — nessuno SMILES  (miscela: atteso)
-  ⚠ Adalimumab (Humira) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Infliximab (Remicade) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Secukinumab (Cosentyx) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Dupilumab (Dupixent) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Caspofungina — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Tocilizumab (Actemra) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Palivizumab (Synagis) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Eculizumab (Soliris) — nessuno SMILES  (macromolecola: atteso)
-  ⚠ Benralizumab (Fasenra) — nessuno SMILES  (macromolecola: atteso)
-  · voci con struttura leggibile: 242 (soglia 240, non può calare)
-
-── Peso dichiarato vs calcolato dalla struttura ──
-  ✓ tutti coerenti (entro 0,6 u)
-
-── Doppioni ──
-  ✓ nessun farmaco ripetuto
-
-── Provenienza esterna (ChEMBL) ──
-  ✓ 36 voci: la formula ricostruita dal grafo coincide con quella dichiarata da ChEMBL
-  ✓ voci con provenienza verificata: 36 (soglia 36, non può calare)
-
-263 farmaci controllati — nessun errore, 21 avvisi
-```
-
-</details>
-
-<details>
-<summary><code>verifica_farmaci_v187</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-  ✓ Empagliflozin (Jardiance)       C23H27ClO7
-  ✓ Dapagliflozin (Forxiga)         C21H25ClO6
-  ✓ Apixaban (Eliquis)              C25H25N5O4
-  ✓ Rivaroxaban (Xarelto)           C19H18ClN3O5S
-  ✓ Sotorasib (Lumykras)            C30H30F2N6O3
-  ✓ Palbociclib (Ibrance)           C24H29N7O2
-  ✓ Venetoclax (Venclyxto)          C45H50ClN7O7S
-  ✓ Ivacaftor (Kalydeco)            C24H28N2O3
-  ✓ Remdesivir (Veklury)            C27H35N6O8P
-  ✓ Sofosbuvir (Sovaldi)            C22H29FN3O9P
-  ✓ Linezolid (Zyvox)               C16H20FN3O4
-  ✓ Voriconazolo (Vfend)            C16H14F3N5O
-  ✓ Aripiprazolo (Abilify)          C23H27Cl2N3O2
-  ✓ Clozapina (Leponex)             C18H19ClN4
-  ✓ Quetiapina (Seroquel)           C21H25N3O2S
-  ✓ Lamotrigina (Lamictal)          C9H7Cl2N5
-  ✓ Donepezil (Aricept)             C24H29NO3
-  ✓ Memantina (Ebixa)               C12H21N
-  ✓ Ketamina (Ketalar)              C13H16ClNO
-  ✓ Propofol (Diprivan)             C12H18O
-  ✓ Naloxone (Narcan)               C19H21NO4
-  ✓ Apomorfina (Apokyn)             C17H17NO2
-  ✓ Metformina (Glucophage)         C4H11N5
-  ✓ Warfarin (Coumadin)             C19H16O4
-  ✓ Furosemide (Lasix)              C12H11ClN2O5S
-  ✓ Spironolattone (Aldactone)      C24H32O4S
-  ✓ Idroclorotiazide (Esidrex)      C7H8ClN3O4S2
-  ✓ Desametasone (Decadron)         C22H29FO5
-  ✓ Montelukast (Singulair)         C35H36ClNO3S
-  ✓ Tacrolimus (Prograf)            C44H69NO12
-  ✓ Dolutegravir (Tivicay)          C20H19F2N3O5
-  ✓ Alectinib (Alecensa)            C30H34N4O2
-  ✓ Lenalidomide (Revlimid)         C13H13N3O3
-  ✓ Liotironina (T3, Cytomel)       C15H12I3NO4
-  ✓ Vancomicina (Vancocin)          C66H75Cl2N9O24
-  ✓ Rimegepant (Vydura)             C28H28F2N6O3
-
-36/36 formule coincidono
-```
-
-</details>
-
-<details>
-<summary><code>test_spettri</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Aspirina — estere E acido carbossilico insieme
-    gruppi: acidoCarbossilico, estere, etere, aromatico, chSp3, ch3, chAr, arMono, arOrto, acidoConiug, estereArilico, __protoni
-  ✓ riconosce l'acido carbossilico  → 1
-  ✓ riconosce anche l'estere  → 1
-  ✓ e l'anello aromatico  → true
-  ✓ O–H largo dell'acido presente (~3000)  → true
-  ✓ C=O estere presente (~1735, coniugato)  → true
-  ✓ C=O acido presente (~1710, coniugato)  → true
-  ✓ C–O acido presente (~1280)  → true
-  ✓ anello orto-disostituito riconosciuto  → true
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-2) Etanolo — O–H largo, C–O, nessun carbonile
-  ✓ O–H alcol largo (~3340)  → true
-  ✓ C–O alcol primario (~1050)  → true
-  ✓ NESSUN carbonile  → undefined
-  ✓ C–H presenti  → true
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
 
-3) Acetone — un solo C=O, a 1715
-  ✓ riconosce il chetone  → 1
-  ✓ C=O chetone a ~1715  → true
-  ✓ nessun O–H  → undefined
-  ✓ nessun estere  → undefined
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
+
+</details>
 
-4) Benzaldeide — doppietto di Fermi 2820/2720
-  ✓ riconosce l'aldeide  → 1
-  ✓ prima banda di Fermi (2820)  → true
-  ✓ seconda banda di Fermi (2720)  → true
-  ✓ C=O abbassato dalla coniugazione (<1715)  → true
-  ✓ anello monosostituito  → true
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-5) Acetammide — banda ammide I e II
-  ✓ riconosce l'ammide primaria  → 1
-  ✓ banda ammide I (~1655)  → true
-  ✓ banda ammide II (~1550)  → true
-  ✓ due N–H (asim. e sim.)  → 2
+```
+(nessuna uscita)
+```
 
-6) Nitrobenzene — nitro asimmetrica e simmetrica
-  ✓ riconosce il gruppo nitro  → true
-  ✓ N=O asimmetrica (~1520)  → true
-  ✓ N=O simmetrica (~1345)  → true
+</details>
 
-7) La sostituzione dell'anello si legge sotto 900 cm⁻¹
-  ✓ toluene: monosostituito  → true
-  ✓ p-xilene: para-disostituito  → true
-  ✓ m-xilene: meta-disostituito  → true
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-8) Lo stesso spettro, disegnato due volte, dev'essere identico
-  ✓ due disegni identici  → true
-    · 24738 caratteri di SVG
+```
+(nessuna uscita)
+```
 
-9) Convenzione: trasmittanza, non assorbanza
-  ✓ l'asse Y e' la trasmittanza  → true
-  ✓ e non l'assorbanza  → false
-  ✓ la regione dell'impronta digitale e' segnata  → true
+</details>
 
-9) Schermature che un conteggio additivo non deduce
-  ✓ il tetrametilsilano sta a 0 ppm con 12 protoni  → 0/12
-  ✓ e l'etichetta dice perché  → true
-  ✓ il ciclopropano sta a 0,22 ppm con 6 protoni  → 0.22/6
-  ✓ un atomo di ferro non ha protoni da mostrare  → 0
-  ✓ uno SMILES illeggibile restituisce null, non un risultato inventato  → true
-  ✓ nessun errore JS in tutto il banco  → 0
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-41 passati
+```
+(nessuna uscita)
 ```
 
 </details>
 
 <details>
-<summary><code>test_spettri_ui</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
 ```
+(nessuna uscita)
+```
+
+</details>
 
-1) L'innesto e' avvenuto
-  ✓ il motore spettri e' caricato  → true
-  ✓ irBandList/makeIRsvg sono state sostituite  → true
-  ✓ e il disegno esce in trasmittanza  → true
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-2) Anche il percorso di ripiego usa la convenzione giusta
-  ✓ le bande vecchie hanno davvero la forma fw/h (prova valida)  → true
-  ✓ trasmittanza anche col ripiego  → true
-  ✓ mai assorbanza  → false
-  ✓ nessun NaN nel disegno  → false
-  ✓ e la traccia ha punti veri  → true
+```
+(nessuna uscita)
+```
 
-3) Niente rumore casuale: due disegni identici
-  ✓ lo stesso spettro e' sempre lo stesso  → true
+</details>
 
-4) Dal centro di analisi: l'aspirina mostra le bande giuste
-  ✓ RDKit ha analizzato la molecola  → true
-  ✓ lo spettro c'e'  → true
-  ✓ in trasmittanza  → true
-  ✓ la legenda nomina l'acido carbossilico  → true
-  ✓ e anche l'estere (prima ne mostrava uno solo)  → true
-  ✓ e riconosce l'anello orto-disostituito  → true
-  ✓ nessun errore JS  → 0
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-16 passati
 ```
+(nessuna uscita)
+```
 
 </details>
 
 <details>
-<summary><code>test_assi</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
+```
+(nessuna uscita)
 ```
 
-1) IR — il numero d'onda cala da sinistra a destra
-    · da 4000 a 500 (8 tacche)
-  ✓ asse IR decrescente  → decrescente
-  ✓ parte da 4000  → 4000
-  ✓ arriva a 500 o meno  → true
-  ✓ e l'ordinata e' la trasmittanza  → true
+</details>
 
-2) ¹H NMR — δ cala da sinistra a destra, TMS a destra
-    · da 14 a 0 (8 tacche)
-  ✓ asse NMR decrescente  → decrescente
-  ✓ il riferimento TMS c'e'  → true
-  ✓ nessun residuo di lavorazione ("v20")  → false
-  ✓ l'etichetta dell'asse spiega il verso  → true
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-3) Nessuno spettro cambia se lo ridisegni
-  ✓ ¹H NMR riproducibile (era con rumore casuale)  → true
+```
+(nessuna uscita)
+```
 
-4) Il predittore NMR disegna intervalli, non altezze inventate
-    · _nmrSvg non e' esposta: si controlla sul sorgente
-  ✓ nessuna altezza casuale nel disegno NMR  → false
-  ✓ e la fascia dell'intervallo viene disegnata  → true
-  ✓ e si legge l'intervallo, non solo il primo numero  → true
+</details>
 
-5) UV-Vis e MS: qui l'asse va nel verso NORMALE
-    · UV-Vis: nessun grafico da misurare qui
-    · MS: nessun grafico da misurare qui
-  ✓ nessun errore JS  → 0
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-13 passati
 ```
+(nessuna uscita)
+```
 
 </details>
 
 <details>
-<summary><code>test_assi_canvas</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
+```
+(nessuna uscita)
 ```
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-1) IR su canvas (sezione "IR & Vis") — deve calare, 4000 → 400
-    · {"n":13,"primo":4000,"ultimo":400,"verso":"decrescente"}
-  ✓ asse decrescente come vuole la convenzione IR  → decrescente
-  ✓ parte da un numero d'onda alto  → true
+```
+(nessuna uscita)
+```
 
-2) MS (spettro di massa) — m/z deve CRESCERE
-    · {"n":6,"primo":0,"ultimo":100,"verso":"crescente"}
-  ✓ asse m/z crescente  → crescente
+</details>
 
-3) UV-Vis — la lunghezza d'onda deve CRESCERE
-    · {"n":5,"primo":200,"ultimo":400,"verso":"crescente"}
-  ✓ asse λ crescente  → crescente
-  ✓ parte da ~200 nm  → true
-  ✓ nessun errore JS  → 0
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-6 passati
 ```
+(nessuna uscita)
+```
 
 </details>
 
 <details>
-<summary><code>test_costanti</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
+```
+(nessuna uscita)
 ```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
+
+</details>
 
-1) I simboli danno la costante GIUSTA
-  ✓ "R"  → costante dei gas
-  ✓ "k"  → costante di boltzmann
-  ✓ "h"  → costante di planck
-  ✓ "c"  → velocita della luce
-  ✓ "e"  → carica elementare
-  ✓ "F"  → costante di faraday
-  ✓ "NA"  → costante di avogadro
-  ✓ "N_A"  → costante di avogadro
-  ✓ "me"  → massa elettrone
-  ✓ "mp"  → massa protone
-  ✓ "kB"  → costante di boltzmann
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
+
+```
+(nessuna uscita)
+```
 
-2) I valori sono quelli CODATA
-  ✓ valore di R  → 8.314462618
-  ✓ valore di k  → 1.380649e-23
-  ✓ valore di e  → 1.602176634e-19
-  ✓ valore di NA  → 6.02214076e23
-  ✓ valore di c  → 299792458
+</details>
 
-3) Il nome per esteso continua a funzionare
-  ✓ "costante dei gas"  → true
-  ✓ "costante di Avogadro"  → true
-  ✓ "carica elementare"  → true
-  ✓ "velocita della luce"  → true
-  ✓ "massa elettrone"  → true
-  ✓ "zero assoluto"  → true
-  ✓ "volume molare gas"  → true
-  ✓ con apostrofo e articolo  → massa elettrone
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-4) In caso di dubbio RIFIUTA invece di indovinare
-  ✓ "x" non inventa una risposta  → false
-  ✓ "z" non inventa una risposta  → false
-  ✓ "q" non inventa una risposta  → false
-  ✓ "ab" non inventa una risposta  → false
-  ✓ "costante" è ambiguo → non sceglie a caso  → false
-  ✓ e lo dice  → true
+```
+(nessuna uscita)
+```
 
-5) Il caso che ha originato tutto
-  ✓ R NON è più Avogadro  → false
-  ✓ R è la costante dei gas  → costante dei gas
-  ✓ k NON è più Planck  → false
+</details>
 
-6) Ogni costante in tabella è raggiungibile col suo nome
-  ✓ costante di avogadro  → costante di avogadro
-  ✓ costante di planck  → costante di planck
-  ✓ costante di boltzmann  → costante di boltzmann
-  ✓ costante dei gas  → costante dei gas
-  ✓ carica elementare  → carica elementare
-  ✓ velocita della luce  → velocita della luce
-  ✓ costante di faraday  → costante di faraday
-  ✓ massa elettrone  → massa elettrone
-  ✓ massa protone  → massa protone
-  ✓ costante di rydberg  → costante di rydberg
-  ✓ zero assoluto  → zero assoluto
-  ✓ volume molare gas  → volume molare gas
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-✓ tutti passati — 45 controlli
 ```
+(nessuna uscita)
+```
 
 </details>
 
 <details>
-<summary><code>audit_dati</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
+```
+(nessuna uscita)
 ```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
+
+</details>
+
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-1) Costanti fisiche (CODATA) — coi nomi che lo schema dichiara
-  ✓ velocita della luce  → 299792458
-  ✓ costante di Planck  → 6.62607015e-34
-  ✓ costante di Avogadro  → 6.02214076e+23
-  ✓ costante dei gas  → 8.314462618
-  ✓ costante di Boltzmann  → 1.380649e-23
-  ✓ carica elementare  → 1.602176634e-19
-  ✓ costante di Faraday  → 96485.332
-  ✓ massa dell elettrone  → 9.1093837015e-31
+```
+(nessuna uscita)
+```
 
-1b) Un nome AMBIGUO non deve dare un numero sbagliato con sicurezza
-   "R" → costante dei gas  (8.314462618)
-   "k" → costante di boltzmann  (1.380649e-23)
-   "e" → carica elementare  (1.602176634e-19)
-   "pippo" → rifiuta
+</details>
 
-2) Masse molecolari (confronto con IUPAC)
-  ✓ MM H2O  → 18.015
-  ✓ MM CO2  → 44.009
-  ✓ MM C6H12O6  → 180.156
-  ✓ MM NaCl  → 58.44
-  ✓ MM H2SO4  → 98.072
-  ✓ MM C9H8O4  → 180.159
-  ✓ MM Ca3(PO4)2  → 310.174
-  ✓ MM K4[Fe(CN)6]  → 368.345
-  ✓ MM C8H10N4O2  → 194.194
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-3) Risolutori contro valori di letteratura
-  ✓ pH acido acetico 0,1 M (2,875)  → 2.875
-  ✓ Ea da due costanti (92 kJ/mol)  → 91.895
-  ✓ riga H-alfa (656,3 nm)  → 656.112
-  ✓ ⁵⁶Fe energia per nucleone (8,79 MeV)  → 8.7903
-  ✓ t fra due campioni distanti 5 (|t| = 5)  → 5
-  ✓ Beer-Lambert A = 15000·2e-5·1 = 0,30  → 0.3
-  ✓ dopo 2 emivite resta il 25%  → 25
+```
+(nessuna uscita)
+```
 
-4) I risolutori sanno dire "non lo so"
-  ✓ bilancia_equazione (non bilanciabile) → rifiuta  → true
-  ✓ massa_molecolare (parentesi sbilanciate) → rifiuta  → true
-  ✓ calcola (iniezione) → rifiuta  → true
-  ✓ calcola (divisione per zero) → rifiuta  → true
-  ✓ quantistica_e_spettroscopia (lunghezza d'onda zero) → rifiuta  → true
+</details>
 
-5) Coerenza della banca dati molecole
-   molecole tabulate: 20
-  ✓ tutte le voci complete e con massa coerente con la formula
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-✓ 29 controlli superati
 ```
+(nessuna uscita)
+```
 
 </details>
 
 <details>
-<summary><code>test_simmetria</code> — SUPERATO (codice di uscita 0)</summary>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
+```
+(nessuna uscita)
 ```
 
-1) La sezione esiste e si apre dal menu
-  ✓ la voce di menu c'è  → true
-  ✓ la sezione si apre  → true
-  ✓ le molecole di esempio sono caricate  → 14
-  ✓ le tavole dei caratteri sono selezionabili  → 8
+</details>
 
-2) Il numero di modi normali è calcolato, non scritto a mano
-  ✓ H₂O (non lineare, 3 atomi): 3N−6 = 3  → 3
-  ✓ CO₂ (lineare, 3 atomi): 3N−5 = 4  → 4
-  ✓ CH₄ (5 atomi): 3N−6 = 9  → 9
-  ✓ C₆H₆ (12 atomi): 3N−6 = 30  → 30
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-3) Il centro di inversione è riconosciuto correttamente
-  ✓ CO₂ è centrosimmetrica  → true
-  ✓ SF₆ è centrosimmetrica  → true
-  ✓ C₆H₆ è centrosimmetrico  → true
-  ✓ H₂O NON lo è  → false
-  ✓ NH₃ NON lo è  → false
+```
+(nessuna uscita)
+```
 
-4) Le regole di selezione nelle tavole dei caratteri
-  ✓ C₂ᵥ: nessuna specie risulta inattiva  → false
-  ✓ C₂ₕ: nessuna specie è IR e Raman insieme  → 0
-  ✓ D∞ₕ: nessuna specie è IR e Raman insieme  → 0
-  ✓ Oₕ: nessuna specie è IR e Raman insieme  → 0
-  ✓ C₂ᵥ: alcune specie sono attive in entrambe  → true
-  ✓ C₃ᵥ: alcune specie sono attive in entrambe  → true
+</details>
 
-5) Tᵈ: solo T₂ è attiva in IR
-  ✓ una sola specie IR-attiva nel gruppo tetraedrico  → 1
-  ✓ ed è T₂  → T₂
+<details>
+<summary><code>undefined</code> — SUPERATO (codice di uscita undefined)</summary>
 
-6) Le quattro regole di selezione sono spiegate
-  ✓ attività IR (momento di dipolo)  → true
-  ✓ attività Raman (polarizzabilità)  → true
-  ✓ dipolo permanente solo in C₁/Cₛ/Cₙ/Cₙᵥ  → true
-  ✓ chiralità: assenza di assi impropri  → true
-  ✓ nessun errore JS  → 0
-
-26 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_cheminfo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Banco di lavoro chemioinformatico
-
-  RDKit 2025.03.4
-
-── Similarita' ──
-  ✓ Tanimoto({0,1,2},{1,2,3}) = 2/4  → 0.500000
-  ✓ Dice({0,1,2},{1,2,3}) = 4/6  → 0.666667
-  ✓ Tanimoto di due fingerprint identici  → 1.000000
-  ✓ Tanimoto di due fingerprint disgiunti  → 0.000000
-  ✓ Tanimoto di due fingerprint VUOTI (0/0 → 1, come RDKit)  → 1.000000
-
-── Metriche ──
-  ✓ ROC-AUC di un ordinamento perfetto  → 1.000000
-  ✓ ROC-AUC di [1,0,1,0] con punteggi [4,3,2,1]  → 0.750000
-  ✓ ROC-AUC di un ordinamento invertito  → 0.000000
-  ✓ ROC-AUC con TUTTI i punteggi uguali (pari-merito mediati)  → 0.500000
-  ✓ ROC-AUC con una sola classe: non definita, non inventata  → null
-  ✓ R² di una previsione perfetta  → 1.000000
-  ✓ R² di una previsione costante pari alla media  → 0.000000
-  ✓ RMSE con errore costante di 1  → 1.000000
-  ✓ Pearson di due serie in proporzione esatta  → 1.000000
-  ✓ MCC con tp=2 tn=2 fp=1 fn=1 → 3/9  → 0.333333
-
-── Algebra lineare ──
-  ✓ Jacobi: autovalore maggiore di [[2,1],[1,2]]  → 3.000000
-  ✓ Jacobi: autovalore minore di [[2,1],[1,2]]  → 1.000000
-  ✓ Jacobi su matrice diagonale restituisce la diagonale ordinata  → 5,3,1
-  ✓ Sistema lineare, prima incognita  → 1.000000
-  ✓ Sistema lineare, seconda incognita  → 2.000000
-  ✓ Sistema regolarizzato (λ=1), prima incognita  → 1.000000
-  ✓ Sistema regolarizzato (λ=1), seconda incognita  → 2.000000
-
-── Standardizzazione ──
-  ✓ molecole accettate  → 3
-  ✓ righe scartate  → 3
-  ✓ il duplicato scritto in modo diverso viene riconosciuto  → true
-  ✓ lo SMILES non interpretabile viene scartato  → true
-  ✓ l'attivita' non numerica viene scartata  → true
-  ✓ il controione del sale viene tolto  → true
-  ✓ l'attivita' numerica viene letta  → 5.200000
-
-── Fingerprint e scaffold ──
-  ✓ il fingerprint Morgan ha 2048 bit  → 2048
-  ✓ il fingerprint di una molecola vera ha dei bit accesi  → true
-  ✓ MACCS ha 167 posizioni (166 chiavi piu' lo zero)  → 167
-  ✓ aspirina e acido salicilico sono piu' simili di aspirina e caffeina  → true
-  ✓ due benzeni sostituiti diversamente hanno lo STESSO scheletro  → true
-  ✓ il naftalene ha uno scheletro DIVERSO dal benzene  → true
-  ✓ una molecola aciclica e' dichiarata tale, non le si inventa uno scheletro  → true
-
-── Raggruppamento ──
-  ✓ Butina trova due grappoli su dati costruiti con due grappoli  → 2
-  ✓ i grappoli hanno le dimensioni attese  → 3,2
-  ✓ MaxMin sceglie due molecole di grappoli diversi  → true
-  ✓ MaxMin e' riproducibile: due esecuzioni danno lo stesso insieme  → true
-
-── Allarmi strutturali ──
-  ✓ la dopamina fa scattare l'allarme catecolo  → true
-  ✓ l'epossido viene riconosciuto  → true
-  ✓ l'aspirina non fa scattare allarmi  → 0
-  ✓ gli allarmi esaminati sono tutti quelli in elenco  → true
-
-── PCA ──
-  ✓ la PCA restituisce un punto per molecola  → 4
-  ✓ la prima componente spiega la maggior parte della varianza  → true
-  ✓ le frazioni di varianza non superano 1  → true
-  ✓ i due gruppi finiscono da parti opposte sulla prima componente  → true
-
-── Il modello, e il suo controllo nullo ──
-  ✓ il tipo di problema viene dedotto dai dati  → regressione
-  ✓ addestramento e prova coprono tutte le molecole  → 28
-  ✓ il controllo nullo viene ripetuto piu' volte  → 8
-  ✓ su un segnale VERO il modello batte tutti i suoi sosia casuali  → true
-  ✓ su etichette CASUALI il modello NON batte i suoi sosia  → false
-  ✓ la divisione per scaffold produce due insiemi non vuoti  → true
-  ✓ la divisione per scaffold conta i gruppi  → true
-      R² sul segnale vero: 0.394   ·   su etichette casuali: -0.199   ·   margine sul caso: 0.287
-
-── Salti di attivita' ──
-  ✓ il salto fra le due molecole simili viene trovato  → true
-  ✓ la coppia trovata e' quella attesa  → AB
-  ✓ l'indice SALI e' positivo  → true
-
-── Validazione incrociata per scheletro ──
-  ✓ le pieghe coprono ogni molecola una volta sola  → true
-  ✓ nessuno scheletro sta in due pieghe  → 0
-  ✓ con lo stesso seme le pieghe sono le stesse  → true
-  ✓ i gruppi trovati sono i sei nuclei  → 6
-  ✓ le pieghe chieste sono tre  → 3
-  ✓ tutte le pieghe sono utilizzabili  → 0
-  ✓ ogni molecola ha una predizione fuori piega  → 18
-  ✓ la media fra le pieghe e' un numero  → true
-  ✓ la deviazione fra le pieghe e' un numero  → true
-  ✓ la metrica di regressione e' r2  → r2
-  ✓ il punteggio sulle predizioni riunite e' un numero  → true
-  ✓ media di [2,4,4,4,5,5,7,9]  → 5.000000
-  ✓ deviazione campionaria dello stesso insieme  → 2.138090
-  ✓ un valore solo non ha deviazione  → null
-  ✓ un insieme vuoto non ha media  → null
-  ✓ un insieme vuoto conta zero valori  → 0
-
-── Esportazione ──
-  ✓ il CSV ha una riga per molecola più l'intestazione  → 3
-  ✓ ogni riga ha lo stesso numero di colonne dell'intestazione  → true
-  ✓ un nome con la virgola viene citato  → true
-  ✓ la colonna dello scaffold c'e'  → true
-  ✓ la colonna del QED c'e'  → true
-  ✓ le colonne del previsto e del residuo ci sono  → true
-  ✓ il residuo dell'aspirina e' 4,2 − 4,0  → 0.2
-  ✓ una molecola senza attivita' lascia la cella vuota  → true
-  ✓ il file finisce con una riga nuova  → true
-  ✓ il rapporto dichiara il seme  → true
-  ✓ il rapporto dichiara il fingerprint usato  → true
-  ✓ il rapporto porta il verdetto del controllo nullo  → true
-  ✓ il rapporto dice quante ripetizioni ha fatto  → true
-  ✓ il rapporto dichiara la versione di RDKit  → true
-  ✓ il rapporto elenca i limiti  → true
-  ✓ il rapporto include la validazione incrociata  → true
-  ✓ la metrica e' scritta R² e non R2  → true
-  ✓ il rapporto dichiara che nessun dato esce dal dispositivo  → true
-  ✓ senza modello il rapporto non inventa la sezione  → true
-
-── Il laboratorio RDKit usa lo stesso motore ──
-  ✓ la pagina del laboratorio espone le strutture di riferimento  → false
-  ✓ ogni struttura di riferimento e' leggibile da RDKit  → 
-  ✓ ogni struttura ha la massa del farmaco che dichiara  → 
-  ✓ i confronti eseguiti sono tutte le coppie  → 28
-  ✓ la pagina e il motore danno lo stesso Tanimoto  → 0.000000
-  ✓ caffeina e metformina non si somigliano  → true
-  ✓ aspirina e paracetamolo si somigliano un po'  → true
-  ✓ la similarita' a otto bit e' stata rimossa, non solo scavalcata  → false
-      (caffeina/metformina 0.024 · aspirina/paracetamolo 0.222)
-
-── Frammentazione ──
-  ✓ con la regola fine l'etossibenzene da' tre tagli  → 3
-  ✓ i tre tagli sono quelli attesi  → *C + *COc1ccccc1 | *CC + *Oc1ccccc1 | *OCC + *c1ccccc1
-  ✓ con la regola grossa i tagli sono due  → 2
-  ✓ il benzene non ha legami aciclici da tagliare  → 0
-  ✓ il metano non ha legami da tagliare  → 0
-  ✓ la regola fine taglia il metile terminale del toluene  → 1
-  ✓ la regola grossa non lo taglia  → 0
-
-── Coppie molecolari corrispondenti ──
-  ✓ tutte e sei le molecole si frammentano  → 6
-  ✓ clorofenile→fenile vale −1,0 su 2 coppie  → 2|-1
-  ✓ le due coppie del cloro sono concordanti  → 2
-  ✓ metilfenile→fenile vale −0,5  → 2|-0.5
-  ✓ metile→cloro vale +0,5  → 2|0.5
-  ✓ etilammide→propilammide vale +0,2 su 3 coppie  → 3|0.2
-  ✓ la direzione è normalizzata, l'inversa non compare  → true
-  ✓ la soglia sul numero di coppie filtra davvero  → true
-
-── Ricerca per sottostruttura ──
-  ✓ il nucleo benzamidico corrisponde a quattro molecole su cinque  → 4
-  ✓ sono le quattro attese  → 0,1,2,3
-  ✓ il cloro corrisponde a due molecole  → 1,3
-  ✓ una query malformata viene DICHIARATA, non ignorata  → true
-  ✓ il diclorobenzene conta due occorrenze di Cl  → 2
-  ✓ il monoclorobenzene ne conta una  → 1
-  ✓ la frazione di corrispondenze è 0,8  → 0.8
-
-── Tabella SAR (decomposizione in gruppi R) ──
-  ✓ la tabella ha due colonne di sostituzione  → 2
-  ✓ quattro molecole portano il nucleo  → 4
-  ✓ la molecola estranea è esclusa, non messa con celle vuote  → 4
-  ✓ la molecola non sostituita mostra H  → H|*CC
-  ✓ il cloro compare nella colonna giusta  → *Cl|*CC
-  ✓ il metile compare nella colonna giusta  → *C|*CC
-  ✓ il propile compare nella seconda colonna  → *Cl|*CCC
-  ✓ la colonna 1 ordina i sostituenti per attività: Cl > Me > H  → *Cl > *C > H
-  ✓ le mediane della colonna 1 sono quelle dei dati  → 7.1,6.5,6
-  ✓ un nucleo che non c'è non produce righe  → 0
-  ✓ la chiave dello scaffold dichiara di non essere uno SMILES  → true
-  ✓ il campo chiave esiste ed e' pieno  → true
-  ✓ smiles resta come alias della chiave  → true
-  ✓ due molecole con lo stesso scheletro danno la stessa chiave  → true
-  ✓ scheletri diversi danno chiavi diverse  → true
-  ✓ la chiave NON si rilegge come SMILES: non va usata come query  → true
-
-── Arricchimento (EF, BEDROC) ──
-  ✓ ordinamento perfetto: AUC 1  → 1
-  ✓ il primo 20 % sono 2 composti  → 2
-  ✓ e contengono 2 attivi  → 2
-  ✓ a caso ne sarebbero attesi 0,4  → 0.400000
-  ✓ EF@20 % = 2/0,4 = 5  → 5
-  ✓ ed è il massimo possibile a quella frazione  → 5
-  ✓ BEDROC di un ordinamento perfetto vale 1  → 1
-  ✓ ordinamento pessimo: AUC 0  → 0
-  ✓ EF@20 % = 0  → 0
-  ✓ BEDROC di un ordinamento pessimo vale 0, non un negativo  → 0
-  ✓ attivi ai ranghi 2 e 5: AUC 12/16 = 0,75  → 0.75
-  ✓ EF@20 % = 1/0,4 = 2,5  → 2.5
-  ✓ EF@50 % = 2/1,0 = 2  → 2
-  ✓ un insieme senza inattivi viene rifiutato, non calcolato  → true
-
-── Confronto fra modelli ──
-  ✓ il confronto mette tre modelli a paragone  → 3
-  ✓ il primo dell'elenco è il riferimento banale  → true
-  ✓ tutti i modelli usano le stesse pieghe  → true
-  ✓ su un segnale VERO il migliore supera il riferimento  → true
-  ✓ su etichette CASUALI non lo supera  → false
-  ✓ l'insieme di prova e' abbastanza grande per distinguere i due casi  → true
-  ✓ gli addestramenti sono tre pieghe per quattro candidati  → 12
-  ✓ le predizioni sono molte di piu' degli addestramenti  → true
-      (12 addestramenti per 240 predizioni su 60 molecole: se fossero 240 addestramenti, il confronto bloccherebbe la pagina per secondi)
-      (segnale vero: margine 0.966 · casuale: -0.098)
-
-── Intervalli di predizione conformi ──
-  ✓ la copertura sulla calibrazione raggiunge il livello richiesto  → true
-  ✓ al 50 % l'intervallo è più stretto che al 90 %  → true
-  ✓ l'intervallo è centrato sulla predizione  → true
-  ✓ la semiampiezza coincide con metà dell'intervallo  → true
-  ✓ uno SMILES illeggibile non produce un intervallo inventato  → true
-
-── Curva di apprendimento ──
-  ✓ la curva valuta tutti i punti chiesti  → 3
-  ✓ con più addestramento il punteggio non peggiora  → true
-  ✓ la pendenza finale è calcolata  → true
-  ✓ il verdetto «più dati aiuterebbero» viene espresso  → true
-  ✓ su attivita' binaria gli intervalli conformi RIFIUTANO  → true
-  ✓ e il messaggio dice perche'  → true
-  ✓ e indica quale strumento usare al suo posto  → true
-  ✓ chi sa quel che fa puo' forzarli comunque  → true
-  ✓ su attivita' continua gli intervalli funzionano  → true
-  ✓ la curva usa ROC-AUC su attivita' binaria  → auc
-  ✓ e R2 su attivita' continua  → r2
-  ✓ e dichiara il tipo di problema  → classificazione
-
-── Esportazione SDF ──
-  ✓ le due molecole valide vengono scritte  → 2
-  ✓ lo SMILES illeggibile è DICHIARATO scartato  → 1
-  ✓ con il motivo scritto  → SMILES non interpretabile
-  ✓ il round-trip restituisce gli stessi SMILES canonici  → CC(=O)Oc1ccccc1C(=O)O | CCO
-  ✓ il nome sta nella prima riga del blocco  → aspirina, acido
-  ✓ il campo dell'attività c'è  → true
-  ✓ il residuo è 4,2 − 4,0  → true
-  ✓ nessun nome di campo contiene spazi  → true
-  ✓ le coordinate 2D sono state generate  → true
-
-── Contrasto dei pannelli (dove l'altro banco non arriva) ──
-  ✓ tutti e nove i pannelli si aprono con del contenuto  → 9
-  ✓ gli elementi di testo misurati sono molti  → true
-  ✓ nessun testo dei pannelli sotto la soglia WCAG AA  → 0
-      (594 elementi di testo misurati nei nove pannelli)
-  ✓ nessun errore JavaScript usando la sezione  → 0
-
-── Igiene ──
-  ✓ nessun errore JavaScript durante le prove  → 0
-
-192 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_farm_ui</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Atlante Farmaci — ogni voce in memoria deve essere disegnata
-
-  ✓ la sezione è visibile  → true
-  ✓ il contenitore della lista esiste  → true
-  ✓ i farmaci in memoria sono molti  → true
-  ✓ le categorie nei dati sono molte  → true
-  ✓ OGNI farmaco in memoria compare nella lista disegnata  → 0
-  ✓ nessuna scheda mostra un peso molecolare rotto  → 0
-      (263 farmaci, 242 con struttura, 50 categorie, 8776 nodi nella sezione)
-  ✓ il filtro mostra tutte le voci della categoria scelta  → 0
-  ✓ e nessuna voce di altre categorie  → 0
-      (categoria «chemo2», 21 voci attese)
-  ✓ un farmaco con una categoria MAI etichettata viene disegnato comunque  → true
-  ✓ e il banco non lascia tracce nell'insieme  → true
-  ✓ nessun errore JavaScript  → 0
-
-11 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_datasci</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Data Science — la matematica che la sezione mostra
-
-── Raggiungibilità delle sezioni ──
-  ✓ le sezioni sono molte  → true
-  ✓ nessuna sezione è del tutto irraggiungibile  → 
-  ✓ nessun pulsante punta a una sezione che non esiste  → 
-  ✓ la sezione Data Science ha il suo pulsante  → false
-      (224 sezioni, 224 pulsanti; senza pulsante ma raggiungibili: nessuna)
-  ✓ la sezione si apre  → true
-  ✓ e costruisce il suo contenuto  → true
-  ✓ la matematica è esposta per la verifica  → true
-
-── Media e dispersione ──
-  ✓ media di [2,4,4,4,5,5,7,9]  → 5.000000
-  ✓ deviazione di popolazione (divide per n): √(32/8)  → 2.000000
-  ✓ un insieme vuoto non inventa numeri  → 0,0
-
-── Regressione: la discesa del gradiente converge? ──
-  ✓ su una relazione lineare ESATTA l'R² è 1  → 1.000000
-  ✓ i pesi standardizzati stanno nel rapporto vero 2·σ₁ : 3·σ₂  → 0.648394
-  ✓ la validazione incrociata della regressione dà 1  → 1.000000
-  ✓ il kNN resta sotto la regressione su dati lineari  → true
-  ✓ il riferimento banale è ben peggiore di entrambi  → true
-      (regressione 1.000 · kNN 0.945 · riferimento -0.066)
-
-── E se nei dati non c'è segnale? ──
-  ✓ su rumore puro la regressione non si avvicina a 1  → true
-  ✓ e nemmeno il kNN  → true
-      (regressione -0.238 · kNN -0.399)
-
-── Curva ROC ──
-  ✓ ordinamento perfetto: AUC 1  → 1.000000
-  ✓ ordinamento pessimo: AUC 0  → 0.000000
-  ✓ attivi ai ranghi 2 e 5: AUC 12/16 = 0,75  → 0.750000
-
-── Il banco di lavoro: quale colonna viene prevista ──
-  ✓ il target parte dall'ultima colonna numerica  → risposta
-  ✓ il selettore offre tutte le colonne  → 3
-  ✓ nessun errore JavaScript  → 0
-
-23 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_astro</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Astrochimica — i numeri dichiarati sono coerenti?
-
-── Molecole interstellari ──
-  ✓ le molecole interstellari sono molte  → true
-  ✓ ogni formula è analizzabile  → 
-  ✓ ogni peso molecolare coincide con la sua formula  → 
-  ✓ ogni voce ha nome, formula, peso, luogo e modo di rilevamento  → 
-  ✓ nessun identificativo duplicato  → 
-      (30 molecole verificate contro i pesi atomici IUPAC)
-
-── Catalogo dei corpi celesti ──
-  ✓ il catalogo ha molte voci  → true
-  ✓ ogni voce ha un nome  → 0
-  ✓ nessun corpo compare due volte  → 
-      (959 corpi · campi: cat, n, type, dist, chem, phys, links)
-
-── Quiz ──
-  ✓ il quiz ha molte domande  → true
-  ✓ ogni domanda ha opzioni e una risposta valida fra esse  → 0
-      (30 domande)
-
-── I sedici pannelli ──
-  ✓ i pannelli trovati sono molti  → true
-  ✓ si aprono tutti senza eccezioni  → 18
-      (9077 nodi dopo averli percorsi)
-  ✓ nessun errore JavaScript percorrendo la pagina  → 0
-
-13 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spettrolettore</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Lettore di spettri e modelli avanzati
-
-── JCAMP-DX ──
-  ✓ ASDF «@ABCDEFGHI»  → [0,1,2,3,4,5,6,7,8,9]
-  ✓ ASDF «abcdefghi»  → [-1,-2,-3,-4,-5,-6,-7,-8,-9]
-  ✓ ASDF «A23»  → [123]
-  ✓ ASDF «99»  → [99]
-  ✓ un JCAMP esplicito si legge  → JCAMP-DX
-  ✓   · con i suoi valori  → [0.1,0.5,0.9,0.4,0.05]
-  ✓   · e il suo titolo  → prova
-  ✓ un JCAMP compresso in DIF si decomprime  → [10,12,15,15,15,10]
-  ✓   · e le x si ricostruiscono dall’intervallo  → [1000,1001,1002,1003,1004,1005]
-  ✓ due colonne si leggono comunque  → 3
-
-── I picchi ──
-  ✓ sui tre picchi costruiti ne trova tre  → 3
-  ✓   · e sono quelli giusti (±2 cm⁻¹)  → true
-      (trovati: 1716, 2952, 3402 · attesi 1715, 2950, 3400)
-  ✓ su rumore puro non ne trova nessuno  → 0
-  ✓ e la banda a 1715 ha più assegnazioni compatibili, non una  → true
-      (C=O chetone | C=O acido carbossilico)
-
-── Dall’immagine ──
-  ✓ una figura si legge colonna per colonna  → 900
-  ✓   · e produce una curva completa  → 900
-  ✓ i tre picchi costruiti si ritrovano (±6 cm⁻¹)  → true
-      (letti dai pixel: 1717, 2951, 3403 · attesi 1715, 2950, 3400)
-  ✓ le x vengono riordinate crescenti  → true
-  ✓ su un foglio bianco rifiuta invece di inventare una curva  → true
-      (non ho trovato una traccia abbastanza scura: prova a ritagli…)
-  ✓ e dichiara che la scala non sta nei pixel  → true
-
-── Curva o lista ──
-  ✓ una curva campionata fitta non è una lista di picchi  → false
-  ✓ e sei righe di m/z lo sono  → true
-  ✓   · riconosciute come spettro di massa  → ms
-  ✓ il picco base del toluene è m/z 91  → 91
-  ✓ e lo ione più pesante osservato è 93  → 93
-  ✓ fra 92 e 91 riconosce la perdita di H  → true
-      (92→91 H · 93→92 H · 93→65 CO · 93→65 C₂H₄)
-
-── I modelli ──
-      aspirina    sperimentale  -1.72  stimato  -1.65  scarto 0.07
-      benzene     sperimentale  -1.64  stimato  -1.39  scarto 0.25
-      naftalene   sperimentale   -3.6  stimato  -2.42  scarto 1.18
-      etanolo     sperimentale    1.1  stimato  -0.12  scarto 1.22
-  ✓ lo scarto medio di ESOL sta nell’errore dichiarato  → 0.68 (limite 1.3)
-  ✓ e l’incertezza viene riportata accanto alla stima  → 1
-  ✓ i quattro filtri danno un verdetto ciascuno  → 4
-      (aspirina → Lipinski:passa · Veber:passa · Egan:passa · Ghose:viola)
-  ✓ una molecola enorme NON passa Lipinski  → false
-  ✓   · e le violazioni sono più di una  → true
-
-── La foresta ──
-  ✓ su una relazione non lineare la foresta spiega molto  → true
-      (R² fuori sacco 0.9 su 220 osservazioni)
-  ✓ e su un bersaglio di puro rumore NON spiega niente  → true
-      (R² fuori sacco su rumore: -0.164)
-  ✓ a parità di seme la risposta è identica  → true
-  ✓ e con un seme diverso cambia  → true
-
-── La sezione ──
-  ✓ «Lettore spettri» ha il suo pulsante di navigazione  → true
-  ✓ e la sezione si disegna (intestazione, schede, caricamento)  → true
-      (176 nodi nello scheletro)
-  ✓ senza cadere nel cartello «Sezione in costruzione»  → false
-  ✓ l’esempio IR produce una tela e una tabella  → true
-  ✓   · e la sezione CRESCE quando si carica uno spettro  → true
-      (176 → 236 nodi)
-  ✓ l’esempio MS produce la tabella delle perdite  → true
-  ✓   · e dichiara che è una lista di picchi, non una curva  → true
-  ✓ l’esempio NMR produce le integrazioni  → true
-  ✓ e la sezione dichiara che NON deduce la struttura  → true
-
-── Una sola porta d’ingresso ──
-  ✓ un solo bottone visibile per aprire un file  → 1
-      (📂 Apri un file)
-  ✓   · ed è quello dell’ingresso unico  → true
-  ✓   · che non filtra nessuna estensione  → 
-  ✓   · e c’è una riga che annuncia la decisione  → true
-  ✓ un PDF viene instradato come documento  → true
-  ✓   · le sue pagine compaiono disegnate  → true
-  ✓   · e la traccia dentro viene svolta  → true
-  ✓   · senza che lo stato menta («aperto» solo se è aperto)  → true
-      (aperto: quesito-benzilacetato.pdf · 1 pagine · 80 parole)
-  ✓ un .docx viene instradato come documento e svolto  → true
-  ✓ un testo senza numeri di spettro diventa un quesito  → true
-  ✓ un .jdx viene letto come spettro, non come documento  → true
-  ✓ due colonne di numeri si riconoscono dal contenuto  → true
-  ✓ un binario chiamato .txt non viene riversato come testo  → false
-  ✓   · e il lettore di documenti dice che non lo sa leggere  → true
-      (⚠ Questo file non è testo: contiene dati binari. Il tipo dichiarato è «text/plai)
-  ✓ la figura di uno spettro dà la traccia E la pagina  → true
-  ✓ un’immagine che non è uno spettro viene mostrata comunque  → true
-  ✓   · ma senza inventarle una curva  → false
-
-── Le due tabelle IR, e la relazione fra loro ──
-  ✓ ogni coppia dichiarata esiste in entrambe le tabelle  → 0
-  ✓ l’ombrello delle assegnazioni copre la tabella di riferimento  → 0
-      (23 gruppi confrontati · ombrello 27 righe · riferimento 28)
-  ✓ e nessun ombrello è arbitrariamente più largo del riferimento  → 0
-      (margine concesso: 140 cm⁻¹ oltre il riferimento)
-  ✓ il distintivo in intestazione riporta la versione vera  → v271
-  ✓ nessun errore JavaScript  → 0
-
-66 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_documento</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Documenti — aprire, leggere, svolgere, e dire che cosa manca
-
-── I moduli ──
-  ✓ BSIDocumento è caricato  → object
-  ✓ BSIQuesito è caricato  → object
-
-── Che cosa riconosce nel testo ──
-  ✓ la formula molecolare  → C9H10O2
-  ✓ e anche scritta con i pedici tipografici  → C9H10O2
-  ✓ le sei bande IR  → 3035,2955,1738,1600,1498,1230
-  ✓ i quattro picchi di massa  → 150,108,91,43
-  ✓   · con le loro intensità relative  → 22,100,45,60
-  ✓ i tre segnali ¹H, con integrazione e molteplicità  → 7.35/5m 5.1/2s 2.05/3s
-  ✓ i sei segnali ¹³C  → 170.9,136,128.6,128.2,66.3,21
-  ✓ e non manca niente  → 0
-
-   · e quello che NON deve riconoscere
-  ✓ CDCl₃ è il solvente, non il composto  → null
-  ✓ una banda IR fuori da 400-4000 non è una banda  → 1715,400
-  ✓ senza etichetta MS non ci sono masse  → 0
-  ✓ senza etichetta ¹H non ci sono protoni  → 0
-  ✓ un capoverso nuovo chiude la sezione  → 1715
-  ✓ un testo senza spettri non produce dati  → 0
-  ✓   · e li dichiara tutti mancanti  → 5
-  ✓ la virgola decimale è un decimale, non un separatore  → 7.35
-
-── Lo svolgimento ──
-  ✓ i gradi di insaturazione  → 5
-  ✓ la massa monoisotopica  → 150.07
-  ✓ i protoni dalle integrazioni  → 10
-  ✓ i passi dello svolgimento  → 5 (almeno 4)
-  ✓ e le supposizioni, tenute separate  → 7 (almeno 4)
-  ✓ ogni passo dice da dove viene  → 0
-  ✓ e quanto è certo  → 0
-  ✓ su un testo senza dati non svolge  → null
-  ✓   · e lo dice invece di tacere  → true
-
-   · il confronto con una struttura proposta
-  ✓ il benzilacetato, che è la risposta, supera metà dei controlli  → true
-      (42 / 100)
-  ✓ e il nonano, che non c’entra niente, prende molto meno  → true
-      (0 / 100)
-
-── I file, aperti davvero ──
-  ✓ il PDF si apre e disegna la sua pagina  → 1
-  ✓   · e il suo testo viene letto  → true
-  ✓   · con dentro la formula del quesito  → true
-  ✓   · e lo svolgimento compare  → true
-  ✓   · con le sue tabelle  → 4 (almeno 3)
-  ✓ il documento Word si apre  → true
-  ✓   · e il suo testo viene letto  → true
-  ✓   · con dentro i dati del quesito  → true
-  ✓   · e lo svolgimento compare  → true
-
-── Un server che sbaglia il tipo dei moduli ──
-  ✓ il PDF si apre anche se il server dichiara il tipo sbagliato  → 1
-  ✓   · e il suo testo viene letto lo stesso  → true
-  ✓   · e lo svolgimento compare  → true
-  ✓ un file di testo si apre  → true
-  ✓   · e dà lo stesso svolgimento  → true
-
-── Quello che non riesce a leggere, lo dice ──
-  ✓ un’immagine si apre e si vede  → 1
-  ✓   · e dichiara che non c’è riconoscimento ottico dei caratteri  → true
-  ✓   · e non inventa uno svolgimento  → false
-  ✓ un formato sconosciuto viene rifiutato, non indovinato  → true
-  ✓   · e non produce pagine finte  → 0
-  ✓ un file binario chiamato .txt viene riconosciuto come binario  → true
-  ✓ nessun errore JavaScript  → 0
-
-50 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_nmr</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Predizione NMR — assegnata per atomo, verificata contro la letteratura
-
-── Il motore ──
-  ✓ BSINMR è caricato  → object
-  ✓ BSIMolDraw è caricato  → object
-  ✓ il pannello è caricato  → object
-
-── ¹³C: insieme di TARATURA ──
-  ✓ nessuna molecola di taratura fallisce  → 0
-      scarto medio 0.71 ppm · peggiore 3.0
-
-── ¹³C: insieme di VALIDAZIONE (mai usato per tarare) ──
-      naftalene            segnali 3/3  medio 1.10  max 2.7
-      difenile             segnali 4/4  medio 1.27  max 4.6
-      stirene              segnali 6/6  medio 0.35  max 1.2
-      acetofenone          segnali 6/6  medio 0.60  max 2.9
-      m-cresolo            segnali 7/7  medio 0.69  max 1.8
-      p-cresolo            segnali 5/5  medio 0.58  max 1.2
-      benzonitrile         segnali 5/5  medio 0.20  max 0.7
-      4-nitrotoluene       segnali 5/5  medio 0.74  max 1.8
-      acido salicilico     segnali 7/7  medio 1.87  max 4.8
-      acetato di etile     segnali 4/4  medio 0.97  max 2.9
-      acido propanoico     segnali 3/3  medio 1.17  max 2.6
-      isopropanolo         segnali 2/2  medio 0.50  max 0.9
-      etere dietilico      segnali 2/2  medio 1.85  max 3.2
-      cicloesanone         segnali 4/4  medio 2.10  max 4.9
-      1-butanolo           segnali 4/4  medio 0.18  max 0.5
-      terz-butanolo        segnali 2/2  medio 0.95  max 1.0
-      2-butanone           segnali 4/4  medio 1.78  max 2.3
-      benzoato di etile    segnali 7/7  medio 0.21  max 0.7
-      acetofenone          segnali 6/6  medio 0.60  max 2.9
-      4-metossiacetofenone segnali 7/7  medio 1.37  max 3.2
-      butanoato di etile   segnali 6/6  medio 0.85  max 2.7
-      isobutano            segnali 2/2  medio 0.10  max 0.2
-      acetato di benzile   segnali 7/6  medio 2.38  max 7.5
-  ✓ nessuna molecola di validazione fallisce  → 0
-  ✓ lo scarto medio sulla validazione sta nel valore dichiarato  → 0.97 (limite 1.3)
-  ✓   · e il caso peggiore sta nel valore dichiarato  → 7.5 (limite 8)
-  ✓ la validazione è più severa della taratura  → true
-      (taratura 0.71 · validazione 0.97)
-
-── ¹H ──
-      etanolo              medio 0.297
-      acetato di etile     medio 0.050
-      acido acetico        medio 0.110
-      acetone              medio 0.080
-      benzene              medio 0.080
-      TMS                  medio 0.000
-      ciclopropano         medio 0.000
-      benzaldeide          medio 0.020
-      anisolo              medio 0.028
-      fenolo               medio 0.005
-      nitrobenzene         medio 0.043
-      toluene              medio 0.017
-      stirene              medio 0.048
-      1-butanolo           medio 0.060
-  ✓ nessuna molecola ¹H fallisce  → 0
-  ✓ lo scarto medio ¹H sta nel valore dichiarato  → 0.06 (limite 0.15)
-  ✓ le molecole aromatiche ¹H sono tutte misurate  → 5
-  ✓   · e il loro scarto sta nel valore dichiarato  → 0.03 (limite 0.15)
-
-── La spiegazione ricostruisce il numero ──
-  ✓ ogni carbonio alifatico dichiara contributi che risommano al suo valore  → 0
-      (48 carboni controllati)
-  ✓   · e sono abbastanza da voler dire qualcosa  → true
-
-── Le capacità nuove ──
-  ✓ il nitrobenzene ha TUTTI gli H aromatici oltre 7,5  → true
-      (il più schermato a 7.6)
-  ✓ l’anisolo li ha TUTTI sotto 7,4  → true
-      (il più deschermato a 7.29)
-  ✓ e il benzene nudo resta al valore di base, senza incrementi  → 7.34
-  ✓ lo stirene dà TRE segnali vinilici (CH, =CH₂ cis, =CH₂ trans)  → 3
-  ✓ ma l’etilene, che non ha nulla di fronte, ne dà uno solo  → 1
-  ✓ l’OCH₂ dell’acetato di etile sta oltre 55 ppm  → true
-  ✓ mentre ogni altro suo carbonio sta sotto 25: lo stesso gruppo, due valori  → true
-      (60.8 e 18.1)
-  ✓ il cicloesano torna esatto per costruzione  → 26.9
-  ✓ ma il cicloesanone NON eredita quel valore sui carboni in α  → true
-      (α al carbonile: 40.3 ppm)
-  ✓ e una catena aperta dà i suoi carboni senza riferimento ciclico  → 3
-  ✓ la tabella ¹³C dei benzeni ha più di settanta righe  → true
-  ✓ la tabella ¹H dei benzeni ha più di cinquanta righe  → true
-  ✓ la tabella degli etileni ha più di trenta righe  → true
-  ✓ la tabella degli alcani ha più di venticinque righe  → true
-  ✓ e la fonte è dichiarata  → Pretsch, Bühlmann,
-      (91 + 66 + 42 + 31 righe)
-
-── L'equivalenza chimica ──
-      benzene           1 segnali
-      toluene           5 segnali
-      p-xilene          3 segnali
-      naftalene         3 segnali
-      cicloesano        1 segnali
-      acetone           2 segnali
-      difenile          4 segnali
-      aspirina          9 segnali
-  ✓ ogni molecola dà il numero di segnali che la letteratura le attribuisce  → 0
-
-── I rifiuti ──
-  ✓ uno SMILES illeggibile non produce uno spettro inventato  → true
-      (null)
-  ✓ e una stringa vuota nemmeno  → null
-
-── Il pannello ──
-  ✓ la scheda ¹³C passa dal motore nuovo  → true
-  ✓ e l’originale resta come ripiego  → function
-  ✓ la scheda esiste nell’editor  → 1
-  ✓ lo spettro si disegna  → true
-  ✓ nessun errore nella predizione del pannello  → null
-  ✓ l’aspirina dà i suoi nove segnali ¹³C  → 9
-  ✓ e la tabella ha una riga per segnale  → 9
-  ✓ la struttura viene disegnata accanto  → true
-  ✓ prima del clic nessun segnale è acceso  → null
-  ✓ dopo il clic su una riga il segnale si accende  → true
-  ✓ e porta con sé gli atomi che lo producono  → true
-      (segnale C1 → atomi [10])
-  ✓ passando a ¹H resta la stessa molecola  → CC(=O)Oc1ccccc1C(=O)O
-  ✓   · e i segnali sono quelli del ¹H  → true
-
-── La cronologia ──
-  ✓ parte vuota  → 0
-  ✓ due molecole previste, due voci  → 2
-  ✓ e l’ultima sta in cima  → c1ccccc1
-  ✓ lo stesso etanolo scritto «OCC» non fa una voce nuova  → 2
-  ✓   · ma risale in cima, perché è quella su cui si lavora adesso  → CCO
-  ✓ uno SMILES illeggibile non entra in cronologia  → 2
-  ✓ di ogni voce si tiene l’InChI  → true
-  ✓   · e la sua chiave  → true
-      (InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3 · LFQSCWFLJHTTHZ-UHFFFAOYSA-N)
-  ✓ sopravvive al rimontaggio del pannello  → 2
-  ✓   · e si vede, una pastiglia per voce  → 2
-  ✓ un clic su una voce la riporta sul tavolo  → true
-      (c1ccccc1)
-  ✓ e si può svuotare  → 0
-
-── Picco ↔ struttura ↔ 3D ──
-  ✓ la tela 3D parte nascosta  → none
-  ✓ il bottone 3D la mostra  → true
-  ✓ e il visore si monta  → true
-  ✓ prima del clic non c’è niente di illuminato  → 0
-  ✓ dopo il clic su una riga gli atomi si illuminano anche in 3D  → true
-  ✓   · e sono esattamente quelli del segnale  → [12]
-  ✓ un secondo clic li rispegne  → 0
-  ✓ la molecola viene disegnata davvero  → true
-      (62 campioni non di fondo)
-  ✓ nessun errore JavaScript  → 0
-
-66 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_nmr2d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-NMR bidimensionale — COSY, HSQC, HMBC contati sul grafo
-
-── Il motore ──
-  ✓ BSINMR2D è caricato  → object
-
-── HSQC: un protone e il suo carbonio ──
-  ✓ l’acetato di etile dà tre macchie, una per carbonio protonato  → 3
-  ✓ il benzene, che ha un solo intorno, ne dà una  → 1
-  ✓ il toluene ne dà quattro  → 4
-  ✓ l’esafluorobenzene, che non ha idrogeni, non ne dà nessuna  → 0
-
-   · il segno, come in un HSQC editato
-  ✓ il 1-butanolo ha tre CH₂, e tre macchie negative  → 3
-  ✓   · e un CH₃, con una macchia positiva  → 1
-
-── COSY: due protoni a tre legami ──
-  ✓ l’etanolo ha tre segnali ¹H sulla diagonale  → 3
-  ✓   · e una coppia fuori diagonale, in due versi  → 2
-  ✓ il benzene ha la diagonale  → 1
-  ✓   · e NESSUNA macchia fuori: i sei protoni sono equivalenti  → 0
-  ✓ l’acetone nemmeno: i due metili sono equivalenti e lontani  → 0
-  ✓ il toluene invece sì: orto↔meta e meta↔para  → 4
-  ✓ e l’O–H, che si scambia col solvente, non compare fuori diagonale  → 0
-
-── HMBC: due e tre legami ──
-  ✓ l’acetato di etile dà le sue correlazioni  → true
-      (4 macchie)
-  ✓ il carbonile, che non ha protoni suoi, si vede lo stesso  → true
-      (2 protoni lo toccano)
-  ✓ ogni macchia dichiara un cammino a due o tre legami, mai a uno  → 0
-  ✓ il metano, che non ha un secondo carbonio, non dà nessuna macchia  → 0
-
-── Gli assi ──
-  ✓ l’HSQC ha ¹³C in ascissa e ¹H in ordinata  → 13C/1H
-  ✓ il COSY ha ¹H su entrambi  → 1H/1H
-  ✓ e vanno a decrescere, come si disegna un NMR  → true
-
-── I rifiuti ──
-  ✓ uno SMILES illeggibile non produce una mappa inventata  → true
-  ✓ e una stringa vuota nemmeno  → null
-  ✓ un tipo inventato ricade su HSQC e lo dichiara  → HSQC
-
-── Il disegno ──
-  ✓ la mappa si disegna  → true
-  ✓ e ci sono macchie, non un rettangolo vuoto  → true
-      (26 campioni colorati)
-  ✓ una macchia si ritrova da dove è stata disegnata  → true
-  ✓   · ma non se ne trova una dove non ce n’è  → true
-  ✓ e l’uscita CSV ha una riga per macchia più l’intestazione  → 4
-
-── La mappa nel pannello ──
-  ✓ la sezione 2D parte nascosta  → none
-  ✓ il bottone HSQC la mostra  → HSQC
-  ✓   · e diventa visibile  → 
-  ✓ con le macchie dell’acetato di etile  → 3
-  ✓ prima del clic nessuna macchia è accesa  → null
-  ✓   · e nessun atomo è illuminato dalla mappa  → 0
-  ✓ dopo il clic la macchia si accende  → true
-  ✓   · e illumina esattamente i suoi atomi  → [0]
-  ✓ passando a COSY la mappa cambia: due macchie, non tre  → 2
-  ✓ e spegnendola la sezione sparisce  → none
-  ✓ nessun errore JavaScript  → 0
-
-40 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_geom3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Geometria 3D — costruita dal grafo, misurata contro la chimica
-
-── Il motore ──
-  ✓ BSIGeom3D è caricato  → object
-
-── Le lunghezze di legame (Å) ──
-  ✓ C–C semplice (etano)  → 1.54 (atteso 1.54 ± 0.04)
-  ✓ C=C doppio (etene)  → 1.341 (atteso 1.34 ± 0.04)
-  ✓ C≡C triplo (etino)  → 1.2 (atteso 1.2 ± 0.04)
-  ✓ C–C aromatico (benzene)  → 1.39 (atteso 1.39 ± 0.04)
-  ✓ C–O (etanolo)  → 1.43 (atteso 1.43 ± 0.05)
-  ✓ C–H (etano)  → 1.09 (atteso 1.09 ± 0.05)
-
-── Gli angoli di valenza (gradi) ──
-  ✓ H–C–H tetraedrico (metano)  → 109.5 (atteso 109.5 ± 4)
-  ✓ C–C–C (propano)  → 109.3 (atteso 109.5 ± 5)
-  ✓ C–C–C interno (benzene)  → 120 (atteso 120 ± 3)
-  ✓ C–C≡C diritto (propino)  → 180 (atteso 180 ± 6)
-  ✓ C–O–H è piegato, non diritto (etanolo)  → 104.4 (al più 125)
-  ✓   · e nemmeno schiacciato  → 104.4 (almeno 95)
-
-── La planarità, nei due versi ──
-  ✓ il benzene è piano (scarto dal piano, Å)  → 0 (al più 0.05)
-  ✓ e il naftalene, che è due anelli condensati  → 0 (al più 0.08)
-  ✓ ma il cicloesano NON è piano: è a sedia  → 0.164 (almeno 0.15)
-
-── Nessun atomo dentro un altro ──
-      (aspirina: 21 atomi con gli idrogeni)
-  ✓ la coppia non legata più vicina resta oltre 2,0 Å  → 2.464 (almeno 2)
-  ✓ e lo scarto dai limiti resta piccolo  → 0.017 (al più 0.12)
-
-── Le molecole vere ──
-      caffeina        24 atomi · scarto 0.027 Å · minima 2.33 Å · 72 ms
-      ibuprofene      33 atomi · scarto 0.014 Å · minima 1.99 Å · 70 ms
-      naprossene      31 atomi · scarto 0.022 Å · minima 2.27 Å · 101 ms
-      paracetamolo    20 atomi · scarto 0.011 Å · minima 2.33 Å · 29 ms
-      atorvastatina   76 atomi · scarto 0.31 Å · minima 1.63 Å · 510 ms
-  ✓ ognuna produce una geometria  → 0
-  ✓ il residuo peggiore resta nel valore dichiarato (Å)  → 0.31 (al più 0.4)
-  ✓ e nessuna coppia scende sotto 1,5 Å  → 1.63 (almeno 1.5)
-  ✓ nessuna impiega più di due secondi  → 510 (al più 2000)
-
-── Riproducibilità ──
-  ✓ la stessa molecola dà sempre la stessa forma  → true
-  ✓   · ma molecole diverse non danno la stessa  → true
-
-── Gli indici sono quelli del predittore NMR ──
-      CC(=O)Oc1ccccc1C(=O)O     13 pesanti + 8 H
-      COc1ccc(cc1)C(C)=O        11 pesanti + 10 H
-      CCCC(=O)OCC               8 pesanti + 12 H
-      c1ccc2ccccc2c1            10 pesanti + 8 H
-      O=C1CCCCC1                7 pesanti + 10 H
-  ✓ ogni atomo pesante ha lo stesso indice e lo stesso elemento  → 0
-
-── I rifiuti ──
-  ✓ uno SMILES illeggibile non produce una geometria inventata  → true
-  ✓ e una stringa vuota nemmeno  → null
-
-── La forma che il visore si aspetta ──
-  ✓ perVisore dà atoms/bonds con el, x, y, z  → true
-  ✓ nessun errore JavaScript  → 0
-
-29 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_elucida</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Elucidazione — i conti verificati contro compiti già corretti
-
-── Gradi di insaturazione ──
-  ✓ ogni formula dà l’IDI scritto a mano sul compito  → 0
-      (C9H10O2S=5 · C14H21NO3=5 · C13H17NO2=6 · C7H10O3=3 · C12H16O2=5 · C9H12N2O=5 · C9H10O2=5 · C8H9NO2=5 · C6H6=4 · C6H14=0 · C2H2=2 · C6H5Cl=4)
-
-── Numero di carboni dal picco M+1 ──
-  ✓ M 151/152 dà 9 carboni  → 9
-  ✓ M 165/166 dà 9 carboni  → 9
-  ✓ con un azoto la correzione abbassa il conto  → true
-  ✓   · ma non tanto da cambiare l’intero, con un solo azoto  → 9
-      (senza N: 9,0 · con N: 8.7, correzione 0.4 %)
-
-── Eteroatomi dal picco M+2 ──
-  ✓ 4,4 % → zolfo  → S
-  ✓ 32,5 % → cloro  → Cl
-  ✓ 97,3 % → bromo  → Br
-  ✓ 0,4 % → nessun eteroatomo inventato  → null
-
-── Perdite neutre ──
-  ✓ 151 → 120 è riconosciuta come perdita di OCH₃  → true
-  ✓ e 120 → 92 come perdita di CO  → true
-      (120→92 CO / C₂H₄ · 151→120 OCH₃ · 151→92 COOCH₃ · 92→65 HCN)
-
-── Il dossier ──
-  ✓ l’IDI è fra le deduzioni  → 5
-  ✓ e i segnali ¹³C sono contati  → 9
-  ✓ le integrazioni ¹H sommano i protoni della formula  → 10
-  ✓ ogni deduzione porta la propria prova  → true
-  ✓ e le supposizioni sono tenute separate dalle deduzioni  → true
-      (5 deduzioni · 10 supposizioni · 0 avvisi)
-
-── Il confronto fra una struttura giusta e una sbagliata ──
-  ✓ 2-etossibenzaldeide: la giusta batte la sbagliata  → true
-      (giusta 100 pt, orfani 0 · sbagliata 30 pt, orfani 3)
-  ✓   · e la giusta non lascia segnali senza carbonio  → 0
-  ✓ 4-amminobenzoato di metile: la giusta batte la sbagliata  → true
-      (giusta 100 pt, orfani 0 · sbagliata 80 pt, orfani 0)
-  ✓   · e la giusta non lascia segnali senza carbonio  → 0
-
-── Il caso che il predittore non sa trattare ──
-
-── Il carbonio con due sostituenti in α ──
-  ✓ dove un carbonio ha DUE sostituenti in α, lo strumento avvisa  → 0
-  ✓   · e la fiducia non resta «alta»  → 0
-  ✓ dove ne ha UNO solo, NON avvisa  → 0
-  ✓   · e la fiducia resta «alta»  → 6
-  ✓ la formula della struttura giusta coincide  → true
-  ✓ il punteggio è basso  → true
-  ✓ ma la fiducia è dichiarata BASSA  → bassa
-  ✓   · con il motivo scritto  → true
-
-── I rifiuti ──
-  ✓ uno SMILES illeggibile non produce un confronto  → errore
-  ✓ una formula vuota non produce una formula  → null
-  ✓ e un simbolo inventato viene segnalato  → Xy
-  ✓ nessun errore JavaScript  → 0
-
-32 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_digitalizza</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-  ✓ il modulo si carica  → true
-
-── La cornice degli assi ──
-  ✓ su una figura con gli assi li trova tutti e quattro  → 4
-      (alto, basso, sinistra, destra → ritaglio (63,13)–(946,296))
-  ✓   · e il ritaglio sta oltre lo spessore della linea, non sopra  → true
-  ✓ su una figura senza assi non ne trova nessuna  → false
-  ✓   · e lo dichiara invece di tacere  → true
-  ✓ una linea di base piatta non viene presa per un asse  → true
-
-── La traccia ──
-  ✓ le posizioni sono a subpixel, non interi  → true
-      (895 posizioni non intere su 900)
-  ✓ figura nuda: i tre picchi entro 6 cm⁻¹  → 3.3 (limite 6)
-      (1717.5, 2950.8, 3403.3 · veri 1715, 2950, 3400)
-  ✓ figura con cornice ed etichette: entro 8 cm⁻¹  → 2.2 (limite 8)
-      (1716.9, 2952.2, 3400.7)
-  ✓ il ripiego grezzo, sulla stessa figura, sbaglia molto di più  → true
-      (grezzo:  → scarto non trova 3 picchi cm⁻¹ · nuovo: 2.2 cm⁻¹)
-  ✓ con la griglia i picchi sono gli STESSI della figura senza griglia  → true
-      (con griglia: 1717.5, 2950.8, 3403.3)
-  ✓ anche con una griglia NERA i picchi restano quelli  → true
-      (griglia nera: 1717.5, 2950.8, 3403.3)
-  ✓ il ripiego grezzo, sulla griglia pallida, se la cava comunque  → true
-      (grezzo con griglia: 1713.5, 2946.8, 3403.3)
-  ✓ con cornice E griglia insieme, il bordo viene distinto dalla griglia  → true
-      (lati: alto, basso, sinistra, destra · famiglie di linee continue: 11 verticali, 7 orizzontali)
-  ✓   · e i picchi restano entro 8 cm⁻¹  → 2.2 (limite 8)
-      (1716.9, 2952.2, 3400.7)
-  ✓ una curva tratteggiata si ricostruisce comunque  → 7.3 (limite 8)
-      (1713.5, 2946.8, 3407.3)
-  ✓ da un foglio bianco non esce nessuna curva  → true
-      («non ho trovato una traccia abbastanza scura: prova a ritagliare la fig»)
-  ✓ e nemmeno dall’icona dell’applicazione  → true
-
-── La taratura ──
-  ✓ 100 %T diventa A = 0  → 0
-  ✓ 50 %T diventa A = 0,301  → 0.301
-  ✓ 10 %T diventa A = 1  → 1
-  ✓ 1 %T diventa A = 2  → 2
-  ✓ 0 %T si ferma a A = 4 invece di divergere  → 4
-  ✓   · e il punto saturato viene contato  → 1
-  ✓ una figura in %T si legge e si converte in assorbanza  → A
-  ✓   · dichiarando la conversione  → true
-  ✓   · con i picchi al posto giusto entro 8 cm⁻¹  → 2.5 (limite 8)
-      (1717.5, 2950.8, 3399.3 · A massima 0.59)
-  ✓ su asse logaritmico il punto di mezzo è la media geometrica  → true
-      (log: 316.6 · atteso 316,2)
-  ✓   · e su asse lineare lo stesso punto è la media aritmetica  → true
-      (lineare: 550.5 · atteso 550)
-  ✓   · gli estremi restano quelli dati  → true
-  ✓ un asse logaritmico che parte da zero viene rifiutato  → true
-      («un asse logaritmico non può partire da zero o da un numero negativo»)
-
-── Le uscite ──
-  ✓ il CSV ha una riga di intestazione e una riga per punto  → 901
-  ✓   · con le unità nell’intestazione  → true
-  ✓   · e numeri leggibili nella prima riga  → true
-  ✓ il JCAMP dichiara NPOINTS  → true
-  ✓   · e FIRSTX/LASTX, senza i quali il file è formalmente invalido  → true
-  ✓   · e porta dentro la provenienza (taratura data a mano)  → true
-  ✓ il JCAMP esportato viene riletto dal lettore stesso  → JCAMP-DX
-  ✓   · con lo stesso numero di punti  → 900
-  ✓   · e gli stessi estremi  → true
-  ✓   · e con le unità conservate  → 1/CM
-
-── L’errore, dichiarato ──
-  ✓ tutte le figure hanno dato tre picchi  → 7
-      21 picchi misurati su 7 figure diverse
-  ✓ scarto MEDIO sui picchi di tutte le figure (cm⁻¹)  → 2.16 (limite 4)
-  ✓ scarto PEGGIORE (cm⁻¹)  → 7.34 (limite 8)
-      La risoluzione di una colonna è ~4 cm⁻¹ su 900 colonne per 3600 cm⁻¹:
-      sotto quel valore non c’è niente da guadagnare, è il limite della figura.
-  ✓ nessun errore JavaScript  → 0
-
-45 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_fisica</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Schrödinger ──
-  ✓ oscillatore armonico E0 = 0.5  → 0.4999944536 (atteso 0.5 ± 0.0005)
-  ✓ oscillatore armonico E1 = 1.5  → 1.499972268 (atteso 1.5 ± 0.0005)
-  ✓ oscillatore armonico E2 = 2.5  → 2.499927896 (atteso 2.5 ± 0.0005)
-  ✓ oscillatore armonico E3 = 3.5  → 3.499861337 (atteso 3.5 ± 0.0005)
-  ✓ oscillatore armonico E4 = 4.5  → 4.49977259 (atteso 4.5 ± 0.0005)
-  ✓ pozzo infinito L = 1: E₁ = π²/2  → 4.934799387 (atteso 4.934802200544679 ± 0.0001)
-  ✓   · E₂ = 4 E₁  → 19.73916378 (atteso 19.739208802178716 ± 0.001)
-  ✓ Morse HCl: fondamentale numerica = esatta (cm⁻¹)  → 2872.305051 (atteso 2872.3379231668528 ± 0.5)
-  ✓ Morse CO: fondamentale numerica = esatta (cm⁻¹)  → 2143.722804 (atteso 2143.8543056403787 ± 0.5)
-  ✓ Morse CO: vicino allo sperimentale 2143,27 cm⁻¹  → 2143.854306 (atteso 2143.27 ± 2)
-  ✓ Crank-Nicolson conserva la norma (400 passi)  → 1 (atteso 1 ± 1e-9)
-  ✓ trasmissione esatta per E = V₀ (1/(1 + V₀a²/2))  → 0.5 (atteso 0.5 ± 1e-9)
-
-── Hartree-Fock STO-3G ──
-  ✓ H₂ a 1,4 bohr (Szabo-Ostlund −1,116714 Eh)  → -1.116714325 (atteso -1.116714 ± 0.000002)
-  ✓ HeH⁺ a 1,4632 bohr (Szabo-Ostlund −2,860662 Eh)  → -2.860658609 (atteso -2.860662 ± 0.00001)
-  ✓ H₂O (Crawford −74,942079928 Eh)  → -74.94207993 (atteso -74.942079928192 ± 0.000001)
-  ✓ H₂O: repulsione nucleare 8,002367 Eh  → 8.002367062 (atteso 8.002367 ± 0.00001)
-  ✓ H₂O: cinque orbitali occupati  → 5
-  ✓ H₂O: la somma delle cariche di Mulliken è zero  → -1.165734176e-14 (atteso 0 ± 1e-8)
-  ✓ funzione di Boys F₀(0) = 1  → 1 (atteso 1 ± 1e-12)
-  ✓ funzione di Boys F₀(1) = 0,746824  → 0.7468241328 (atteso 0.746824132812427 ± 1e-10)
-
-── Rotovibrazionale ──
-  ✓ rₑ di HCl dalla costante Bₑ (1,2746 Å)  → 1.274552484 (atteso 1.2746 ± 0.0005)
-  ✓ B₀ ricavato dalle righe = B₀ di partenza  → 10.43901209 (atteso 10.439810000000001 ± 0.002)
-  ✓ B₁ ricavato dalle righe = B₁ di partenza  → 10.13183209 (atteso 10.13263 ± 0.002)
-  ✓ nessuna riga all’origine della banda (ΔJ = 0 proibito)  → 0
-  ✓ Raman O₂: solo J dispari  → 0
-
-── Termodinamica statistica (S° NIST-JANAF, 298,15 K, 1 bar) ──
-  ✓ S°(Ar) = 154.85 J mol⁻¹ K⁻¹  → 154.8456597 (atteso 154.85 ± 0.3)
-  ✓ S°(N2) = 191.61 J mol⁻¹ K⁻¹  → 191.5638821 (atteso 191.61 ± 0.3)
-  ✓ S°(O2) = 205.15 J mol⁻¹ K⁻¹  → 205.1281181 (atteso 205.15 ± 0.3)
-  ✓ S°(CO) = 197.66 J mol⁻¹ K⁻¹  → 197.6104337 (atteso 197.66 ± 0.3)
-  ✓ S°(CO2) = 213.79 J mol⁻¹ K⁻¹  → 213.7617719 (atteso 213.79 ± 0.3)
-  ✓ S°(H2O) = 188.84 J mol⁻¹ K⁻¹  → 188.7166871 (atteso 188.84 ± 0.3)
-  ✓ S°(CH4) = 186.25 J mol⁻¹ K⁻¹  → 186.3190332 (atteso 186.25 ± 0.3)
-  ✓ S°(NH3) = 192.77 J mol⁻¹ K⁻¹  → 193.1494269 (atteso 192.77 ± 0.6)
-  ✓ Cp(N₂, 298 K) = 29,12 J mol⁻¹ K⁻¹  → 29.11289905 (atteso 29.12 ± 0.05)
-
-── Dinamica molecolare ──
-  ✓ senza termostato l’energia per particella si conserva (scarto relativo)  → 0.0007925765037 (atteso 0 ± 0.002)
-  ✓ primo picco di g(r) al minimo del potenziale (2^1/6 σ)  → 1.125 (atteso 1.122462048309373 ± 0.08)
-  ✓ il termostato porta la temperatura al valore chiesto (T* 0,8)  → 0.8155698766 (atteso 0.8 ± 0.08)
-
-── Matematica ──
-  ✓ Hückel benzene: livelli 2, 1, 1, −1, −1, −2  → 2,1,1,-1,-1,-2
-  ✓   · energia di delocalizzazione 2β  → 2 (atteso 2 ± 1e-9)
-  ✓ Hückel butadiene: delocalizzazione 0,472β  → 0.472135955 (atteso 0.4721 ± 0.0001)
-  ✓ Hückel naftalene: delocalizzazione 3,683β  → 3.683238506 (atteso 3.6832 ± 0.0001)
-  ✓ Hückel ciclobutadiene: delocalizzazione 0 (antiaromatico)  → 8.881784197e-16 (atteso 0 ± 1e-9)
-  ✓ Hückel anione Cp⁻: delocalizzazione 2,472β  → 2.472135955 (atteso 2.4721 ± 0.0001)
-  ✓ FFT: la riga a 100 Hz cade a 100 Hz  → 100.0976563 (atteso 100 ± 0.5)
-  ✓ RK4 su A → B → C: scarto da [B] esatta  → 2.299570256e-12 (atteso 0 ± 1e-9)
-  ✓ Arrhenius N₂O₅: Eₐ ≈ 103 kJ/mol  → 102.897859 (atteso 103 ± 3)
-
-── Cristallografia (Cu Kα, 1,5406 Å) ──
-  ✓ NaCl (200) a 2θ = 31,70°  → 31.70315736 (atteso 31.7 ± 0.02)
-  ✓ NaCl (220) a 2θ = 45,45°  → 45.44735665 (atteso 45.45 ± 0.02)
-  ✓ Si (111) a 2θ = 28,44°  → 28.44263637 (atteso 28.44 ± 0.02)
-  ✓ Cu (111) a 2θ = 43,30°  → 43.31816975 (atteso 43.3 ± 0.05)
-  ✓ α-Fe (110) a 2θ = 44,67°  → 44.67163128 (atteso 44.67 ± 0.02)
-  ✓ fcc: (100) e (110) estinti  → true
-  ✓ bcc: (100) e (111) estinti  → true
-  ✓ diamante: (200) estinto, al contrario del NaCl  → true
-  ✓ d(111) cubico a = 5,64 Å  → 3.256255518 (atteso 3.2562555182294894 ± 1e-9)
-
-── Nucleare ──
-  ✓ ⁹⁹ᵐTc al massimo dopo ln(λ₂/λ₁)/(λ₂ − λ₁) = 22,84 h  → 22.84 (atteso 22.84 ± 0.02)
-  ✓ equilibrio secolare ⁹⁰Sr/⁹⁰Y: attività uguali  → 1.000233809 (atteso 1 ± 0.001)
-  ✓ ¹⁴C: metà del carbonio = 5730 anni  → 5730 (atteso 5730 ± 0.000001)
-  ✓ B/A del ⁵⁶Fe ≈ 8,79 MeV (Weizsäcker)  → 8.846137499 (atteso 8.79 ± 0.1)
-  ✓ valle di stabilità: Z ≈ 26 per A = 56  → 25.23024465 (atteso 26 ± 1)
-
-── Nel browser ──
-── schermo grande ──
-  ✓ la categoria ⚛️ Fisica c’è  → true
-  ✓   · e il suo pannello si apre  → flex
-  ✓   · con le otto sezioni  → 8
-  ✓ sschrod: si apre, ogni scheda disegna  → true
-  ✓ shf: si apre, ogni scheda disegna  → true
-  ✓ srotovib: si apre, ogni scheda disegna  → true
-  ✓ stermostat: si apre, ogni scheda disegna  → true
-  ✓ sdinmol: si apre, ogni scheda disegna  → true
-  ✓ smatchim: si apre, ogni scheda disegna  → true
-  ✓ scristalli: si apre, ogni scheda disegna  → true
-  ✓ snucleare: si apre, ogni scheda disegna  → true
-  ✓ la dinamica molecolare si ferma a sezione chiusa  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ sschrod: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ shf: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ srotovib: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ stermostat: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ sdinmol: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatchim: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ scristalli: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ snucleare: si apre, ogni scheda disegna  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese la categoria si chiama «Physics»  → ⚛️ Physics
-  ✓   · e la dinamica molecolare «Molecular dynamics»  → 🎱 Molecular dynamics
-
-92 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_matematica</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Motore simbolico: forma canonica ──
-  ✓ termini simili raccolti  → 2x² + 2x + 1
-  ✓ √2·√2 = 2  → 2
-  ✓ frazioni esatte: 0,1 + 0,2 = 3/10  → 3/10
-  ✓ ∛8 = 2  → 2
-  ✓ ln(eˣ) = x  → x
-  ✓ −(x + 1) si distribuisce  → −x − 1
-  ✓ espansione di (x + 1)³  → x³ + 3x² + 3x + 1
-  ✓ espansione di (x − 1)(x + 1)  → x² − 1
-  ✓ sintassi italiana: sen, tg, √, ², ·  → true
-
-── Derivate ──
-  ✓ (x³)′  → 3x²
-  ✓ sin(x²)′ (catena)  → 2x·cos(x²)
-  ✓ (xˣ)′  → x^x·(ln(x) + 1)
-  ✓ atan(x)′  → 1/(x² + 1)
-  ✓ ln(x² + 1)′  → 2x/(x² + 1)
-  ✓ il registro dei passi riconosce il quoziente  → true
-  ✓ derivata simbolica = differenze finite (funzione complicata)  → 5.433813399e-10 (atteso 0 ± 0.000001)
-
-── Primitive (verificate derivando) ──
-  ✓ ∫ x·eˣ  → x·e^x − e^x
-  ✓ ∫ 1/(1 + x²)  → atan(x)
-  ✓ ∫ ln x  → x·ln(x) − x
-  ✓ ∫ 2x·cos(x²) (sostituzione)  → sin(x²)
-  ✓ ∫ x²·sin x (per parti due volte)  → true
-  ✓ ∫ sin(x)·cos(x)  → −cos(x)²/2
-  ✓ e^(−x²) non ha primitiva elementare  → null
-  ✓ ∫ e^(−x²) su ℝ = √π (Simpson adattivo)  → 1.772453851 (atteso 1.7724538509055159 ± 1e-9)
-  ✓ ∫₀^π sin x = 2  → 2 (atteso 2 ± 1e-10)
-
-── Serie e limiti ──
-  ✓ sin x: coefficiente di x⁵ = 1/120  → 1/120
-  ✓ tan x: coefficiente di x⁷ = 17/315  → 17/315
-  ✓ Σ 1/k! (serie di eˣ in 1) = e  → 2.718281828 (atteso 2.718281828459045 ± 1e-12)
-  ✓ ln(1 + x): coefficienti 1, −1/2, 1/3, −1/4  → 1,−1/2,1/3,−1/4
-  ✓ lim sin x / x = 1 (con le serie)  → 1 serie
-  ✓ lim (1 − cos x)/x² = 1/2  → 0.5
-  ✓ lim (1 + 1/x)ˣ per x → ∞ = e  → 2.718281828 (atteso 2.718281828459045 ± 1e-7)
-  ✓ |x|/x in 0: sinistro −1, destro 1, il limite non esiste  → -1 1 NaN
-  ✓ lim 1/x² = +∞  → Infinity
-  ✓ lim x·ln x per x → 0⁺ = 0  → 0
-  ✓ lim ln x per x → 0⁺ = −∞  → -Infinity
-  ✓ radici di x³ − 6x² + 11x − 6  → 1,2,3
-  ✓ radici di x² + 1: ±i  → 0-1,01
-
-── Basi ──
-  ✓ 0,004050 ha 4 cifre significative  → 4
-  ✓ 1200 è ambiguo  → true
-  ✓ 1,20e3 ha 3 cifre significative  → 3
-  ✓ 12,11 × 0,0150 → 3 cifre: 0.182  → 0.182
-  ✓ 12,11 + 18,0 → 1 decimale: 30.1  → 30.1
-  ✓ pH di 2,5·10⁻⁴ M = 3.60 (2 decimali per 2 cifre)  → 3.60
-  ✓ acido acetico 0,1 M: [H⁺] dalla formula risolutiva  → 0.001332670973 (atteso 0.001332670973077975 ± 1e-12)
-  ✓ eˣ = 3 − x → x = 3 − W(e³)  → 0.7920599684 (atteso 0.7920599684306769 ± 1e-9)
-  ✓ x² + 2x + 5 = 0 → −1 ± 2i  → -1-2,-12
-  ✓ 2° grado: Δ  → 1
-  ✓ allenamento «cifre»: la risposta giusta è accettata  → true
-  ✓ allenamento «scientifica»: la risposta giusta è accettata  → true
-  ✓ allenamento «ph»: la risposta giusta è accettata  → true
-  ✓ allenamento «logaritmo»: la risposta giusta è accettata  → true
-  ✓ allenamento «secondo»: la risposta giusta è accettata  → true
-  ✓ allenamento «derivata»: la risposta giusta è accettata  → true
-  ✓ allenamento: una risposta sbagliata è respinta  → true
-
-── Studio di funzione ──
-  ✓ x³ − 3x: massimo in −1, minimo in 1  → max-1,min1
-  ✓   · flesso in 0, funzione dispari  → 0 dispari
-  ✓ (x² − 1)/(x − 2): asintoto verticale x = 2  → 2
-  ✓   · asintoto obliquo y = x + 2  → obliquo 1 2
-  ✓ x·e^(−x): massimo in 1, flesso in 2, y = 0 a +∞  → max1 2 orizzontale0
-  ✓ ln(x)/x: massimo in x = e  → 2.718281828 (atteso 2.718281828459045 ± 1e-8)
-
-── Derivate, integrali e serie (sezione) ──
-  ✓ Riemann punto medio di x² su [0, 1], n = 10  → 0.3325 (atteso 0.3325 ± 1e-12)
-  ✓ trapezi, n = 10  → 0.335 (atteso 0.335 ± 1e-12)
-  ✓ Taylor di sin x al 7° grado  → x − (1/6)·x³ + (1/120)·x⁵ − (1/5040)·x⁷
-
-── Algebra lineare ──
-  ✓ sistema 3×3: x = 2, y = 3, z = −1  → unica 2,3,−1
-  ✓ sistema con infinite soluzioni  → infinite
-  ✓ sistema impossibile  → impossibile
-  ✓ inversa della matrice di Hilbert 3×3 (intera)  → 9 −36 30 −36 192 −180 30 −180 180
-  ✓ det di Hilbert 3×3 = 1/2160  → 1/2160
-  ✓ det 4×4 (rifatto a parte in frazioni: 86)  → 86
-  ✓ autovalori di tridiag(−1, 2, −1): 2 − √2, 2, 2 + √2  → 0.5857864376,2.0000000000,3.4142135624
-  ✓ [2 1; 0 2]: λ = 2 doppio con un solo autovettore  → 2 2 1
-  ✓ rotazione di 90°: autovalori ±i  → 0,-1 0,1
-  ✓ polinomio caratteristico di [4 1; 2 3] = λ² − 7λ + 10  → 10,−7,1
-  ✓ C₃H₈ + O₂ → CO₂ + H₂O  → 1 5 3 4
-  ✓ KMnO₄ + HCl → KCl + MnCl₂ + H₂O + Cl₂  → 2 16 2 2 8 5
-  ✓ redox con cariche: MnO₄⁻ + Fe²⁺ + H⁺  → 1 5 8 1 5 4
-  ✓ processo Wöhler: Ca₃(PO₄)₂ + SiO₂ + C  → 2 6 10 6 1 10
-  ✓ idrato CuSO₄·5H₂O  → 1 1 5
-  ✓ H₂ + O₂ → H₂O + H₂O₂: nucleo di dimensione 2, non unica  → dim 2
-
-── Equazioni differenziali ──
-  ✓ Eulero: dimezzando h l’errore cala di ~2 (ordine 1)  → 1.897834383 (atteso 2 ± 0.12)
-  ✓ Heun: cala di ~4 (ordine 2)  → 3.814823833 (atteso 4 ± 0.25)
-  ✓ RK4: cala di ~16 (ordine 4)  → 15.18976506 (atteso 16 ± 1)
-  ✓ Lotka-Volterra: equilibrio (c/d, a/b) = (4; 2,75), centro  → 4 2.75 centro
-  ✓ oscillatore smorzato: fuoco stabile  → fuoco stabile
-  ✓ pendolo: sella in θ = π  → sella
-  ✓ Bruxellatore (A = 1, B = 3 > 1 + A²): (1, 3) fuoco instabile  → 1 3 fuoco instabile
-  ✓ SIR: una curva di equilibri (I = 0)  → curva
-
-── Più variabili ──
-  ✓ x² − y²: sella  → sella
-  ✓ x·y·e^(−(x²+y²)/2): 2 massimi, 2 minimi, 1 sella  → massimo,massimo,minimo,minimo,sella
-  ✓ doppia buca: due minimi e uno stato di transizione  → minimo,minimo,sella
-  ✓ Rosenbrock: minimo in (1, 1)  → 1 1
-  ✓ Maxwell (van der Waals): (∂S/∂V)_T = (∂p/∂T)_V = R/(V − b)  → R/(V − b) R/(V − b) true
-  ✓ δq = Cv dT + (RT/V) dV non è esatto  → false
-  ✓ δq/T è esatto e il potenziale è S = Cv ln T + R ln V  → true
-  ✓ discesa del gradiente su x² + y²: arriva all’origine  → 4.780842753e-7 (atteso 0 ± 0.0001)
-
-── Complessi e Fourier ──
-  ✓ e^(iπ) = −1  → −1
-  ✓ (1 + i)⁸ = 16  → 16
-  ✓ iⁱ = e^(−π/2)  → 0.2078795764 (atteso 0.20787957635076193 ± 1e-14)
-  ✓ (3 + 4i)/(1 − 2i) = −1 + 2i  → −1 + 2i
-  ✓ le radici cubiche dell’unità sommano a 0  → 3.140184917e-16 (atteso 0 ± 1e-14)
-  ✓ fenomeno di Gibbs: massimo della somma dell’onda quadra → 1,1790  → 1.17895689 (atteso 1.178979744 ± 0.001)
-  ✓ onda quadra: b₁ numerico = 4/π  → 1.273239545 (atteso 1.2732395447351628 ± 1e-8)
-  ✓ f = x²: aₙ = 4(−1)ⁿ/n²  → -4,1,-0.444444
-  ✓ Parseval per l’onda quadra: Σ bₙ² = (1/π)∫f² = 2  → 1.999959476 (atteso 2 ± 0.0001)
-
-── Statistica di laboratorio ──
-  ✓ t(0,975; 9) = 2,262  → 2.262157163 (atteso 2.262 ± 0.0005)
-  ✓ t(0,975; 4) = 2,776  → 2.776445105 (atteso 2.776 ± 0.0005)
-  ✓ t(0,975; 1) = 12,706  → 12.70620474 (atteso 12.706 ± 0.001)
-  ✓ F(0,975; 4, 4) = 9,605  → 9.604529885 (atteso 9.605 ± 0.001)
-  ✓ Grubbs critico n = 10 (95 %, due code) = 2,290  → 2.289954084 (atteso 2.29 ± 0.001)
-  ✓ Grubbs critico n = 5 = 1,715  → 1.715037312 (atteso 1.715 ± 0.001)
-  ✓ Grubbs e Dixon segnalano 10,48  → 10.48 10.48
-  ✓ Miller & Miller: pendenza 1,93  → 1.930357143 (atteso 1.9304 ± 0.0001)
-  ✓   · intercetta 1,52  → 1.517857143 (atteso 1.5179 ± 0.0001)
-  ✓   · s_y/x 0,4329  → 0.4328477132 (atteso 0.4329 ± 0.0001)
-  ✓   · r 0,9989  → 0.9988795653 (atteso 0.9989 ± 0.0001)
-  ✓   · y₀ = 2,9 → x₀ = 0,72  → 0.7160037003 (atteso 0.716 ± 0.001)
-  ✓   · s(x₀) = 0,26  → 0.264569771 (atteso 0.265 ± 0.002)
-  ✓   · y₀ = 13,5 → x₀ = 6,21 ± 0,24  → 0.2397542227 (atteso 0.24 ± 0.002)
-  ✓ propagazione: molarità 0,04005 M  → 0.04005484282 (atteso 0.040055 ± 0.000001)
-  ✓   · u dalle derivate = u del Monte Carlo (entro il 5 %)  → 1.013863448 (atteso 1 ± 0.05)
-  ✓ t a un campione: 98,7 contro 100 è significativo (p < 0,05)  → true
-
-── Nel browser ──
-── schermo grande ──
-  ✓ la categoria 📐 Matematica c’è  → true
-  ✓   · e il suo pannello si apre  → flex
-  ✓   · con le otto sezioni  → 8
-  ✓ scrivendo x³·ln x la sezione dà f′ = 3x²·ln(x) + x²  → true
-  ✓ smatbasi: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatfunz: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatcalc: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatlin: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatode: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatmulti: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatcompl: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ smatstat: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ smatbasi: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatfunz: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatcalc: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatlin: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatode: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatmulti: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatcompl: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatstat: si apre, ogni scheda disegna, nessun avviso  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese la categoria si chiama «Mathematics»  → 📐 Mathematics
-  ✓   · e la statistica «Laboratory statistics»  → 📏 Laboratory statistics
-
-154 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_esami</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Matematica I ──
-  ✓ dominio √(4 − x²)  → [−2, 2]
-  ✓ dominio ln(x² − 1)  → (−∞, −1) ∪ (1, +∞)
-  ✓ dominio 1/(x² − 3x + 2)  → (−∞, 1) ∪ (1, 2) ∪ (2, +∞)
-  ✓ dominio √((x − 1)/(x + 2))  → (−∞, −2) ∪ [1, +∞)
-  ✓ dominio arcsin(2x − 1)  → [0, 1]
-  ✓ dominio ln(ln x)  → (1, +∞)
-  ✓ dominio x·e^(−x): ℝ (il trabocco numerico per x → −∞ non toglie punti)  → ℝ
-  ✓ dominio eˣ/x  → (−∞, 0) ∪ (0, +∞)
-  ✓ dominio x^(1/3)/(x − 1): la radice cubica esiste anche per x < 0  → (−∞, 1) ∪ (1, +∞)
-  ✓ dominio x·ln x  → (0, +∞)
-  ✓ lim (x³ + 1)/(x + 1) in −1 (0/0)  → 3
-  ✓ lim (1 − cos x)/x²  → 1/2
-  ✓ lim (sin x − x)/x³ (SymPy: −1/6)  → −1/6
-  ✓ lim (eˣ − 1 − x)/x²  → 1/2
-  ✓ lim (1 + 2/x)ˣ a +∞ (SymPy: e²)  → e²
-  ✓ lim (2x² + 1)/(3x² − x) a ∞  → 2/3
-  ✓ lim x·ln x in 0⁺  → 0
-  ✓ lim 1/(x − 2) in 2: non esiste, −∞ e +∞  → true
-  ✓ il limite 0/0 mostra gli sviluppi di Taylor  → true
-  ✓ studio (x² + 1)/(x² − 1): asintoti verticali ±1 e orizzontale 1  → true
-  ✓   · massimo relativo in (0, −1)  → true
-  ✓   · f′ in forma razionale −4x/(x² − 1)²  → true
-  ✓ studio x·e^(−x): massimo in x = 1, flesso in x = 2  → true
-  ✓ ∫ (x + 3)/(x² − x − 2) (SymPy)  → 5·ln(|x − 2|)/3 − 2·ln(|x + 1|)/3 + c
-  ✓ ∫ (2x + 1)/(x² + 2x + 5) (SymPy)  → −atan(x/2 + 1/2)/2 + ln(x² + 2x + 5) + c
-  ✓ ∫ 1/((x − 1)²(x + 1)): radice doppia  → −1/(2(x − 1)) − ln(|x − 1|)/4 + ln(|x + 1|)/4 + c
-  ✓ ∫ x·arctg x (SymPy)  → x²·atan(x)/2 − x/2 + atan(x)/2 + c
-  ✓ ∫ eˣ cos x (ciclico, SymPy)  → e^x·(cos(x) + sin(x))/2 + c
-  ✓ ∫ ln² x  → x·ln(x)² − 2x·ln(x) + 2x + c
-  ✓ ∫ x²eˣ: lo svolgimento nomina l’integrazione per parti  → true
-  ✓ ∫ 2x·cos(x²): lo svolgimento nomina la sostituzione u = x²  → true
-  ✓ ∫ fratti: lo svolgimento mostra A = −2/3, B = 5/3  → true
-  ✓ ∫ e^(−x²) dx: nessuna primitiva elementare  → null
-  ✓ ∫₀^∞ x e^(−x) dx (SymPy: 1)  → 1
-  ✓ ∫₀¹ ln x dx (SymPy: −1)  → −1
-  ✓ ∫₋∞^∞ 1/(1 + x²) dx = π  → π
-  ✓ ∫₀¹ 1/√x dx = 2  → 2
-  ✓ ∫₁^∞ 1/x dx diverge  → true
-  ✓ Taylor di eˣ sin x al 5° ordine (SymPy)  → x + x² + (1/3)·x³ − (1/30)·x⁵
-  ✓ Taylor di ln x in 1  → (x − 1) − (1/2)·(x − 1)² + (1/3)·(x − 1)³ − (1/4)·(x − 1)⁴
-  ✓ complessi: z³ = 8i  → √3 + i; −√3 + i; −2i
-  ✓ complessi: (1 + i)⁸ = 16  → 16
-  ✓ complessi: z² + 2z + 5 = 0  → −1 − 2i; −1 + 2i
-
-── Matematica II ──
-  ✓ Σ n!/nⁿ converge (rapporto 1/e)  → converge
-  ✓ Σ 2ⁿ/n! converge  → converge
-  ✓ Σ 1/n diverge  → diverge
-  ✓ Σ 1/n² converge  → converge
-  ✓ Σ (−1)ⁿ/n converge semplicemente  → semplice
-  ✓ Σ (−1)ⁿ/n² converge assolutamente  → assoluta
-  ✓ Σ 1/(n ln n) diverge (caso critico)  → diverge
-  ✓ Σ (2n)!/((n!)²4ⁿ) ~ 1/√(πn) diverge  → diverge
-  ✓ Σ (n/(n + 1))ⁿ: aₙ → 1/e, diverge  → diverge
-  ✓ Σ cos n/n² converge assolutamente  → assoluta
-  ✓ Σ (2/3)ⁿ da 1: somma geometrica 2  → 2 (atteso 2 ± 1e-12)
-  ✓ Σ xⁿ/n: [−1, 1)  → [−1, 1)
-  ✓ Σ xⁿ/(n3ⁿ): [−3, 3)  → [−3, 3)
-  ✓ Σ xⁿ/n²: [−1, 1]  → [−1, 1]
-  ✓ Σ n2ⁿxⁿ: (−1/2, 1/2)  → (−1/2, 1/2)
-  ✓ x³ − 3xy + y³: sella in (0,0), minimo in (1,1)  → sella (0, 0); minimo (1, 1)
-  ✓   · derivata direzionale in (1,2) lungo (3,4) = (−3·3 + 9·4)/5  → 5.4 (atteso 5.4 ± 1e-12)
-  ✓ max/min di x² + y² − 2x su [0,2]×[−1,1]  → max 1, min −1
-  ✓ max/min di xy sul disco unitario  → max 1/2, min −1/2
-  ✓ max/min di x² − xy + y sul triangolo (0,0),(2,0),(0,2)  → max 4, min 0
-  ✓ ∬ xy, x² ≤ y ≤ x (SymPy: 1/24)  → 1/24
-  ✓ ∬ (x² + y²) sul disco unitario in polari = π/2  → π/2
-  ✓ ∬ (x + y), y ≤ x ≤ 1 (normale rispetto a y)  → 1/2
-  ✓ ω = (2xy + 1)dx + (x² + 3y²)dy è chiusa, ∫ = U(1,1) − U(0,0) = 3  → true
-  ✓ −y dx + x dy non è chiusa, sul cerchio ∫ = 2π  → true
-  ✓ y′ + 2y = eˣ, y(0) = 1 (SymPy)  → 2·e^(−2x)/3 + e^x/3
-  ✓ y′ + y/x = x², y(1) = 0 (SymPy)  → x³/4 − 1/(4x)
-  ✓ y′ = xy, y(0) = 2  → y = 2·e^(x²/2)
-  ✓ y′ = y², y(0) = 1  → y = −1/(x − 1)
-  ✓ y′ = 2x(1 + y²), y(0) = 0  → y = tan(x²)
-  ✓ y″ − 3y′ + 2y = eˣ, Cauchy (SymPy, risonanza)  → −x·e^x + 2·e^(2x) − 2·e^x
-  ✓ y″ + 4y = sin 2x, Cauchy (SymPy, risonanza)  → −x·cos(2x)/4 + sin(2x)/8
-  ✓ y″ + 2y′ + y = x²: soluzione particolare x² − 4x + 6  → true
-  ✓ y″ − 2y′ + y = eˣ: radice doppia, y_p = x²eˣ/2  → true
-  ✓ y″ + 2y′ + 5y = 0, y(0) = 1, y′(0) = 0  → cos(2x)·e^(−x) + e^(−x)·sin(2x)/2
-  ✓ tutti gli esercizi degli appelli svolti di Matematica hanno uno svolgimento  → 64
-  ✓   · e sono almeno 60  → true
-
-── Fisica ──
-  ✓ proiettile da terra: R = v₀² sin 2θ/g  → 62.74259385 (atteso 62.742593846343524 ± 1e-9)
-  ✓ caduta: velocità d’impatto √(v₀² + 2gh)  → 22.19008788 (atteso 22.190087877248256 ± 1e-9)
-  ✓ piano inclinato: a = g(sin θ − μ cos θ)  → 2.356287237 (atteso 2.3562872366623964 ± 1e-9)
-  ✓ piano inclinato a 25° con μs = 0,5: resta fermo  → 0
-  ✓ Atwood: a = (m₂ − m₁)g/(m₁ + m₂)  → 1.962 (atteso 1.9620000000000002 ± 1e-12)
-  ✓ urto elastico: energia cinetica conservata  → 18 (atteso 18 ± 1e-9)
-  ✓ urto anelastico: quantità di moto conservata  → 3.5 (atteso 3.5 ± 1e-12)
-  ✓ orbita geostazionaria: periodo ≈ giorno siderale (86164 s)  → 86166.72261 (atteso 86164 ± 30)
-  ✓ rotolamento della sfera: v = √(10gh/7)  → 4.584913148 (atteso 4.584913147642883 ± 1e-12)
-  ✓ giro della morte: h = 5R/2  → 5 (atteso 5 ± 1e-12)
-  ✓ Torricelli: v = √(2gh)  → 6.264183905 (atteso 6.26418390534633 ± 1e-12)
-  ✓ Venturi: la portata si conserva (A₂v₂ = A₁v₁)  → 0.02 (atteso 0.02 ± 1e-12)
-  ✓ isoterma: L = nRT ln 3  → 2740.311242 (atteso 2740.311241741927 ± 1e-9)
-  ✓ isobara: Q − L = ΔU (primo principio)  → 4157.231309 (atteso 4157.231309 ± 1e-9)
-  ✓ adiabatica: T V^(γ−1) costante (γ = 7/5)  → 62.73837316 (atteso 62.73837315547639 ± 1e-9)
-  ✓ Carnot fra 500 e 300 K: η = 0,4  → 0.4 (atteso 0.4 ± 1e-12)
-  ✓ calorimetria: acqua 0,2 kg a 80 °C + 0,3 kg a 20 °C → 44 °C  → 317 (atteso 317 ± 1e-9)
-  ✓   · ΔS del mescolamento > 0  → true
-  ✓ ghiaccio: 50 g in 300 g a 40 °C → 22,9 °C (bilancio a mano)  → 22.90423862 (atteso 22.904238618524335 ± 1e-9)
-  ✓ Coulomb: 3 μC e −5 μC a 20 cm → 3,37 N  → 3.370331922 (atteso 3.3703319221124994 ± 0.001)
-  ✓ Gauss: sfera uniforme dentro, E = kQr/R³  → 561.721987 (atteso 561.7219870187499 ± 0.001)
-  ✓ condensatore piano: C = ε₀A/d  → 1.770837563e-10 (atteso 1.77083756256e-10 ± 1e-20)
-  ✓ Kirchhoff: I₁ con la regola di Cramer  → 1.363636364 (atteso 1.3636363636363635 ± 1e-12)
-  ✓   · nodo: I₃ = I₁ + I₂  → 1.090909091 (atteso 1.0909090909090908 ± 1e-12)
-  ✓ RC: dopo τ la carica è Cℰ(1 − 1/e)  → 0.0005689085029 (atteso 0.0005689085029457019 ± 1e-12)
-  ✓ protone in 0,5 T a 2·10⁶ m/s: r = mv/qB  → 0.04177278402 (atteso 0.041772784019975036 ± 1e-12)
-  ✓ filo: B = μ₀I/(2πd) = 2·10⁻⁷·I/d  → 0.00004 (atteso 0.000039999999999999996 ± 1e-15)
-  ✓ barretta: P meccanica = ℰ²/R  → 0.18 (atteso 0.18 ± 1e-12)
-  ✓ RL: dopo τ la corrente è (ℰ/R)(1 − 1/e)  → 0.7585446706 (atteso 0.7585446705942692 ± 1e-12)
-  ✓ Snell: angolo limite vetro-aria arcsin(1/1,5)  → 41.8103149 (atteso 41.810314895778596 ± 1e-9)
-  ✓ lente: f = 10, p = 15 → q = 30 cm  → 30 (atteso 30 ± 1e-9)
-  ✓ Malus: 100 W/m² non polarizzati, 60° → 12,5  → 12.5 (atteso 12.5 ± 1e-12)
-  ✓ tutte le prove svolte di Fisica hanno uno svolgimento  → 36
-  ✓ ogni modello del risolutore funziona con i dati predefiniti  → 85
-  ✓   · i modelli sono almeno 45  → true
-
-── Matematica avanzata ──
-  ✓ autovalori di tridiag(−1, 2, −1): 2, 2 ∓ √2  → 2, 2 − √2, 2 + √2
-  ✓ [2 1; 0 2] non è diagonalizzabile  → false
-  ✓ x′ = x + 2y, y′ = 2x + y, X(0) = (1, 0): x = (e^(3t) + e^(−t))/2  → true
-  ✓ sistema con autovalori −1 ± 2i: fuoco stabile, x = e^(−t)cos 2t  → true
-  ✓ autovalore doppio −1: x = (1 + t)e^(−t)  → true
-  ✓ Fourier di x: bₙ = 2(−1)ⁿ⁺¹/n  → true
-  ✓ Fourier di |x|: a₁ = −4/π, a₂ = 0  → true
-  ✓ ℒ{t e^(−t)} = 1/(s + 1)²  → 1/(s + 1)²
-  ✓ ℒ{e^(−t) sin 2t} = 2/(s² + 2s + 5)  → 2/(s² + 2s + 5)
-  ✓ ℒ{cos t} = s/(s² + 1)  → s/(s² + 1)
-  ✓ volume della sfera unitaria in sferiche: 4π/3  → 4π/3
-  ✓ ∭ r² sulla sfera unitaria = 4π/5  → 4π/5
-  ✓ ∭ xyz sul parallelepipedo [0,1]×[0,2]×[0,3] = 9/2  → 9/2
-  ✓ gli appelli avanzati di matematica hanno tutti uno svolgimento  → 16
-
-── Fisica avanzata ──
-  ✓ oscillatore forzato: ampiezza (F₀/m)/√((ω₀² − ω²)² + (2γω)²)  → 0.019104018 (atteso 0.019104017997521754 ± 1e-12)
-  ✓ corda: f₁ = √(T/μ)/(2L)  → 97.30085108 (atteso 97.30085108210397 ± 1e-9)
-  ✓ fotoelettrico: soglia hc/W con W = 4,3 eV ≈ 288,3 nm  → 288.3353442 (atteso 288.3353441860465 ± 0.000001)
-  ✓ Compton a 90°: Δλ = λ_C = 2,426 pm  → 2.42631 (atteso 2.42631 ± 0.00001)
-  ✓ relatività a 0,8c: γ = 5/3  → 1.666666667 (atteso 1.6666666666666667 ± 1e-12)
-  ✓ Wien: Sole a 5778 K, λ_max ≈ 501,5 nm  → 501.5181646 (atteso 501.5 ± 0.1)
-  ✓ scatola di 1 nm: E₁ = 0,376 eV  → 0.3760460023 (atteso 0.376 ± 0.001)
-  ✓ tunnel 5 eV contro 10 eV, 0,5 nm: T ≈ 4,24·10⁻⁵  → 0.00004235275923 (atteso 0.000042353 ± 1e-8)
-  ✓ le prove avanzate di fisica hanno tutte uno svolgimento  → 9
-
-── Chimica ──
-  ✓ massa molare di Ca₃(PO₄)₂ = 310,18 g/mol  → 310.174 (atteso 310.18 ± 0.01)
-  ✓ formula minima e molecolare del glucosio da C 40,0 H 6,71 O 53,29  → formula minima CH₂O|formula molecolare C₆H₁₂O₆
-  ✓ 2Al + 3Cl₂ → 2AlCl₃ con 10 g Al e 30 g Cl₂: limitante Cl₂  → true
-  ✓   · massa teorica di AlCl₃ = (30/70,90)·(2/3)·133,33  → 37.6112835 (atteso 37.61071932299012 ± 0.01)
-  ✓ equilibrio A + B ⇌ 2C, K = 49, 0,5 M: [C] = 7/9 M  → 0.7777777778 (atteso 0.7777777777777778 ± 0.000001)
-  ✓ pH di acido acetico 0,1 M (formula risolutiva)  → 2.875277062 (atteso 2.8752770615501357 ± 1e-9)
-  ✓ pH di HCl 10⁻⁸ M: 6,98 (non 8!)  → 6.978294314 (atteso 6.978 ± 0.001)
-  ✓ tampone acetato equimolare: pH = pK_a  → 4.76 (atteso 4.76 ± 1e-12)
-  ✓ solubilità di AgCl: √K_sp  → 0.00001341640786 (atteso 0.000013416407864998738 ± 1e-15)
-  ✓ Ag₂CrO₄: s = (K_sp/4)^(1/3)  → 0.00006502957234 (atteso 0.00006502957234256938 ± 1e-15)
-  ✓ pila Daniell: E° = 1,10 V  → 1.1 (atteso 1.1 ± 1e-12)
-  ✓ elettrolisi: 2 A per 30 min depositano 1,186 g di Cu  → 1.185494183 (atteso 1.1854941832789745 ± 1e-9)
-  ✓ riga Hα (3 → 2): 656 nm  → 656.1122824 (atteso 656.1 ± 0.2)
-  ✓ ΔH° di combustione del metano = −890,3 kJ/mol (Hess)  → -890.3 (atteso -890.3 ± 1e-9)
-  ✓ titolazione: alla semi-equivalenza pH = pK_a  → 4.745196013 (atteso 4.7447274948966935 ± 0.002)
-  ✓   · pH al punto equivalente ≈ 8,72  → 8.72182586 (atteso 8.72 ± 0.01)
-  ✓ H₃PO₄ 0,1 M, bilancio di carica: pH ≈ 1,62  → 1.621752175 (atteso 1.62 ± 0.01)
-  ✓ gravimetria: 0,4668 g di BaSO₄ → S 6,41 %  → 6.412384633 (atteso 6.412549490101981 ± 0.01)
-  ✓ rotore HCl: B ≈ 10,59 cm⁻¹  → 10.58418271 (atteso 10.59 ± 0.02)
-  ✓ Sackur-Tetrode: S°(Ar) = 154,8 J/(mol·K)  → 154.8456597 (atteso 154.8 ± 0.2)
-  ✓ Pourbaix: E(O₂) a pH 0 e 1 bar = 1,229 V  → 1.229 (atteso 1.229 ± 1e-9)
-  ✓ Debye-Hückel: forza ionica di NaCl 0,05 + MgSO₄ 0,01 = 0,09 M  → 0.09 (atteso 0.09 ± 1e-12)
-  ✓ tutte le prove svolte di chimica hanno uno svolgimento  → 37
-  ✓ ogni modello di chimica funziona con i dati predefiniti  → 53
-  ✓   · su quattro livelli, almeno 40 modelli  → true
-
-── Astrofisica, nucleare, quantistica, dottorato ──
-  ✓ Sirio A: L ≈ 25,7 L☉ da R = 1,71 R☉, T = 9940 K  → 25.71765918 (atteso 25.7 ± 0.3)
-  ✓ Proxima: 768,5 mas → 1,301 pc  → 1.301236174 (atteso 1.3012 ± 0.001)
-  ✓ Keplero: 1 anno a 1 UA → 1 massa solare  → 1.988574364e+30 (atteso 1.989e+30 ± 5e+27)
-  ✓ Keplero: Giove (11,86 anni, 5,2 UA) → 1 M☉  → 1.987170474e+30 (atteso 1.989e+30 ± 2e+28)
-  ✓ Schwarzschild: 10 M☉ → 29,5 km  → 29532.06634 (atteso 29532 ± 10)
-  ✓ Terra senza effetto serra: 255 K  → 254.5857729 (atteso 254.6 ± 0.5)
-  ✓ Hubble: Hα a 689,2 nm → z = 0,0502  → 0.05016151643 (atteso 0.05016 ± 0.0001)
-  ✓ ⁵⁶Fe: B/A = 8,790 MeV dal difetto di massa  → 8.790349804 (atteso 8.79 ± 0.002)
-  ✓ ²³⁵U: B/A = 7,591 MeV  → 7.590909205 (atteso 7.591 ± 0.002)
-  ✓ D + T → ⁴He + n: Q = 17,59 MeV  → 17.58940309 (atteso 17.59 ± 0.01)
-  ✓ ¹³¹I, 1 μg: A₀ = 4,6·10⁹ Bq  → 4598508113 (atteso 4600000000 ± 20000000)
-  ✓ ¹⁴C al 25 %: due tempi di dimezzamento = 11460 anni  → 11460 (atteso 11460 ± 0.000001)
-  ✓ nucleo: densità ≈ 2,3·10¹⁷ kg/m³ (indipendente da A)  → 229412327000000000 (atteso 229412326950166620 ± 10000000000)
-  ✓ idrogeno 2p: ⟨r⟩ = 5a₀ = 264,6 pm  → 264.5885 (atteso 264.59 ± 0.01)
-  ✓ idrogeno n = 2: E = −3,40 eV  → -3.40142325 (atteso -3.4014 ± 0.001)
-  ✓ Larmor: 9,4 T → 400,2 MHz per ¹H  → 400.2282932 (atteso 400.23 ± 0.01)
-  ✓ scatola 1D stato fondamentale: ΔxΔp/ħ = 0,568  → 0.5678618084 (atteso 0.5679 ± 0.001)
-  ✓ elio variazionale: ζ = 27/16, E = −77,49 eV  → -77.48867341 (atteso -77.49 ± 0.01)
-  ✓ perturbazione al secondo ordine = spostamento esatto −q²E²/2k  → -0.0001602176634 (atteso -0.00016021766340000001 ± 1e-12)
-  ✓ tutte le prove di astrofisica, nucleare e quantistica hanno uno svolgimento  → 21
-  ✓ Marcus: ΔG‡ = (λ + ΔG°)²/4λ = 0,0625 eV  → 0.0625 (atteso 0.0625 ± 1e-12)
-  ✓ KIE C–H/C–D ≈ 6,4 a 298 K  → 6.424178838 (atteso 6.4 ± 0.2)
-  ✓ DBE dell’aspirina C₉H₈O₄ = 6  → 6 (atteso 6 ± 1e-12)
-  ✓ punto isoelettrico della lisina = 9,74  → 9.74 (atteso 9.74 ± 1e-9)
-  ✓ estrazione: 4 × 25 mL con K_D = 4 lascia il 6,25 %  → 0.0625 (atteso 0.0625 ± 1e-12)
-  ✓ Cl₂: rapporto M+2/M = 2·0,2424/0,7576  → 0.6399155227 (atteso 0.6399155227032735 ± 1e-9)
-  ✓ ∫ 1/(x⁴ + 1) con i residui = π/√2  → √2/2·π
-  ✓ ∫ 1/((x² + 1)(x² + 4)) = π/6  → 1/6·π
-  ✓ equazione del calore con u(x,0) = sin x: u = e^(−αt) sin x  → 0.6050112923 (atteso 0.6050112922850016 ± 1e-8)
-  ✓ equazione del calore con u(x,0) = x(π − x): bₙ = 8/(πn³) per n dispari  → 2.546479089 (atteso 2.5464790894703255 ± 1e-8)
-  ✓ i percorsi coprono quattro livelli per chimica, fisica e matematica  → true
-
-── Chimica fisica ──
-  ✓ Tafel: α anodico ritrovato (0,4)  → 0.4004668771 (atteso 0.4 ± 0.002)
-  ✓ Tafel: i₀ ritrovata (2·10⁻⁶)  → 0.000001990145913 (atteso 0.000002 ± 2e-8)
-  ✓ Tafel: pendenza anodica 2,303RT/(αF) = 147,8 mV/dec  → 147.7259496 (atteso 147.89836824116156 ± 0.5)
-  ✓ Eyring: ΔH‡ ritrovato (70 kJ/mol)  → 70000 (atteso 70000 ± 0.000001)
-  ✓ Eyring: ΔS‡ ritrovato (−50 J/(mol·K))  → -50 (atteso -50 ± 1e-8)
-  ✓ Eyring: Eₐ = ΔH‡ + RT medio  → 72558.50616 (atteso 72577.48341158 ± 60)
-  ✓ Eyring: k(80 kJ/mol, 298 K) = 0,05996 s⁻¹  → 0.05996094109 (atteso 0.05996 ± 0.0001)
-  ✓ BET: n_m ritrovato (1,000 mmol/g)  → 0.9997678896 (atteso 1 ± 0.002)
-  ✓ BET: c ritrovato (100)  → 100.1635669 (atteso 100 ± 1)
-  ✓ BET: area = n_m N_A σ = 97,6 m²/g  → 97.53603593 (atteso 97.558680312 ± 0.3)
-  ✓ BET usa solo 0,05 ≤ P/P₀ ≤ 0,35  → 7
-  ✓ Langmuir: n_m = 1,6  → 1.59977616 (atteso 1.6 ± 0.002)
-  ✓ Langmuir: K = 0,05 kPa⁻¹  → 0.05001363435 (atteso 0.05 ± 0.0002)
-  ✓ Mn a mano = 320000/11  → 29090.90909 (atteso 29090.909090909092 ± 0.000001)
-  ✓ Mw a mano = 1,06·10¹⁰/320000  → 33125 (atteso 33125 ± 0.000001)
-  ✓ Carothers p = 0,99: X̄n = 100, Đ = 1,99  → 100 (atteso 100 ± 1e-9)
-  ✓ fotofisica: le rese da S₁ sommano a 1  → 1 (atteso 1 ± 1e-12)
-  ✓ Stern-Volmer: K_SV dai dati ≈ 101,7 M⁻¹  → 101.7142857 (atteso 101.714 ± 0.01)
-
-── Nel browser ──
-── schermo grande ──
-  ✓ selettrodi: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ sfotosup: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ sfisesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ smatesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ schiesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ spercorsi: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓ un appello di matematica mostra lo svolgimento  → true
-  ✓ il risolutore di fisica rifà i conti con il dato nuovo  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ selettrodi: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ sfotosup: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ sfisesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ smatesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ schiesame: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ spercorsi: ogni scheda ha contenuto, nessun avviso, le tele disegnano  → true
-  ✓   · a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: «Chemistry exam», «Mathematics exam», «Physics exam», «Electrodes and transition state»  → 🎓 Chemistry exam (UniBA)|🎓 Mathematics exam (UniBA)|🎓 Physics exam (UniBA)|⚡ Electrodes and transition state
-
-235 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_assistente</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il motore simbolico: le aggiunte (ogni primitiva e' verificata derivando) ──
-  ✓ ∫ sin(x)^2 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ cos(3x)^2 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(x)^4 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(x)^3 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ cos(x)^5 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(3x)*cos(2x) dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(x)*sin(2x) dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ cos(x)*cos(4x) dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(x)^2*cos(x)^2 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ x*sin(x)^2 dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin(2x)^2*cos(x) dx: esiste e la sua derivata ridà la funzione  → true
-  ✓ ∫ sin²x dx = x/2 − sin(2x)/4  → x/2 − sin(2x)/4
-  ✓ ∫ sin³x dx = cos³x/3 − cos x  → cos(x)³/3 − cos(x)
-  ✓ e^(−ln x) = 1/x  → 1/x
-  ✓ e^(2 ln x + x) = x²·eˣ  → x²·e^x
-  ✓ e^(ln(x)/2) = √x  → √x
-
-── Matematica: domande in linguaggio naturale ──
-  ✓ «studia la funzione…» → studio di funzione  → studio
-  ✓ ∫₀¹ x·eˣ dx = 1  → integraleDefinito|1
-  ✓ ∫₀³ x² dx = 9  → 9
-  ✓ in inglese: ∫ e^(−x²) su ℝ ≈ √π = 1,7724538509  → true
-  ✓ ∫ sin²x dx (bisezione)  → x/2 − sin(2x)/4 + c
-  ✓ ∫ 1/(x² − 1) dx (fratti semplici)  → ln(|x − 1|)/2 − ln(|x + 1|)/2 + c
-  ✓ lim (sin x − x)/x³ = −1/6 (SymPy)  → −1/6
-  ✓ «limite per x che tende a 0 di …» (ordine invertito)  → limite|1
-  ✓ lim (1 + 1/x)^x per x → ∞ = e  → e
-  ✓ d/dx x²·sin 3x  → 3x²·cos(3x) + 2x·sin(3x)
-  ✓ d/dx ln(x² + 1)  → 2x/(x² + 1)
-  ✓ in inglese: d/dx sin x cos x  → cos(x)² − sin(x)²
-  ✓ y″ − 3y′ + 2y = eˣ, y(0)=0, y′(0)=1 (SymPy: 2e^{2x} − 2eˣ − x eˣ)  → −x·e^x + 2·e^(2x) − 2·e^x
-  ✓ y″ + 4y = 0 → cos 2x  → cos(2x)
-  ✓ termini sparsi nei due membri: 2y″ + 8y = sin x → particolare sin x/6  → c1·cos(2x) + c2·sin(2x) + sin(x)/6
-  ✓ y′ + 2y = 4, y(0) = 0 → 2 − 2e^(−2x)  → −2·e^(−2x) + 2
-  ✓ x·y′ = y + x² (lineare, fattore e^(−ln x) = 1/x)  → x² + c·x
-  ✓ y′ = xy, y(0) = 1 → e^(x²/2)  → separabile|y = e^(x²/2)
-  ✓ dy/dx = y² (separabile)  → y = −1/(c + x)
-  ✓ «risolvi l'equazione y″ − y = x»: riconosciuta come EDO  → secondoOrdine
-  ✓ Σ n!/nⁿ converge (rapporto → 1/e)  → converge
-  ✓ Σ 1/n² converge  → converge
-  ✓ Σ xⁿ/n: insieme di convergenza [−1, 1)  → seriePotenze|[−1, 1)
-  ✓ autovalori di [[2,1],[1,2]] (la virgola separa, non è decimale)  → 1, 3
-  ✓ autovalori di [[4,1],[2,3]]  → 2, 5
-  ✓ x³ − 6x² + 11x − 6 = 0  → 1; 2; 3
-  ✓ z³ = 8: tre radici  → 2; −1 + √3i; −1 − √3i
-  ✓ Taylor di eˣ sin x al quinto ordine (SymPy)  → x + x² + (1/3)·x³ − (1/30)·x⁵
-  ✓ ∫ 1/(x⁴ + 1) su ℝ = π/√2 con i residui  → √2/2·π
-  ✓ L{t e^{2t}} = 1/(s − 2)²  → 1/(s − 2)²
-  ✓ dominio √(4 − x²)/ln x  → [0, 1) ∪ (1, 2]
-  ✓ (x² − 1)/(x − 1) = x + 1 (MCD di Euclide)  → x + 1
-  ✓ (x² − 1)/(x − 1)² = (x + 1)/(x − 1)  → (x + 1)/(x − 1)
-  ✓ un numero: 2¹⁰  → 1024
-
-── Fisica: modello scelto, dati letti, risultato rifatto per altra via ──
-  ✓ proiettile  → proiettile
-  ✓ gittata = v₀² sin 2θ / g  → 62.74259385 (atteso 62.74259385 ± 0.000001)
-  ✓ in inglese: «a ball is launched…» → proiettile  → proiettile
-  ✓ gittata a 45°: v₀²/g  → 91.74311927 (atteso 91.74311927 ± 0.000001)
-  ✓ «frena»: accelerazione negativa e tempo fino all'arresto  → mua|-5|5
-  ✓ 90 km/h = 25 m/s; spazio di arresto v²/2a = 62,5 m  → 62.5 (atteso 62.5 ± 1e-9)
-  ✓ «cade»: velocità iniziale nulla  → 0
-  ✓ tempo di caduta √(2h/g)  → 3.028912664 (atteso 3.028912664 ± 1e-9)
-  ✓ piano inclinato  → piano
-  ✓ a = g(sin θ − μ_d cos θ)  → 2.356287237 (atteso 2.356287237 ± 1e-9)
-  ✓ pendolo  → pendolo
-  ✓ T ≈ 2π√(L/g) (piccole oscillazioni, 10° di ampiezza: +0,19 %)  → 2.837006707 (atteso 2.837006707 ± 0.01)
-  ✓ molla: T = 2π√(m/k)  → 0.3141592654 (atteso 0.3141592654 ± 1e-9)
-  ✓ orbita  → orbita
-  ✓ v = √(GM/r)  → 7672.317978 (atteso 7672.490413 ± 1)
-  ✓ isobara, gas biatomico  → isobara|bi
-  ✓ Q = n·(7/2)R·ΔT  → 5820.123833 (atteso 5820.123833 ± 0.5)
-  ✓ Carnot: η = 1 − T₂/T₁  → 0.5 (atteso 0.5 ± 1e-12)
-  ✓ μC convertiti nei nC del modello  → 3000|-5000
-  ✓ due resistenze in parallelo: la terza non c'è  → parallelo
-  ✓ R_eq = R₁R₂/(R₁ + R₂)  → 66.66666667 (atteso 66.66666667 ± 1e-9)
-  ✓ «un elettrone»: carica e massa dell'elettrone  → lorentz|9.1093837e-31
-  ✓ r = mv/(qB)  → 0.0005685630103 (atteso 0.0005685630103 ± 1e-9)
-  ✓ lente: 1/q = 1/f − 1/p → 15 cm  → 15 (atteso 15 ± 1e-9)
-  ✓ Young  → young
-  ✓ interfrangia λL/d = 12 mm  → 0.012 (atteso 0.012 ± 1e-12)
-  ✓ K = hc/λ − W  → 0.65936792 (atteso 0.65936792 ± 0.0001)
-  ✓ f′ = f·v/(v − v_s)  → 547.9233227 (atteso 547.9233227 ± 0.000001)
-  ✓ «0,8c» → relatività, β = 0,8  → relativita|0.8
-  ✓ γ = 1/√(1 − β²) = 5/3  → 1.666666667 (atteso 1.666666667 ± 1e-12)
-  ✓ «carbonio 14» non è un dato; 30 % → 0,3  → datazione|0.3
-  ✓ t = t½·log₂(1/0,3)  → 9952.812855 (atteso 9952.812855 ± 0.000001)
-  ✓ «10 masse solari»  → schwarzschild|10
-  ✓ R_s = 2GM/c²  → 29532.06634 (atteso 29540.07736 ± 30)
-  ✓ Sirio A: L/L☉ = (R/R☉)²(T/T☉)⁴ ≈ 25,7  → 25.71765918 (atteso 25.7 ± 0.3)
-  ✓ ⁵⁶Fe: B/A = 8,79 MeV  → 8.790349804 (atteso 8.79 ± 0.002)
-  ✓ elettrone in 1 nm: E₁ = h²/(8mL²) = 0,376 eV  → 0.3760460023 (atteso 0.37603 ± 0.001)
-
-── Chimica ──
-  ✓ «0,1 M» è una concentrazione (non 0,1 metri)  → acidodebole|0.1
-  ✓ pH dall'equazione di secondo grado  → 2.875277062 (atteso 2.875277062 ± 0.001)
-  ✓ acido forte  → phforte
-  ✓ pH = 2  → 2 (atteso 2 ± 1e-9)
-  ✓ base debole  → basedebole
-  ✓ pOH dalla Kb, pH = 14 − pOH  → 11.27609122 (atteso 11.27609122 ± 0.002)
-  ✓ tampone: le concentrazioni diventano moli su 1 L  → tampone|0.1|0.15
-  ✓ Henderson-Hasselbalch  → 4.936091259 (atteso 4.936091259 ± 1e-9)
-  ✓ reazione e masse lette dal testo  → Al + Cl2 -> AlCl3|Al: 10, Cl2: 30|AlCl3
-  ✓ 2Al + 3Cl₂ → 2AlCl₃: limitante il cloro, AlCl₃ teorico = 30/70,906·(2/3)·133,34  → 37.6112835 (atteso 37.61035737 ± 0.05)
-  ✓ M(Ca₃(PO₄)₂) = 310,17 g/mol  → 310.174 (atteso 310.17 ± 0.01)
-  ✓ s = √Ksp  → 0.00001341640786 (atteso 0.00001341640786 ± 1e-12)
-  ✓ E° = 0,34 − (−0,76) = 1,10 V  → 1.1 (atteso 1.1 ± 1e-12)
-  ✓ tutti e cinque i dati dal testo  → titolazione|5
-  ✓ a metà titolazione pH = pKa  → 4.745196013 (atteso 4.744727495 ± 0.002)
-  ✓ la lista dei pKa letta per intero  → 2.19, 9.67, 4.25
-  ✓ acido glutammico: pI = (2,19 + 4,25)/2  → 3.22 (atteso 3.22 ± 1e-9)
-  ✓ paracetamolo: DBE = 5  → 5 (atteso 5 ± 1e-12)
-  ✓ t½ = ln 2/k  → 13.86294361 (atteso 13.86294361 ± 1e-9)
-  ✓ Eₐ = R ln(k₂/k₁)/(1/T₁ − 1/T₂)  → 64.23173452 (atteso 64.23173452 ± 0.01)
-  ✓ combustione del metano: ΔH° = −890,3 kJ/mol  → -890.3 (atteso -890.3 ± 0.05)
-  ✓ Beer-Lambert  → beer
-  ✓ c = A/(εl)  → 0.00003333333333 (atteso 0.00003333333333 ± 1e-12)
-  ✓ «2 A» è una corrente, «30 min» un tempo  → 2|30
-  ✓ m = I·t·M/(nF)  → 1.185494183 (atteso 1.185494183 ± 0.001)
-  ✓ n iniziale e finale da due «n =»  → 3|2
-  ✓ Hα = 656 nm  → 656.1122824 (atteso 656.1 ± 0.3)
-  ✓ glucosio: unità CH₂O = 30,03  → 30.026 (atteso 30.026 ± 0.01)
-  ✓ resa = prodotto delle rese  → 32.844 (atteso 32.844 ± 1e-9)
-
-── Il problema inverso ──
-  ✓ si risolve per la massa del soluto  → soluzioni|calcolato
-  ✓ m = c·V·M = 0,5·0,25·58,44  → 7.305 (atteso 7.305 ± 0.01)
-  ✓ si risolve per la pressione  → calcolato
-  ✓ p = nRT/V  → 4.92344196 (atteso 4.923444 ± 0.001)
-  ✓ lo svolgimento dichiara il problema inverso  → true
-
-── Unità e lettura dei numeri ──
-  ✓ km/h, mL, μC, nm, eV  → v:25 V:0.000025 Q:0.000003 L:5e-7 eV:2.5
-  ✓ M maiuscola = molare, m minuscola = metri  → c:0.1 L:0.1
-  ✓ notazione scientifica: 1,8·10⁻⁵ e 6,02x10^23  → 0.000018|6.02e+23
-  ✓ una domanda vuota non dà risposta  → true
-  ✓ una domanda senza senso non inventa un modello  → true
-
-── Nel browser ──
-── schermo grande ──
-  ✓ sareachim: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareachim: l'assistente risponde con lo svolgimento  → true
-  ✓ sareachim: il catalogo raccoglie gli strumenti della materia (101)  → true
-  ✓ sareachim: la ricerca filtra (1)  → true
-  ✓ sareachim: quattro livelli, dalle superiori al dottorato  → 4
-  ✓ sareachim: i livelli portano alle sezioni (40 pulsanti)  → true
-  ✓ sareafis: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareafis: l'assistente risponde con lo svolgimento  → true
-  ✓ sareafis: il catalogo raccoglie gli strumenti della materia (56)  → true
-  ✓ sareafis: la ricerca filtra (1)  → true
-  ✓ sareafis: quattro livelli, dalle superiori al dottorato  → 4
-  ✓ sareafis: i livelli portano alle sezioni (49 pulsanti)  → true
-  ✓ sareamat: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareamat: l'assistente risponde con lo svolgimento  → true
-  ✓ sareamat: il catalogo raccoglie gli strumenti della materia (42)  → true
-  ✓ sareamat: la ricerca filtra (1)  → true
-  ✓ sareamat: quattro livelli, dalle superiori al dottorato  → 4
-  ✓ sareamat: i livelli portano alle sezioni (39 pulsanti)  → true
-  ✓ un pulsante del catalogo apre la sezione  → true
-  ✓ Spectra ha i tre strumenti nuovi, i nove di Spectra Live, i tre dell'agenda il meteo, la teoria, la memoria e, dalla v260, lo spaccato stellare, dalla v264 la biochimica 3D, il quantum studio e, dalla v267, la voce dal vivo e, dalla v268 l'inorganica e, dalla v269, l'arrow lab e, dalla v270, i metodi fisici (60 in tutto)  → 60
-  ✓ risolvi_matematica: lim (1 − cos x)/x² = 1/2 con lo svolgimento  → true
-  ✓ risolvi_fisica con modello e dati espliciti: gittata v₀²/g  → true
-  ✓ risolvi_chimica risolve il problema inverso (7,3 g di NaCl)  → true
-  ✓ un modello inesistente dà un errore con l'elenco dei modelli  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ sareachim: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareachim: a 390 px niente sborda  → 0
-  ✓ sareafis: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareafis: a 390 px niente sborda  → 0
-  ✓ sareamat: non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede  → true
-  ✓ sareamat: a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: le tre aree  → ⚗️ Chemistry area · assistant|⚛️ Physics area · assistant|📐 Mathematics area · assistant
-
-159 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_grafica3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Orbitali: funzioni speciali e nodi ──
-  ✓ L₁⁽³⁾(2) = 1 + a − x = 2  → 2 (atteso 2 ± 1e-12)
-  ✓ L₂⁽¹⁾(1,7) = (x² − 6x + 6)/2  → -0.655 (atteso -0.655 ± 1e-12)
-  ✓ L₃⁽⁰⁾(0,8) = (−x³ + 9x² − 18x + 6)/6  → -0.52533333 (atteso -0.52533333 ± 1e-12)
-  ✓ P₂⁰(0,3) = (3x² − 1)/2  → -0.365 (atteso -0.365 ± 1e-12)
-  ✓ P₂¹(0,3) = 3x√(1 − x²)  → 0.85854528 (atteso 0.85854528 ± 1e-12)
-  ✓ P₃²(0,4) = 15x(1 − x²)  → 5.04 (atteso 5.04 ± 1e-12)
-  ✓ nodo radiale del 2s a r = 2a₀  → 0 (atteso 0 ± 1e-12)
-  ✓ nodi del 3s a r = (9 − 3√3)/2 a₀  → 1.1779004e-16 (atteso 0 ± 1e-12)
-  ✓ nodi del 3s a r = (9 + 3√3)/2 a₀  → 6.2518666e-17 (atteso 0 ± 1e-12)
-  ✓ 2p_z si annulla sul piano xy  → 0 (atteso 0 ± 1e-12)
-  ✓ 3d_z² si annulla sul cono cos²θ = 1/3  → -4.1550756e-17 (atteso 0 ± 1e-12)
-  ✓ 2p_x si annulla sul piano yz  → 2.4815251e-17 (atteso 0 ± 1e-12)
-  ✓ 3d_xy si annulla sul piano xz  → 0 (atteso 0 ± 1e-12)
-  ✓ 2p_z cambia segno attraversando il piano xy  → true
-
-── Orbitali: la nuvola campionata ha il raggio medio esatto ⟨r⟩ = (3n² − l(l+1))/(2Z) ──
-  ✓ ⟨r⟩ di n=1 l=0 m=0 Z=1 = 1.5 a₀  → 1.4947559 (atteso 1.5 ± 0.03)
-  ✓ ⟨r⟩ di n=2 l=0 m=0 Z=1 = 6 a₀  → 5.986848 (atteso 6 ± 0.12)
-  ✓ ⟨r⟩ di n=2 l=1 m=0 Z=1 = 5 a₀  → 4.9744839 (atteso 5 ± 0.1)
-  ✓ ⟨r⟩ di n=3 l=2 m=0 Z=1 = 10.5 a₀  → 10.471969 (atteso 10.5 ± 0.21)
-  ✓ ⟨r⟩ di n=3 l=1 m=1 Z=1 = 12.5 a₀  → 12.431901 (atteso 12.5 ± 0.25)
-  ✓ ⟨r⟩ di n=4 l=3 m=0 Z=1 = 18 a₀  → 17.921652 (atteso 18 ± 0.36)
-  ✓ ⟨r⟩ di n=1 l=0 m=0 Z=2 = 0.75 a₀  → 0.74737796 (atteso 0.75 ± 0.015)
-  ✓ ⟨r⟩ di n=2 l=1 m=-1 Z=3 = 1.6666666666666667 a₀  → 1.6578966 (atteso 1.6666667 ± 0.03333333333333333)
-  ✓ 1s: la funzione d'onda ha un solo segno  → 5000
-  ✓ 2p_z: metà dei punti positivi, metà negativi  → 0.5053 (atteso 0.5 ± 0.02)
-  ✓ 3d_z²: la frazione nei lobi (ψ > 0) è quella dell'integrale di |Y₂₀|²  → 0.6153 (atteso 0.61509982 ± 0.015)
-
-── Moti ──
-  ✓ Keplero M = E − e sin E per M = 0.3, e = 0  → 0.3 (atteso 0.3 ± 1e-12)
-  ✓ Keplero M = E − e sin E per M = 1.2, e = 0.5  → 1.2 (atteso 1.2 ± 1e-12)
-  ✓ Keplero M = E − e sin E per M = 3, e = 0.9  → 3 (atteso 3 ± 1e-12)
-  ✓ Keplero M = E − e sin E per M = 5.5, e = 0.7  → 5.5 (atteso 5.5 ± 1e-12)
-  ✓ Lorenz ρ = 10: x → √(β(ρ−1)) = 4.8990  → 4.8989795 (atteso 4.8989795 ± 0.0001)
-  ✓ Lorenz ρ = 10: z → ρ − 1 = 9  → 9 (atteso 9 ± 0.0001)
-  ✓ Lorenz ρ = 28: due traiettorie a 0,001 si separano più di mille volte (caos)  → true
-
-── Cristalli ──
-  ✓ NaCl: 4 Na e 4 Cl per cella  → Cl4 Na4
-  ✓ CsCl: 1 Cs e 1 Cl  → Cl1 Cs1
-  ✓ CaF₂: 4 Ca e 8 F  → Ca4 F8
-  ✓ SrTiO₃: 1 Sr, 1 Ti, 3 O  → O3 Sr1 Ti1
-  ✓ diamante: 8 atomi  → C8
-  ✓ fcc 4, bcc 2, cubica semplice 1  → 4 2 1
-  ✓ fcc: 4 sfere di raggio a√2/4  → 0.74048049 (atteso 0.74048049 ± 1e-12)
-  ✓ bcc: 2 sfere di raggio a√3/4  → 0.68017476 (atteso 0.68017476 ± 1e-12)
-  ✓ cubica semplice: 1 sfera di raggio a/2  → 0.52359878 (atteso 0.52359878 ± 1e-12)
-  ✓ diamante: 8 sfere di raggio a√3/8  → 0.34008738 (atteso 0.34008738 ± 1e-12)
-  ✓ esagonale compatta = fcc (stesso impacchettamento)  → 0.74048049 (atteso 0.74048049 ± 1e-12)
-  ✓ Mg: c/a vicino all'ideale √(8/3) = 1,633  → 1.623053 (atteso 1.6329932 ± 0.01)
-  ✓ diamante: legame C–C = a√3/4 = 1,545 Å  → 1.545 (atteso 1.5445563 ± 0.002)
-  ✓ (100): quadrato di 4 vertici  → 4
-  ✓ (100): area 1  → 1 (atteso 1 ± 1e-12)
-  ✓ (110): rettangolo di 4 vertici  → 4
-  ✓ (110): area √2  → 1.4142136 (atteso 1.4142136 ± 1e-12)
-  ✓ (111): triangolo  → 3
-  ✓ (111): area √3/2  → 0.8660254 (atteso 0.8660254 ± 1e-12)
-  ✓ (200): piano parallelo a (100)  → true
-  ✓ (000) non è un piano  → 0
-  ✓ NaCl (200) con Cu Kα: 2θ ≈ 31,7° (picco più intenso del salgemma)  → 31.704311 (atteso 31.7 ± 0.1)
-
-── Campi ──
-  ✓ dipolo sull'asse a x = 20: somma esatta 1/21² − 1/19²  → -0.00050250941 (atteso -0.00050250941 ± 1e-15)
-  ✓ dipolo lontano ≈ 2p/r³ (p = 2, verso −x)  → -0.00050250941 (atteso -0.0005 ± 0.00003)
-  ✓ Gauss: due cariche +1 dentro la sfera → flusso 8π  → 25.132741 (atteso 25.132741 ± 0.01)
-  ✓ Gauss: dipolo dentro la sfera → flusso 0  → -0.000002383035 (atteso 0 ± 0.01)
-  ✓ Gauss: +2 e due −1 → flusso 0  → 1.2743245e-8 (atteso 0 ± 0.01)
-  ✓ spira R = 1,5: al centro |B| = 2π/R (unità μ₀I/4π)  → 4.1880426 (atteso 4.1887902 ± 0.002)
-  ✓ spira sull'asse a z = 2: |B| = 2πR²/(R² + z²)^(3/2)  → 0.9046172 (atteso 0.90477868 ± 0.001)
-  ✓ spira: sull'asse B non ha componenti trasverse  → 7.9345897e-17 (atteso 0 ± 1e-9)
-  ✓ una linea che parte dalla carica + arriva alla − (a x = 1)  → 0.10453588 (atteso 0 ± 0.13)
-
-── Superfici ──
-  ✓ curva di livello 1 di x² + y²: tutti i punti a distanza 1 dall'origine (±1 %)  → true
-  ✓ una variabile diversa da x e y viene rifiutata con un messaggio  → true
-
-── Nel browser: Laboratorio 3D ──
-── schermo grande ──
-  ✓ cinque schede  → 5
-  ✓ superfici: la scena disegna (39491 pixel non di sfondo)  → true
-  ✓ superfici: la tela ha un nome accessibile («z = x⁴ + y⁴ − 4x·y»)  → true
-  ✓ superfici: trascinando ruota, con la rotellina si allontana  → true
-  ✓ superfici: i pulsanti hanno un nome  → true
-  ✓ orbitali: la scena disegna (32975 pixel non di sfondo)  → true
-  ✓ orbitali: la tela ha un nome accessibile («3d_z² · Z = 1 · ψ > 0ψ < 0»)  → true
-  ✓ orbitali: trascinando ruota, con la rotellina si allontana  → true
-  ✓ orbitali: i pulsanti hanno un nome  → true
-  ✓ moti: la scena disegna (1572 pixel non di sfondo)  → true
-  ✓ moti: la tela ha un nome accessibile («B ∥ z · elettrone»)  → true
-  ✓ moti: trascinando ruota, con la rotellina si allontana  → true
-  ✓ moti: i pulsanti hanno un nome  → true
-  ✓ cristalli: la scena disegna (39096 pixel non di sfondo)  → true
-  ✓ cristalli: la tela ha un nome accessibile («Salgemma NaCl»)  → true
-  ✓ cristalli: trascinando ruota, con la rotellina si allontana  → true
-  ✓ cristalli: i pulsanti hanno un nome  → true
-  ✓ campi: la scena disegna (2218 pixel non di sfondo)  → true
-  ✓ campi: la tela ha un nome accessibile («Linee del campo elettrico»)  → true
-  ✓ campi: trascinando ruota, con la rotellina si allontana  → true
-  ✓ campi: i pulsanti hanno un nome  → true
-  ✓ superfici: trovati due minimi e una sella di x⁴ + y⁴ − 4xy  → true
-  ✓ cristalli: NaCl mostra Z = 4 e coordinazione 6 : 6  → true
-  ✓ la rotazione automatica fa avanzare la vista  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ cinque schede  → 5
-  ✓ superfici: la scena disegna (9523 pixel non di sfondo)  → true
-  ✓ orbitali: la scena disegna (8854 pixel non di sfondo)  → true
-  ✓ moti: la scena disegna (657 pixel non di sfondo)  → true
-  ✓ cristalli: la scena disegna (9216 pixel non di sfondo)  → true
-  ✓ campi: la scena disegna (873 pixel non di sfondo)  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-── Nel browser: i grafici delle sezioni ──
-  ✓ un grafico entra con l'animazione la prima volta  → true
-  ✓ cambiando un dato, la curva scivola dal valore vecchio al nuovo  → true
-  ✓ l'animazione finisce entro 0,6 s  → true
-  ✓ alla fine l'immagine è identica al disegno diretto (sovrapposizioni del modulo comprese)  → true
-  ✓ il mirino compare sopra il grafico  → true
-  ✓ uscendo, il grafico torna com'era  → true
-  ✓ a raffica (cursore trascinato) si disegna subito, senza inseguire  → true
-  ✓ nessun errore JavaScript  → 0
-  ✓ con «riduci movimento» nel sistema: nessuna entrata e nessuna transizione  → true
-
-── Nel browser: viste molecolari 3Dmol ──
-  ✓ ogni visore riceve la barra con cinque comandi  → 5
-  ✓ i comandi hanno un nome accessibile  → true
-  ✓ la qualità scelta (alta) viene applicata  → alta
-  ✓ il visore disegna ed esporta un PNG  → true
-  ✓ il resto della libreria 3Dmol funziona come prima  → true
-  ✓ il pulsante qualità passa al livello successivo  → alta→media
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: «3D Laboratory»  → 🧊 3D Laboratory
-
-115 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_laboratori</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Meccanica ──
-  ✓ gittata nel vuoto = v₀² sin 2θ / g  → 91.774397 (atteso 91.774459 ± 0.001)
-  ✓ tempo di volo = 2 v₀ sin θ / g  → 4.3262866 (atteso 4.3262895 ± 0.0001)
-  ✓ quota massima = v₀² sin²θ / 2g  → 22.943608 (atteso 22.943615 ± 0.001)
-  ✓ lancio da 10 m: gittata = v₀ cos θ · t_volo  → 48.05567 (atteso 48.055688 ± 0.001)
-  ✓ nel vuoto da terra l'angolo ottimo è 45°  → 45.018787 (atteso 45 ± 0.05)
-  ✓ con l'aria l'angolo ottimo scende sotto 45° (41.21°)  → true
-  ✓ con l'aria la gittata è minore  → true
-  ✓ urto elastico: quantità di moto conservata  → 5 (atteso 5 ± 1e-12)
-  ✓ urto elastico: energia conservata  → 9.5 (atteso 9.5 ± 1e-12)
-  ✓ masse uguali, urto elastico: le velocità si scambiano  → 0 2
-  ✓ anelastico: velocità comune = P/M  → 1.6666667 (atteso 1.6666667 ± 1e-12)
-  ✓ energia persa = ½μ(1 − e²)v_rel²  → 5.3333333 (atteso 5.3333333 ± 1e-12)
-  ✓ e = 0,5: energia persa = ½μ(1 − e²)v_rel²  → 4 (atteso 4 ± 1e-12)
-  ✓ K(0) = π/2  → 1.5707963 (atteso 1.5707963 ± 1e-15)
-  ✓ pendolo a 90°: T/T₀ = 1,18034  → 1.1803406 (atteso 1.1803406 ± 1e-7)
-  ✓ pendolo a 10°: T/T₀ ≈ 1 + θ₀²/16  → 1.0019072 (atteso 1.0019039 ± 0.00001)
-  ✓ pendolo senza attrito: energia conservata dopo 20 s (RK4)  → -4.903325 (atteso -4.903325 ± 0.000001)
-  ✓ modo in fase ω₁ = √(k/m)  → 3.1622777 (atteso 3.1622777 ± 1e-12)
-  ✓ modo in opposizione ω₂ = √((k + 2k_c)/m)  → 3.4641016 (atteso 3.4641016 ± 1e-12)
-  ✓ battimento: dopo π/(ω₂ − ω₁) tutta l'energia è nella seconda massa  → -1.831868e-15 (atteso 0 ± 0.15)
-
-── Onde e ottica ──
-  ✓ lente f = 10, p = 25: q = 50/3  → 16.666667 (atteso 16.666667 ± 1e-12)
-  ✓ immagine reale e capovolta  → true false
-  ✓ dentro il fuoco: q = −10 (virtuale)  → -10 (atteso -10 ± 1e-12)
-  ✓ ingrandimento 2  → 2 (atteso 2 ± 1e-12)
-  ✓ lente divergente: virtuale e dritta  → false true
-  ✓ p = 2f: q = 2f e M = −1  → -1 (atteso -1 ± 1e-12)
-  ✓ N fenditure al centro: I = 1  → 1 (atteso 1 ± 1e-12)
-  ✓ primo ordine: inviluppo (sin β/β)² con β = π a/d  → 0.81056947 (atteso 0.81056947 ± 1e-9)
-  ✓ minimo di diffrazione a sin θ = λ/a  → 1.5195744e-33 (atteso 0 ± 1e-12)
-  ✓ fra due massimi principali, a sin(Nα) = 0, l'intensità è zero (N = 4)  → 1.8507314e-33 (atteso 0 ± 1e-12)
-  ✓ 530 nm è verde, 680 nm rosso  → true
-
-── Circuiti ──
-  ✓ RLC sotto: Kirchhoff L di/dt + Ri + v_C = E  → 2.0474822e-10 (atteso 0 ± 0.000001)
-  ✓ RLC sotto: i = C dv_C/dt  → -2.2459257e-12 (atteso 0 ± 1e-8)
-  ✓ RLC sotto: parte da v_C = 0 e i = 0  → 0 (atteso 0 ± 1e-12)
-  ✓ regime riconosciuto: sotto  → sotto
-  ✓ RLC sovra: Kirchhoff L di/dt + Ri + v_C = E  → -2.5863756e-11 (atteso 0 ± 0.000001)
-  ✓ RLC sovra: i = C dv_C/dt  → 1.4809119e-11 (atteso 0 ± 1e-8)
-  ✓ RLC sovra: parte da v_C = 0 e i = 0  → 0 (atteso 0 ± 1e-12)
-  ✓ regime riconosciuto: sovra  → sovra
-  ✓ RLC critico: Kirchhoff L di/dt + Ri + v_C = E  → -1.1018209e-10 (atteso 0 ± 0.000001)
-  ✓ RLC critico: i = C dv_C/dt  → 1.5398682e-11 (atteso 0 ± 1e-8)
-  ✓ RLC critico: parte da v_C = 0 e i = 0  → 0 (atteso 0 ± 1e-12)
-  ✓ regime riconosciuto: critico  → critico
-  ✓ sovraelongazione = e^(−πζ/√(1−ζ²))  → 0.35091974 (atteso 0.35091981 ± 0.0001)
-  ✓ RC: dopo τ al 63,2 %  → 0.63212056 (atteso 0.63212056 ± 1e-12)
-  ✓ passa-basso al taglio: −3,01 dB  → -3.0103 (atteso -3.0103 ± 1e-9)
-  ✓ passa-basso al taglio: −45°  → -45 (atteso -45 ± 1e-9)
-  ✓ una decade sopra: circa −20 dB  → -20.043214 (atteso -20.04 ± 0.01)
-  ✓ passa-alto al taglio: +45°  → 45 (atteso 45 ± 1e-9)
-  ✓ passa-banda alla risonanza: 0 dB  → 0 (atteso 0 ± 1e-9)
-  ✓ alla risonanza |Z| = R  → 50 (atteso 50 ± 1e-9)
-
-── Termodinamica ──
-  ✓ carnot: ΔU del ciclo = 0  → 0 (atteso 0 ± 0.000001)
-  ✓ carnot: ΔS del ciclo = 0  → 0 (atteso 0 ± 1e-9)
-  ✓ carnot: rendimento dal bilancio = formula  → 0.8 (atteso 0.8 ± 1e-9)
-  ✓ otto: ΔU del ciclo = 0  → -2.7284841e-12 (atteso 0 ± 0.000001)
-  ✓ otto: ΔS del ciclo = 0  → -3.5527137e-15 (atteso 0 ± 1e-9)
-  ✓ otto: rendimento dal bilancio = formula  → 0.56472472 (atteso 0.56472472 ± 1e-9)
-  ✓ diesel: ΔU del ciclo = 0  → 1.8189894e-12 (atteso 0 ± 0.000001)
-  ✓ diesel: ΔS del ciclo = 0  → -3.5527137e-15 (atteso 0 ± 1e-9)
-  ✓ diesel: rendimento dal bilancio = formula  → 0.49041209 (atteso 0.49041209 ± 1e-9)
-  ✓ stirling: ΔU del ciclo = 0  → 0 (atteso 0 ± 0.000001)
-  ✓ stirling: ΔS del ciclo = 0  → 0 (atteso 0 ± 1e-9)
-  ✓ stirling: rendimento dal bilancio = formula  → 0.8 (atteso 0.8 ± 1e-9)
-  ✓ Otto r = 8, γ = 1,4: η = 1 − 8^(−0,4) = 56,5 %  → 0.56472472 (atteso 0.56472472 ± 1e-9)
-  ✓ Otto: se la combustione partisse sotto la fine compressione, la temperatura viene alzata e segnalata  → true
-  ✓ Diesel con lo stesso r rende meno di Otto  → true
-  ✓ gas di dischi: energia conservata negli urti  → 40000 (atteso 40000 ± 0.000001)
-  ✓ velocità media = √(πkT/2) (Maxwell-Boltzmann 2D)  → 17.757429 (atteso 17.724539 ± 0.5327228767007768)
-  ✓ pressione: gas di dischi duri N kT/A (1 + 2η + 2,78η²)  → 4.731241 (atteso 4.8149391 ± 0.2000000000000001)
-  ✓ la distribuzione 2D è normalizzata  → 1.0000056 (atteso 1 ± 0.001)
-
-── Metodi numerici ──
-  ✓ Newton trova la radice di x³ − 2x − 5 (Wallis)  → 2.0945515 (atteso 2.0945515 ± 1e-14)
-  ✓ ordine di Newton ≈ 2  → 1.9992441 (atteso 2 ± 0.1)
-  ✓ ordine delle secanti ≈ 1,618 (sezione aurea)  → 1.5000064 (atteso 1.618 ± 0.15)
-  ✓ punto fisso x = ∛(2x + 5): ordine 1  → 1.000255 (atteso 1 ± 0.05)
-  ✓ bisezione senza cambio di segno: errore spiegato  → true
-  ✓ trapezi: ordine 2  → 1.9886493 (atteso 2 ± 0.1)
-  ✓ Simpson: ordine 4  → 3.9975849 (atteso 4 ± 0.1)
-  ✓ rettangoli (punto medio): ordine 2  → 1.980037 (atteso 2 ± 0.1)
-  ✓ Gauss a 3 punti su 1 intervallo integra x⁵ esattamente  → 0.16666667 (atteso 0.16666667 ± 1e-15)
-  ✓ Eulero: ordine 1  → 1.0138818 (atteso 1 ± 0.1)
-  ✓ Heun: ordine 2  → 2.112842 (atteso 2 ± 0.2)
-  ✓ RK4: ordine 4  → 4.1210537 (atteso 4 ± 0.25)
-  ✓ equazione rigida: Eulero con h = 0,05 > 2/50 esplode, con h = 0,01 no  → true
-  ✓ Runge, 11 nodi equispaziati: errore ≈ 1,92  → 1.9156431 (atteso 1.9156 ± 0.01)
-  ✓ nodi di Čebyšëv e spline correggono Runge (errori 0.109, 0.022)  → true
-  ✓ la spline passa per i nodi  → 2.220446e-16 (atteso 0 ± 1e-14)
-
-── Geometria analitica ──
-  ✓ 5x² + 4xy + 2y² = 6 è un'ellisse  → ellisse
-  ✓ semiasse maggiore √6  → 2.4494897 (atteso 2.4494897 ± 1e-12)
-  ✓ semiasse minore 1  → 1 (atteso 1 ± 1e-12)
-  ✓ fuoco in (1, −2) o (−1, 2): |F| = √5  → 2.236068 (atteso 2.236068 ± 1e-12)
-  ✓ il fuoco sta sulla retta y = −2x (asse maggiore)  → true
-  ✓ x² + y² − 2x − 4y − 4 = 0: circonferenza  → circonferenza
-  ✓ centro (1, 2) e raggio 3  → 1 2 3
-  ✓ xy = ½: iperbole  → iperbole
-  ✓ eccentricità √2 (equilatera)  → 1.4142136 (atteso 1.4142136 ± 1e-12)
-  ✓ fuoco in (1, 1)  → 2.220446e-16 (atteso 0 ± 1e-12)
-  ✓ x² + 2xy + y² − 4x + 4y = 0: parabola  → parabola
-  ✓ parametro p = √2  → 1.4142136 (atteso 1.4142136 ± 1e-12)
-  ✓ x² − y² = 0: coppia di rette (Δ = 0)  → rette incidenti
-  ✓ x² + y² + 1 = 0: ellisse immaginaria  → ellisse immaginaria
-  ✓ piano per (1,0,0), (0,2,0), (0,0,3): 6x + 3y + 2z − 6 = 0  → 6 3 2 -6
-  ✓ distanza dell'origine dal piano = 6/7  → 0.85714286 (atteso 0.85714286 ± 1e-12)
-  ✓ la retta x = y = z incontra il piano in (6/11, 6/11, 6/11)  → 0.54545455 (atteso 0.54545455 ± 1e-12)
-  ✓ due rette sghembe  → sghembe
-  ✓ distanza 1  → 1 (atteso 1 ± 1e-12)
-  ✓ rette parallele riconosciute  → parallele
-  ✓ u × v = (1, −2, 5)  → 1 -2 5
-  ✓ prodotto misto = det[u; v; w]  → 8 (atteso 8 ± 1e-12)
-  ✓ vettori complanari: prodotto misto nullo  → true
-
-── Equilibrio chimico ──
-  ✓ N₂ + 3 H₂ ⇌ 2 NH₃: all'equilibrio calcolato Q = K  → 1 (atteso 1 ± 1e-9)
-  ✓ N₂ + 3 H₂ ⇌ 2 NH₃: la cinetica arriva allo stesso equilibrio  → 3.3972825e-14 (atteso 0 ± 0.000001)
-  ✓ H₂ + I₂ ⇌ 2 HI: all'equilibrio calcolato Q = K  → 1 (atteso 1 ± 1e-9)
-  ✓ H₂ + I₂ ⇌ 2 HI: la cinetica arriva allo stesso equilibrio  → 3.3306691e-14 (atteso 0 ± 0.000001)
-  ✓ N₂O₄ ⇌ 2 NO₂: all'equilibrio calcolato Q = K  → 1 (atteso 1 ± 1e-9)
-  ✓ N₂O₄ ⇌ 2 NO₂: la cinetica arriva allo stesso equilibrio  → 4.4408921e-16 (atteso 0 ± 0.000001)
-  ✓ CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O: all'equilibrio calcolato Q = K  → 1 (atteso 1 ± 1e-9)
-  ✓ CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O: la cinetica arriva allo stesso equilibrio  → 5.884182e-15 (atteso 0 ± 0.000001)
-  ✓ CO + H₂O ⇌ CO₂ + H₂: all'equilibrio calcolato Q = K  → 1 (atteso 1 ± 1e-9)
-  ✓ CO + H₂O ⇌ CO₂ + H₂: la cinetica arriva allo stesso equilibrio  → 4.773959e-15 (atteso 0 ± 0.000001)
-  ✓ esterificazione con K = 4, 1:1: estere 2/3  → 0.66666667 (atteso 0.66666667 ± 1e-12)
-  ✓ Haber, volume dimezzato: la frazione di NH₃ aumenta (Le Chatelier, Δn = −2)  → true
-  ✓ Haber, aggiungendo N₂: NH₃ aumenta  → true
-  ✓ reazione esotermica (Haber): scaldando K diminuisce  → true
-  ✓ reazione endotermica (N₂O₄ ⇌ 2NO₂): scaldando K aumenta  → true
-  ✓ Haber: ΔG° = 0 a T = ΔH°/ΔS° = 464 K  → 1 (atteso 1 ± 1e-9)
-
-── Nel browser ──
-── schermo grande ──
-  ✓ sfismecc: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfismecc: ogni tela ha un nome accessibile  → true
-  ✓ sfisonde: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisonde: ogni tela ha un nome accessibile  → true
-  ✓ sfiscirc: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfiscirc: ogni tela ha un nome accessibile  → true
-  ✓ sfistermo: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfistermo: ogni tela ha un nome accessibile  → true
-  ✓ smatnum: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatnum: ogni tela ha un nome accessibile  → true
-  ✓ smatgeo: 3 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatgeo: ogni tela ha un nome accessibile  → true
-  ✓ schiequil: 3 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ schiequil: ogni tela ha un nome accessibile  → true
-  ✓ Le Chatelier nella pagina: aggiungendo N₂ la concentrazione di NH₃ sale (1.097 → 1.225 M)  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ sfismecc: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisonde: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfiscirc: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfistermo: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatnum: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatgeo: 3 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ schiequil: 3 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: i nomi delle sezioni  → 🎯 Mechanics in motion|🧮 Numerical methods|⚖️ Equilibrium and Le Chatelier
-
-151 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_scienze</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Astrofisica ──
-  ✓ il Sole sulla sequenza principale: 1 L☉, 1 R☉, 5772 K, classe G  → 1 1 5772 G
-  ✓ una stella di 10 M☉ è di tipo B e vive decine di milioni di anni  → true
-  ✓ una nana rossa di 0,2 M☉ vive più dell’età dell’universo  → true
-  ✓ Wien: il Sole ha il picco a 502 nm  → 502.03949 (atteso 502.04 ± 0.05)
-  ✓ B − V del Sole ≈ 0,65 (Ballesteros)  → 0.65176007 (atteso 0.65 ± 0.03)
-  ✓ Vega (9602 K) ha B − V ≈ 0  → 0.044503184 (atteso 0 ± 0.05)
-  ✓ raggio di Betelgeuse da L e T: ≈ 900 R☉  → 912.50009 (atteso 912.5 ± 1)
-  ✓ Sirio B: raggio ≈ 0,012 R☉ (nana bianca)  → 0.012614401 (atteso 0.0125 ± 0.001)
-  ✓ Stefan-Boltzmann: raggio del Sole da L e T = 1  → 1 (atteso 1 ± 1e-12)
-  ✓ ∫B_λ dλ · π = σT⁴ (Planck integrato)  → 62938543 (atteso 62938592 ± 125877.18493657773)
-  ✓ ΛCDM Planck: età dell’universo 13,8 miliardi di anni  → 13.792056 (atteso 13.79 ± 0.05)
-  ✓ Einstein-de Sitter: età = 2/(3H₀) esatta  → 9.6287475 (atteso 9.6286558 ± 0.005)
-  ✓ ΛCDM: l’espansione accelera (q₀ < 0); Einstein-de Sitter rallenta (q₀ = ½)  → true
-  ✓ ΛCDM: distanza comovente a z = 1 ≈ 3,4 Gpc  → 3.3958044 (atteso 3.4 ± 0.1)
-  ✓ Hohmann Terra → Marte: 259 giorni  → 258.8641 (atteso 259 ± 1)
-  ✓ Δv alla partenza 2,94 km/s  → 2.9448342 (atteso 2.94 ± 0.01)
-  ✓ Marte avanti di 44° alla partenza  → 44.345282 (atteso 44.3 ± 0.3)
-  ✓ la Terra in transito sul Sole: 84 ppm  → 83.863156 (atteso 83.9 ± 0.1)
-  ✓ a = 1 UA dalla terza legge  → 0.99999749 (atteso 1 ± 0.001)
-  ✓ temperatura di equilibrio della Terra ≈ 255 K  → 254.58609 (atteso 255 ± 1.5)
-  ✓ durata del transito ≈ 13 h  → 12.835384 (atteso 12.9 ± 0.3)
-  ✓ la Terra fa oscillare il Sole di 9 cm/s  → 0.089457067 (atteso 0.0894 ± 0.001)
-  ✓ HD 209458 b: K ≈ 84 m/s (misurato 84,3)  → 83.801453 (atteso 84.3 ± 1.5)
-  ✓ HD 209458 b: profondità ≈ 1,4 %  → 0.013991752 (atteso 0.014 ± 0.0005)
-  ✓ transito senza oscuramento: frazione bloccata = p²  → 0.0099692888 (atteso 0.01 ± 0.0002)
-  ✓ con l’oscuramento al bordo il centro è più profondo  → true
-  ✓ nessun transito oltre 1 + p  → 0
-  ✓ terza legge di Keplero sui dati: pendenza 3/2  → 1.4998777 (atteso 1.5 ± 0.002)
-  ✓ Mercurio al perielio: r = a(1 − e)  → 0.30751224 (atteso 0.30751224 ± 1e-9)
-
-── Relatività ──
-  ✓ gemelli verso Proxima a 0,8c: 10,6 anni sulla Terra  → 10.6 (atteso 10.6 ± 1e-9)
-  ✓ 6,36 anni per chi viaggia  → 6.36 (atteso 6.36 ± 1e-9)
-  ✓ Doppler a 0,8c: fattore 3  → 3 (atteso 3 ± 1e-12)
-  ✓ intervallo invariante  → -4 (atteso -4 ± 1e-12)
-  ✓ eventi simultanei per uno non lo sono per l’altro  → true
-  ✓ 0,6c ⊕ 0,6c = 0,882c  → 0.88235294 (atteso 0.88235294 ± 1e-12)
-  ✓ c ⊕ 0,5c = c  → 1 (atteso 1 ± 1e-12)
-  ✓ 0,99c ⊕ 0,99c < c  → true
-  ✓ γ a 0,6c = 1,25  → 1.25 (atteso 1.25 ± 1e-12)
-
-── Fluidi ──
-  ✓ continuità: raggio dimezzato → velocità × 4  → 4 (atteso 4 ± 1e-12)
-  ✓ Bernoulli: Δp = ½ρ(v₂² − v₁²)  → 7485 (atteso 7485 ± 1e-9)
-  ✓ Poiseuille: raggio dimezzato → portata / 16  → 16 (atteso 16 ± 1e-9)
-  ✓ v_max = 2 v_media  → 2 (atteso 2 ± 1e-12)
-  ✓ Stokes: globulo di 4 μm in acqua a 1 g ≈ 3,6 μm/s  → 0.0000035565451 (atteso 0.000003556 ± 1e-8)
-  ✓ Jurin: acqua in un capillare di 0,5 mm sale di 2,98 cm  → 0.029753643 (atteso 0.02975 ± 0.0001)
-  ✓ il mercurio scende  → true
-  ✓ Reynolds: acqua 1 m/s in tubo da 2 cm ≈ 20 000 (turbolento)  → 19960 (atteso 19960 ± 1)
-
-── Calcolo vettoriale ──
-  ✓ Green: ∮F·dr = 3πab(a² + b²)/4 su ellisse  → 11.486448 (atteso 11.486448 ± 1e-9)
-  ✓ Green: ∬ rot F dA uguale  → 11.48869 (atteso 11.486448 ± 0.01)
-  ✓ Gauss nel piano: flusso di (x, y) dal quadrato = 2·area = 8  → 8 (atteso 8 ± 1e-9)
-  ✓ ∬ div F = 8  → 8 (atteso 8 ± 0.000001)
-  ✓ (−y, x): circuitazione = 2 × area  → 12.566371 (atteso 12.566371 ± 1e-9)
-  ✓ campo conservativo: potenziale x²y + y³  → y³ + x²·y
-  ✓ conservativo: circuitazione nulla  → 1.0560129e-15 (atteso 0 ± 1e-9)
-  ✓ vortice: rotore 0 (verificato anche numericamente)  → 0
-  ✓ vortice: circuitazione attorno all’origine = 2π (il buco conta)  → 6.2831853 (atteso 6.2831853 ± 1e-9)
-  ✓ vortice: attorno a una curva che NON contiene l’origine = 0  → 5.4665474e-16 (atteso 0 ± 1e-9)
-
-── Cinetica complessa ──
-  ✓ t_max = ln(k₁/k₂)/(k₁ − k₂)  → 1.7199611 (atteso 1.7199611 ± 1e-12)
-  ✓ [B] è massimo in t_max  → 0.59691035 (atteso 0.59691035 ± 1e-9)
-  ✓ bilancio di massa A + B + C = A₀  → 1 (atteso 1 ± 1e-12)
-  ✓ k₁ = k₂: [B]_max = A₀/e  → 0.36787944 (atteso 0.36787944 ± 1e-12)
-  ✓ k₂ ≫ k₁: lo stato stazionario sbaglia solo dell’ordine di k₁/k₂ (= 2 %)  → 0.0075077437 (atteso 0.0073575888 ± 0.00022072766470286538)
-  ✓ Brusselator A = 1, B = 3: periodo ≈ 7,16  → 7.158 (atteso 7.16 ± 0.1)
-  ✓ sotto la soglia di Hopf: torna allo stazionario (A, B/A)  → 6.8387863e-10 (atteso 0 ± 0.0001)
-  ✓ Gray-Scott: dopo 2500 passi la struttura esiste (contrasto 0.40) e i valori restano fisici  → true
-
-── Nel browser ──
-── schermo grande ──
-  ✓ sfisastro: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisastro: ogni animazione ha la barra completa con i nomi (3/3)  → true
-  ✓ sfisrel: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisrel: ogni animazione ha la barra completa con i nomi (1/1)  → true
-  ✓ sfisfluidi: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisfluidi: ogni animazione ha la barra completa con i nomi (2/2)  → true
-  ✓ smatvett: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatvett: ogni animazione ha la barra completa con i nomi (2/2)  → true
-  ✓ schicinet: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ schicinet: ogni animazione ha la barra completa con i nomi (2/2)  → true
-  ✓ il tempo avanza  → true
-  ✓ in pausa il tempo si ferma  → true
-  ✓ a ×4 si va più veloce che a ×¼ (0.20 / 4.00 s in 1 s)  → true
-  ✓ fuori dallo schermo l’animazione si ferma  → true
-  ✓ tornando visibile riparte  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ sfisastro: 5 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisrel: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ sfisfluidi: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ smatvett: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ schicinet: 4 schede piene, nessun avviso, le tele disegnano  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-── riduci movimento ──
-  ✓ «riduci movimento»: parte in pausa  → true
-  ✓ «riduci movimento»: con ▶ si avvia  → true
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: i nomi delle sezioni  → 🔭 Astrophysics|⏱️ Special relativity|∇ Vector calculus|🌀 Complex kinetics
-
-91 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_esplorazioni</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Probabilità ──
-  ✓ la binomiale B(12; 0,3) somma a 1  → 1 (atteso 1 ± 1e-12)
-  ✓ B(10, 5; ½) = 252/1024  → 0.24609375 (atteso 0.24609375 ± 1e-12)
-  ✓ Bayes: prevalenza 1 %, sens. 99 %, spec. 95 % → VPP = 1/6  → 0.16666667 (atteso 0.16666667 ± 1e-12)
-  ✓ Bayes: VPN altissimo (> 99,9 %)  → true
-  ✓ Monte Carlo con 10⁶ freccette: π entro 0,005  → 3.143164 (atteso 3.1415927 ± 0.005)
-  ✓ legge dei grandi numeri: la media di 200 000 esponenziali → 1  → 0.99873829 (atteso 1 ± 0.01)
-  ✓ limite centrale: le medie di 25 dadi hanno σ/√n = 0,3416  → 0.33686671 (atteso 0.34156503 ± 0.012)
-
-── Matematica visiva ──
-  ✓ autovalori di [[2,1],[1,2]] = 3 e 1  → 3 1
-  ✓ autovettori (1,1) e (1,−1)  → 1,1 1,-1
-  ✓ rotazione di 90°: autovalori ±i  → false 0 1
-  ✓ determinante del taglio = 1  → 1 (atteso 1 ± 1e-15)
-  ✓ Fourier: con tutti i termini il quadrato si ricostruisce esattamente  → 1.3241475e-14 (atteso 0 ± 1e-12)
-  ✓ con 10 termini il quadrato è approssimato (errore 0.021)  → true
-  ✓ mappa logistica: periodi a r = 2,8 / 3,2 / 3,5 / 3,55 / 3,83  → 1 2 4 8 3
-  ✓ r = 3,9: caos (nessun periodo)  → Infinity
-  ✓ punto fisso a r = 2,8: x* = 1 − 1/r  → 0.64285714 (atteso 0.64285714 ± 1e-9)
-  ✓ Mandelbrot: 0 e −1 dentro, 1 fuori  → true
-
-── Elettromagnetismo ──
-  ✓ flusso del dipolo a z = 0.5: forma chiusa = integrale sul disco  → 0.3577709 (atteso 0.35777088 ± 0.000001)
-  ✓ flusso del dipolo a z = 1: forma chiusa = integrale sul disco  → 0.1767767 (atteso 0.1767767 ± 0.000001)
-  ✓ flusso del dipolo a z = 2: forma chiusa = integrale sul disco  → 0.04472136 (atteso 0.04472136 ± 0.000001)
-  ✓ flusso massimo al centro: μ₀m/(2a)  → 0.5 (atteso 0.5 ± 1e-12)
-  ✓ generatore: ε₀ = NBAω  → 62.831853 (atteso 62.831853 ± 1e-9)
-  ✓ efficace ε₀/√2  → 44.428829 (atteso 44.428829 ± 1e-12)
-  ✓ campo di una carica a r = 2: q/r²  → 0.25 (atteso 0.25 ± 1e-12)
-  ✓ potenziale del dipolo sull’asse di simmetria = 0  → 0 (atteso 0 ± 1e-12)
-
-── Suono ──
-  ✓ corda: v = √(T/μ)  → 341.56503 (atteso 341.56503 ± 1e-9)
-  ✓ corda: armoniche 1, 2, 3 × fondamentale  → 1 2 3
-  ✓ canna chiusa: solo armoniche dispari  → 1 3 5
-  ✓ velocità del suono a 20 °C ≈ 343 m/s  → 343.21462 (atteso 343.2 ± 0.1)
-  ✓ due sorgenti uguali: +3,01 dB  → 83.0103 (atteso 83.0103 ± 0.0001)
-  ✓ Doppler: sorgente a 0,1 v in avvicinamento, f/(1 − 0,1)  → 488.88889 (atteso 488.88889 ± 1e-9)
-  ✓ dB: 1 W/m² = 120 dB  → 120 (atteso 120 ± 1e-12)
-
-── Semiconduttori ──
-  ✓ Si: E_g(300 K) ≈ 1,12 eV  → 1.1205192 (atteso 1.12 ± 0.005)
-  ✓ Si: n_i(300 K) ≈ 1,0·10¹⁰ cm⁻³ (letteratura 0,97–1,08·10¹⁰)  → 10682590000 (atteso 10200000000 ± 800000000)
-  ✓ Ge: n_i(300 K) ≈ 2,0·10¹³  → 21152607000000 (atteso 21000000000000 ± 3000000000000)
-  ✓ GaAs: n_i(300 K) ≈ 2,1·10⁶  → 2316573.4 (atteso 2200000 ± 400000)
-  ✓ Si drogato 10¹⁶ (P): ρ ≈ 0,45 Ω·cm  → 0.44582208 (atteso 0.45 ± 0.03)
-  ✓ legge di azione di massa: n·p = n_i²  → 114117720000000000000 (atteso 114117720000000000000 ± 114117719571321.27)
-  ✓ giunzione p-n Si 10¹⁶/10¹⁶: V_bi ≈ 0,71 V  → 0.71090313 (atteso 0.71 ± 0.01)
-  ✓ Shockley: a 0 V corrente nulla  → 0 (atteso 0 ± 1e-20)
-  ✓ Shockley: in inversa → −I₀  → -1e-12 (atteso -1e-12 ± 1e-15)
-  ✓ LED GaN 3,4 eV → 365 nm  → 364.65882 (atteso 364.7 ± 0.1)
-
-── Distillazione ──
-  ✓ ebollizione dei puri a 1 atm (Antoine): benzene, toluene, etanolo, acqua  → 80.1 110.6 78.3 100.0
-  ✓ azeotropo etanolo-acqua (van Laar): x ≈ 0,89 misurato  → 0.91489018 (atteso 0.894 ± 0.03)
-  ✓ azeotropo: T ≈ 78,15 °C  → 78.219275 (atteso 78.15 ± 0.2)
-  ✓ benzene-toluene: nessun azeotropo  → true
-  ✓ Raoult: punto di bolla di benzene puro = 80,1 °C  → 80.099993 (atteso 80.1 ± 0.05)
-  ✓ volatilità relativa benzene-toluene ≈ 2,47  → 2.4711738 (atteso 2.47 ± 0.03)
-  ✓ McCabe a riflusso altissimo: piatti ≥ Fenske e vicini (7 vs 6.51)  → true
-  ✓ più riflusso, meno piatti  → true
-  ✓ sotto il riflusso minimo (R = 0,9 < 1.12) la colonna non separa  → true
-  ✓ etanolo-acqua: x_D oltre l’azeotropo è irraggiungibile  → true
-  ✓ Rayleigh: distillando, il residuo si impoverisce del più volatile  → true
-
-── Voltammetria ciclica ──
-  ✓ reversibile: |i_pc| = Randles-Ševčík (entro 1 %)  → 0.99906379 (atteso 1 ± 0.01)
-  ✓ reversibile: ΔE_p ≈ 58 mV  → 58.133333 (atteso 58 ± 1.5)
-  ✓ reversibile: E_pc = E½ − 28,5 mV  → -28.8 (atteso -28.5 ± 1)
-  ✓ reversibile: E½ = E⁰  → 0.26666667 (atteso 0 ± 1.5)
-  ✓ n = 2: ΔE_p ≈ 29 mV  → 29.066667 (atteso 29 ± 1.5)
-  ✓ irreversibile: i_p = 0,4958 nFAC√(αnFvD/RT)  → 0.00021086847 (atteso 0.00021103232 ± 0.0000021103231804372267)
-  ✓ k⁰ lento: ΔE_p cresce (> 100 mV con k⁰ = 10⁻³)  → true
-  ✓ i_p ∝ √v (diffusione): i_p/√v costante  → 0.0016931197 (atteso 0 ± 0.01)
-
-── Nel browser ──
-── schermo grande ──
-  ✓ smatprob: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatvis: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisem: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfissuono: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfissolido: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schidist: 3 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schivolt: 2 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ una figura disegnata con il dito viene ricostruita dagli epicicli  → true
-  ✓ le cariche si trascinano e il campo si ridisegna  → true
-  ✓ il suono ha il pulsante «Ascolta»  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ smatprob: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatvis: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisem: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfissuono: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfissolido: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schidist: 3 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schivolt: 2 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: i nomi delle sezioni  → 🎲 Probability in motion|💡 Semiconductors|🔋 Cyclic voltammetry
-
-82 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_approfondimenti</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Numeri e crittografia ──
-  ✓ π(100) = 25  → 25
-  ✓ π(10⁵) = 9592  → 9592
-  ✓ i primi fino a 30  → 2,3,5,7,11,13,17,19,23,29
-  ✓ MCD(1071, 462) = 21 (l’esempio di Euclide)  → 21
-  ✓ l’algoritmo di Euclide su 1071, 462 fa 3 divisioni  → 3
-  ✓ Bézout: 240x + 46y = MCD  → 2
-  ✓ inverso di 17 modulo 3120 = 2753 (RSA da manuale)  → 2753
-  ✓ 3 non ha inverso modulo 12  → null
-  ✓ Fermat: 2^(p−1) ≡ 1 (mod 101)  → 1
-  ✓ potenza modulare grande: 4^13 mod 497 = 445  → 445
-  ✓ RSA p = 61, q = 53: n = 3233, φ = 3120, d = 2753  → 3233,3120,2753
-  ✓ RSA: 65 → 2790 (Wikipedia)  → 2790
-  ✓ RSA: «Ciao, mondo! àè» cifrato e decifrato  → Ciao, mondo! àè
-  ✓ RSA: e·d ≡ 1 (mod φ)  → true
-  ✓ Li(10⁴) = 1245,09 (tabulato)  → 1245.0921 (atteso 1245.09 ± 0.05)
-  ✓ Li(10⁶) = 78626,5 (tabulato)  → 78626.504 (atteso 78626.5 ± 0.5)
-  ✓ Li(x) approssima π(x) meglio di x/ln x a 10⁵  → true
-  ✓ primo: 7919 sì, 7917 no  → true
-
-── Grafi e ottimizzazione ──
-  ✓ Dijkstra = Floyd–Warshall su 5 grafi casuali, e il cammino ha la lunghezza dichiarata  → true
-  ✓ Kruskal = Prim su 5 grafi casuali (peso e n − 1 archi)  → true
-  ✓ programmazione lineare: il vertice ottimo batte una griglia fitta  → 2200 (atteso 2200 ± 1)
-  ✓ programmazione lineare: l’ottimo è un vertice della regione  → true
-  ✓ discesa sulla ciotola: arriva in (0, 0)  → 2.0747578e-19 (atteso 0 ± 0.000001)
-  ✓ discesa: con passo oltre 2/λ_max (0,1) diverge lungo y  → true
-  ✓ Rosenbrock con il momento: arriva a (1, 1)  → 2.7307876e-15 (atteso 0 ± 0.02)
-
-── Gravitazione ──
-  ✓ figura a otto: dopo un periodo i corpi tornano al punto di partenza  → 0.00010732099 (atteso 0 ± 0.001)
-  ✓ figura a otto: energia conservata  → -1.287142 (atteso -1.287142 ± 0.000001)
-  ✓ figura a otto: momento angolare nullo e conservato  → 2.3161811e-15 (atteso 0 ± 1e-9)
-  ✓ stella con tre pianeti: energia conservata (relativa 10⁻⁵)  → 1.8883729e-8 (atteso 0 ± 0.00001)
-  ✓ L1 Terra–Luna (unità di distanza)  → 0.83691513 (atteso 0.836915 ± 0.0001)
-  ✓ L2 Terra–Luna  → 1.1556822 (atteso 1.155682 ± 0.0001)
-  ✓ L3 Terra–Luna  → -1.0050626 (atteso -1.005063 ± 0.0001)
-  ✓ L4 e L5 stabili per Terra–Luna (μ < 0,0385), non per μ = 0,1  → true
-  ✓ fionda: v∞ uguale in entrata e in uscita nel sistema del pianeta  → 1.4426537 (atteso 1.4426506 ± 0.001)
-  ✓ fionda: nel sistema del Sole la velocità cambia  → true
-
-── Calore ──
-  ✓ barra con estremi a 100 e 0 °C: a metà 50 °C  → 50 (atteso 50 ± 0.000001)
-  ✓ barra: il profilo stazionario è lineare (a un quarto 75 °C)  → 75 (atteso 75 ± 0.000001)
-  ✓ estremi isolati: l’energia si conserva  → 49 (atteso 49 ± 1e-9)
-  ✓ estremi isolati: alla fine tutto alla temperatura media  → 4.2632564e-12 (atteso 0 ± 0.000001)
-  ✓ modo fondamentale: decade come e^(−π² r n / N²)  → 0.67379482 (atteso 0.67382545 ± 0.0001)
-  ✓ piastra: bordi a 0, interno che si raffredda dai bordi  → true
-  ✓ Newton: dopo ln2/k la differenza si dimezza  → 55 (atteso 55 ± 1e-9)
-  ✓ parete: R = 1/7,7 + 0,2/0,7 + 1/25 m²K/W  → 0.45558442 (atteso 0.45558442 ± 1e-12)
-  ✓ parete: il profilo arriva alla temperatura esterna  → -2.220446e-16 (atteso 0 ± 1e-9)
-  ✓ parete: 8 cm di isolante abbattono U più di 30 cm di mattone in più  → true
-
-── Ising ──
-  ✓ Tc = 2/ln(1 + √2) (Onsager)  → 2.2691853 (atteso 2.269185 ± 0.000001)
-  ✓ Onsager: m(T = 2) = 0,9113  → 0.91131938 (atteso 0.91136 ± 0.0001)
-  ✓ Onsager: m = 0 sopra Tc  → 0
-  ✓ Metropolis 32×32 a T = 1,5: |m| = Onsager  → 0.9862085 (atteso 0.9864996 ± 0.01)
-  ✓ Metropolis 32×32 a T = 2,0: |m| = Onsager  → 0.91579834 (atteso 0.91131938 ± 0.02)
-  ✓ Metropolis a T = 3,5: disordinato (|m| < 0,1)  → true
-  ✓ energia a T = 1,5 vicina a −2 (stato fondamentale)  → -1.9500244 (atteso -1.95 ± 0.02)
-  ✓ il calore specifico ha il picco vicino a Tc  → true
-  ✓ campo positivo a bassa T: tutti su  → 1 (atteso 1 ± 1e-9)
-
-── Diagrammi di fase ──
-  ✓ acqua: tensione di vapore 101 325 Pa a 373,124 K (IAPWS)  → 101323.93 (atteso 101325 ± 5)
-  ✓ acqua: le tre curve si incontrano al punto triplo  → 611.657 (atteso 611.657 ± 0.01)
-  ✓ acqua: a 0 °C e 1 atm la fusione (curva) cade a 0,0024 K dal triplo  → 102319.11 (atteso 101325 ± 20000)
-  ✓ ghiaccio Ih: il limite a 251,165 K è a 209,9 MPa  → 209.8985 (atteso 209.9 ± 0.1)
-  ✓ CO₂: il ghiaccio secco sublima a 194,686 K a 1 atm  → 101329.47 (atteso 101325 ± 50)
-  ✓ CO₂: 3,485 MPa a 0 °C (Span–Wagner)  → 3.4850283 (atteso 3.4851 ± 0.002)
-  ✓ fasi: acqua a 25 °C e 1 atm  → liquido
-  ✓ fasi: acqua a −5 °C e 1 atm  → solido
-  ✓ fasi: acqua a −5 °C e 100 MPa (il ghiaccio fonde sotto pressione)  → liquido
-  ✓ fasi: CO₂ a 20 °C e 1 atm  → gas
-  ✓ fasi: CO₂ a 40 °C e 10 MPa  → supercritico
-  ✓ Clausius–Clapeyron: ΔH_vap dell’acqua a 100 °C ≈ 41 kJ/mol (40,7 misurato; gas ideale)  → 41.314364 (atteso 41 ± 1)
-  ✓ regola delle fasi: punto triplo di una sostanza pura, F = 0  → 0
-  ✓ eutettico ideale benzene–naftalene: T = 269,6 K (misura −3,5 °C)  → 269.5808 (atteso 269.6 ± 1)
-  ✓ eutettico ideale benzene–naftalene: x = 0,13  → 0.13391964 (atteso 0.13 ± 0.01)
-  ✓ leva: bilancio di massa fl·x_l = x_B  → 0.3 (atteso 0.3 ± 1e-12)
-  ✓ curva di raffreddamento: una sosta all’eutettico  → true
-  ✓ curva di raffreddamento: sempre in discesa  → true
-
-── Superficie di energia potenziale ──
-  ✓ LEPS: H lontano da H₂ dà la Morse (−D_e a r_e)  → -4.7466 (atteso -4.7466 ± 1e-9)
-  ✓ LEPS: la superficie è simmetrica  → -4.6179023 (atteso -4.6179023 ± 1e-12)
-  ✓ sella simmetrica a r‡ = 0,93 Å (H₃ ab initio 0,930)  → 0.93089533 (atteso 0.93 ± 0.005)
-  ✓ barriera 0,42 eV (H₃ ab initio)  → 0.42024305 (atteso 0.42 ± 0.01)
-  ✓ alla sella il gradiente è nullo  → 9.2133025e-8 (atteso 0 ± 0.000001)
-  ✓ la sella è un massimo lungo la reazione e un minimo lungo lo stiramento simmetrico  → true
-  ✓ quanto vibrazionale di H₂ (Morse): 4144 cm⁻¹, misurato 4161  → 4144.1421 (atteso 4161 ± 30)
-  ✓ traiettoria sopra soglia: reattiva  → reattiva
-  ✓ traiettoria molto sotto soglia: rimbalza  → non reattiva
-  ✓ traiettoria: energia totale conservata  → -3.8741656 (atteso -3.874252 ± 0.0005)
-  ✓ il cammino di minima energia scende nella valle di H₂ + H  → 0.74364905 (atteso 0.7416 ± 0.01)
-  ✓ Polanyi: a 0,15 eV solo la molecola vibrante reagisce  → true
-
-── Nel browser ──
-── schermo grande ──
-  ✓ smatnumeri: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatgrafi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisgrav: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfiscalore: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisising: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schifasi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schipes: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ RSA: la chiave privata d = 2753 è mostrata  → true
-  ✓ la piastra si scalda dove si tocca  → true
-  ✓ il reticolo di Ising evolve  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ smatnumeri: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatgrafi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisgrav: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfiscalore: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisising: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schifasi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schipes: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-── pulsanti delle materie ──
-  ✓ all’avvio: chimica, con i gruppi di chimica più Studio e Utility  → 0,1,2,3,4,5,6
-  ✓   · e due pulsanti: fisica e matematica, con due icone diverse  → fisica,matematica|2
-  ✓   · con un nome accessibile, e sopra Spectra  → true
-  ✓ il pulsante ⚛️ mostra solo la fisica e l'astrofisica (più Studio e Utility)  → 5,6,7,9|chimica,matematica
-  ✓   · e apre l’Area Fisica  → true
-  ✓ il pulsante Σ mostra solo la matematica  → 5,6,8|chimica,fisica
-  ✓ la materia scelta si ricorda dopo aver ricaricato  → 5,6,8
-  ✓ aprire una sezione di chimica da matematica riporta alla chimica  → 0,1,2,3,4,5,6
-  ✓ pulsanti delle materie: nessun errore JavaScript  → 0
-  ✓ in inglese: i nomi delle sezioni  → 🔐 Numbers and cryptography|🧲 Ising model|🏔️ Potential energy surface
-
-114 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_pareggio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le verifiche dei calcoli ──
-  ✓ smatserie: 40 controlli superati
-  ✓ smatvariaz: 31 controlli superati
-  ✓ smattopo: 45 controlli superati
-  ✓ smatalgebra: 49 controlli superati
-  ✓ smatgiochi: 36 controlli superati
-  ✓ smatlogica: 35 controlli superati
-  ✓ smatinfer: 62 controlli superati
-  ✓ smatnoneucl: 56 controlli superati
-  ✓ sfispart: 32 controlli superati
-  ✓ sfisanalitica: 30 controlli superati
-  ✓ sfislaser: 29 controlli superati
-  ✓ sfisclima: 28 controlli superati
-
-── Nel browser ──
-── schermo grande ──
-  ✓ smatserie: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatserie: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatvariaz: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatvariaz: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smattopo: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smattopo: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatalgebra: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatalgebra: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatgiochi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatgiochi: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatlogica: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatlogica: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatinfer: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatinfer: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatnoneucl: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatnoneucl: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfispart: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfispart: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfisanalitica: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisanalitica: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfislaser: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfislaser: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfisclima: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisclima: ogni scheda si apre in meno di 100 ms  → true
-      (sezioni: chimica 91, fisica 52, matematica 34)
-  ✓ la matematica ha almeno 25 sezioni (erano 15)  → true
-  ✓ la fisica ha almeno 30 sezioni (erano 23)  → true
-  ✓ nessun errore JavaScript  → 0
-── telefono ──
-  ✓ smatserie: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatserie: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatvariaz: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatvariaz: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smattopo: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smattopo: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatalgebra: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatalgebra: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatgiochi: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatgiochi: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatlogica: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatlogica: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatinfer: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatinfer: ogni scheda si apre in meno di 100 ms  → true
-  ✓ smatnoneucl: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ smatnoneucl: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfispart: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfispart: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfisanalitica: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisanalitica: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfislaser: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfislaser: ogni scheda si apre in meno di 100 ms  → true
-  ✓ sfisclima: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ sfisclima: ogni scheda si apre in meno di 100 ms  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-  ✓ in inglese: i nomi delle sezioni  → ♾️ Sequences and series|♟️ Game theory|⚛️ Particle physics|🌍 Climate physics
-
-527 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_v237</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le verifiche dei calcoli ──
-  ✓ sastrosole: 36 controlli superati
-  ✓ sastroorbite: 26 controlli superati
-  ✓ sastromat: 34 controlli superati
-  ✓ sastrostelle: 32 controlli superati
-  ✓ sastrobh: 30 controlli superati
-  ✓ sastrogw: 29 controlli superati
-  ✓ sastrogal: 32 controlli superati
-  ✓ sastrocosmo: 38 controlli superati
-  ✓ sastrocielo: 30 controlli superati
-  ✓ sastroeso: 27 controlli superati
-  ✓ sfisspin: 30 controlli superati
-  ✓ sfisstat: 30 controlli superati
-  ✓ sfisnuclei: 28 controlli superati
-  ✓ sfismateriali: 27 controlli superati
-  ✓ sfiselettronica: 27 controlli superati
-  ✓ smatedp: 46 controlli superati
-  ✓ smatanalcomp: 49 controlli superati
-  ✓ smatmarkov: 51 controlli superati
-  ✓ smatsvd: 41 controlli superati
-  ✓ smatcodici: 62 controlli superati
-  ✓ studio: 167 controlli superati
-  ✓ studio-fisica: 1 controlli superati
-  ✓ studio-matematica: 1 controlli superati
-  ✓ risorse: 87 controlli superati
-
-── Nel browser ──
-  ✓ schermo grande · sastrosole: 3 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrosole: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastroorbite: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastroorbite: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastromat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (31 / 1 ms)  → true
-  ✓ schermo grande · sastrostelle: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrostelle: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 2 ms)  → true
-  ✓ schermo grande · sastrobh: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrobh: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastrogw: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrogw: schede 2D entro 250 ms, schede 3D entro 6 s (2 / 1 ms)  → true
-  ✓ schermo grande · sastrogal: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrogal: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastrocosmo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastrocielo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrocielo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sastroeso: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastroeso: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ schermo grande · sfisspin: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (8 / 7 ms)  → true
-  ✓ schermo grande · sfisstat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 20 ms)  → true
-  ✓ schermo grande · sfisnuclei: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (15 / 7 ms)  → true
-  ✓ schermo grande · sfismateriali: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 21 ms)  → true
-  ✓ schermo grande · sfiselettronica: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (12 / 12 ms)  → true
-  ✓ schermo grande · smatedp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatedp: schede 2D entro 250 ms, schede 3D entro 6 s (24 / 1 ms)  → true
-  ✓ schermo grande · smatanalcomp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (44 / 1 ms)  → true
-  ✓ schermo grande · smatmarkov: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (33 / 1 ms)  → true
-  ✓ schermo grande · smatsvd: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (23 / 1 ms)  → true
-  ✓ schermo grande · smatcodici: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (29 / 1 ms)  → true
-      (sezioni: fisica 52, astrofisica 18, matematica 34)
-  ✓ il gruppo Astrofisica ha almeno 12 sezioni  → true
-  ✓ la fisica ha almeno 35 sezioni  → true
-  ✓ la matematica ha almeno 30 sezioni  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-  ✓ telefono · sastrosole: 3 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrosole: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastroorbite: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastroorbite: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastromat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (31 / 1 ms)  → true
-  ✓ telefono · sastrostelle: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrostelle: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 2 ms)  → true
-  ✓ telefono · sastrobh: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrobh: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastrogw: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrogw: schede 2D entro 250 ms, schede 3D entro 6 s (1 / 1 ms)  → true
-  ✓ telefono · sastrogal: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrogal: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastrocosmo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastrocielo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrocielo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sastroeso: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastroeso: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
-  ✓ telefono · sfisspin: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (8 / 7 ms)  → true
-  ✓ telefono · sfisstat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (1 / 27 ms)  → true
-  ✓ telefono · sfisnuclei: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (13 / 7 ms)  → true
-  ✓ telefono · sfismateriali: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 11 ms)  → true
-  ✓ telefono · sfiselettronica: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (9 / 10 ms)  → true
-  ✓ telefono · smatedp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatedp: schede 2D entro 250 ms, schede 3D entro 6 s (17 / 1 ms)  → true
-  ✓ telefono · smatanalcomp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (39 / 1 ms)  → true
-  ✓ telefono · smatmarkov: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (38 / 1 ms)  → true
-  ✓ telefono · smatsvd: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (27 / 1 ms)  → true
-  ✓ telefono · smatcodici: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (10 / 1 ms)  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── Spectra: il volto, le emozioni, la mente ──
-  ✓ 17 emozioni  → 17
-  ✓ 11 campi espressivi sul viso  → 11
-  ✓ le frasi accendono l'emozione giusta  → gioia,empatica,stupore,dubbio,curiosa,sorrisoCaldo,determinata,scettica,divertita
-  ✓ gli occhi a riposo hanno il blu del tema  → #1a3050
-  ✓ la bocca e il viso hanno vertici animati (4405)  → true
-  ✓ le emozioni spostano davvero il viso (neutro fermo, gioia ed empatia diverse)  → true
-  ✓ l'emozione imposta resta finche' dura  → empatica
-  ✓ un complimento alza l'umore della mente  → true
-  ✓ e il viso risponde con un sorriso caldo  → sorrisoCaldo
-  ✓ il volto e' disegnato (4096 pixel al centro)  → true
-  ✓ «come stai» risponde dallo stato interno  → true
-  ✓ il quadro per il modello contiene l'umore  → true
-  ✓ nessun errore JavaScript nel volto  → 0
-  ✓ in inglese: i nomi delle sezioni nuove  → 🌌 Galaxies 3D|🌠 Cosmology 3D|🌀 Spin, qubits and entanglement|📡 Codes and elliptic curves
-
-1061 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_3d238</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le verifiche dei calcoli ──
-  ✓ schipes: 9 controlli superati
-  ✓ scristalli: 9 controlli superati
-  ✓ sschrod: 10 controlli superati
-  ✓ shf: 9 controlli superati
-  ✓ srotovib: 10 controlli superati
-  ✓ sdinmol: 7 controlli superati
-  ✓ schifasi: 8 controlli superati
-  ✓ sfismecc: 7 controlli superati
-  ✓ sfisem: 8 controlli superati
-  ✓ sfisonde: 6 controlli superati
-  ✓ sfisgrav: 8 controlli superati
-  ✓ sfisrel: 6 controlli superati
-  ✓ sfisfluidi: 7 controlli superati
-  ✓ sfistermo: 8 controlli superati
-  ✓ smatmulti: 9 controlli superati
-  ✓ smatvett: 8 controlli superati
-  ✓ smatcalc: 8 controlli superati
-  ✓ smatlin: 9 controlli superati
-  ✓ smatode: 9 controlli superati
-  ✓ smatprob: 7 controlli superati
-  ✓ smattopo: 45 controlli superati
-  ✓ smatnoneucl: 56 controlli superati
-  ✓ smatcompl: 7 controlli superati
-  ✓ smatvariaz: 8 controlli superati
-  ✓ sfissolido: 7 controlli superati
-  ✓ schicinet: 7 controlli superati
-  ✓ sfisising: 6 controlli superati
-  ✓ sfispart: 6 controlli superati
-  ✓ schiequil: 7 controlli superati
-
-── Nel browser ──
-  ✓ schermo grande · schipes: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · schipes: l'ultima scheda («🧊 Superficie 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · schipes: ogni scheda si apre entro 250 ms (14 ms)  → true
-  ✓ schermo grande · scristalli: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · scristalli: l'ultima scheda («🧊 Celle in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · scristalli: ogni scheda si apre entro 250 ms (21 ms)  → true
-  ✓ schermo grande · sschrod: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sschrod: l'ultima scheda («🧊 Nuvola 3D |ψ|²») è una scena 3D che disegna  → true
-  ✓ schermo grande · sschrod: ogni scheda si apre entro 250 ms (19 ms)  → true
-  ✓ schermo grande · shf: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · shf: l'ultima scheda («🧊 Orbitali in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · shf: ogni scheda si apre entro 250 ms (2 ms)  → true
-  ✓ schermo grande · srotovib: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · srotovib: l'ultima scheda («🧊 Rotazione e vibrazione 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · srotovib: ogni scheda si apre entro 250 ms (6 ms)  → true
-  ✓ schermo grande · sdinmol: 2 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sdinmol: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sdinmol: ogni scheda si apre entro 250 ms (8 ms)  → true
-  ✓ schermo grande · schifasi: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · schifasi: l'ultima scheda («🧊 Superficie P–V–T») è una scena 3D che disegna  → true
-  ✓ schermo grande · schifasi: ogni scheda si apre entro 250 ms (62 ms)  → true
-  ✓ schermo grande · sfismecc: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfismecc: l'ultima scheda («🌬️ Lancio 3D con vento») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfismecc: ogni scheda si apre entro 250 ms (6 ms)  → true
-  ✓ schermo grande · sfisem: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisem: l'ultima scheda («🌀 Campi 3D e Lorentz») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisem: ogni scheda si apre entro 250 ms (4 ms)  → true
-  ✓ schermo grande · sfisonde: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisonde: l'ultima scheda («🌊 Ondoscopio 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisonde: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande · sfisgrav: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisgrav: l'ultima scheda («🕳️ Pozzo di potenziale 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisgrav: ogni scheda si apre entro 250 ms (47 ms)  → true
-  ✓ schermo grande · sfisrel: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisrel: l'ultima scheda («🔦 Cono di luce 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisrel: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ schermo grande · sfisfluidi: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisfluidi: l'ultima scheda («🌀 Flusso attorno a un ostacolo 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisfluidi: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ schermo grande · sfistermo: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfistermo: l'ultima scheda («🗻 Superficie p-V-T 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfistermo: ogni scheda si apre entro 250 ms (9 ms)  → true
-  ✓ schermo grande · smatmulti: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatmulti: l'ultima scheda («🧊 Piano tangente in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatmulti: ogni scheda si apre entro 250 ms (14 ms)  → true
-  ✓ schermo grande · smatvett: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatvett: l'ultima scheda («🧊 Campo 3D e divergenza») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatvett: ogni scheda si apre entro 250 ms (48 ms)  → true
-  ✓ schermo grande · smatcalc: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatcalc: l'ultima scheda («🧊 Solidi di rotazione») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatcalc: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande · smatlin: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatlin: l'ultima scheda («🧊 Trasformazioni dello spazio») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatlin: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande · smatode: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatode: l'ultima scheda («🧊 Caos nello spazio delle fasi 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatode: ogni scheda si apre entro 250 ms (23 ms)  → true
-  ✓ schermo grande · smatprob: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatprob: l'ultima scheda («🧊 Normale bivariata 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatprob: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ schermo grande · smattopo: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smattopo: l'ultima scheda («🧊 Superfici in 3D: χ e orientabilità») è una scena 3D che disegna  → true
-  ✓ schermo grande · smattopo: ogni scheda si apre entro 250 ms (17 ms)  → true
-  ✓ schermo grande · smatnoneucl: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatnoneucl: l'ultima scheda («🧊 Sfera e iperboloide in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatnoneucl: ogni scheda si apre entro 250 ms (17 ms)  → true
-  ✓ schermo grande · smatcompl: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatcompl: l'ultima scheda («🧊 Sfera di Riemann») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatcompl: ogni scheda si apre entro 250 ms (17 ms)  → true
-  ✓ schermo grande · smatvariaz: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · smatvariaz: l'ultima scheda («🧊 Pellicola di sapone in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatvariaz: ogni scheda si apre entro 250 ms (9 ms)  → true
-  ✓ schermo grande · sfissolido: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfissolido: l'ultima scheda («🔷 Zona di Brillouin 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfissolido: ogni scheda si apre entro 250 ms (12 ms)  → true
-  ✓ schermo grande · schicinet: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · schicinet: l'ultima scheda («🧊 Urti molecolari») è una scena 3D che disegna  → true
-  ✓ schermo grande · schicinet: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande · sfisising: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfisising: l'ultima scheda («🧊 Ising 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisising: ogni scheda si apre entro 250 ms (11 ms)  → true
-  ✓ schermo grande · sfispart: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · sfispart: l'ultima scheda («🔭 Rivelatore 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfispart: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande · schiequil: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ schermo grande · schiequil: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · schiequil: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-  ✓ telefono · schipes: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · schipes: l'ultima scheda («🧊 Superficie 3D») è una scena 3D che disegna  → true
-  ✓ telefono · schipes: ogni scheda si apre entro 250 ms (15 ms)  → true
-  ✓ telefono · scristalli: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · scristalli: l'ultima scheda («🧊 Celle in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · scristalli: ogni scheda si apre entro 250 ms (43 ms)  → true
-  ✓ telefono · sschrod: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sschrod: l'ultima scheda («🧊 Nuvola 3D |ψ|²») è una scena 3D che disegna  → true
-  ✓ telefono · sschrod: ogni scheda si apre entro 250 ms (36 ms)  → true
-  ✓ telefono · shf: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · shf: l'ultima scheda («🧊 Orbitali in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · shf: ogni scheda si apre entro 250 ms (1 ms)  → true
-  ✓ telefono · srotovib: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · srotovib: l'ultima scheda («🧊 Rotazione e vibrazione 3D») è una scena 3D che disegna  → true
-  ✓ telefono · srotovib: ogni scheda si apre entro 250 ms (4 ms)  → true
-  ✓ telefono · sdinmol: 2 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sdinmol: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sdinmol: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ telefono · schifasi: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · schifasi: l'ultima scheda («🧊 Superficie P–V–T») è una scena 3D che disegna  → true
-  ✓ telefono · schifasi: ogni scheda si apre entro 250 ms (63 ms)  → true
-  ✓ telefono · sfismecc: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfismecc: l'ultima scheda («🌬️ Lancio 3D con vento») è una scena 3D che disegna  → true
-  ✓ telefono · sfismecc: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ telefono · sfisem: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisem: l'ultima scheda («🌀 Campi 3D e Lorentz») è una scena 3D che disegna  → true
-  ✓ telefono · sfisem: ogni scheda si apre entro 250 ms (5 ms)  → true
-  ✓ telefono · sfisonde: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisonde: l'ultima scheda («🌊 Ondoscopio 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisonde: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ telefono · sfisgrav: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisgrav: l'ultima scheda («🕳️ Pozzo di potenziale 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisgrav: ogni scheda si apre entro 250 ms (58 ms)  → true
-  ✓ telefono · sfisrel: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisrel: l'ultima scheda («🔦 Cono di luce 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisrel: ogni scheda si apre entro 250 ms (5 ms)  → true
-  ✓ telefono · sfisfluidi: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisfluidi: l'ultima scheda («🌀 Flusso attorno a un ostacolo 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisfluidi: ogni scheda si apre entro 250 ms (4 ms)  → true
-  ✓ telefono · sfistermo: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfistermo: l'ultima scheda («🗻 Superficie p-V-T 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfistermo: ogni scheda si apre entro 250 ms (6 ms)  → true
-  ✓ telefono · smatmulti: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatmulti: l'ultima scheda («🧊 Piano tangente in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatmulti: ogni scheda si apre entro 250 ms (11 ms)  → true
-  ✓ telefono · smatvett: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatvett: l'ultima scheda («🧊 Campo 3D e divergenza») è una scena 3D che disegna  → true
-  ✓ telefono · smatvett: ogni scheda si apre entro 250 ms (70 ms)  → true
-  ✓ telefono · smatcalc: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatcalc: l'ultima scheda («🧊 Solidi di rotazione») è una scena 3D che disegna  → true
-  ✓ telefono · smatcalc: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ telefono · smatlin: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatlin: l'ultima scheda («🧊 Trasformazioni dello spazio») è una scena 3D che disegna  → true
-  ✓ telefono · smatlin: ogni scheda si apre entro 250 ms (7 ms)  → true
-  ✓ telefono · smatode: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatode: l'ultima scheda («🧊 Caos nello spazio delle fasi 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatode: ogni scheda si apre entro 250 ms (27 ms)  → true
-  ✓ telefono · smatprob: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatprob: l'ultima scheda («🧊 Normale bivariata 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatprob: ogni scheda si apre entro 250 ms (9 ms)  → true
-  ✓ telefono · smattopo: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smattopo: l'ultima scheda («🧊 Superfici in 3D: χ e orientabilità») è una scena 3D che disegna  → true
-  ✓ telefono · smattopo: ogni scheda si apre entro 250 ms (13 ms)  → true
-  ✓ telefono · smatnoneucl: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatnoneucl: l'ultima scheda («🧊 Sfera e iperboloide in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatnoneucl: ogni scheda si apre entro 250 ms (12 ms)  → true
-  ✓ telefono · smatcompl: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatcompl: l'ultima scheda («🧊 Sfera di Riemann») è una scena 3D che disegna  → true
-  ✓ telefono · smatcompl: ogni scheda si apre entro 250 ms (11 ms)  → true
-  ✓ telefono · smatvariaz: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · smatvariaz: l'ultima scheda («🧊 Pellicola di sapone in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatvariaz: ogni scheda si apre entro 250 ms (12 ms)  → true
-  ✓ telefono · sfissolido: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfissolido: l'ultima scheda («🔷 Zona di Brillouin 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfissolido: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ telefono · schicinet: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · schicinet: l'ultima scheda («🧊 Urti molecolari») è una scena 3D che disegna  → true
-  ✓ telefono · schicinet: ogni scheda si apre entro 250 ms (11 ms)  → true
-  ✓ telefono · sfisising: 4 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfisising: l'ultima scheda («🧊 Ising 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisising: ogni scheda si apre entro 250 ms (9 ms)  → true
-  ✓ telefono · sfispart: 5 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · sfispart: l'ultima scheda («🔭 Rivelatore 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfispart: ogni scheda si apre entro 250 ms (10 ms)  → true
-  ✓ telefono · schiequil: 3 schede piene, tele disegnate e con un nome  → true
-  ✓ telefono · schiequil: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ telefono · schiequil: ogni scheda si apre entro 250 ms (6 ms)  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ telefono: nessun errore JavaScript  → 0
-
-488 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_potenzia250</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Saha e Boltzmann, contro i manuali ──
-  ✓ metà dell'idrogeno ionizzata, P_e = 20 Pa (K)  → 9555.95 (atteso 9600, scarto 0.46 %)
-  ✓ massimo delle righe di Balmer, P_e = 20 Pa (K)  → 9870 (atteso 9900, scarto 0.30 %)
-  ✓ N₂/N₁ = 1 a 85 400 K  → 1.00027 (atteso 1, scarto 0.03 %)
-  ✓ Sole: idrogeno ionizzato (N_II/N_tot)  → 0.000077022 (atteso 0.000077, scarto 0.03 %)
-  ✓ Sole: atomi di H in n = 2  → 5.05454e-9 (atteso 5.06e-9, scarto 0.11 %)
-  ✓ Sole: quasi tutto il calcio è Ca II (99.89 %) e nello stato fondamentale (99.62 %)  → true
-  ✓ Sole: ioni Ca II che assorbono per ogni H che assorbe  → 393.759 (atteso 400, scarto 1.56 %)
-  ✓ la ionizzazione cresce con la temperatura e cala con la pressione  → true
-  ✓ le classi: 5777 K, 9900 K, 3500 K, 20 000 K  → G A M B
-
-── La nube, contro le soluzioni esatte ──
-  ✓ tempo di formazione di H₂, n = 100 cm⁻³, T = 100 K (milioni di anni)  → 5.28095 (atteso 5.28, scarto 0.02 %)
-  ✓ è la regola «10⁹/n anni»: a n = 1000 il tempo è dieci volte più breve  → true
-  ✓ senza schermo l'integratore arriva a f = 2kn/(2kn + Γ)  → 0.000103441 (atteso 0.00010344059765710353, scarto 0.00 %)
-  ✓ senza ultravioletto f(t = 1/2kn) = 1 − 1/e  → 0.630884 (atteso 0.6321205588285577, scarto 0.20 %)
-  ✓ lo schermo vale 1 senza colonna e crolla con la colonna (7.4e-6 a 10²¹ cm⁻²)  → true
-  ✓ attraverso la nube le frazioni di H₂ e di CO non calano mai  → true
-  ✓ H diventa H₂ prima che C⁺ diventi CO (A_V = 0.09 contro 3.32)  → true
-  ✓ in superficie il gas è atomico e ionizzato, in fondo molecolare  → true
-  ✓ un campo ultravioletto cento volte più forte spinge il CO più in profondità (5.16)  → true
-  ✓ senza ultravioletto tutto il CHₓ diventa CO (β = 1)  → true
-
-── La deconvoluzione, contro la verità nota ──
-  ✓ «ammide»: 5 picchi ritrovati (centro entro 0.06, larghezza entro 1.1 %, altezza entro 1.1 %), R² = 0.99983  → true
-  ✓ ammide I: la quota d'area dell'α-elica (1655 cm⁻¹)  → 0.391946 (atteso 0.3883892068683565, scarto 0.92 %)
-  ✓ «carbonili»: 2 picchi ritrovati (centro entro 0.02, larghezza entro 0.4 %, altezza entro 0.3 %), R² = 0.99959  → true
-  ✓ «spalla»: 2 picchi ritrovati (centro entro 0.03, larghezza entro 0.4 %, altezza entro 0.9 %), R² = 0.99972  → true
-  ✓ pseudo-Voigt: η ritrovato  → 0.389607 (atteso 0.4, scarto 2.60 %)
-  ✓ area gauss: forma chiusa contro integrale numerico  → 25.5472 (atteso 25.547208466349407, scarto 0.00 %)
-  ✓ area lorentz: forma chiusa contro integrale numerico  → 37.6991 (atteso 37.69551184310461, scarto 0.01 %)
-  ✓ a metà larghezza il profilo vale metà altezza (gaussiana)  → 0.5 (atteso 0.5, scarto 0.00 %)
-  ✓ a metà larghezza il profilo vale metà altezza (lorentziana)  → 0.5 (atteso 0.5, scarto 0.00 %)
-  ✓ un picco senza rumore: fit esatto (R² = 1.00000000)  → true
-  ✓ i dati incollati si leggono con virgole, punti e virgola, tabulazioni, e si ordinano  → 1,2,3|0.2,0.9,0.5
-
-── Il t-SNE, contro ciò che deve fare ──
-  ✓ conserva i vicinati meglio della PCA (0.64 contro 0.36)  → true
-  ✓ tiene separati i quattro gruppi (vicino dello stesso gruppo: 100 %)  → true
-  ✓ la divergenza KL scende (1.499 → 0.304)  → true
-  ✓ lo stesso seme dà la stessa mappa  → true
-  ✓ un seme diverso dà una mappa diversa ma altrettanto buona  → true
-  ✓ le probabilità P sommano a 1  → 1 (atteso 1, scarto 0.00 %)
-  ✓ P è simmetrica  → true
-  ✓ la mappa è centrata  → true
-  ✓ le molecole d'esempio: sette famiglie  → 7 55
-
-── Le pagine ──
-  ✓ telefono · ssaha: nella barra, si apre, 3 schede, i grafici ci sono (1,1,1)  → true
-  ✓ telefono · ssaha: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · snubeism: nella barra, si apre, 3 schede, i grafici ci sono (1,1,0)  → true
-  ✓ telefono · snubeism: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · sdeconv: nella barra, si apre, 2 schede, i grafici ci sono (2,1)  → true
-  ✓ telefono · sdeconv: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · sspaziochim: nella barra, si apre, 3 schede, i grafici ci sono (1,2,1)  → true
-  ✓ telefono · sspaziochim: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · la mappa vera con RDKit: 55 molecole, vicinati conservati 81 %, stessa famiglia 95 %  → true
-  ✓ telefono · deconvoluzione dell'ammide I: cinque componenti, R² 0.99983  → true
-  ✓ telefono · con due componenti invece di cinque il fit peggiora (R² 0.96824): il cursore ricalcola  → true
-  ✓ telefono · i dati incollati: due picchi ritrovati a 40.0 62.0  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-  ✓ schermo grande · ssaha: nella barra, si apre, 3 schede, i grafici ci sono (1,1,1)  → true
-  ✓ schermo grande · ssaha: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · snubeism: nella barra, si apre, 3 schede, i grafici ci sono (1,1,0)  → true
-  ✓ schermo grande · snubeism: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sdeconv: nella barra, si apre, 2 schede, i grafici ci sono (2,1)  → true
-  ✓ schermo grande · sdeconv: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sspaziochim: nella barra, si apre, 3 schede, i grafici ci sono (1,2,1)  → true
-  ✓ schermo grande · sspaziochim: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · la mappa vera con RDKit: 55 molecole, vicinati conservati 81 %, stessa famiglia 95 %  → true
-  ✓ schermo grande · deconvoluzione dell'ammide I: cinque componenti, R² 0.99983  → true
-  ✓ schermo grande · con due componenti invece di cinque il fit peggiora (R² 0.96824): il cursore ricalcola  → true
-  ✓ schermo grande · i dati incollati: due picchi ritrovati a 40.0 62.0  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-65 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_nucleo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Il nucleo c'è e non esce dal suo riquadro
-  ✓ presente  → true
-  ✓ 36px  → 36
-  ✓ non si sovrappone al nome  → false
-
-2) Il campo di scrittura non taglia più il testo
-  ✓ a tutta larghezza  → true
-  ✓ nessun testo tagliato  → false
-
-3) Gli stati del nucleo
-  ✓ stato iniziale a riposo  → pronto
-
-4) Modalità Nucleo
-  ✓ parte spenta  → false
-  ✓ si accende  → true
-  ✓ resta salvata  → 1
-  ✓ passa al più capace fra le chiavi (Groq 50 > Z.AI 45)  → groq
-  ✓ lo dice in chat  → true
-  ✓ si rispegne  → false
-  ✓ nessun errore JS  → 0
-
-13 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_ko</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) Annotazione e conteggio
-  ✓ all'inizio nessuno e' marcato  → false
-  ✓ volte = 0  → 0
-  ✓ dopo un fallimento e' marcato  → true
-  ✓ volte = 1  → 1
-  ✓ volte = 3 dopo tre fallimenti  → 3
-  ✓ un altro fornitore resta pulito  → false
-
-2) Una risposta qualsiasi cancella l'annotazione
-  ✓ non piu' marcato  → false
-  ✓ volte azzerate  → 0
-  ✓ la chiave sparisce da localStorage quando e' vuota  → undefined
-  ✓ cancellare un fornitore mai annotato non crea nulla  → undefined
-
-3) Dopo 24 ore si ritenta, e il conteggio riparte
-  ✓ volte = 2  → 2
-  ✓ scaduta: non piu' marcato  → false
-  ✓ scaduta: volte = 0  → 0
-  ✓ il conteggio riparte da 1, non da 3  → 1
-
-4) Dato corrotto in localStorage non blocca nulla
-  ✓ recente() sopravvive  → false
-  ✓ volte() sopravvive  → 0
-  ✓ JSON valido ma non oggetto  → false
-  ✓ voce senza timestamp  → false
-  ✓ e viene riscritta bene  → 1
-  ✓ un id sconosciuto non viene annotato  → undefined
-
-5) L'ordine di riserva mette i marcati in fondo
-  ✓ senza annotazioni il preferito e' primo  → groq
-  ✓ gemini c'e'  → true
-  ✓ groq marcato scende in fondo  → gemini
-  ✓ ma NON sparisce  → true
-  ✓ lunghezza invariata  → 2
-  ✓ se tutti sono marcati si prova lo stesso il preferito  → groq
-  ✓ e restano tutti e due  → 2
-
-6) Modalita' Nucleo non sceglie un fornitore che non risponde
-    (il piu' capace fra groq e gemini e': gemini_pro)
-  ✓ cambia scelta  → true
-  ✓ e ne sceglie uno valido  → true
-  ✓ con entrambi marcati sceglie comunque qualcuno  → true
-  ✓ senza nessuna chiave restituisce null  → null
-
-7) Il reset "ricomincia da capo" azzera anche questa memoria
-  ✓ il gruppo chiavi la include  → true
-  ✓ dopo il reset e' sparita  → undefined
-  ✓ la licenza non e' stata toccata  → LICENZA
-
-8) Cancellare le chat NON cancella cio' che si e' imparato
-  ✓ la memoria dei ko resta  → true
-
-✓ tutti passati — 35 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_404</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) Il messaggio del fornitore dice quale modello usare
-  ✓ estrae dal caso reale  → gemini-3.6-flash
-  ✓ "use `x` instead"  → gpt-5.6
-  ✓ "use X instead"  → grok-4.6
-  ✓ "switch to X"  → glm-4.7-flash
-  ✓ "replaced by X"  → deepseek-v4
-  ✓ non scambia "the Interactions API" per un modello  → null
-  ✓ non prende una parola senza cifre ne' trattini  → null
-  ✓ messaggio vuoto  → null
-  ✓ messaggio senza suggerimenti  → null
-
-2) Un modello bocciato non viene piu' scelto
-  ✓ all'inizio non e' bocciato  → false
-  ✓ ora lo e'  → true
-  ✓ ma solo per QUELLA chiave  → false
-  ✓ e solo per QUEL fornitore  → false
-  ✓ dopo 7 giorni si riprova  → false
-
-3) Il catalogo elenca un modello che NON si puo' generare
-  ✓ sceglie il piu' recente  → gemini-3.6-flash
-
-4) Il caso vero: il catalogo NON contiene il sostituto
-  ✓ la risoluzione sceglie l'unico che vede  → gemini-2.5-flash
-  ✓ il turno RIESCE invece di fermarsi  → true
-  ✓ ha provato prima il vecchio  → gemini-2.5-flash
-  ✓ poi quello suggerito dal fornitore  → gemini-3.6-flash
-  ✓ due tentativi in tutto  → 2
-  ✓ il modello morto resta bocciato  → true
-  ✓ e il nuovo e' in cache per la prossima volta  → true
-
-5) Il secondo messaggio non ripete l'errore
-  ✓ va diritto al modello giusto  → gemini-3.6-flash
-  ✓ un solo tentativo  → 1
-
-6) Nessun ciclo infinito se NIENTE funziona
-  ✓ si ferma con un errore  → true
-  ✓ e riporta il 404 vero  → true
-  ✓ tentativi limitati  → true
-  ✓ ogni tentativo e' stato DIVERSO  → 5
-
-7) Anche i fornitori OpenAI-compatibili escludono i bocciati
-  ✓ senza bocciature prende il preferito  → openai/gpt-oss-120b
-  ✓ bocciato: scala al successivo  → qwen/qwen3.6-27b
-  ✓ bocciati tutti: non ne restituisce uno gia' fallito  → false
-
-8) Elenco irraggiungibile: la riserva salta i bocciati
-  ✓ primo candidato: l'alias  → gemini-flash-latest
-  ✓ bocciato l'alias: passa al 3.6  → gemini-3.6-flash
-
-9) Il reset azzera anche le bocciature
-  ✓ e' nel gruppo chiavi  → true
-  ✓ sparita  → undefined
-  ✓ licenza intatta  → LICENZA
-
-✓ tutti passati — 36 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_503</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) Quali stati sono temporanei
-  ✓ HTTP 429  → true
-  ✓ HTTP 500  → true
-  ✓ HTTP 502  → true
-  ✓ HTTP 503  → true
-  ✓ HTTP 504  → true
-  ✓ HTTP 529  → true
-  ✓ HTTP 400  → false
-  ✓ HTTP 401  → false
-  ✓ HTTP 403  → false
-  ✓ HTTP 404  → false
-  ✓ HTTP 402  → false
-  ✓ HTTP 200  → false
-
-2) Un 503 su un modello: si passa subito a un altro modello dello stesso fornitore
-  ✓ il turno RIESCE  → true
-  ✓ tre chiamate: 503, 503, ok  → 3
-  ✓ tre modelli diversi, con la stessa chiave  → 3
-  ✓ senza aspettare  → 0
-
-3) La nota NON dice "limite al minuto" per un 503
-  ✓ su un 429 il motivo è 429  → 429
-
-4) Sovraccarico che non passa: si cambia fornitore
-  ✓ il turno RIESCE lo stesso  → true
-  ✓ è passato a un altro fornitore  → 1
-  ✓ e ha detto perché  → true
-  ✓ ed e' la ragione precisa: l'attesa  → attesa:12
-  ✓ la risposta è arrivata da groq  → groq
-
-5) Con una sola chiave: messaggio utile, non "HTTP 503"
-  ✓ fallisce  → true
-  ✓ dice che è sovraccarico, non un codice nudo  → true
-  ✓ dice che NON è colpa della chiave  → true
-  ✓ e suggerisce cosa fare  → true
-  ✓ conserva il codice vero per la diagnosi  → true
-  ✓ è marcato come sovraccarico  → true
-  ✓ tentativi limitati (i modelli candidati, poi le attese)  → true
-
-6) Un errore NON temporaneo non viene ritentato
-  ✓ fallisce subito  → true
-  ✓ una sola chiamata  → 1
-  ✓ nessuna attesa  → 0
-  ✓ non è marcato sovraccarico  → undefined
-
-6b) Un 503 che contiene la parola "model" NON è un modello sparito
-  ✓ nessun modello bocciato  → undefined
-  ✓ ha cambiato modello e riprovato, senza bocciare il primo  → 0
-
-7) Una chiave sbagliata non manda in giro la domanda
-  ✓ fallisce  → true
-  ✓ NON prova gli altri fornitori  → 0
-  ✓ perché si ripeterebbe identico ovunque  → 1
-
-8) L'attesa parte più alta per un sovraccarico che per un 429
-  ✓ il sovraccarico aspetta di più  → true
-  ✓ ma il Retry-After del fornitore vince su tutto  → 7000
-
-✓ tutti passati — 40 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_firma</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) Il turno a piu' giri arriva in fondo
-  ✓ il turno RIESCE  → true
-  ✓ tre chiamate a Gemini  → 3
-  ✓ la risposta finale arriva  → true
-
-2) La firma torna indietro, sulla parte giusta
-   parti rimandate: [{"text":"Verifico.","thoughtSignature":"CtcBAdHtim9xVEVTVE9GaXJtYQ=="},{"functionCall":{"name":"analizza_molecola","args":{"nome":"toluene"}},"thoughtSignature":"CtcBAdHtim9xQk9zZXJ2YXRvcmVGaXJtYUE="}]
-  ✓ la functionCall è stata rimandata  → true
-  ✓ CON la sua firma  → CtcBAdHtim9xQk9zZXJ2YXRvcmVGaXJtYUE=
-  ✓ e la parte di testo con la sua  → CtcBAdHtim9xVEVTVE9GaXJtYQ==
-
-3) Anche la grafia snake_case viene raccolta
-  ✓ firma del 2° giro rimandata  → CtcBAdHtim9xQk9zZXJ2YXRvcmVGaXJtYUI=
-
-4) Un modello che NON firma non manda campi vuoti
-  ✓ funziona lo stesso  → true
-  ✓ nessun campo firma inventato  → undefined
-  ✓ e nessun null di troppo  → false
-
-5) Rete di sicurezza: rifiuto al SECONDO giro, non solo al primo
-  ✓ l'utente riceve comunque una risposta  → true
-  ✓ senza dover rinunciare agli strumenti  → 0
-  ✓ gli strumenti sono ancora attivi  → true
-  ✓ e riparte dalla domanda originale, non dal turno rifiutato  → 1
-
-5b) Se anche il marcatore viene rifiutato, la rete regge
-  ✓ l'utente riceve comunque una risposta  → true
-  ✓ e gli viene DETTO che è senza strumenti  → 1
-  ✓ l'ultima chiamata è davvero senza strumenti  → undefined
-  ✓ e non cicla  → true
-
-6) Un errore NON di formato non fa perdere gli strumenti
-  ✓ fallisce  → true
-  ✓ senza ritentare a vuoto  → 1
-  ✓ e senza spegnere gli strumenti  → 0
-
-7) Lo stream ripete la stessa parte: lo strumento gira UNA volta
-  ✓ lo strumento è stato eseguito una volta sola  → 1
-  ✓ e una sola functionCall rimandata  → 1
-
-8) Ma due chiamate DIVERSE in chunk separati restano due
-  ✓ due strumenti eseguiti  → 2
-
-9) functionResponse: la risposta viaggia sempre come oggetto
-  ✓ e' una parte functionResponse  → true
-  ✓ e response e' un oggetto  → object
-  ✓ non un array  → false
-
-10) Il marcatore di salto NON parte a priori, solo dopo il rifiuto
-  ✓ al primo giro NESSUN marcatore inventato  → undefined
-  ✓ dopo il rifiuto sì  → skip_thought_signature_validator
-  ✓ e l'utente ottiene la risposta CON gli strumenti  → true
-  ✓ senza dover rinunciare agli strumenti  → 0
-
-✓ tutti passati — 31 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_attesa</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) 45 s di silenzio NON troncano più il turno
-  ✓ a 46 s è ancora in ascolto  → false
-
-2) Ma dopo 20 s dice che sta ragionando
-  ✓ nota mostrata  → 1
-  ✓ e dice quanto aspetta  → 180
-
-3) A 3 minuti si arrende, spiegando
-  ✓ adesso ha rinunciato  → true
-  ✓ è un timeout  → true
-  ✓ dice 180 s, non 45  → true
-  ✓ e suggerisce di spegnere il Nucleo  → true
-  ✓ è marcato irraggiungibile (fa scattare la riserva)  → true
-
-4) In Modalità Nucleo la finestra è più larga
-  ✓ la nota dice 5 minuti  → 300
-  ✓ a 3,5 minuti sta ancora aspettando  → false
-  ✓ a 5,5 minuti si ferma  → true
-
-✓ tutti passati — 11 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_attesalunga</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) La soglia
-  ✓ dieci secondi  → 10000
-
-2) IL CASO REALE: Gemini Pro chiede 37s, Groq e' pronto
-  ✓ la risposta arriva  → true
-  ✓ NON ha aspettato  → 0
-  ✓ ha cambiato fornitore  → 1
-  ✓ e ha detto che era per l'attesa  → true
-  ✓ dicendo quanti secondi  → attesa:37
-  ✓ la risposta viene da groq  → groq
-
-3) Senza alternative si aspetta davvero (meglio 37s di un errore)
-  ✓ la risposta arriva lo stesso  → true
-  ✓ stavolta ha aspettato  → 1
-  ✓ e lo ha detto  → 37000
-  ✓ nessun cambio di fornitore  → 0
-
-4) Un'attesa BREVE non fa cambiare fornitore
-  ✓ risponde  → true
-  ✓ ha aspettato i 3 secondi  → 3000
-  ✓ senza cambiare fornitore  → 0
-
-✓ tutti passati — 14 controlli
-```
-
-</details>
-
-<details>
-<summary><code>test_tetto</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-BioSpecInfo — Spectra v2 caricato (copilota agentico, chat multi-provider, esame orale, ripasso SM-2, generatore guide) ✔
-
-1) Il numero si legge dal messaggio del fornitore
-  ✓ caso reale Groq  → 8000
-  ✓ "maximum context length is 4096"  → 4096
-  ✓ "tokens per minute: 6000"  → 6000
-  ✓ nessun numero → null  → null
-  ✓ un numero assurdamente piccolo si scarta  → null
-  ✓ e uno assurdamente grande pure  → null
-  ✓ messaggio vuoto  → null
-
-2) Il costo fisso di Spectra supera davvero 8000
-   prompt + 38 strumenti = 9668 token
-  ✓ senza budget non ci si sta  → true
-
-3) Col tetto imparato la richiesta si stringe
-  ✓ senza tetto non taglia niente  → false
-   con tetto 8000: 17/38 strumenti, totale 5263
-  ✓ ora ci sta  → true
-  ✓ e lo dichiara  → true
-  ✓ gli strumenti giusti restano  → true
-
-4) Il turno vero: 413, impara, riprova, riesce
-  ✓ il turno RIESCE  → true
-  ✓ il primo invio era troppo grande  → 413
-  ✓ ha imparato il tetto  → 8000
-  ✓ e lo ha detto all'utente  → 1
-  ✓ due invii: quello grosso e quello stretto  → 2
-  ✓ il secondo ha meno strumenti  → true
-  ✓ il tetto è in memoria  → 8000
-
-5) La volta dopo parte già stretta
-  ✓ riesce  → true
-  ✓ un solo invio, senza sbattere sul 413  → 1
-  ✓ e non ripete l'avviso  → 0
-
-5b) Il margine: si punta sotto il tetto dichiarato
-  ✓ il tetto salvato è quello vero del fornitore  → 8000
-  ✓ ma si lavora al 70%  → 5600
-  ✓ perché la nostra stima sottovaluta del ~30%  → true
-
-6) Il tetto è della CHIAVE, non del fornitore
-  ✓ con un'altra chiave non vale  → null
-  ✓ e nemmeno per un altro fornitore  → null
-
-7) Il 🗑 azzera anche i tetti
-  ✓ è nel gruppo chiavi  → true
-  ✓ sparito  → undefined
-
-8) Se anche col tetto non ci sta, l'errore arriva (niente ciclo)
-  ✓ fallisce  → true
-  ✓ col messaggio vero del fornitore  → true
-  ✓ senza ciclare  → true
-
-✓ tutti passati — 32 controlli
-```
-
-</details>
-
-<details>
-<summary><code>browser_ko</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-A) Z.AI annotato come irraggiungibile
-  ✓ resta selezionato: la scelta e' dell'utente  → zai
-  ✓ Z.AI e' finita nel gruppo dei non raggiungibili  → true
-  ✓ e l'etichetta lo dice  → true
-  ✓ gli altri restano nell'elenco normale  → 1
-  ✓ l'avviso e' visibile  → true
-  ✓ dice quante volte  → true
-  ✓ nomina il fornitore  → true
-  ✓ propone un'alternativa per cui c'e' una chiave  → true
-  ✓ dice che ci riprovera' da solo  → true
-  ✓ nessun errore JS  → 0
-
-B) Nessuna alternativa configurata
-  ✓ avviso visibile  → true
-  ✓ al primo fallimento dice "poco fa"  → true
-  ✓ indica il pulsante che c'e' a video  → true
-  ✓ e spiega che non serve una chiave per saperlo  → true
-  ✓ non inventa un'alternativa  → false
-  ✓ nessun errore JS  → 0
-
-C) Annotazione di due giorni fa
-  ✓ nessun fornitore nel gruppo dei guasti  → 0
-  ✓ nessun avviso  → false
-  ✓ nessun errore JS  → 0
-
-D) Reset "ricomincia da capo"
-  ✓ c'era  → true
-  ✓ e non c'e' piu'  → null
-  ✓ nessun errore JS  → 0
-
-E) Utente normale, niente annotazioni
-  ✓ nessun fornitore nel gruppo dei guasti  → 0
-  ✓ nessun avviso  → false
-  ✓ la tendina e' completa  → 10
-  ✓ nessun errore JS  → 0
-
-F) Un turno con la rete negata annota il fornitore
-  ✓ annotato in localStorage  → true
-  ✓ conteggio a 1  → true
-  ✓ si sposta nel gruppo dei guasti subito, senza ricaricare  → true
-  ✓ e l'avviso pure  → true
-  ✓ in chat il messaggio spiega il caso  → true
-
-G) Alla seconda volta il messaggio cambia
-  ✓ conteggio a 2  → true
-  ✓ smette di dire "puo' essere la rete" e basta  → true
-  ✓ e dice cosa fare  → true
-
-H) Quando il servizio torna a rispondere l'annotazione sparisce
-  ✓ annotazione rimossa da un 401  → null
-  ✓ torna nell'elenco normale  → 0
-  ✓ e l'avviso pure  → false
-
-37 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_prova</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-A) Un fornitore bloccato, nessun'altra chiave
-  ✓ il pannello si apre  → true
-  ✓ Z.AI risulta non contattabile  → true
-  ✓ Groq invece risponde  → true
-  ✓ la riga senza chiave resta asciutta  → false
-  ✓ e la misura funziona comunque senza chiave  → true
-  ✓ la conclusione e' incoraggiante, non un vicolo cieco  → esito buono
-  ✓ nomina i gratuiti raggiungibili  → true
-  ✓ e dice cosa fare  → true
-  ✓ nessun errore JS  → 0
-
-B) La prova aggiorna cio' che l'app sa, subito
-  ✓ Z.AI annotata  → true
-  ✓ Groq NON annotato  → false
-  ✓ un solo fornitore finisce fra i non raggiungibili  → 1
-  ✓ ed e' proprio Z.AI  → true
-
-C) Con una chiave che funziona
-  ✓ dice che puoi usarlo subito  → true
-  ✓ e nomina Groq  → true
-  ✓ la chiave di Groq risulta a posto  → true
-  ✓ nessun errore JS  → 0
-
-D) Chiave sbagliata ≠ fornitore irraggiungibile
-  ✓ lo dice esplicitamente  → true
-  ✓ e NON marca il fornitore come irraggiungibile  → null
-  ✓ nessun errore JS  → 0
-
-D2) La conclusione DEVE dire quali costano
-   conclusione: ✅ Puoi usare subito, gratis: Google Gemini Flash. Scegline uno dal menù qui sopra.Rispondono anche Google Gemini 3 Pro, ma sono a pagamento: consumano credito, e senza fatturazione attiva in
-  ✓ separa il gratis dal pagamento  → true
-  ✓ nomina il Flash come gratuito  → true
-  ✓ e AVVERTE che il 3 Pro si paga  → true
-  ✓ spiegando cosa comporta  → true
-  ✓ nessun errore JS  → 0
-
-E) Nessuno raggiungibile
-  ✓ la conclusione avverte  → esito brutto
-  ✓ ipotizza la rete bloccata  → true
-  ✓ e propone il proxy come soluzione definitiva  → true
-  ✓ nessun errore JS  → 0
-
-29 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_prov</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-A) Chi aveva Mistral selezionato deve poter aprire Spectra
-  ✓ Spectra si apre lo stesso  → true
-  ✓ ripiega su un servizio valido  → true
-  ✓ nessun errore JS  → 0
-
-B) La tendina contiene solo i servizi tenuti
-     · Groq — velocissimo · gratis
-     · Google Gemini Flash · gratis
-     · Z.AI GLM-4.7-Flash · gratis
-     · OpenAI GPT-5.6 — record su GPQA
-     · Google Gemini 3 Pro
-     · DeepSeek V4 — potenza a poco
-     · Claude Fable 5.1 — il massimo
-     · Claude Opus 5 (Anthropic)
-     · Claude Sonnet 5 — equilibrato
-     · Grok 4.6 (xAI) — il migliore sugli agenti
-  ✓ tre gratuiti  → 3
-  ✓ niente Mistral  → false
-  ✓ niente OpenRouter  → false
-  ✓ c'e' Z.AI  → true
-
-7 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_doppioinvio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-Due Invio di fila, a mezzo secondo di distanza
-    · ruoli salvati: user,assistant
-    · testi:         prima domanda | risposta
-  ✓ nessun doppio turno "user" consecutivo  → 0
-  ✓ la cronologia resta alternata e pulita  → user,assistant
-  ✓ il secondo testo non e' andato perso  → seconda domanda
-  ✓ non resta nessuna bolla in attesa  → 0
-  ✓ il pulsante Invia e' di nuovo visibile  → true
-  ✓ il pulsante Stop e' sparito  → none
-  ✓ nessun errore JS  → 0
-
-7 passati
-```
-
-</details>
-
-<details>
-<summary><code>caccia_ai</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Risposta troncata a metà (connessione caduta durante lo stream)
-  ✓ il pulsante Invia torna disponibile  → true
-  ✓ lo Stop sparisce  → false
-  ✓ nessuna bolla resta in attesa  → 0
-  ✓ nessun errore JS  → 0
-
-2) Il fornitore risponde con una pagina HTML di errore (502)
-  ✓ avvisa che sta ritentando, invece di restare muto  → true
-  ✓ e dice quanto aspetta  → true
-  ✓ nessun errore JS  → 0
-
-3) Risposta 200 completamente vuota
-  ✓ non resta una bolla vuota in attesa  → 0
-  ✓ il pulsante Invia torna disponibile  → true
-  ✓ nessun errore JS  → 0
-
-4) L'utente preme Stop mentre la risposta arriva
-  ✓ lo Stop riporta subito il pulsante Invia  → true
-  ✓ e nasconde se stesso  → false
-  ✓ la bolla non resta a puntini per sempre  → 0
-    · cronologia: user,assistant
-  ✓ la cronologia resta alternata dopo lo Stop  → false
-  ✓ nessun errore JS  → 0
-
-5) Si chiude il pannello mentre la risposta è in corso
-  ✓ nessun errore JS a pannello chiuso  → 0
-  ✓ la risposta arriva comunque, a pannello chiuso  → true
-  ✓ riaprendo, il pulsante Invia è a posto  → true
-  ✓ e non ci sono bolle in attesa  → 0
-
-6) Testo che potrebbe rompere il rendering
-  ✓ lo script nella RISPOSTA non viene eseguito  → false
-  ✓ lo script nella DOMANDA non viene eseguito  → false
-  ✓ nessun errore JS  → 0
-
-22 passati
-```
-
-</details>
-
-<details>
-<summary><code>audit_stabilita</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-═══ 1. SESSIONE LUNGA: aprire e chiudere ogni scheda 5 volte ═══
-    · schede trovate: 224 (scentrorganica, sdashboard, sareachim, sesplchim, smol, spt…)
-    · nodi DOM per giro: 8211 → 59650 → 59728 → 59734 → 59737 → 59735
-    · canvas   per giro: 24 → 185 → 185 → 185 → 185 → 185
-    · setInterval vivi (creati-cancellati): -5
-    · costruzione (giro 1): +51439 nodi
-    · dopo la costruzione (giri 2-5): +85 nodi  (21/giro)
-  ✓ il DOM smette di crescere a costruzione finita (< 150/giro)  → true
-  ✓ i canvas non si moltiplicano dopo il primo giro  → true
-  ✓ gli intervalli non si accumulano (< 25 vivi)  → true
-  ✓ nessun errore JS in 5 giri completi  → 0
-
-═══ 2. localStorage PIENO: la app deve sopravvivere ═══
-  ✓ lo spazio e' davvero esaurito (la prova e' valida)  → true
-  ✓ la app si disegna lo stesso  → true
-  ✓ nessun errore JS con la memoria piena  → 0
-  ✓ Spectra si apre comunque  → true
-
-═══ 3. CLIC RIPETUTI: doppio invio e pulsanti impazziti ═══
-  ✓ nessuna eccezione dalla raffica di clic  → 0
-  ✓ non restano due pannelli sovrapposti  → true
-  ✓ nessun errore JS  → 0
-
-═══ 4. DATI SALVATI CORROTTI: JSON.parse su spazzatura ═══
-  ✓ la app parte comunque  → true
-  ✓ Spectra si apre con i dati corrotti  → true
-  ✓ nessuna eccezione  → 
-  ✓ nessun errore JS  → 0
-
-═══ 5. OGNI PAGINA SI APRE PULITA ═══
-  ✓ index — nessun errore all'avvio (8148 nodi)  → 0
-  ✓ astro — nessun errore all'avvio (6335 nodi)  → 0
-  ✓ chimorga — nessun errore all'avvio (3309 nodi)  → 0
-  ✓ accademia — nessun errore all'avvio (181 nodi)  → 0
-  ✓ rdkit_lab — nessun errore all'avvio (1526 nodi)  → 0
-  ✓ simulazioni — nessun errore all'avvio (208 nodi)  → 0
-  ✓ pro — nessun errore all'avvio (825 nodi)  → 0
-  ✓ sr_completo — nessun errore all'avvio (5943 nodi)  → 0
-  ✓ sr_essenziale — nessun errore all'avvio (1419 nodi)  → 0
-  ✓ file_manager — nessun errore all'avvio (99 nodi)  → 0
-  ✓ changelog_tesi — nessun errore all'avvio (252 nodi)  → 0
-  ✓ guidaret — nessun errore all'avvio (11 nodi)  → 0
-  ✓ download — nessun errore all'avvio (48 nodi)  → 0
-  ✓ Biochimica_Guida_Definitiva — nessun errore all'avvio (2858 nodi)  → 0
-
-29 passati
-```
-
-</details>
-
-<details>
-<summary><code>audit_promesse</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-═══ Rete a posto ═══
-  ✓ index — nessuna promessa rifiutata e abbandonata
-  ✓ astro — nessuna promessa rifiutata e abbandonata
-  ✓ chimorga — nessuna promessa rifiutata e abbandonata
-  ✓ accademia — nessuna promessa rifiutata e abbandonata
-  ✓ rdkit_lab — nessuna promessa rifiutata e abbandonata
-  ✓ simulazioni — nessuna promessa rifiutata e abbandonata
-  ✓ pro — nessuna promessa rifiutata e abbandonata
-  ✓ sr_completo — nessuna promessa rifiutata e abbandonata
-  ✓ sr_essenziale — nessuna promessa rifiutata e abbandonata
-  ✓ file_manager — nessuna promessa rifiutata e abbandonata
-  ✓ Biochimica_Guida_Definitiva — nessuna promessa rifiutata e abbandonata
-
-═══ Rete morta (ogni fetch verso l'esterno fallisce) ═══
-  ✓ index — nessuna promessa rifiutata e abbandonata
-  ✓ astro — nessuna promessa rifiutata e abbandonata
-  ✓ chimorga — nessuna promessa rifiutata e abbandonata
-  ✓ accademia — nessuna promessa rifiutata e abbandonata
-  ✓ rdkit_lab — nessuna promessa rifiutata e abbandonata
-  ✓ simulazioni — nessuna promessa rifiutata e abbandonata
-  ✓ pro — nessuna promessa rifiutata e abbandonata
-  ✓ sr_completo — nessuna promessa rifiutata e abbandonata
-  ✓ sr_essenziale — nessuna promessa rifiutata e abbandonata
-  ✓ file_manager — nessuna promessa rifiutata e abbandonata
-  ✓ Biochimica_Guida_Definitiva — nessuna promessa rifiutata e abbandonata
-
-22 passati
-```
-
-</details>
-
-<details>
-<summary><code>audit_quota</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-  ✓ index.html sopravvive a una memoria esaurita
-  ✓ astro.html sopravvive a una memoria esaurita
-  ✓ chimorga.html sopravvive a una memoria esaurita
-  ✓ accademia.html sopravvive a una memoria esaurita
-  ✓ rdkit_lab.html sopravvive a una memoria esaurita
-  ✓ sr_completo.html sopravvive a una memoria esaurita
-  ✓ sr_essenziale.html sopravvive a una memoria esaurita
-  ✓ pro.html sopravvive a una memoria esaurita
-  ✓ simulazioni.html sopravvive a una memoria esaurita
-  ✓ file_manager.html sopravvive a una memoria esaurita
-
-10 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_sw</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Installazione e precarico
-  ✓ una sola cache, quella corrente  → 1
-  ✓ il nome e' quello della versione  → true
-    · cache: bsi-v271 con 235 voci
-  ✓ il precarico ha messo dentro le pagine  → true
-  ✓ nessun errore JS  → 0
-
-2) Offline completo
-  ✓ la app si apre senza rete  → true
-    · 8106 nodi in 1463 ms — "BioSpecInfo · v8"
-  ✓ nessun errore JS offline  → 0
-
-3) Rete pessima (risposte a 20 secondi)
-    · caricata in 11213 ms con 8112 nodi — rete bloccata 197 volte
-  ✓ la rete e' stata bloccata davvero (misura valida)  → true
-  ✓ non si aspettano i 20 secondi della rete  → true
-  ✓ la app viene servita dalla cache  → true
-  ✓ nessun errore JS  → 0
-
-3-bis) La gara col cronometro, misurata sul singolo fetch
-  ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3507 ms (stato 200, 603445 byte) — rete bloccata 1 volte
-  ✓ la rete e' stata bloccata davvero (misura valida)  → true
-  ✓ la copia in cache arriva senza aspettare la rete morta  → true
-  ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
-  ✓ ed e' il file vero, non una risposta vuota  → true
-
-4) Nuova versione: NON deve buttare via il lavoro aperto
-   B) con del lavoro aperto
-  ✓ col lavoro aperto NON si ricarica di nascosto  → true
-  ✓ mostra invece la barra di aggiornamento  → true
-  ✓ con "Aggiorna ora" e "Più tardi"  → 2
-  ✓ e la nota e' ancora li', intatta  → true
-    · barra: 🔄 Nuova versione disponibile. Hai del lavoro aperto: aggior
-   A) senza niente in corso
-  ✓ senza lavoro aperto si ricarica da sola  → false
-  ✓ e non disturba con nessuna barra  → false
-  ✓ nessun errore JS  → 0
-
-22 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_filemanager</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Si clicca PRIMA che l'archivio sia aperto
-  ✓ nessuna funzione esplode sul database non ancora aperto  → 0
-  ✓ nessun errore JS  → 0
-
-2) IndexedDB non disponibile (navigazione privata)
-  ✓ nessuna funzione esplode  → 0
-  ✓ compare l'avviso che nulla verra' conservato  → true
-    · avviso: ⚠️ Archivio non disponibileIl browser non permette di salvare i file (accesso ne
-  ✓ salvare una nota NON dice "salvata"  → false
-  ✓ e dice invece che non e' stata salvata  → true
-    · messaggio: ❌ Nota NON salvata: accesso negato
-  ✓ nessun errore JS  → 0
-
-3) Spazio esaurito: le scritture vengono rifiutate
-  ✓ nessuna eccezione sfugge  → 0
-  ✓ dice che la nota non e' stata salvata  → true
-    · messaggio: ❌ Nota NON salvata: spazio esaurito sul dispositivo
-  ✓ la barra di avanzamento NON resta bloccata accesa  → none
-  ✓ nessun errore JS  → 0
-
-4) Il caso normale non e' stato rotto dalle protezioni
-  ✓ conferma il salvataggio  → true
-  ✓ e la nota c'e' davvero nell'archivio  → nota vera
-  ✓ nessun avviso di guasto quando tutto va bene  → false
-  ✓ nessun errore JS  → 0
-
-15 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_visore3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-    · all'avvio: 0 contesti WebGL, 0 tele create
-
-Si sfogliano 10 molecole diverse nel visore 3D
-    · sfogliando: 1 contesti WebGL, 2 tele create per 10 molecole
-    · canvas rimasti nel riquadro: 1
-    · ultima molecola disegnata: CCCCO
-  ✓ sfogliare molecole non apre un contesto WebGL per ciascuna  → true
-  ✓ e non costruisce un visore nuovo per ogni molecola  → true
-  ✓ e nel riquadro resta una sola tela  → 1
-  ✓ il visore ha comunque disegnato qualcosa  → true
-  ✓ nessun errore JS  → 0
-
-5 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_reset</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Il pulsante esiste ed è nella barra
-  ✓ pulsante presente  → true
-  ✓ pannello inizialmente chiuso  → none
-
-2) Un clic apre il pannello, non cancella niente
-  ✓ pannello aperto  → block
-  ✓ chat ancora salvate  → true
-  ✓ chiavi ancora salvate  → true
-
-3) Le caselle predefinite sono chat + chiavi
-  ✓ cinque gruppi offerti  → 5
-  ✓ spuntati di partenza  → chat,chiavi
-  ✓ memoria NON spuntata  → false
-  ✓ ripasso disattivato perché vuoto  → true
-
-4) Annulla non cancella
-  ✓ pannello chiuso  → none
-  ✓ chat intatte  → true
-
-5) Conferma: cancella chat e chiavi, non il resto
-  ✓ chat cancellate  → null
-  ✓ chiavi cancellate  → null
-  ✓ chiave VECCHIA cancellata  → null
-  ✓ cache modello cancellata  → null
-  ✓ memoria preservata (non spuntata)  → ["studia biochimica"]
-  ✓ appunto preservato  → appunto importante
-  ✓ LICENZA preservata  → LICENZA-VERA
-
-6) La UI riparte davvero da capo
-  ✓ una sola chat vuota  → 1
-  ✓ richiede di nuovo la chiave  → block
-  ✓ conferma a schermo  → true
-
-7) Dopo un ricaricamento la chiave vecchia non risorge
-  ✓ nessuna mappa chiavi  → null
-  ✓ nessuna chiave vecchia  → null
-  ✓ nessun errore JS  → 0
-
-24 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_proxy</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-A) Senza PROXY_URL (stato del deploy)
-  ✓ nessun errore JS  → 0
-  ✓ proxy non attivo  → 
-  ✓ nessuna richiesta a /stato  → 0
-  ✓ non copre nulla  → false
-
-B) Con un proxy che copre groq e gemini
-  ✓ proxy attivo  → https://proxy.finto.test
-  ✓ copre groq  → true
-  ✓ copre gemini  → true
-  ✓ NON copre claude  → false
-  ✓ utilizzabile senza chiavi salvate  → true
-  ✓ instradata al proxy  → https://proxy.finto.test/groq/openai/v1/chat/completions
-  ✓ senza Authorization  → undefined
-  ✓ nessun errore JS  → 0
-  ✓ riquadro chiave nascosto  → none
-  ✓ badge mostrato  → block
-  ✓ badge spiega perché  → true
-
-15 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_proxyui</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-A) Con una chiave salvata il riquadro 🔑 sparisce, il proxy no
-  ✓ riquadro chiave nascosto  → none
-  ✓ ma il blocco proxy c'è  → true
-  ✓ ed è ripiegato su una riga  → none
-  ✓ che dice già cosa fa  → true
-  ✓ nessun errore JS  → 0
-
-B) Si apre al tocco
-  ✓ corpo aperto  → block
-
-C) Un indirizzo non https viene respinto senza salvare
-  ✓ lo dice  → true
-  ✓ e NON lo salva  → null
-
-D) Un proxy che non risponde non resta impostato
-  ✓ lo dice  → true
-  ✓ e ripristina lo stato di prima  → null
-
-E) Un proxy che risponde viene collegato e riassunto
-  ✓ collegato  → true
-  ✓ elenca cosa copre  → true
-  ✓ salvato  → https://proxy-vero.test
-  ✓ la riga chiusa lo dice senza doverla aprire  → true
-
-F) Scollegare torna alle chiavi
-  ✓ rimosso  → null
-  ✓ e il sommario torna com'era  → true
-  ✓ nessun errore JS in tutto il giro  → 0
-
-17 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_rdkit</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Gli strumenti esistono e sono ben formati
-  ✓ Spectra caricato  → function
-
-2) analizza_molecola: dati tabulati
-  ✓ trova l'aspirina  → tabulato
-  ✓ formula giusta  → C9H8O4
-  ✓ due bande C=O (estere + acido)  → true
-  ✓ insensibile alle maiuscole  → tabulato
-  ✓ trova per sinonimo  → aspirina
-  ✓ trova per SMILES  → aspirina
-  ✓ dichiara che i valori dipendono dal solvente  → true
-   fuori elenco → ["estere"]
-  ✓ fuori elenco: dice che è dedotto  → dedotto dai gruppi funzionali
-  ✓ e riconosce l'estere  → true
-  ✓ e AVVERTE che non è misurato  → true
-  ✓ un estere NON viene dato anche per alcol  → false
-  ✓ nessuna banda O–H fantasma  → false
-  ✓ un alcol vero però lo riconosce  → true
-   ammide+fenolo → ["ammide","aromatico","alcol o fenolo"]
-  ✓ ammide riconosciuta  → true
-  ✓ e il fenolo che resta pure  → true
-  ✓ nome inventato: fallisce onestamente  → false
-  ✓ e spiega cosa fare  → true
-
-3) disegna_molecola: apre il lab e carica lo SMILES
-  ✓ lo strumento riesce  → true
-  ✓ il lab è aperto e ha l'API  → object
-  ✓ lo SMILES è arrivato nel campo  → CC(=O)Oc1ccccc1C(O)=O
-  ✓ è sul pannello molecola  → p-mol
-
-4) mostra_spettri: cambia pannello e tipo
-  ✓ lo strumento riesce  → true
-  ✓ siamo sul pannello spettri  → p-speclive
-  ✓ il tipo richiesto è attivo  → ir
-  ✓ lo SMILES è nel campo spettri  → CC(=O)Oc1ccccc1C(O)=O
-  ✓ dice che si vede un tipo per volta  → true
-
-5) Un tipo non valido non rompe niente
-  ✓ ripiega su nmr  → nmr
-  ✓ senza fallire  → true
-
-6) Il lab non obbedisce a una pagina qualsiasi
-  ✓ messaggio senza mittente valido: ignorato  → CCO
-
-7) Nessun errore JS in tutto il giro
-  ✓ errori  → 0
-
-31 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_lab</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) La chimica: il benzene NON ha CH₂ né CH₃
-   IR benzene: ["=C-H (Ar)C=C Ar=C-H oop","=C-H (Ar)","C=C Ar","=C-H oop"]
-   ¹H benzene: ["ArH","ArH"]
-  ✓ IR: niente CH₂ str  → false
-  ✓ IR: niente CH₂ bend  → false
-  ✓ IR: niente CH₃ bend  → false
-  ✓ IR: niente C-H alifatico  → false
-  ✓ IR: c'è =C-H aromatico  → true
-  ✓ IR: c'è C=C aromatico  → true
-  ✓ ¹H: nessun metile a 0,9  → false
-
-2) Il toluene invece il metile ce l'ha — ma a 2,3 non a 0,9
-   ¹H toluene: ["ArHAr-CH₃","ArH","Ar-CH₃"]
-  ✓ IR: CH₃ bend c'è  → true
-  ✓ IR: CH₂ NON c'è (il toluene non ne ha)  → false
-  ✓ ¹H: il metile è marcato come aromatico  → true
-  ✓ e NON compare un metile alifatico a 0,9  → false
-
-3) Il cicloesano ha CH₂ ma nessun CH₃
-  ✓ CH₂ sì  → true
-  ✓ CH₃ no  → false
-
-4) Un solo pulsante "Indietro"
-  ✓ quello dell'overlay c'è  → 1
-  ✓ e il lab non ne aggiunge un secondo  → 0
-
-5) I pulsanti flottanti non coprono i comandi del lab
-  ✓ l'app sa che c'è un overlay  → true
-  ✓ FAB Spectra nascosto  → none
-  ✓ FAB strumenti nascosto  → none
-
-6) Chiudendo l'overlay tornano
-  ✓ l'app sa che è chiuso  → false
-  ✓ FAB di nuovo visibile  → true
-
-7) Nessun errore JS
-  ✓ errori  → 0
-
-21 passati
-```
-
-</details>
-
-<details>
-<summary><code>browser_frontiera</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-Tendina completa:
-   1. Groq — velocissimo · gratis
-   2. Google Gemini Flash · gratis
-   3. Z.AI GLM-4.7-Flash · gratis
-   4. OpenAI GPT-5.6 — record su GPQA
-   5. Google Gemini 3 Pro
-   6. DeepSeek V4 — potenza a poco
-   7. Claude Fable 5.1 — il massimo
-   8. Claude Opus 5 (Anthropic)
-   9. Claude Sonnet 5 — equilibrato
-  10. Grok 4.6 (xAI) — il migliore sugli agenti
-  ✓ 10 configurazioni  → 10
-  ✓ 3 gratuite  → 3
-  ✓ c'e' GPT-5.6  → true
-  ✓ c'e' Gemini 3 Pro  → true
-  ✓ c'e' DeepSeek  → true
-
-Chiave condivisa nella UI
-  ✓ su Sonnet non richiede la chiave  → none
-  ✓ su Groq la richiede  → block
-  ✓ una sola voce salvata  → claude_fable
-  ✓ nessun errore JS  → 0
-
-9 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_aggiorna</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) La versione dichiarata e' quella vera
-    · app: bsi-v271   ·  sw.js: bsi-v271
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v271
-  ✓ e non e' piu' la vecchia v140  → false
-
-2) Si arriva alla finestra degli aggiornamenti
-  ✓ il vecchio 🔄 e' ancora sepolto (il difetto era questo)  → nascosto da hdr-actions
-  ✓ il ✨ e' davvero cliccabile  → true
-  ✓ il pannello strumenti si apre  → true
-  ✓ e contiene la voce Aggiornamenti  → true
-    · voce: 🔄AggiornamentiVersione installata e controllo nuove version
-
-3) La voce apre davvero la finestra
-  ✓ la finestra si apre  → true
-  ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v271Premi “Controlla” per verificare se è disponib
-  ✓ nessun errore JS  → 0
-
-9 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_controllaagg</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-  ✓ stessa versione: «hai già l'ultima versione», con il numero  [✅ Hai già l’ultima versione pubblicata: bsi-v271.]  → true
-  ✓ e niente pulsante «Aggiorna ora»  → false
-  ✓ versione nuova sul sito: la annuncia, con le due versioni  [🆕 Nuova versione disponibile: bsi-v999 (hai la bsi-v271)]  → true
-  ✓ e offre «Aggiorna ora»  → true
-  ✓ sito irraggiungibile: lo dice  [⚠️ Impossibile verificare ora: il sito non risponde (connessione assente?). L’ap]  → true
-  ✓ controlla(): stessa versione  → aggiornata
-  ✓ e l'avviso lo dice  [✅ BioSpecInfo è già aggiornata: stai usando l'ultima versione pubblica]  → true
-  ✓ controlla(): versione nuova  → nuova
-  ✓ e chiede al service worker di aggiornarsi  → true
-  ✓ controlla(): senza rete  → offline
-  ✓ e l'avviso parla della connessione  → true
-  ✓ nessun errore JavaScript  → 0
-
-12 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra238</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── telefono ──
-  ✓ un solo pulsante di Spectra: il volto nel cerchio (cerchio, pillola)  → true|false|50%
-  ✓ sul telefono a schermo intero si usano i margini sicuri  → true
-  ✓ i pulsanti in alto stanno sotto la barra di stato (≥ 34 px dal bordo: 44)  → true
-  ✓ i comandi in basso stanno sopra i tasti di Android (≥ 46 px dal bordo: 54)  → true
-  ✓ la telemetria sta in due colonne e non copre il volto  → true
-  ✓ la testata sta sopra il volto  → true
-  ✓ il volto sta sopra lo stato  → true
-  ✓ lo stato sta sopra il dialogo  → true
-  ✓ il dialogo sta sopra le scorciatoie e i comandi  → true
-  ✓ l'attribuzione del modello sta dentro la barra dei comandi, in fondo  → true
-  ✓ ci sono le scorciatoie della sezione aperta (6)  → true
-  ✓ navigatore, chimica: tutte le sezioni della barra (120 / 120)  → true
-  ✓ navigatore, chimica: strumenti rapidi e frasi (8, 17)  → true
-  ✓ navigatore, fisica: tutte le sezioni della barra (99 / 99)  → true
-  ✓ navigatore, fisica: strumenti rapidi e frasi (8, 17)  → true
-  ✓ navigatore, matematica: tutte le sezioni della barra (63 / 63)  → true
-  ✓ navigatore, matematica: strumenti rapidi e frasi (7, 17)  → true
-  ✓ dal navigatore si apre una sezione di un'altra materia, la materia cambia, e il pulsante di Spectra Live resta per tornare  → matematica|true|true|true
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── schermo grande ──
-  ✓ un solo pulsante di Spectra: il volto nel cerchio (cerchio, pillola)  → true|false|50%
-  ✓ su schermo grande niente margini forzati  → true
-  ✓ i pulsanti in alto sono vicini al bordo (10 px)  → true
-  ✓ la testata sta sopra il volto  → true
-  ✓ il volto sta sopra lo stato  → true
-  ✓ lo stato sta sopra il dialogo  → true
-  ✓ il dialogo sta sopra le scorciatoie e i comandi  → true
-  ✓ l'attribuzione del modello sta dentro la barra dei comandi, in fondo  → true
-  ✓ ci sono le scorciatoie della sezione aperta (6)  → true
-  ✓ navigatore, chimica: tutte le sezioni della barra (120 / 120)  → true
-  ✓ navigatore, chimica: strumenti rapidi e frasi (8, 17)  → true
-  ✓ navigatore, fisica: tutte le sezioni della barra (99 / 99)  → true
-  ✓ navigatore, fisica: strumenti rapidi e frasi (8, 17)  → true
-  ✓ navigatore, matematica: tutte le sezioni della barra (63 / 63)  → true
-  ✓ navigatore, matematica: strumenti rapidi e frasi (7, 17)  → true
-  ✓ dal navigatore si apre una sezione di un'altra materia, la materia cambia, e il pulsante di Spectra Live resta per tornare  → matematica|true|true|true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-── livello e concentrazione ──
-  ✓ una domanda da corso avanzato è più difficile di un conto (0.55 > 0.25)  → true
-  ✓ «in parole semplici» abbassa la difficoltà (0.30)  → true
-  ✓ in una sezione da dottorato (shf) la stessa domanda pesa più che in una da scuola (sfisgrav)  → true
-  ✓ e il livello dichiarato è quello del percorso  → Scuola superiore|Dottorato
-
-── il creatore ──
-  ✓ «chi ti ha creato?» → Samuele Pio Provenzano  → true
-  ✓ «sono il tuo creatore» non basta: chiede una prova  → true
-  ✓ e il campo diventa nascosto, come una password  → password
-  ✓ una frase sbagliata è respinta  [No. Non è la frase del mio creatore. Puoi riprovare: di' di ]  → true
-  ✓ e il campo torna normale  → text
-  ✓ la frase scritta non resta da nessuna parte (dialogo, pagina, memoria)  → false
-  ✓ dopo tre tentativi sbagliati aspetta un minuto  → true
-  ✓ al modello: l'utente non è stato riconosciuto, e la frase non va chiesta in chat  → true
-  ✓ riconosciuto: «chi ti ha creato?» → «Tu, Samuele»  → true
-  ✓ e non chiede di nuovo la prova  → true
-  ✓ il modello sa che parla con il suo creatore (anche dal quadro della mente)  → true
-  ✓ all'apertura della console lo saluta per nome  [Buon pomeriggio, Samuele. È sempre bello quando to]  → true
-  ✓ la telemetria dice chi è  → true
-  ✓ «dimentica che sono il tuo creatore» toglie il riconoscimento  → true
-  ✓ nessun errore JavaScript  → 0
-
-── gli occhi e il viso ──
-  ✓ gioia: gli occhi si stringono (0.66)  → true
-  ✓ sorpresa: gli occhi si spalancano (1.38)  → true
-  ✓ dubbio: un occhio più aperto dell'altro (0.99 / 0.61)  → true
-  ✓ a riposo gli occhi hanno il blu del tema (#1a3050)  → true
-  ✓ le emozioni cambiano la tinta degli occhi (#295faf #3570c7 #314491)  → true
-  ✓ concentrata: occhi più socchiusi (0.58 < 0.86)  → true
-  ✓ concentrata: occhi più accesi (1.01 > 0.25)  → true
-  ✓ il battito chiude quasi del tutto le palpebre (0.04 / 0.04)  → true
-  ✓ dopo due minuti senza nessuno si addormenta (sonno 0.98, palpebre 0.29)  → true
-  ✓ e al primo tocco si sveglia di soprassalto  → sorpresa
-  ✓ nessun errore JavaScript nel volto  → 0
-
-66 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_lezione</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Una lezione per ogni sezione ──
-      (224 sezioni; 129 con schede; 91 con una domanda di verifica)
-  ✓ le sezioni attraversate sono tutte quelle della barra (224)  → true
-  ✓ ogni sezione ha la sua lezione (apertura … riepilogo)  → 
-  ✓ nelle sezioni con schede, un capitolo per scheda  → 
-  ✓ ogni sezione aperta ha il pulsante «🎓 Lezione guidata»  → 
-  ✓ molte lezioni hanno una domanda di verifica dal kit di studio (91)  → true
-  ✓ nessun errore JavaScript attraversando tutte le sezioni  → 0
-
-── Il lettore, telefono ──
-  ✓ il pulsante apre la lezione, che parte dall'apertura («Onde e ottica»)  → true
-  ✓ durante la lezione i pulsanti flottanti si nascondono (visible → hidden)  → true
-  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (23 valori)  → true
-  ✓ e il riflettore lo illumina  → true
-  ✓ saltando avanti a metà, il cursore torna dov'era (1 → 1)  → true
-  ✓ una scelta passa in rassegna le opzioni (4) e torna com'era  → true
-  ✓ la verifica mostra la risposta giusta e la spiegazione  → true
-  ✓ il riepilogo elenca i capitoli (5)  → true
-  ✓ a 390 px niente sborda  → 0
-  ✓ alla chiusura il pannello sparisce e i pulsanti tornano (visible)  → true
-  ✓ Spectra avvia la lezione con «fammi lezione»  → true
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── Il lettore, schermo grande ──
-  ✓ il pulsante apre la lezione, che parte dall'apertura («Onde e ottica»)  → true
-  ✓ durante la lezione i pulsanti flottanti si nascondono (visible → hidden)  → true
-  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (23 valori)  → true
-  ✓ e il riflettore lo illumina  → true
-  ✓ saltando avanti a metà, il cursore torna dov'era (1 → 1)  → true
-  ✓ una scelta passa in rassegna le opzioni (4) e torna com'era  → true
-  ✓ la verifica mostra la risposta giusta e la spiegazione  → true
-  ✓ il riepilogo elenca i capitoli (5)  → true
-  ✓ a 1280 px niente sborda  → 0
-  ✓ alla chiusura il pannello sparisce e i pulsanti tornano (visible)  → true
-  ✓ Spectra avvia la lezione con «fammi lezione»  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-30 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_studio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I calcoli delle lezioni ──
-  ✓ verifica-studio-spectra: 23 controlli superati
-
-── Il corpo (driver sul manichino) e la voce ──
-      (rapporto del manichino: {"ossa":"22/23","mancanti":["mandibola"],"blendshape":"14/14","capelli":1,"clip":[],"locomozione":true,"viso":"blendshape"})
-  ✓ il driver trova le ossa (22/23), i blendshape (14/14) e i capelli  → true
-  ✓ i capelli rossi diventano neri (0.039, 0.039, 0.047)  → true
-  ✓ dalla posa a T le braccia scendono lungo il corpo (y = -0.98)  → true
-  ✓ indica: l'avambraccio punta al bersaglio (scarto 1.7°)  → true
-  ✓ pensa: la mano vicino al mento (20.8 cm dalla testa)  → true
-  ✓ lo sguardo si gira verso destra (avanti.x = -0.78)  → true
-  ✓ cammina: si sposta (0.96 m) e muove le gambe (24°)  → true
-  ✓ si siede: le anche scendono di 42 cm  → true
-  ✓ gioia → sorriso (0.85); preoccupazione → angoli giù (0.40) e il sorriso se ne va (0.00)  → true
-  ✓ labiale dall'audio: la mandibola si apre (0.75)  → true
-  ✓ battito: le palpebre si chiudono (1.00)  → true
-  ✓ voce: i bassi a 80 Hz escono rinforzati (10.3 dB)  → true
-  ✓ voce: la stanza lascia una coda dopo la fine del suono  → true
-  ✓ senza chiave la voce ripiega sulla sintesi del sistema  → sistema
-  ✓ nessun errore JavaScript  → 0
-
-── Le lezioni, schermo grande ──
-  ✓ nello studio Spectra è il nucleo olografico, presente subito, senza «sta arrivando»  → true
-  ✓ nessun pulsante «Corpo» né scelta di file  → false
-  ✓ il file pubblicato è un blocco impacchettato («BSIC»), non un modello .glb riutilizzabile  → BSIC
-  ✓ un blocco che non è un modello viene rifiutato, senza errori  → false
-  ✓ caduta: le due sfere toccano terra insieme (2.019 / 2.019 s)  → true
-  ✓ caduta: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ caduta: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ caduta: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ acqua: tetraedro 109.47°, con i doppietti 104.40°  → true
-  ✓ acqua: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ acqua: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ acqua: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ Basilea: S₁₀₀₀ = 1.64393, coprimi 0.6079  → true
-  ✓ basilea: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ basilea: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ basilea: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-── Le lezioni, telefono ──
-  ✓ nello studio Spectra è il nucleo olografico, presente subito, senza «sta arrivando»  → true
-  ✓ nessun pulsante «Corpo» né scelta di file  → false
-  ✓ il file pubblicato è un blocco impacchettato («BSIC»), non un modello .glb riutilizzabile  → BSIC
-  ✓ un blocco che non è un modello viene rifiutato, senza errori  → false
-  ✓ caduta: le due sfere toccano terra insieme (2.019 / 2.019 s)  → true
-  ✓ caduta: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ caduta: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ caduta: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ caduta: a 390 px niente sborda  → 0
-  ✓ acqua: tetraedro 109.47°, con i doppietti 104.40°  → true
-  ✓ acqua: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ acqua: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ acqua: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ acqua: a 390 px niente sborda  → 0
-  ✓ Basilea: S₁₀₀₀ = 1.64393, coprimi 0.6079  → true
-  ✓ basilea: 4 previsioni, misure in tabella, formule nella dimostrazione  → true
-  ✓ basilea: la rivelazione segna la risposta giusta, 4 esercizi, uno consigliato  → true
-  ✓ basilea: la memoria ricorda la previsione e l'esercizio aperto  → true
-  ✓ basilea: a 390 px niente sborda  → 0
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── La voce si ricorda, e i dati dello studio si cancellano ──
-  ✓ la voce spenta resta spenta dopo una ricarica  → 0|🔇
-  ✓ «Cancella dati → memoria» toglie la memoria e la scelta della voce dello studio  → null|null
-
-── Senza WebGL: la lezione si segue a testo ──
-  ✓ senza WebGL non c'è scena, ma la lezione dà le misure (2.019 s)  → true
-  ✓ senza WebGL: nessun errore JavaScript  → 0
-
-79 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_rig</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Lo scheletro ──
-  ✓ rig costruito in 76 ms (sotto 3 s)  → true
-  ✓ 27 ossa (20 che pesano e 7 punte)  → 27
-  ✓ nomi Mixamo (Hips, Spine2, Neck, Head, LeftArm, RightForeArm…)  → true
-  ✓ il driver del corpo le riconosce (20/23)  → true
-  ✓ e sa camminare (locomozione)  → true
-── I pesi ──
-  ✓ somma dei pesi = 1 su ogni vertice (scarto 4.3e-8)  → true
-  ✓ la mano va alla mano e all'avambraccio (1)  → true
-  ✓ il fianco accanto alla mano pendente: nessun peso del braccio  → 0
-  ✓ una gamba non tocca mai l'altra  → 0
-  ✓ la gamba sinistra va alle sue ossa (0.991)  → true
-── Il movimento ──
-  ✓ nel gesto «spiega» la mano si sposta (0.522 m)  → true
-  ✓ e il fianco resta fermo (0.001 m)  → true
-  ✓ la camminata sposta il corpo (1.35 m)  → true
-── La definizione ──
-  ✓ tassellazione: ogni triangolo ne diventa quattro (3712 → 14848)  → 14848
-  ✓ i pesi restano normalizzati anche sui vertici nuovi (scarto 4.5e-8)  → true
-  ✓ la pelle resta chiusa: i bordi aperti raddoppiano soltanto (ogni lato di bordo diventa due)  → 32
-── Testa e cappuccio ──
-  ✓ senza testa: tolti 780 triangoli  → true
-  ✓ col cappuccio se ne tolgono meno (262): la nuca resta  → true
-  ✓ con la testa: nessun triangolo tolto  → 0
-  ✓ col solo viso: nessun triangolo tolto (il foro è nello shader)  → 0
-  ✓ il foro è un'ellisse al pixel, sulla posa di riposo (segue la testa)  → true
-  ✓ niente visiera nera: il casco sotto il cappuccio diventa ombra opaca (219 vertici, nessuno tolto)  → true
-  ✓ dal foro si vede l'interno del casco (doppia faccia), non il vuoto  → true
-  ✓ il cappuccio è rigido con la testa (480/480 vertici)  → true
-── I colori dell'app ──
-  ✓ il grigio medio diventa blu notte [30,45,86]  → true
-  ✓ le ombre restano quasi nere [7,13,27]  → true
-  ✓ le luci restano chiare, appena azzurre [129,145,184]  → true
-  ✓ il turchese diventa luce verde acqua [0,201,183]  → true
-  ✓ il grigio non emette luce  → 0,0,0
-  ✓ nessun errore JavaScript  → 0
-
-30 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_figura</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── Le sezioni dell'AI, telefono ──
-  ✓ il pulsante di Spectra è solo il volto (pillola nascosta)  → true
-  ✓ sareachim: la figura è dentro la sezione, sotto il titolo (494 px)  → true
-  ✓ sareachim: una figura sola in tutta l'app  → 1
-  ✓ sareachim: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sareafis: la figura è dentro la sezione, sotto il titolo (494 px)  → true
-  ✓ sareafis: una figura sola in tutta l'app  → 1
-  ✓ sareafis: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sareamat: la figura è dentro la sezione, sotto il titolo (494 px)  → true
-  ✓ sareamat: una figura sola in tutta l'app  → 1
-  ✓ sareamat: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sai: la figura è dentro la sezione, sotto il titolo (494 px)  → true
-  ✓ sai: una figura sola in tutta l'app  → 1
-  ✓ Spectra è il nucleo olografico, presente subito, senza «sta arrivando»  → true
-  ✓ guscio a celle: duale dell'icosfera, 12 pentagoni e 150 esagoni  → 162
-  ✓ al massimo 2 pixel per punto ed esposizione 0,85 (2, 0.85)  → true
-  ✓ nessun elemento additivo satura a bianco: luminanza × opacità ≤ 0,8 (0.56)  → true
-  ✓ lo stato sotto la sfera, a parole (IN LINEA)  → true
-  ✓ nessun pulsante «Corpo» né scelta di file (🎙️ Parla con me, 🧠 Spiega, 🎓 Studio)  → true
-  ✓ nessuna richiesta al corpo, al rig, al volto androide o al glTF  → true
-  ✓ il modello lavora → il nucleo pensa (tessere che si accendono; «PENSA»)  → true
-  ✓ arriva la risposta → un satellite indica l'ologramma, PARLO, didascalia parola per parola (PARLA)  → true
-  ✓ poi accompagna la spiegazione con le mani  → spiega
-  ✓ una risposta mancata → dubbio  → dubbio
-  ✓ quando Spectra Live parla, la figura parla con lei  → true
-  ✓ l'assistente locale risolve un esercizio → Spectra lo spiega («Ecco lo svolgimento: Derivata. f(x) = x^…»)  → true
-  ✓ i pulsanti della figura non finiscono sotto quelli flottanti  → 0
-  ✓ nella console Spectra Live c'è Spectra col corpo (e l'ologramma) al posto del busto  → true
-  ✓ la figura segue lo stato della console (elabora → mano al mento)  → pensa
-  ✓ chiusa la console, Spectra torna nella sezione (sareamat)  → true
-  ✓ l'ologramma sta alla destra di Spectra (x sullo schermo -0.45 → 0.53)  → true
-  ✓ sei scene vive: pianeti, molecola, spettro, superficie, orbitale, onda  → pianeti:ok,molecola:ok,spettro:ok,superficie:ok,orbitale:ok,onda:ok
-  ✓ i pianeti seguono Keplero: al perielio più veloci che all'afelio (rapporto 1.94, atteso (1+e)/(1−e) = 1.94)  → true
-  ✓ il soggetto segue il discorso: una risposta sullo spettro IR → spettro; una domanda sulle orbite → pianeti  → spettro|pianeti
-  ✓ l'etichetta porta alla sezione (🪐 Orbite di Keplero · apri ›)  → true
-  ✓ un tocco sull'etichetta apre «Sistema solare 3D» DIETRO la finestra Spiega: Spectra resta visibile davanti, l'ologramma la mostra dal vivo  → true
-  ✓ chiusa la finestra, l'app torna alla sezione di Spectra (sareamat) e la figura è lì  → true
-  ✓ la scheda «🧠 Spiega» è la seconda della finestra di Spectra (e la «Lezione» non c'è più)  → 1|-1
-  ✓ Spectra col corpo si sposta nella scheda e spiega  → true
-  ✓ legge lo schermo: uno spettro aperto («Spettri Ref.»: 🔬 CENTRO SPETTRI, 1 grafici, valori dei controlli, immagine)  → true
-  ✓ livelli dalla scuola superiore al PhD avanzato (5)  → true
-  ✓ al modello arrivano il testo dello schermo, la domanda e l'IMMAGINE di grafici e scene 3D  → true
-  ✓ la richiesta: spiegazione esaustiva, non semplificata, lettura quantitativa dello spettro (δ, molteplicità, J, integrale)  → true
-  ✓ la struttura obbligatoria: sintesi, fondamenti, derivazione, esempi, casi limite, collegamenti, frontiera, verifiche  → true
-  ✓ la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre il modello scrive  → true
-  ✓ l'approfondimento continua la conversazione senza rimandare l'immagine (3 messaggi)  → true
-  ✓ al PhD avanzato: frontiera, problemi aperti, letteratura primaria  → true
-  ✓ senza modello non finge: lo dice e mostra ciò che l'app sa della sezione  → true
-  ✓ legge anche i grafici disegnati in SVG (1 grafico vettoriale trasformato in immagine)  → true
-  ✓ con la scena 3D aperta dietro Spiega, l'ologramma la mostra dal vivo (schermo)  → true
-  ✓ il catalogo ha TUTTE le sezioni della barra (224/224: chimica 91, fisica 70, matematica 34, comuni 29)  → true
-  ✓ una domanda che nomina un argomento trova la sua sezione  → stitr|sschrod|smatcalc|sms|sirvis|sastroorbite|—
-  ✓ chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati (stitr)  → true
-  ✓ privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre (sschrod) ma al modello vanno solo la domanda, senza testo né immagine dello schermo  → true
-  ✓ una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma  → true
-  ✓ «🎞️ Mostrami tutto» scorre le sezioni della materia (2/34 · ⚡ Esplora la matematica con Spectra)  → true
-  ✓ legge anche una scena 3D (🛰️ Meccanica orbitale 3D: 2 tele, immagine)  → true
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── Le sezioni dell'AI, schermo grande ──
-  ✓ il pulsante di Spectra è solo il volto (pillola nascosta)  → true
-  ✓ sareachim: la figura è dentro la sezione, sotto il titolo (464 px)  → true
-  ✓ sareachim: una figura sola in tutta l'app  → 1
-  ✓ sareachim: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sareafis: la figura è dentro la sezione, sotto il titolo (464 px)  → true
-  ✓ sareafis: una figura sola in tutta l'app  → 1
-  ✓ sareafis: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sareamat: la figura è dentro la sezione, sotto il titolo (464 px)  → true
-  ✓ sareamat: una figura sola in tutta l'app  → 1
-  ✓ sareamat: nessuno spazio vuoto sopra la sezione (#main 0 px)  → true
-  ✓ sai: la figura è dentro la sezione, sotto il titolo (464 px)  → true
-  ✓ sai: una figura sola in tutta l'app  → 1
-  ✓ Spectra è il nucleo olografico, presente subito, senza «sta arrivando»  → true
-  ✓ guscio a celle: duale dell'icosfera, 12 pentagoni e 150 esagoni  → 162
-  ✓ al massimo 2 pixel per punto ed esposizione 0,85 (2, 0.85)  → true
-  ✓ nessun elemento additivo satura a bianco: luminanza × opacità ≤ 0,8 (0.56)  → true
-  ✓ lo stato sotto la sfera, a parole (IN LINEA)  → true
-  ✓ nessun pulsante «Corpo» né scelta di file (🎙️ Parla con me, 🧠 Spiega, 🎓 Studio)  → true
-  ✓ nessuna richiesta al corpo, al rig, al volto androide o al glTF  → true
-  ✓ il modello lavora → il nucleo pensa (tessere che si accendono; «PENSA»)  → true
-  ✓ arriva la risposta → un satellite indica l'ologramma, PARLO, didascalia parola per parola (PARLA)  → true
-  ✓ poi accompagna la spiegazione con le mani  → spiega
-  ✓ una risposta mancata → dubbio  → dubbio
-  ✓ quando Spectra Live parla, la figura parla con lei  → true
-  ✓ l'assistente locale risolve un esercizio → Spectra lo spiega («Ecco lo svolgimento: Derivata. f(x) = x^…»)  → true
-  ✓ nella console Spectra Live c'è Spectra col corpo (e l'ologramma) al posto del busto  → true
-  ✓ la figura segue lo stato della console (elabora → mano al mento)  → pensa
-  ✓ chiusa la console, Spectra torna nella sezione (sareamat)  → true
-  ✓ l'ologramma sta alla destra di Spectra (x sullo schermo -0.19 → 0.23)  → true
-  ✓ sei scene vive: pianeti, molecola, spettro, superficie, orbitale, onda  → pianeti:ok,molecola:ok,spettro:ok,superficie:ok,orbitale:ok,onda:ok
-  ✓ i pianeti seguono Keplero: al perielio più veloci che all'afelio (rapporto 1.94, atteso (1+e)/(1−e) = 1.94)  → true
-  ✓ il soggetto segue il discorso: una risposta sullo spettro IR → spettro; una domanda sulle orbite → pianeti  → spettro|pianeti
-  ✓ l'etichetta porta alla sezione (🪐 Orbite di Keplero · apri ›)  → true
-  ✓ un tocco sull'etichetta apre «Sistema solare 3D» DIETRO la finestra Spiega: Spectra resta visibile davanti, l'ologramma la mostra dal vivo  → true
-  ✓ chiusa la finestra, l'app torna alla sezione di Spectra (sareamat) e la figura è lì  → true
-  ✓ la scheda «🧠 Spiega» è la seconda della finestra di Spectra (e la «Lezione» non c'è più)  → 1|-1
-  ✓ Spectra col corpo si sposta nella scheda e spiega  → true
-  ✓ legge lo schermo: uno spettro aperto («Spettri Ref.»: 🔬 CENTRO SPETTRI, 1 grafici, valori dei controlli, immagine)  → true
-  ✓ livelli dalla scuola superiore al PhD avanzato (5)  → true
-  ✓ al modello arrivano il testo dello schermo, la domanda e l'IMMAGINE di grafici e scene 3D  → true
-  ✓ la richiesta: spiegazione esaustiva, non semplificata, lettura quantitativa dello spettro (δ, molteplicità, J, integrale)  → true
-  ✓ la struttura obbligatoria: sintesi, fondamenti, derivazione, esempi, casi limite, collegamenti, frontiera, verifiche  → true
-  ✓ la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre il modello scrive  → true
-  ✓ l'approfondimento continua la conversazione senza rimandare l'immagine (3 messaggi)  → true
-  ✓ al PhD avanzato: frontiera, problemi aperti, letteratura primaria  → true
-  ✓ senza modello non finge: lo dice e mostra ciò che l'app sa della sezione  → true
-  ✓ legge anche i grafici disegnati in SVG (1 grafico vettoriale trasformato in immagine)  → true
-  ✓ con la scena 3D aperta dietro Spiega, l'ologramma la mostra dal vivo (schermo)  → true
-  ✓ il catalogo ha TUTTE le sezioni della barra (224/224: chimica 91, fisica 70, matematica 34, comuni 29)  → true
-  ✓ una domanda che nomina un argomento trova la sua sezione  → stitr|sschrod|smatcalc|sms|sirvis|sastroorbite|—
-  ✓ chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati (stitr)  → true
-  ✓ privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre (sschrod) ma al modello vanno solo la domanda, senza testo né immagine dello schermo  → true
-  ✓ una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma  → true
-  ✓ «🎞️ Mostrami tutto» scorre le sezioni della materia (2/34 · ⚡ Esplora la matematica con Spectra)  → true
-  ✓ legge anche una scena 3D (🛰️ Meccanica orbitale 3D: 2 tele, immagine)  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-113 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_esplora</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I capitoli e i numeri (node) ──
-  ✓ chimica: dieci capitoli  → 10
-  ✓ chimica: dalla scuola superiore (livello 0) al PhD avanzato (livello 4), in ordine  → true
-  ✓ chimica: ogni previsione ha 4 risposte, la giusta e un perché per ognuna  → true
-  ✓ chimica: gli identificativi sono unici  → true
-  ✓ fisica: dieci capitoli  → 10
-  ✓ fisica: dalla scuola superiore (livello 0) al PhD avanzato (livello 4), in ordine  → true
-  ✓ fisica: ogni previsione ha 4 risposte, la giusta e un perché per ognuna  → true
-  ✓ fisica: gli identificativi sono unici  → true
-  ✓ matematica: dieci capitoli  → 10
-  ✓ matematica: dalla scuola superiore (livello 0) al PhD avanzato (livello 4), in ordine  → true
-  ✓ matematica: ogni previsione ha 4 risposte, la giusta e un perché per ognuna  → true
-  ✓ matematica: gli identificativi sono unici  → true
-  ✓ pH di HCl 10⁻⁸ M con l'autoprotolisi dell'acqua (6.97829 ≈ 6.978)  → true
-  ✓ pH di HCl 10⁻² M (2.00000 ≈ 2)  → true
-  ✓ Henderson–Hasselbalch, rapporto 1: pH = pKa (4.76000 ≈ 4.76)  → true
-  ✓ t½ = ln 2 / k con k = 0,1 s⁻¹ (6.93147 ≈ 6.9315)  → true
-  ✓ Marcus: barriera nulla a ΔG° = −λ (0.00000 ≈ 0)  → true
-  ✓ Marcus: regione invertita, ΔG° = −2λ dà ΔG‡ = λ/4 (0.250000 ≈ 0.25)  → true
-  ✓ caduta da 20 m: t = √(2h/g) (2.01928 ≈ 2.0193)  → true
-  ✓ gittata a 45°, v₀ = 20 m/s (40.7747 ≈ 40.775)  → true
-  ✓ periodo del pendolo da 1 m (2.00607 ≈ 2.0061)  → true
-  ✓ Carnot fra 600 K e 300 K (0.500000 ≈ 0.5)  → true
-  ✓ particella in una scatola di 1 nm: E₁ (eV) (0.376030 ≈ 0.376)  → true
-  ✓ dimezzando la scatola l'energia quadruplica (4.00000 ≈ 4)  → true
-  ✓ tunnel: raddoppiando lo spessore T diventa il suo quadrato (0.0000354850 ≈ 0.00003548501724526454)  → true
-  ✓ γ dei muoni a 0,9995c (31.6267 ≈ 31.63)  → true
-  ✓ derivata di x³ in 2 (12.0000 ≈ 12)  → true
-  ✓ (1 + 1/n)ⁿ con n = 10⁶ → e (2.71828 ≈ 2.718281828459045)  → true
-  ✓ ∫₁ᵉ dx/x = 1 (1.00000 ≈ 1)  → true
-  ✓ Basilea con 10⁵ termini → π²/6 (meno la coda) (1.64492 ≈ 1.6449240668482263)  → true
-  ✓ serie armonica con 1000 termini (7.48547 ≈ 7.4855)  → true
-  ✓ autovalori della rotazione di 90°: ±i (parte immaginaria 1) (1.00000 ≈ 1)  → true
-  ✓ Gibbs con 201 termini: massimo ≈ 1,179 (1.17889 ≈ 1.179)  → true
-  ✓ equazione del calore: k = 2 a t = 0,1 → e^(−0,4) (0.670320 ≈ 0.6703200460356393)  → true
-
-── Le sezioni, telefono ──
-  ✓ le tre sezioni nella barra della loro materia, ogni capitolo collegato a una sezione esistente  → sesplchim:ok sesplfis:ok sesplmat:ok
-  ✓ chimica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ chimica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ chimica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ chimica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ chimica: il cursore ricalcola  → true
-  ✓ chimica: a 412 px niente sborda  → 0
-  ✓ fisica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ fisica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ fisica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ fisica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ fisica: il cursore ricalcola  → true
-  ✓ fisica: a 412 px niente sborda  → 0
-  ✓ matematica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ matematica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ matematica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ matematica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ matematica: il cursore ricalcola  → true
-  ✓ matematica: a 412 px niente sborda  → 0
-  ✓ «📺 Guardalo dal vivo» apre la sezione (smatfunz) dietro la finestra di Spectra, e l'ologramma la mostra  → true
-  ✓ chiusa la finestra, si torna alla sezione Esplora  → sesplmat
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── Le sezioni, schermo grande ──
-  ✓ le tre sezioni nella barra della loro materia, ogni capitolo collegato a una sezione esistente  → sesplchim:ok sesplfis:ok sesplmat:ok
-  ✓ chimica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ chimica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ chimica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ chimica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ chimica: il cursore ricalcola  → true
-  ✓ fisica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ fisica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ fisica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ fisica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ fisica: il cursore ricalcola  → true
-  ✓ matematica: dieci capitoli e Spectra col corpo nella sezione, fermo in alto mentre si scorre  → true
-  ✓ matematica: il capitolo davanti è attivo e l'ologramma prende la sua scena  → true
-  ✓ matematica: prevedere segna la giusta e la sbagliata, con il perché di ogni risposta; Spectra reagisce (sorpresa)  → true
-  ✓ matematica: la memoria ricorda e la barra avanza (1/10)  → true
-  ✓ matematica: il cursore ricalcola  → true
-  ✓ «📺 Guardalo dal vivo» apre la sezione (smatfunz) dietro la finestra di Spectra, e l'ologramma la mostra  → true
-  ✓ chiusa la finestra, si torna alla sezione Esplora  → sesplmat
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-75 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_olo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Spettri e universo (node) ──
-  ✓ sei molecole di riferimento  → 6
-  ✓ ognuna ha i cinque spettri (IR, ¹H, ¹³C, massa, UV)  → true
-  ✓ massa molare dell'acetone (g/mol) (58.0800 ≈ 58.08)  → true
-  ✓ grado di insaturazione: benzene 4, acetone 1, etanolo 0  → 4|1|0
-  ✓ tripletto del CH₃ a 400 MHz: larghezza 2J/ν₀ (ppm) (0.0350000 ≈ 0.035)  → true
-  ✓ a 60 MHz il multipletto è 10 volte più largo che a 600 MHz (10.0000 ≈ 10)  → true
-  ✓ traccia IR: 1715 → C=O; 2950 stretta → C–H sp³ (non O–H acido); 3300 larga → O–H  → true
-  ✓ traccia MS: 58 → ione molecolare; 43 → M − 15 (CH₃·) e acilio  → true
-  ✓ Terra: periodo di Keplero (anni) (1.00000 ≈ 1)  → true
-  ✓ Terra: velocità al perielio (km/s, vis-viva) (30.2863 ≈ 30.29)  → true
-  ✓ Terra: velocità all'afelio (km/s) (29.2913 ≈ 29.29)  → true
-  ✓ Marte: rapporto perielio/afelio = (1+e)/(1−e) (1.20604 ≈ 1.2060445621001543)  → true
-  ✓ Marte: gravità in superficie ≈ 3,71 m/s²  → true
-  ✓ Terra: velocità di fuga 11,19 km/s  → true
-  ✓ un'orbita scritta: a = 4 UA → T = 8 anni (8.00000 ≈ 8)  → true
-
-── L'ologramma interattivo, telefono ──
-  ✓ il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra, in «spettri» (perché l'ologramma mostrava uno spettro)  → true
-  ✓ Spectra col corpo si sposta nella finestra interattiva  → true
-  ✓ i pulsanti flottanti dell'app spariscono  → none
-  ✓ cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 cm⁻¹ · stretta, forte | 2950 cm⁻¹ · stretta, media)  → true
-  ✓ traccia di massa: due picchi, due passaggi (2)  → true
-  ✓ toccando il picco 43 si sceglie il suo passaggio e Spectra lo dice (m/z 43 · 100%)  → true
-  ✓ universo: Marte con i suoi passaggi, nella scena 3D (Marte 6)  → true
-  ✓ matematica: zeri −√3, 0, √3 e punti stazionari ±1  → funzione -1.732,0.000,1.732 -1.000,1.000
-  ✓ matematica: i passaggi dell'assistente (10)  → true
-  ✓ fisica: la traiettoria del proiettile, gittata 35,31 m  → proiettile 35.31
-  ✓ fisica: il pendolo da 2 m, periodo 2,837 s  → pendolo 2.837
-  ✓ «🔊 Spectra spiega i passaggi»: li dice tutti (4/4)  → true
-  ✓ a 412 px niente sborda  → 0
-  ✓ «🧠 Approfondisci» apre Spiega  → true
-  ✓ chiuse le finestre, Spectra torna nella sezione  → true
-  ✓ e l'app è di nuovo nella sezione da cui si era partiti  → sareachim
-  ✓ una finestra del menu ✨ (Lab Quantistico): «↗ Apri la sezione» chiude l'ologramma e la apre  → true
-  ✓ sul telefono la finestra scorre fino in fondo: l'ultimo passaggio sta 130 px sopra il bordo (tasti di Android), la testata resta in alto, caratteri da 15.5 px  → true
-  ✓ «🔔 Prova audio»: bip, frase di prova e che cosa fare se non si sente (Questa è la voce di Spectra. Se mi senti…)  → true
-  ✓ «🗂️ Tutta l'app»: l'elenco ha tutte le sezioni della barra più le 19 voci del menu ✨ (243 = 224 + 19), filtrabili per materia (Fisica: 70) e per nome (1 per «GHS»)  → true
-  ✓ una sezione senza grafici (GHS; dalla v255 la Tavola Periodica è in 3D e si vede dal vivo) è ospitata davvero nel riquadro, viva e alta 659 px, con i suoi passaggi (6)  → true
-  ✓ scelta un'altra sezione, la sezione ospitata torna al suo posto e «Sistema solare 3D» si vede dal vivo con la sua lezione (6 passaggi)  → true
-  ✓ ci sono anche i laboratori e gli strumenti del menu ✨ (19 voci, 8 pagine: Astrochimica, Lab Quantistico, Accademia…) e il Centro spettri  → true
-  ✓ «Astrochimica 3D PRO» si apre dentro il riquadro, vera (la sua pagina), e cambiando modo si toglie  → true
-  ✓ Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)  → true
-  ✓ un tocco sull'ologramma stesso lo apre interattivo  → true
-  ✓ «🧠 Spiega» senza chiave: lo svolgimento locale per intero (3 passaggi) e detto a voce (pH di acidi e basi forti. Dissociazione completa. [H₃O⁺] = C…)  → true
-  ✓ telefono: nessun errore JavaScript  → 0
-
-── L'ologramma interattivo, schermo grande ──
-  ✓ il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra, in «spettri» (perché l'ologramma mostrava uno spettro)  → true
-  ✓ Spectra col corpo si sposta nella finestra interattiva  → true
-  ✓ i pulsanti flottanti dell'app spariscono  → none
-  ✓ cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 cm⁻¹ · stretta, forte | 2950 cm⁻¹ · stretta, media)  → true
-  ✓ traccia di massa: due picchi, due passaggi (2)  → true
-  ✓ toccando il picco 43 si sceglie il suo passaggio e Spectra lo dice (m/z 43 · 100%)  → true
-  ✓ universo: Marte con i suoi passaggi, nella scena 3D (Marte 6)  → true
-  ✓ matematica: zeri −√3, 0, √3 e punti stazionari ±1  → funzione -1.732,0.000,1.732 -1.000,1.000
-  ✓ matematica: i passaggi dell'assistente (10)  → true
-  ✓ fisica: la traiettoria del proiettile, gittata 35,31 m  → proiettile 35.31
-  ✓ fisica: il pendolo da 2 m, periodo 2,837 s  → pendolo 2.837
-  ✓ «🔊 Spectra spiega i passaggi»: li dice tutti (4/4)  → true
-  ✓ «🧠 Approfondisci» apre Spiega  → true
-  ✓ chiuse le finestre, Spectra torna nella sezione  → true
-  ✓ e l'app è di nuovo nella sezione da cui si era partiti  → sareachim
-  ✓ una finestra del menu ✨ (Lab Quantistico): «↗ Apri la sezione» chiude l'ologramma e la apre  → true
-  ✓ «🔔 Prova audio»: bip, frase di prova e che cosa fare se non si sente (Questa è la voce di Spectra. Se mi senti…)  → true
-  ✓ «🗂️ Tutta l'app»: l'elenco ha tutte le sezioni della barra più le 19 voci del menu ✨ (243 = 224 + 19), filtrabili per materia (Fisica: 70) e per nome (1 per «GHS»)  → true
-  ✓ una sezione senza grafici (GHS; dalla v255 la Tavola Periodica è in 3D e si vede dal vivo) è ospitata davvero nel riquadro, viva e alta 807 px, con i suoi passaggi (6)  → true
-  ✓ scelta un'altra sezione, la sezione ospitata torna al suo posto e «Sistema solare 3D» si vede dal vivo con la sua lezione (6 passaggi)  → true
-  ✓ ci sono anche i laboratori e gli strumenti del menu ✨ (19 voci, 8 pagine: Astrochimica, Lab Quantistico, Accademia…) e il Centro spettri  → true
-  ✓ «Astrochimica 3D PRO» si apre dentro il riquadro, vera (la sua pagina), e cambiando modo si toglie  → true
-  ✓ Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)  → true
-  ✓ un tocco sull'ologramma stesso lo apre interattivo  → true
-  ✓ «🧠 Spiega» senza chiave: lo svolgimento locale per intero (3 passaggi) e detto a voce (pH di acidi e basi forti. Dissociazione completa. [H₃O⁺] = C…)  → true
-  ✓ schermo grande: nessun errore JavaScript  → 0
-
-69 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_impronta</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── L'impronta del creatore ──
-  ✓ il telefono simulato offre il sensore (impronta o volto)  → true
-  ✓ senza la frase segreta l'impronta non si lega  → frase
-  ✓ una frase sbagliata non riconosce  → false
-  ✓ riconosciuto con la frase (prima dell'impronta)  → true
-  ✓ dopo la frase l'impronta si lega  → true
-  ✓ si conserva solo l'identificativo della credenziale e la data, nessuna impronta  → dal,id
-  ✓ appena legata, il creatore resta riconosciuto  → true
-  ✓ in una sessione nuova il ricordo del browser non basta: Spectra aspetta l'impronta  → true
-  ✓ l'impronta giusta, persona verificata: riconosciuto  → true
-  ✓ il modello sa che parla con il creatore  → true
-  ✓ persona NON verificata dal sensore: non riconosciuto  → true
-  ✓ un altro sensore (un'altra persona, un altro telefono): non riconosciuto  → true
-
-── Nella console di Spectra ──
-  ✓ «attiva l'impronta» la lega e Spectra lo dice (Fatto, Samuele: la tua impronta è legata a me. Da ora, su qu…)  → true
-  ✓ aperta in una sessione nuova, la console chiede l'impronta con «👆 Sono io» (Sei tu, Samuele? Fammi sentire la tua impronta.👆 )  → true
-  ✓ toccato il pulsante: riconosciuto e salutato per nome (Buon pomeriggio, Samuele. È sempre bello quando torna il mio…)  → true
-  ✓ «prova la voce» dice quante voci vede o cosa fare (Il telefono non mi dà nessuna voce. Su Android apri Impostazioni → Sis…)  → true
-  ✓ lo stato della voce si legge (attiva, voci, motore)  → true
-  ✓ «dimentica che sono il tuo creatore» toglie anche l'impronta  → true
-
-── La voce che parte tardi non si annulla ──
-  ✓ una sintesi lenta (parte dopo 2,5 s, senza «onstart») NON viene annullata: 0 annullate  → true
-  ✓ e tutte le frasi arrivano in fondo (2/2)  → true
-  ✓ una sintesi che non parte affatto non blocca il discorso: il labiale lo porta avanti  → true
-
-── Dalla scheda 💬 Chat, e con Gemini sovraccarico ──
-  ✓ «sono il tuo creatore» scritto nella Chat apre la console col campo nascosto, senza chiamare il modello (password, 0 chiamate)  → true
-  ✓ Gemini sovraccarico (503) su un modello: si passa da soli a un altro modello con la stessa chiave (gemini-2.5-flash → gemini-flash-latest, 7 ms, «Eccomi.» )  → true
-  ✓ …subito, senza le quattro attese (< 5 s)  → true
-  ✓ nessun errore JavaScript  → 0
-
-25 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_voce</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── La voce e i suoi parametri ──
-  ✓ la voce scelta è l'italiana maschile (non la femminile né l'inglese)  → Luca
-  ✓ ogni frase con pitch 0,58 · rate 0,88 · volume 1, voce Luca  → 0.58/0.88/1/Luca
-  ✓ la risposta letta PER INTERO, a frasi (28 frasi su 1228 caratteri; l'ultima: «La concentrazione di H₂O cresce di 15 mo…»)  → true
-  ✓ il markdown non si legge («**»)  → true
-  ✓ nessun annullamento quando non c'era niente in corso  → 0
-
-── Nella scheda 💬 Chat ──
-  ✓ l'interruttore «🔊 Leggi automaticamente» c'è nella barra della Chat  → true
-  ✓ acceso, si ricorda in localStorage (spectraAutoSpeak)  → true
-  ✓ acceso, la risposta appena arrivata si legge da sola (Il pH dell'acqua pura è 7. | A 25 gradi.)  → true
-  ✓ ogni risposta di Spectra ha il suo pulsante 🔊 (1)  → true
-  ✓ spento, si ricorda spento  → false
-  ✓ toccato, il pulsante diventa «⏹ Ferma» (testo, classe, aria-pressed)  → ⏹ Ferma true true
-  ✓ toccato di nuovo, ferma la lettura e torna «🔊 Ascolta» (🔊 Ascolta false annullate:1)  → true
-  ✓ chiusa la finestra dell'AI, la voce si ferma  → true
-  ✓ cambiata sezione, la voce si ferma  → true
-
-── La console usa la stessa voce ──
-  ✓ Spectra Live: pitch 0,58 · rate 0,88  → 0.58/0.88
-
-── Su Android ──
-  ✓ riconosciuto Android; al primo tocco nessuna frase vuota di sblocco (0)  → true
-  ✓ nessuna voce scelta per nome: solo la lingua italiana, la voce è quella predefinita del telefono  → |it-IT
-  ✓ console e Chat parlano (Prima frase della console. | Risposta della chat.)  → true
-  ✓ dopo un annullamento la frase nuova parte 160 ms dopo, non nello stesso istante («La frase nuova.»)  → true
-
-── Senza sintesi vocale ──
-  ✓ nessun pulsante 🔊 e nessun errore: la voce semplicemente non c'è  → true
-  ✓ nessun errore JavaScript  → 0
-
-21 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_agenda</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── Le date dette a parole ──
-  ✓ tredici modi di dire una data, capiti come nel servizio  → mer 11/11/2026 16:00|mer 11/11/2026 14:30|gio 12/11/2026 18:00|ven 13/11/2026 09:30|mer 11/11/2026 20:00|ven 12/02/2027 09:00|mar 01/12/2026 08:15|mar 01/12/2026 09:00|gio 12/11/2026 10:00|mer 11/11/2026 16:00|ven 13/11/2026 09:00|mer 18/11/2026 09:00|mer 11/11/2026 18:00
-  ✓ una data non capita resta non capita: mai inventata  → null,null,null,null,null
-
-── I comandi, senza modello ──
-  ✓ «ricordami domani alle 18 di chiamare il relatore» → Segnato: chiamare il relatore — domani alle 18:00.  → true
-  ✓ l'ora detta DOPO la cosa → Segnato: comprare i guanti in nitrile — oggi alle 19:17.  → true
-  ✓ «ricordami che venerdì alle 9:30 ho l'esame» → Segnato: ho l'esame di Organica — venerdì alle 09:30.  → true
-  ✓ tre voci, con le ore giuste  → 3
-  ✓ senza un'ora, lo chiede: «Quando te lo devo ricordare? Dimmelo cos…»  → true
-  ✓ «ricordami la formula del benzene» non è un promemoria: va al modello  → null
-  ✓ una frase qualunque non è cosa dell'agenda  → null
-  ✓ «ho fatto comprare i guanti» lo chiude  → true
-  ✓ «annulla il promemoria del relatore»  → Annullato: chiamare il relatore.
-  ✓ resta un impegno  → 1
-  ✓ «cosa ho da fare?» lo dice e apre il pannello: Hai un impegno: ho l'esame di Organica — venerdì alle 09:30.  → true
-  ✓ una data assurda è rifiutata  → non capisco quando
-  ✓ un promemoria senza ora è rifiutato  → rifiutato
-
-── Il promemoria che arriva ──
-  ✓ prima dell'ora non dice nulla  → 0
-  ✓ dentro l'anticipo lo dice: «Promemoria: uscire per il laboratorio — oggi alle 18:17.»  → true
-  ✓ compare scritto sullo schermo  → true
-  ✓ ed è detto a voce: «Promemoria: uscire per il laboratorio — oggi alle »  → true
-  ✓ con la voce di Spectra (tono/velocità)  → 0.58/0.88
-  ✓ parte l'evento per il resto dell'app  → 1
-  ✓ detto una volta sola  → 0
-  ✓ ma resta aperto finché non è fatto  → 1
-  ✓ scaduto ad app chiusa: alla riapertura dice quando era: «Promemoria: prendere la pastiglia — era per oggi alle 14:17.»  → true
-  ✓ ogni giorno: il prossimo è domani alla stessa ora  → 12/11/2026 21:00
-  ✓ completato con giorni di ritardo: il prossimo è nel futuro  → true
-  ✓ ogni mese dal 31 gennaio: l'ultimo giorno di febbraio  → 28/02/2027 10:00
-  ✓ rimandato a lunedì alle 9  → 16/11/2026 09:00
-  ✓ nell'estratto lo scaduto è segnato: ! [compito] consegnare la relazione — ieri alle 09:00 (scaduto)  → true
-
-── Per il modello: strumenti e continuità ──
-  ✓ i tre strumenti dell'agenda registrati fra quelli del modello  → 3
-  ✓ registrati una volta sola  → 1
-  ✓ segna_impegno: {"ok":true,"segnato":"ricevimento con il relatore — domani alle 11:00","id":"i1-auv9"}  → true
-  ✓ una data non capita torna al modello come errore, che la chiede: «non capisco quando: «quando capita». Dimmi u…»  → true
-  ✓ leggi_agenda: {"ok":true,"totale":1,"impegni":[{"genere":"evento","cosa":"ricevimento con il relatore","  → true
-  ✓ chiudi_impegno rimanda: ricevimento con il relatore — venerdì alle 15:00  → true
-  ✓ un impegno che non c'è: non trovato  → impegno non trovato
-  ✓ il blocco dice il tempo passato («14 ore») e il filo  → true
-  ✓ dopo ore è un ritorno: riprendere il filo, non salutare da capo  → true
-  ✓ e porta l'agenda  → true
-  ✓ il quadro che va al modello lo contiene  → true
-  ✓ il primo incontro è detto com'è  → true
-
-── La memoria che si porta via ──
-  ✓ il file porta agenda, ricordi (e la mente, se c'è): bsi-spectra-agenda-v1,bsi-spectra-memoria,bsi_ai_memory  → true
-  ✓ reimportato: l'impegno è tornato  → esame di Organica 2
-  ✓ e il ricordo anche  → prepara Organica 2
-  ✓ le chiavi estranee nel file non entrano (le chiavi API non si toccano)  → true
-  ✓ un file qualunque non scrive nulla  → rifiutato,rifiutato,rifiutato
-
-── Nella Chat e nella console, senza chiave ──
-  ✓ nella Chat, senza chiave: «Segnato: bere — oggi alle 19:17.📋 Copia🔊 Ascolta📌 Ripassa»  → true
-  ✓ nessuna chiamata a un fornitore di modelli  → 0
-  ✓ nella console, con i due punti dell'ora  → Segnato: portare il camice — domani alle 09:30.
-
-── Il pannello, sul telefono ──
-  ✓ è un dialogo con il suo nome  → true
-  ✓ senza un'ora lo dice: «Scrivi anche quando: «domani alle 18 di…», «fra 2 ore di…».»  → true
-  ✓ due impegni aggiunti dal campo  → 2
-  ✓ nessuno scorrimento orizzontale, anche con un testo lungo  → true
-  ✓ i pulsanti si toccano con un dito  → true
-  ✓ «Fatto» ne toglie uno  → 1
-  ✓ «✕» toglie l'altro: agenda vuota  → true
-  ✓ Esc lo chiude  → true
-  ✓ c'è la voce «Agenda di Spectra» nel menu  → true
-  ✓ nessun errore JavaScript  → 0
-
-59 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_risveglio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── Il meteo ──
-  ✓ senza città la chiede: «Dimmi dove sei: «abito a Milano». Oppure chiedi «che tempo fa a Roma».»  → true
-  ✓ «abito a Milano»  → Segnato: Milano, Italia. Ti dirò il meteo da lì.
-  ✓ «che tempo fa»: adesso e oggi, in gradi e a parole  → A Milano ci sono 13 gradi, cielo coperto, percepiti 11 gradi. Oggi fra 9 gradi e 15 gradi, pioggia al 40 per cento.
-  ✓ «che tempo fa domani»  → Domani a Milano: pioggia debole, fra 7 gradi e 12 gradi, pioggia al 85 per cento.
-  ✓ un'altra città, senza cambiare la propria  → A Roma ci sono 18 gradi, cielo sereno. Oggi fra 12 gradi e 21 gradi.
-  ✓ una città che non esiste  → Non trovo «atlantide».
-  ✓ i codici del cielo (WMO) a parole  → cielo sereno|cielo coperto|nebbia|pioggia|neve forte|temporale|condizioni non classificate
-  ✓ la città resta la sua  → Milano
-  ✓ senza rete lo dice, non inventa: «Il servizio del meteo non risponde: sei collegato a internet?»  → true
-
-── Il punto della situazione ──
-  ✓ domani senza impegni  → Domani non hai impegni segnati.
-  ✓ gli impegni di oggi  → Oggi hai 2 impegni: lezione di Organica 2 alle 10:30; chiamare il relatore alle 18.
-  ✓ e quelli di domani  → Domani hai un impegno: esame di Spettroscopia alle 9.
-  ✓ «sono a casa»: bentornato, meteo, oggi, domani — «Bentornato a casa. Fuori, a Milano ci sono 13 gradi, cielo coperto, pe…»  → true
-  ✓ prima del primo risveglio, nessun punto automatico  → null
-  ✓ alle 8:05 il punto del mattino: «Buongiorno. Fuori, a Milano ci sono 13 gradi, cielo coperto,…»  → true
-  ✓ una volta sola nella fascia  → null
-  ✓ il pomeriggio niente  → null
-  ✓ alle 20:10 il punto della sera, con domani e il meteo di domani  → true
-  ✓ scritto sullo schermo  → true
-  ✓ e detto a voce («Buongiorno. Buonasera. Il punto della sera. Domani hai un im…»)  → true
-  ✓ spento, tace  → null
-  ✓ si spegne e si riaccende a parole  → true
-
-── Il risveglio ──
-  ✓ il comando  → Sequenza di risveglio avviata.
-  ✓ la schermata di avvio, come dialogo  → true
-  ✓ le righe: Inizializzazione dei sistemi completata / Rete neurale online · 1 neurone, 0 collegamenti / Collegamento al cervello in locale: calcoli e comandi dell'app / Memoria 1 ricordo · 0 conversazioni · 0 impegni / Meteo Milano / Sintesi vocale pronta  → true
-  ✓ senza chiave lo dice: «Collegamento al cervello in locale: calcoli e comandi dell'app»  → true
-  ✓ le righe compaiono una dopo l'altra  → 6
-  ✓ e lo stile delle righe non nasconde gli elenchi della guida  → true
-  ✓ il punto sullo schermo: «Buon pomeriggio. Fuori, a Milano ci sono 13 gradi, cielo coperto, perc…»  → true
-  ✓ e a voce, dall'avvio: «Inizializzazione dei sistemi completata. Rete neurale online. Lavoro in locale: …»  → true
-  ✓ con la voce di Spectra  → 0.58/0.88
-  ✓ da ora il punto delle 8 e delle 20 è attivo  → true
-  ✓ nessuno scorrimento orizzontale sul telefono  → true
-  ✓ pulsanti da un dito  → true
-  ✓ le istruzioni per Siri e la Home, con il link giusto  → true
-  ✓ Esc chiude  → true
-
-── La batteria ──
-  ✓ al 42% il tema resta ciano  → false
-  ✓ l'icona dice livello e stato  → Batteria al 42 per cento
-  ✓ e il colore cambia col livello (rgb(223, 237, 29) → rgb(237, 63, 29))  → true
-  ✓ sotto il 20% senza caricatore: tema rosso  → true
-  ✓ con un avviso: «🔋 Batteria al 15 per cento. Collega il caricatore.OK»  → true
-  ✓ l'avviso non si ripete a ogni punto percentuale  → 1
-  ✓ «quanta batteria ho?»  → Batteria al 14 per cento. Collega il caricatore.
-  ✓ col caricatore torna ciano  → false
-
-── La rete neurale ──
-  ✓ i neuroni sono i ricordi veri: 2 ricordi, 3 conversazioni, 1 impegno, 1 sezione  → rrcccis
-  ✓ l'esame (ricordo) e l'impegno dell'esame sono collegati  → true
-  ✓ le pericicliche (ricordo e domanda) sono collegate  → true
-  ✓ le domande sull'IR sono collegate alla sezione dove sono state fatte  → true
-  ✓ «mostrami la tua rete neurale»: La mia rete: 7 neuroni e 5 collegamenti. Ogni punto è un ricordo: toccalo per leggerlo.  → true
-  ✓ il conteggio sullo schermo: 7 neuroni · 5 collegamenti  → true
-  ✓ la tela ha la sua misura ed è disegnata  → true
-  ✓ toccando un neurone si legge il ricordo: «💬 Conversazione — Come si legge uno spettro infrarosso del carbonile?»  → true
-  ✓ nessuno scorrimento orizzontale  → true
-  ✓ Esc chiude; vuota, lo dice  → true
-
-── Per il modello, nella Chat e nella console ──
-  ✓ lo strumento «meteo» registrato una volta  → 1
-  ✓ 57 strumenti in tutto (con leggi_teoria, cerca_nella_memoria, spaccato_stellare e, dalla v264, biochimica_3d, dalla v265 quantum_studio, dalla v270 metodi_fisici)  → 60
-  ✓ lo strumento risponde con dati e frase: Domani a Roma: cielo parzialmente nuvoloso, fra 11 gradi e 20 gradi.  → true
-  ✓ senza città dice al modello di chiederla  → true
-  ✓ nella Chat, senza chiave: «A Roma ci sono 18 gradi, cielo sereno. Oggi fra 12 gradi e 2»  → true
-  ✓ nessuna chiamata a un fornitore di modelli  → 0
-  ✓ nella console: «Bentornato.» poi «Bentornato a casa. Fuori, a Milano ci so…»  → true
-
-── Dalla Home e da Siri ──
-  ✓ il manifesto dichiara quattro scorciatoie (le mostra Android tenendo premuta l'icona)  → Sveglia Spectra=./index.html?spectra=sveglia|Spectra in ascolto=./index.html?spectra=ascolto|Agenda di Spectra=./index.html?spectra=agenda|Rete neurale di Spectra=./index.html?spectra=rete
-  ✓ l'indirizzo della scorciatoia apre il risveglio e si ripulisce  → 
-  ✓ aperta da Siri la pagina non può parlare da sola: chiede un tocco («🔊 Tocca per svegliare Spectra»)  → true
-  ✓ dopo il tocco parla  → true
-  ✓ ?spectra=rete apre la rete neurale  → true
-  ✓ prima visita: la pagina non si ricarica da sola (una sola navigazione)  → 1
-  ✓ e la rete aperta subito è ancora lì dopo 5 s  → true
-  ✓ il service worker si è installato lo stesso (true)  → true
-  ✓ con la rete aperta il ✨ è nascosto  → none
-  ✓ chiusa la rete il ✨ torna  → flex
-  ✓ 60 ricordi + 9 neuroni di struttura  → 69
-  ✓ il cervello ha undici regioni e le quote fanno il 100 %  → 11 1.000
-  ✓ tutti i neuroni dentro la tela, nessuna posizione non finita  → true
-  ✓ ogni neurone dentro la sua regione; i 60 ricordi nei «concetti» (61)  → true
-  ✓ il menu ✨ vero si apre dal suo pulsante  → true
-  ✓ la sezione «🤖 Spectra» con le quattro voci  → 🤖 Spectra|sveglia,occhiali,agenda,rete
-  ✓ ed è la prima sezione del menu, prima delle funzioni chimiche  → true
-  ✓ righe grandi abbastanza da toccare  → true
-  ✓ toccandole si aprono davvero: risveglio, occhiali, agenda, rete neurale  → true
-  ✓ le novità non disturbano chi apre l'app per la prima volta  → true
-  ✓ a chi ha già parlato con Spectra compaiono, con i quattro pulsanti, dentro lo schermo  → true
-  ✓ un pulsante delle novità apre la sua finestra e le chiude  → true
-  ✓ e compaiono una volta sola  → true
-  ✓ Open-Meteo è stato chiamato solo per le città chieste (12 richieste)  → true
-
-── Gli occhiali e il nome «Spectra» ──
-  ✓ «modalità occhiali»: Modalità occhiali accesa: resto in ascolto e tengo lo schermo acceso. …  → true
-  ✓ ascolta in continuo, in italiano  → true
-  ✓ lo dice in basso: «👓 In ascolto: di' «Spectra…»✕»  → true
-  ✓ tiene lo schermo acceso (blocco dello schermo chiesto)  → true
-  ✓ e se lo ricorda  → true
-  ✓ «sveglia Spectra» detto agli occhiali apre il risveglio  → true
-  ✓ anche «Spectra svegliati»  → true
-  ✓ «domani vado a spettrometria» non lo chiama  → true
-  ✓ «Spectra, che tempo fa?» apre la console e risponde a voce: «A Milano ci sono 13 gradi, cielo coperto, percepit…»  → true
-  ✓ mentre parla non sente se stesso  → true
-  ✓ se il browser ferma il microfono compare «Tocca per riprendere l'ascolto», e il tocco lo riprende  → true
-  ✓ il segnale in basso sta nello schermo del telefono  → true
-  ✓ riaperta l'app, la modalità occhiali NON riparte da sola: invito «Tocca per riprendere», microfono spento  → true
-  ✓ il tocco sull'invito la riprende (ascolto e schermo)  → true
-  ✓ «smetti di ascoltare» spegne tutto: Ascolto spento. Lo schermo può tornare a spegnersi.  → true
-  ✓ «come ti sveglio?» apre la guida: 👓 Dagli occhiali Meta | 📱 iPhone, iPad e Mac: «Ehi Siri, sveglia Spectra» | 🤖 Android: «Ok Google, apri BioSpecInfo» | 💻 Computer | 🧠 Spectra Prime (server)  → true
-  ✓ l'interruttore della modalità occhiali accende e spegne davvero  → true
-  ✓ «Sveglia Spectra a ogni apertura» si accende  → true
-  ✓ la guida sta nel telefono, con pulsanti da un dito  → true
-  ✓ Esc chiude la guida  → true
-  ✓ (v259) con «sveglia a ogni apertura» compare solo l'invito «🌅 Sveglia Spectra», nessuna finestra si apre da sola  → true
-  ✓ il tocco sull'invito sveglia Spectra (e chiede un tocco per parlare)  → true
-  ✓ la scorciatoia «Spectra in ascolto» (?spectra=ascolto) accende la modalità occhiali  → true
-  ✓ un browser senza riconoscimento vocale lo dice: «Questo browser non riconosce la voce in continuo: usa Chrome…»  → true
-  ✓ nessun errore JavaScript  → 0
-
-110 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_potenzia252</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Hammett, contro le misure ──
-  ✓ pKa dell'acido p-nitrobenzoico (sperimentale 3,44)  → 3.42 (atteso 3.44)
-  ✓ pKa dell'acido m-clorobenzoico (sperimentale 3,83)  → 3.83 (atteso 3.83)
-  ✓ pKa del p-nitrofenolo, con σ⁻ (sperimentale 7,15)  → 7.1579 (atteso 7.15)
-  ✓ e con σ⁻ si usa davvero σ⁻: σp⁻  → true
-  ✓ cloruro di cumile p-metossi: quante volte più veloce (Brown e Okamoto, ~3360)  → 3476.96 (atteso 3360)
-  ✓ dove σ⁺ non è tabulato si ripiega su σp e lo si dice  → true
-  ✓ in meta si usa σm anche per le reazioni con σ⁺  → true
-  ✓ i nomi alternativi si riconoscono (CH3, OCH3, COCH3)  → Me OMe COMe
-  ✓ ρ ricavato dai pKa veri di dieci acidi benzoici (per definizione 1)  → 1.00389 (atteso 1)
-  ✓ con R² 0.9983 > 0,99 e dieci punti  → true
-  ✓ dati sintetici con ρ = 2,5: ritrovato  → 2.5 (atteso 2.5)
-  ✓ righe sbagliate segnalate, non inventate: riga 1: sostituente «XYZ» non in tabella; riga 2: non capisco «ciao»  → true
-  ✓ senza la riga H non si calcola nulla e lo si dice  → true
-
-── Foucault e Coriolis, contro le formule ──
-  ✓ Parigi, Panthéon: un giro in 31,8 h  → 31.7879 (atteso 31.79)
-  ✓ Milano: un giro in 33,6 h  → 33.58 (atteso 33.58)
-  ✓ al polo: un giorno siderale  → 23.9345 (atteso 23.9345)
-  ✓ all'equatore il piano non ruota  → Infinity
-  ✓ 15°·sin φ all'ora a 30°  → 7.52052 (atteso 7.52)
-  ✓ Runge–Kutta: il piano ruota dell'angolo previsto da Ω·sin φ (gradi)  → -51.5697 (atteso -53.17968851866756)
-  ✓ in senso orario nell'emisfero nord, antiorario nel sud  → true
-  ✓ all'equatore resta nel piano di partenza  → true
-  ✓ l'energia si conserva (Coriolis non lavora)  → 4.90332 (atteso 4.903325)
-  ✓ un corpo che cade da 100 m a 45° devia verso est di 1,55 cm  → 0.0155239 (atteso 0.01552)
-  ✓ accelerazione di Coriolis a 300 m/s, 45° (mm/s²)  → 30.9378 (atteso 30.94)
-
-── Frenet, contro i valori esatti ──
-  ✓ elica: κ = a/(a²+b²) = 0,8  → 0.8 (atteso 0.8)
-  ✓ elica: τ = b/(a²+b²) = 0,4  → 0.4 (atteso 0.4)
-  ✓ cubica gobba in 0: κ = 2  → 2 (atteso 2)
-  ✓ cubica gobba in 0: τ = 3  → 3 (atteso 3)
-  ✓ cubica gobba in 1: κ = √76/14^{3/2}  → 0.166424 (atteso 0.16642353500306217)
-  ✓ cubica gobba in 1: τ = 3/19  → 0.157895 (atteso 0.15789473684210525)
-  ✓ lunghezza di un giro d'elica: 2π√1,25  → 7.02481 (atteso 7.024814731040727)
-  ✓ cerchio di raggio 2: κ = 0,5 e τ = 0 (curva piana)  → true
-  ✓ Frenet–Serret sul nodo trifoglio: dT/ds = κN e dB/ds = −τN (errori 1.0e-7, 2.7e-7)  → true
-  ✓ il triedro è ortonormale (Viviani)  → true
-  ✓ una curva scritta: x = cos t, y = sin t, z = t/2 è l'elica (κ = 0,8)  → 0.8 (atteso 0.8)
-  ✓ l'interprete: 2sin(t)^2 + 3·cos(pi) in t = 1  → -1.58385 (atteso -1.5838531634528576)
-  ✓ codice e sintassi sbagliata rifiutati  → rifiutata,rifiutata,rifiutata,rifiutata
-  ✓ su una retta N, B e τ non sono definiti: lo dice  → true
-
-── Le pagine, telefono ──
-  ✓ telefono · shammett: nella barra, si apre, 3 schede, i grafici ci sono (0,1,1)  → true
-  ✓ telefono · shammett: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · sfoucault: nella barra, si apre, 3 schede, i grafici ci sono (1,1,1)  → true
-  ✓ telefono · sfoucault: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · smatfrenet: nella barra, si apre, 3 schede, i grafici ci sono (1,1,0)  → true
-  ✓ telefono · smatfrenet: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · Hammett: ρ = 1.004, R² = 0.9983 dai dati di esempio  → true
-  ✓ telefono · un sostituente che non esiste è segnalato  → true
-  ✓ telefono · la tabella delle costanti ha 24 sostituenti (24)  → true
-  ✓ telefono · Foucault all'equatore: lo dice  → true
-  ✓ telefono · Frenet: la curva scritta (cos t, sin t, t/3) ha κ = 0,9 (0.90000)  → true
-  ✓ telefono · trascinando con il dito la curva ruota  → true
-  ✓ telefono · una formula con codice è rifiutata  → true
-  ✓ telefono · le icone 3D delle materie sono visibili e animate: chimica 5 animazioni, fisica 5 animazioni  → true
-  ✓ telefono · in fisica i pulsanti diventano la beuta e la Σ  → chimica:beuta,matematica:sigma
-  ✓ telefono · a riposo l'icona-particella sta ferma (niente animazione infinita)  → none none
-  ✓ telefono · niente riflesso metallico del vecchio volto  → none
-  ✓ telefono · quando parla le orbite girano  → bsiPTgira
-  ✓ telefono · e quando ha finito torna calma  → false
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── Le pagine, schermo grande ──
-  ✓ schermo grande · shammett: nella barra, si apre, 3 schede, i grafici ci sono (0,1,1)  → true
-  ✓ schermo grande · shammett: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sfoucault: nella barra, si apre, 3 schede, i grafici ci sono (1,1,1)  → true
-  ✓ schermo grande · sfoucault: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · smatfrenet: nella barra, si apre, 3 schede, i grafici ci sono (1,1,0)  → true
-  ✓ schermo grande · smatfrenet: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · Hammett: ρ = 1.004, R² = 0.9983 dai dati di esempio  → true
-  ✓ schermo grande · un sostituente che non esiste è segnalato  → true
-  ✓ schermo grande · la tabella delle costanti ha 24 sostituenti (24)  → true
-  ✓ schermo grande · Foucault all'equatore: lo dice  → true
-  ✓ schermo grande · Frenet: la curva scritta (cos t, sin t, t/3) ha κ = 0,9 (0.90000)  → true
-  ✓ schermo grande · trascinando con il dito la curva ruota  → true
-  ✓ schermo grande · una formula con codice è rifiutata  → true
-  ✓ schermo grande · le icone 3D delle materie sono visibili e animate: chimica 5 animazioni, fisica 5 animazioni  → true
-  ✓ schermo grande · in fisica i pulsanti diventano la beuta e la Σ  → chimica:beuta,matematica:sigma
-  ✓ schermo grande · a riposo l'icona-particella sta ferma (niente animazione infinita)  → none none
-  ✓ schermo grande · niente riflesso metallico del vecchio volto  → none
-  ✓ schermo grande · quando parla le orbite girano  → bsiPTgira
-  ✓ schermo grande · e quando ha finito torna calma  → false
-  ✓ schermo grande · nessun errore JavaScript  → 0
-  ✓ con «riduci movimento» l'icona sta ferma  → none
-  ✓ e anche le icone, che restano visibili  → true
-
-80 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_teoria</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Copertura e forma ──
-  ✓ ogni sezione di chimica, fisica e matematica che spiega qualcosa ha la sua scheda (164 su 164)  → true
-  ✓ nessun problema di forma nelle schede  → 
-  ✓ in tutto 98097 parole di teoria e 631 fonti diverse  → true
-
-── La lettura, sul telefono ──
-  ✓ il pulsante «📖 Teoria» compare sotto il titolo, accanto alla lezione guidata  → true
-  ✓ la scheda si apre come dialogo: «L'equazione di Schrödinger risolta numericamente», 5 paragrafi, 6 formule  → true
-  ✓ la soluzione dell'esercizio resta nascosta finché non la si chiede  → true
-  ✓ si legge sul telefono: scorre e non sborda  → true
-  ✓ un collegamento apre un'altra scheda (sqm → «Meccanica quantistica: postulati, modelli esatti e metodi approssimati»)  → true
-  ✓ Esc chiude  → true
-  ✓ il pulsante c'è in dieci sezioni di tipi diversi  → spka smatcalc sfisem skrebs shammett sastrowh smatfrenet sirvis smatnoneucl sfoucault
-
-── Indice, ricerca, comandi, Spectra ──
-  ✓ l'indice: 164 schede: 82 di chimica, 51 di fisica, 31 di matematica. Cerca un concetto o una formula, oppure scorri per materia.  → true
-  ✓ «wormhole» trova lo spaziotempo: 🌀 Spaziotempo e wormholeSpaziotempo curvo, equazi  → true
-  ✓ «Michaelis Menten» → cinetica enzimatica  → smm
-  ✓ «equazione di Schrödinger» → Schrödinger  → sschrod
-  ✓ «autovalori» porta all'algebra lineare (smatlin, smatode, smatsvd, sschrod, smatchim)  → true
-  ✓ una parola che non c'è non trova niente  → 0
-  ✓ «teoria della curvatura dello spaziotempo» apre «Spaziotempo curvo, equazioni di Einstein e wormhole»  → true
-  ✓ «indice della teoria» apre l'indice  → true
-  ✓ «spiegami la teoria» apre quella della sezione aperta (📖 🧪 pKa/Tamponi)  → true
-  ✓ lo strumento leggi_teoria registrato una volta, 57 strumenti in tutto (v260: + spaccato_stellare, v264: + biochimica_3d, v265: + quantum_studio, v270: + metodi_fisici)  → 1 60
-  ✓ leggi_teoria passa al modello la teoria con formule e fonti (stermostat, 5835 caratteri)  → true
-  ✓ e dice quando non c'è  → false
-  ✓ nel menu ✨ c'è «📖 Teoria di tutte le sezioni» e apre l'indice  → true
-  ✓ nessun errore JavaScript  → 0
-
-24 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spaziotempo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Schwarzschild ──
-  ✓ r_s della Terra (mm)  → 8.8701 (atteso 8.87)
-  ✓ r_s del Sole (km)  → 2.95334 (atteso 2.953)
-  ✓ orologio alla superficie della Terra: μs persi al giorno  → 60.1457 (atteso 60.15)
-  ✓ marea su 2 m all'orizzonte di 10 M☉ (m/s²)  → 206084000 (atteso 206100000)
-  ✓ marea su 2 m all'orizzonte di Sgr A* (m/s²)  → 0.00111613 (atteso 0.001116)
-  ✓ la marea all'orizzonte scala come 1/M²  → true
-  ✓ curvatura: K^(−1/4) = (12 r_s²/r⁶)^(−1/4) per una stella di neutroni (km)  → 10.9839 (atteso 10.98)
-  ✓ all'orizzonte e dentro, un orologio fermo non esiste  → 0
-
-── Morris–Thorne ──
-  ✓ Ellis: z(6 b₀) contro b₀·arccosh(6)  → 2.47789 (atteso 2.477888730288475)
-  ✓ il profilo cresce sempre e parte da zero alla gola  → true
-  ✓ tensione alla gola, b₀ = 1 m (Pa)  → 4.81545e+42 (atteso 4.8155e+42)
-  ✓ tensione per una gola di un anno luce (Pa)  → 53800700000 (atteso 53800000000)
-  ✓ la tensione non dipende dalla forma (n = 0, 1, 2)  → true
-  ✓ la condizione di energia nulla è violata alla gola per ogni forma  → true
-  ✓ ρc² + p_r alla gola = −(1+n)·c⁴/(8πG b₀²), n = 2  → -1.44464e+43 (atteso -1.44465e+43)
-  ✓ Ellis: massa esotica entro 1000 b₀ contro −c²b₀(1 − 1/1000)/(2G) (kg)  → -6.72622e+26 (atteso -6.726221652893044e+26)
-  ✓ Flamm: z(2 r_s) = 2 r_s  → 2 (atteso 2)
-  ✓ Casimir a 1 μm (J/m³)  → -0.000433375 (atteso -0.00043338)
-  ✓ Casimir scala come 1/a⁴  → 10000 (atteso 10000)
-
-── La pagina, telefono ──
-  ✓ telefono · nella barra, si apre, 4 schede, i grafici ci sono (1,1,1,1)  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · ogni affermazione dice il suo stato: le quattro etichette ci sono  → IPOTESI,MISURATO,SPECULAZIONE,TEORIA
-  ✓ telefono · la violazione della condizione di energia nulla è scritta  → true
-  ✓ telefono · il diagramma ruota con il dito, e si passa a Einstein–Rosen  → true
-  ✓ telefono · per Sgr A* dice che l'orizzonte è dolce  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · nella barra, si apre, 4 schede, i grafici ci sono (1,1,1,1)  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · ogni affermazione dice il suo stato: le quattro etichette ci sono  → IPOTESI,MISURATO,SPECULAZIONE,TEORIA
-  ✓ schermo grande · la violazione della condizione di energia nulla è scritta  → true
-  ✓ schermo grande · il diagramma ruota con il dito, e si passa a Einstein–Rosen  → true
-  ✓ schermo grande · per Sgr A* dice che l'orizzonte è dolce  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-33 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_correzioni</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Gli zuccheri aperti, con RDKit ──
-  ✓ D-Glucosio (2R,3S,4R,5R): la forma aperta è un aldoso con la stereochimica giusta ((R)(R)(S)(R))  → true
-  ✓ D-Galattosio (2R,3S,4S,5R): la forma aperta è un aldoso con la stereochimica giusta ((R)(S)(S)(R))  → true
-  ✓ D-Mannosio (2S,3S,4R,5R): la forma aperta è un aldoso con la stereochimica giusta ((R)(R)(S)(S))  → true
-  ✓ D-Ribosio (2R,3R,4R): la forma aperta è un aldoso con la stereochimica giusta ((R)(R)(R))  → true
-  ✓ 2-Desossi-D-ribosio (3S,4R): la forma aperta è un aldoso con la stereochimica giusta ((S)(R))  → true
-  ✓ D-Fruttosio (3S,4R,5R): la forma aperta è un chetoso con la stereochimica giusta ((R)(R)(S))  → true
-
-── Nel codice ──
-  ✓ Nernst: log K = E°/(2,303RT/nF), n contato una volta  → true
-  ✓ simmetria: numero di atomi (CHCl₃, trans-C₂H₂Cl₂, XeF₄, NH₂Cl, CHFClBr)  → 5 6 5 4 5
-  ✓ Oₕ: carattere di T₂g sotto 6C₂ = +1  → true
-  ✓ niente etichette con «ₗ» nelle tavole dei caratteri  → true
-  ✓ lisina: α-NH₃⁺ 9,06 e catena 10,54  → true
-  ✓ complessi III e IV: ΔG°′ ≈ −40 e −109 kJ/mol  → true
-  ✓ catena respiratoria: H⁺ pompati senza Math.random  → true
-  ✓ E2 anti-periplanare, propene → carbocatione secondario  → true
-  ✓ anidrasi carbonica fra le liasi  → true
-  ✓ DNA: A=T con due legami H, 3,4 Å fra coppie  → true
-
-── Nella pagina ──
-  ✓ titolazione dell'acido acetico: inizio, metà, equivalenza, oltre  → 2.88 4.76 8.73 11.29
-  ✓ titolazione dell'ammoniaca: il punto equivalente è acido (5,28)  → 11.12 9.25 5.28 2.71
-  ✓ acido forte con base forte  → 1.00 7.00 11.29
-  ✓ formula bruta da SMILES: etanolo, aspirina, caffeina, piridina  → C2H6O C9H8O4 C8H10N4O2 C5H5N
-  ✓ punto isoelettrico dalla carica netta  → His 7.59, Cys 5.07, Tyr 5.63, Lys 9.74, Gly 5.97
-  ✓ il «pH al PE» della titolazione è quello esatto, non il punto di griglia  → 8.73
-  ✓ dose di mantenimento finita (Css 10 · CL 5 · τ 8 / F 0,8 = 500 mg): Dose calcolata:Dose = Css × Cl × τ / F= 10 × 5 × 8 / 0.80= 500.0 mg(ar  → true
-  ✓ nessun errore JavaScript  → 0
-
-24 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_memoria</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Scrittura e recupero ──
-  ✓ lo stesso fatto non si duplica: si rafforza  → true
-  ✓ un tipo che non esiste è rifiutato  → true
-  ✓ «come si calcola il punto equivalente…» trova l'episodio giusto: «Ha sbagliato il pH al punto equivalente della titolazione de…»  → true
-  ✓ ogni risultato dice i suoi sei segnali  → importanza,obiettivi,parole,recenza,sezione,significato
-  ✓ l'episodio estraneo (spaziotempo) non torna  → true
-  ✓ la sezione aperta pesa (ferro in Tavola periodica)  → true
-  ✓ un ricordo archiviato non torna  → true
-  ✓ due ricordi quasi uguali non tornano insieme  → 1
-
-── La cura, a date fissate ──
-  ✓ gli episodi della mente entrano nell'archivio (6)  → true
-  ✓ un concetto ricorrente diventa un fatto: «Negli ultimi giorni torna spesso su «titolazione» (3 domande in 2 giorni): è un …»  → true
-  ✓ la fascia di studio diventa una procedura: «Studia soprattutto la sera (78 % del tempo registrato): i pr…»  → true
-  ✓ una pagina di diario per ogni giorno passato con attività (6: cinque giorni di studio e quello di sei mesi fa)  → true
-  ✓ il mese chiuso ha il suo capitolo: «Capitolo di ottobre 2026: 2 giorni di studio insieme.…»  → true
-  ✓ l'episodio sbiadito di sei mesi fa è archiviato, quello fissato no  → true
-  ✓ rifatta la cura, niente si duplica  → 0
-
-── Comandi ──
-  ✓ «preferisco…» diventa una procedura con fiducia alta (0.9)  → true
-  ✓ «cosa ricordi di me» racconta fatti, procedure e diario  → true
-  ✓ «dimentica il pendolo di Foucault» cancella davvero (2)  → true
-
-── Al modello, nella Chat ──
-  ✓ il modello riceve [RICORDI] con il ricordo pertinente (titolazione dell'ammoniaca)  → true
-  ✓ e [PROCEDURE] e [STORIA]  → true
-  ✓ la catena non si è rotta: ci sono ancora [CONTINUITÀ] e [AGENDA]  → true
-  ✓ lo strumento cerca_nella_memoria registrato una volta, 57 strumenti (dalla v260 anche spaccato_stellare, dalla v264 biochimica_3d, dalla v265 quantum_studio, dalla v270 metodi_fisici)  → 1 60
-  ✓ lo strumento risponde con i ricordi e la data  → true
-  ✓ «ricorda» della Chat scrive anche nell'archivio  → true
-
-── Persistenza ──
-  ✓ ricaricata la pagina, i ricordi ci sono tutti (IndexedDB)  → 18
-  ✓ «esporta la memoria» porta l'archivio (18 ricordi)  → true
-  ✓ azzerata e reimportata, la memoria torna com'era e si interroga  → true
-  ✓ la rete neurale mostra anche procedure e pagine di diario (8)  → true
-  ✓ nessun errore JavaScript  → 0
-
-29 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_orbitali</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le funzioni d'onda ──
-  ✓ ∫r²R²dr = 1 per 10 coppie (n, l)  → true
-  ✓ ∫|Y|²dΩ = 1 per 8 armoniche, reali e complesse  → true
-  ✓ raggio più probabile 1s (a₀)  → 1.001 (atteso 1)
-  ✓ raggio più probabile 2p (a₀)  → 3.99887 (atteso 4)
-  ✓ raggio più probabile 3d (a₀)  → 8.99593 (atteso 9)
-  ✓ raggio più probabile 2s (a₀) = 3 + √5  → 5.236 (atteso 5.23606797749979)
-  ✓ nodo del 2s (a₀)  → 1.999 (atteso 2)
-  ✓ nodi del 3s a (9 ∓ 3√3)/2 = 1,902 e 7,098 a₀  → true
-  ✓ nodo del 3p (a₀)  → 5.996 (atteso 6)
-  ✓ numero di nodi radiali = n − l − 1 per ogni coppia  → true
-  ✓ ⟨r⟩ numerico = [3n² − l(l+1)]/(2Z) per 1s, 2s, 2p, 3d, 4f  → true
-  ✓ He⁺ (Z = 2): raggio più probabile 1s dimezzato (a₀)  → 0.5005 (atteso 0.5)
-  ✓ E₁ dell'idrogeno (eV)  → -13.6057 (atteso -13.6057)
-  ✓ E₁ di Li²⁺ = −9·13,6 (eV)  → -122.451 (atteso -122.451)
-  ✓ ⟨1s|2s⟩ = 0 (ortogonali)  → true
-  ✓ px è positiva su +x, py su +y, dxy positiva sulla bisettrice x = y  → true
-  ✓ dx²−y² cambia segno fra x e y, dz² è positiva sull'asse z  → true
-  ✓ forma complessa m = +1: la fase cresce di π/2 da +x a +y (e^(iφ))  → true
-  ✓ |ψ| della forma complessa non dipende da φ (la densità è simmetrica attorno a z)  → true
-  ✓ nomi: 3dxy, 2pz, 4fxyz, 1s  → 3dxy,2pz,4fxyz,1s
-
-── Nuvola, isosuperficie, soglia ──
-  ✓ la nuvola del 1s campiona ⟨r⟩ = 1,5 a₀  → 1.50431 (atteso 1.5)
-  ✓ la nuvola del 2pz ha ⟨cos²θ⟩ = 3/5 (distribuzione cos²θ)  → 0.602318 (atteso 0.6)
-  ✓ tetraedri marcianti su una sfera di raggio 1: vertici sulla sfera (errore 0.010 a₀)  → true
-  ✓ soglia al 90 % su valori 5,4,1,0,0 (somma 10)  → 4
-
-── Sovrapposizioni e H₂⁺ ──
-  ✓ 1s + 2p: ν = ΔE/h (Hz)  → 2467380000000000 (atteso 2467400000000000)
-  ✓ 1s + 2p: λ della riga Lyman-α (nm)  → 121.502 (atteso 121.5)
-  ✓ 2p + 3d: λ della riga Balmer-α (nm)  → 656.112 (atteso 656.11)
-  ✓ dipolo: 1s→2p permessa, 1s→2s e 1s→3d proibite  → true
-  ✓ H₂⁺: S(2 a₀) = e^(−2)(1 + 2 + 4/3)  → 0.586453 (atteso 0.58645)
-  ✓ S(0) = 1 e S decresce con R  → true
-  ✓ σg ha densità a metà fra i nuclei, σu* vi ha un piano nodale  → true
-  ✓ σg e σu* sono normalizzate (∫|σ|² = 1.000, 1.000)  → true
-
-── La pagina, telefono ──
-  ✓ telefono · nella barra, si apre, 4 schede, le tele ci sono (1,1,3,1,2)  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · 3D: 3dz², E = −1,512 eV, 2 nodi angolari, isosuperficie al 90 %  → true
-  ✓ telefono · grafici: la normalizzazione numerica è 1  → true
-  ✓ telefono · sovrapposizione 1s + 2p: 2,467×10¹⁵ Hz, 121,5 nm, Lyman-α, permessa  → true
-  ✓ telefono · H₂⁺: S = 0,5865  → true
-  ✓ telefono · si cambia orbitale (3dxy), si passa alla forma complessa (m = +1, fase come colore), poi a 1s  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · nella barra, si apre, 4 schede, le tele ci sono (1,1,3,1,2)  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · 3D: 3dz², E = −1,512 eV, 2 nodi angolari, isosuperficie al 90 %  → true
-  ✓ schermo grande · grafici: la normalizzazione numerica è 1  → true
-  ✓ schermo grande · sovrapposizione 1s + 2p: 2,467×10¹⁵ Hz, 121,5 nm, Lyman-α, permessa  → true
-  ✓ schermo grande · H₂⁺: S = 0,5865  → true
-  ✓ schermo grande · si cambia orbitale (3dxy), si passa alla forma complessa (m = +1, fase come colore), poi a 1s  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-48 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_ar</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── La conversione ──
-  ✓ tre parti: sfera, punti, scatola (gli assi restano fuori)  → 3
-  ✓ la scena è di 30 cm e posa sul piano (y minimo 0, centrata in x e z)  → true
-  ✓ z in alto diventa y in alto: la sfera (z = +3) è in cima  → true
-  ✓ i 9000 punti diventano al più 4000 ottaedri (3000)  → true
-  ✓ il colore additivo dei punti è portato alla piena luminosità  → true
-  ✓ la scatola specchiata (scala −1) ha ancora le facce verso l'esterno  → 0 su 12
-
-── GLB ──
-  ✓ struttura glTF 2.0 binaria senza errori  → 
-  ✓ tre mesh, tre materiali, la trasparenza dichiarata  → 3 3 BLEND
-
-── USDZ ──
-  ✓ zip non compresso, dati a 64 byte, CRC, scena USDA coerente  → 
-  ✓ il file dentro si chiama modello.usda  → modello.usda
-  ✓ al massimo 64 materiali (3)  → true
-  ✓ ogni parte ha il suo materiale con UsdPreviewSurface  → true
-  ✓ una scena vuota (solo linee) non produce niente  → 0
-  ✓ una scena di 239200 triangoli scende a 47104 (tetto 60 000), cella 3.84 mm  → true
-  ✓ dopo la semplificazione ogni vertice resta sulla sfera entro la cella (scarto 0.02 mm)  → true
-  ✓ la scena semplificata dà file validi  → 
-  ✓ CRC32 di «123456789» (valore di riferimento CBF43926)  → cbf43926
-
-── La pagina, telefono ──
-  ✓ telefono · il pulsante AR c'è nelle scene 3D degli orbitali e dei buchi neri (1 + 1)  → true
-  ✓ telefono · il pulsante dice che cosa fa  → true
-  ✓ telefono · senza AR scarica «laboratorio-degli-orbitali-4f-m-1.glb», un GLB valido di 41120 triangoli  → true
-  ✓ telefono · e dice perché  → true
-  ✓ telefono · con Quick Look apre un USDZ valido con rel="ar" (1.6 MB, 12 materiali)  → true
-  ✓ telefono · con WebXR chiede «immersive-ar» con hit-test e dom-overlay  → true
-  ✓ telefono · se il telefono rifiuta: si scarica il .glb e non resta niente sullo schermo  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · il pulsante AR c'è nelle scene 3D degli orbitali e dei buchi neri (1 + 1)  → true
-  ✓ schermo grande · il pulsante dice che cosa fa  → true
-  ✓ schermo grande · senza AR scarica «laboratorio-degli-orbitali-4f-m-1.glb», un GLB valido di 41118 triangoli  → true
-  ✓ schermo grande · e dice perché  → true
-  ✓ schermo grande · con Quick Look apre un USDZ valido con rel="ar" (1.6 MB, 12 materiali)  → true
-  ✓ schermo grande · con WebXR chiede «immersive-ar» con hit-test e dom-overlay  → true
-  ✓ schermo grande · se il telefono rifiuta: si scarica il .glb e non resta niente sullo schermo  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-33 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_eliosfera</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Parker ──
-  ✓ ψ a 1 UA con 400 km/s (gradi)  → 46.98 (atteso 46.98)
-  ✓ Ω = 2π / 25,38 giorni (rad/s)  → 0.00000286533 (atteso 0.0000028654)
-  ✓ un giro della spirale ogni 2πv/Ω (UA)  → 5.86327 (atteso 5.863)
-  ✓ |B| a 1 UA con B_r = 3,5 nT  → 5.13006 (atteso 5.13)
-  ✓ |B| a 94 UA (nT)  → 0.0399026 (atteso 0.0399)
-  ✓ lontano dal Sole |B| cala come 1/r  → true
-  ✓ ai poli (latitudine 90°) la spirale si raddrizza: ψ = 0  → true
-
-── Pressione e shock ──
-  ✓ ρv² a 1 UA, 5 cm⁻³ e 400 km/s (nPa)  → 1.3381 (atteso 1.338)
-  ✓ pressione che mette lo shock a 94 UA (fPa)  → 151.437 (atteso 151.4)
-  ✓ con 150 fPa lo shock cade a (UA)  → 94.4492 (atteso 94.4)
-  ✓ r_TS scala come 1/√P  → 2 (atteso 2)
-
-── Eliopausa (Rankine) ──
-  ✓ r(90°) = √2 R₀  → 158.392 (atteso 158.39191898578665)
-  ✓ la coda tende a 2R₀  → 224 (atteso 224)
-  ✓ al naso r = R₀  → 112
-
-── Il modello asimmetrico vincolato alle Voyager ──
-  ✓ passa per i quattro attraversamenti misurati (UA)  → 121.6 119 94 83.7
-  ✓ il sud è più vicino del nord: k > 0 per eliopausa e shock (9.47, 15.07 UA)  → true
-  ✓ al naso prevede l'eliopausa a 112.9 UA e lo shock a 81.4 UA (fra 100 e 130, fra 70 e 95)  → true
-  ✓ lo shock sta dentro l'eliopausa in ogni direzione  → true
-
-── Coordinate ──
-  ✓ Voyager 1 (17h 13m, +12°) → latitudine eclittica +35° (34.9°), longitudine 256° (256.1°)  → true
-  ✓ Voyager 2 (20h 10m, −59,5°) → latitudine −38° (-38.3°), longitudine 290° (290.3°)  → true
-  ✓ il polo nord celeste sta a latitudine eclittica 90° − ε  → 66.5607 (atteso 66.5607)
-  ✓ il punto vernale resta a (0°, 0°)  → true
-  ✓ Voyager 1 a ~30° dal naso, Voyager 2 a ~54°  → true
-
-── Le Voyager ──
-  ✓ Voyager 1: shock 94,0 UA (2004,96), eliopausa 121,6 UA (2012,65)  → 94,121.6
-  ✓ Voyager 2: shock 83,7 UA (2007,66), eliopausa 119,0 UA (2018,85)  → 83.7,119
-  ✓ nel 2025 Voyager 1 a ≈165 UA (165.9)  → true
-  ✓ nel 2025 Voyager 2 a ≈138 UA (139.0)  → true
-  ✓ fra shock ed eliopausa Voyager 1 andava a 3,59 UA/anno (17 km/s)  → true
-  ✓ la luce da 121,6 UA impiega (ore)  → 16.8553 (atteso 16.86)
-
-── La pagina, telefono ──
-  ✓ telefono · nella barra, si apre, 4 schede, le tele ci sono (1,1,1,2,1,1)  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · le tre etichette di stato ci sono  → DIBATTUTO,MISURATO,MODELLO
-  ✓ telefono · 3D: modello di Rankine confrontato con la misura di Voyager 1  → true
-  ✓ telefono · Parker: ψ = 47,0° e 5,13 nT a 1 UA  → true
-  ✓ telefono · pressione: 1,34 nPa a 1 UA, shock a 94 UA  → true
-  ✓ telefono · Voyager: attraversamenti e dibattito sul bow shock  → true
-  ✓ telefono · «Tutto insieme»: la composizione dichiara che non è in scala  → true
-  ✓ telefono · la scala lineare si ricostruisce, e la scena ha il pulsante AR  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · nella barra, si apre, 4 schede, le tele ci sono (1,1,1,2,1,1)  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · le tre etichette di stato ci sono  → DIBATTUTO,MISURATO,MODELLO
-  ✓ schermo grande · 3D: modello di Rankine confrontato con la misura di Voyager 1  → true
-  ✓ schermo grande · Parker: ψ = 47,0° e 5,13 nT a 1 UA  → true
-  ✓ schermo grande · pressione: 1,34 nPa a 1 UA, shock a 94 UA  → true
-  ✓ schermo grande · Voyager: attraversamenti e dibattito sul bow shock  → true
-  ✓ schermo grande · «Tutto insieme»: la composizione dichiara che non è in scala  → true
-  ✓ schermo grande · la scala lineare si ricostruisce, e la scena ha il pulsante AR  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-49 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_medfarm</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il ciclo cardiaco ──
-  ✓ volumi da adulto a riposo: EDV 120–160 ml (138), ESV 40–70 (63)  → true
-  ✓ frazione di eiezione 50–70 % (55 %), gittata 4–7 L/min (5.3)  → true
-  ✓ pressione arteriosa ~110/75 (111/77)  → true
-  ✓ il sangue uscito dall'aorta in un ciclo è la gittata (ml)  → 75.3174 (atteso 75.3174249353365)
-  ✓ lavoro sistolico ~1 J (0.95)  → true
-  ✓ Frank–Starling: riempimento 8 → 14 mmHg, la gittata sale (75 → 90 ml)  → true
-  ✓ resistenza più alta: pressione su, gittata giù  → true
-  ✓ contrattilità più bassa: frazione di eiezione giù (40 %)  → true
-  ✓ l'attivazione ha massimo 1  → 0.999996 (atteso 1)
-
-── Acido–base ──
-  ✓ pH con pCO2 40 e HCO3⁻ 24  → 7.39101 (atteso 7.391)
-  ✓ l'inversa: HCO3⁻ da pH e pCO2  → 24 (atteso 24)
-  ✓ chetoacidosi: acidosi metabolica — compensata come atteso, gap 27  → true
-  ✓ vomito: alcalosi metabolica — compensata come atteso, gap 16  → true
-  ✓ BPCO cronica: acidosi respiratoria — compensata come atteso, gap 11  → true
-  ✓ iperventilazione: alcalosi respiratoria — compensata come atteso, gap 12  → true
-  ✓ salicilati (misto): acidosi metabolica a gap alto (pH nella norma) — con alcalosi respiratoria, gap 24  → true
-  ✓ metabolica con respiratoria: acidosi metabolica — con acidosi respiratoria, gap 20  → true
-  ✓ Winter con HCO3⁻ 10: pCO2 attesa 23  → 23
-
-── Glicemia e gas ──
-  ✓ dopo il bolo il glucosio torna verso il basale (87 mg/dL a 180 min)  → true
-  ✓ con un quarto della sensibilità Kg scende (2.43 → 1.77 %/min)  → true
-  ✓ PAO2 al livello del mare in aria (mmHg)  → 99.73 (atteso 99.7)
-  ✓ P50 di Severinghaus: saturazione 50 % a 26,8 mmHg  → 0.498595 (atteso 0.5)
-  ✓ saturazione a 100 mmHg ≈ 97,7 %  → 0.977465 (atteso 0.9775)
-  ✓ atmosfera standard a 5500 m (mmHg)  → 378.832 (atteso 378.83)
-  ✓ contenuto di O2 con Hb 15, SaO2 98 %, PaO2 100 (mL/dL)  → 19.998 (atteso 20)
-
-── Farmacocinetica e farmacodinamica ──
-  ✓ C(0) = D/V1  → 50 (atteso 50)
-  ✓ soluzione chiusa contro integrazione: scarto massimo < 0,2 %  → true
-  ✓ α·β = k21·k10  → 0.06 (atteso 0.06)
-  ✓ AUC numerica = D/CL  → 250 (atteso 250)
-  ✓ Vss = V1(1 + k12/k21)  → 26.6667 (atteso 26.667)
-  ✓ Css media orale = F·D/(CL·τ) (mg/L)  → 8.33373 (atteso 8.3333)
-  ✓ accumulo endovena: Cmax allo stato stazionario / C0 = R  → 1.43101 (atteso 1.431012760693333)
-  ✓ dopo 3,3 emivite si è al 90 % dello stato stazionario  → true
-  ✓ Hill: a C = EC50 metà effetto  → 50 (atteso 50)
-  ✓ erf(1)  → 0.842701 (atteso 0.8427008)
-  ✓ ED99 con σ = 0,25: ED50·10^(0,25·2,3263)  → 38.1581 (atteso 38.158)
-  ✓ midazolam orale con fm 0,94 e [I]/Ki 30: AUC ×  → 11.0714 (atteso 11.07)
-  ✓ classi FDA: 1,5 debole, 3 moderato, 11 forte  → debole,moderato,forte
-  ✓ inibizione totale: tetto 1/(1 − fm)  → 10 (atteso 10)
-
-── Le pagine, telefono ──
-  ✓ telefono · fisiologia: nella barra, si apre, 4 schede con i grafici (2,1,2,1)  → true
-  ✓ telefono · farmacologia: nella barra, si apre, 4 schede con i grafici (1,1,2,1)  → true
-  ✓ telefono · non sbordano e non mostrano valori mancanti  → 0 null 0 null
-  ✓ telefono · ogni scheda dice che non sostituisce il medico  → true
-  ✓ telefono · il caso della chetoacidosi: acidosi metabolica, gap 27  → true
-  ✓ telefono · i numeri scritti: FE, Css media, AUC  → true
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── Le pagine, schermo grande ──
-  ✓ schermo grande · fisiologia: nella barra, si apre, 4 schede con i grafici (2,1,2,1)  → true
-  ✓ schermo grande · farmacologia: nella barra, si apre, 4 schede con i grafici (1,1,2,1)  → true
-  ✓ schermo grande · non sbordano e non mostrano valori mancanti  → 0 null 0 null
-  ✓ schermo grande · ogni scheda dice che non sostituisce il medico  → true
-  ✓ schermo grande · il caso della chetoacidosi: acidosi metabolica, gap 27  → true
-  ✓ schermo grande · i numeri scritti: FE, Css media, AUC  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-53 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_matmappa</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il grafo ──
-  ✓ 41 argomenti su quattro livelli  → 41 0,1,2,3
-  ✓ aciclico, prerequisiti esistenti, livelli non crescenti  → 
-  ✓ identificativi unici  → 41
-  ✓ ogni argomento ha almeno una sezione che lo insegna  → true
-  ✓ per ognuno dei 41 obiettivi il percorso mette ogni argomento dopo i suoi prerequisiti e finisce con l'obiettivo  → true
-  ✓ le EDP chiedono 21 argomenti prima  → 21
-  ✓ chi sa già numeri, algebra e funzioni ha 3 tappe in meno  → 19
-  ✓ i numeri sbloccano tutto il resto (40)  → 40
-  ✓ le EDP sbloccano la matematica della meccanica quantistica  → quantistica
-
-── La pagina, telefono ──
-  ✓ telefono · ogni sezione citata esiste nella barra  → 
-  ✓ telefono · nella barra, si apre, il grafo e il percorso (22 tappe)  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · «lo so già» accorcia il percorso e resta salvato  → true
-  ✓ telefono · un tocco sul grafo sceglie l'obiettivo  → aritm
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · ogni sezione citata esiste nella barra  → 
-  ✓ schermo grande · nella barra, si apre, il grafo e il percorso (22 tappe)  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · «lo so già» accorcia il percorso e resta salvato  → true
-  ✓ schermo grande · un tocco sul grafo sceglie l'obiettivo  → aritm
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-21 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_motore</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il ciclo ──
-  ✓ η = 1 − ρ^(1−γ) con ρ = 10  → 0.601893 (atteso 0.601893)
-  ✓ lavoro: bilancio Q_in − Q_out = ∮p dV  → 458.786 (atteso 458.7855838975613)
-  ✓ fine compressione T₂ (K)  → 753.566 (atteso 753.57)
-  ✓ fine compressione p₂ (bar)  → 25.1189 (atteso 25.119)
-  ✓ moli nel cilindro n = p₁V₁/(RT₁)  → 0.0222727 (atteso 0.0222727)
-  ✓ potenza = L · giri / 120 (W)  → 11469.6 (atteso 11469.639597439036)
-  ✓ rendimento sotto Carnot fra T₁ e T₃  → true
-
-── Il manovellismo ──
-  ✓ punto morto inferiore a θ = 0: V = V_c + V_d  → 0.000555556 (atteso 0.0005555555555555556)
-  ✓ punto morto superiore a θ = π: V = V_c  → 0.0000555556 (atteso 0.00005555555555555556)
-  ✓ corsa = 2r  → 0.0902239 (atteso 0.09022389064166401)
-  ✓ in compressione p V^γ è costante  → true
-  ✓ in espansione la temperatura scende da T₃ a T₄  → true
-
-── La pagina, telefono, riduci movimento ──
-  ✓ telefono, riduci movimento · la scheda «Il motore in spaccato» c'è e disegna  → true
-  ✓ telefono, riduci movimento · il bilancio è scritto: 762 J = 459 J + 303 J, η = 60,2 %  → true
-  ✓ telefono, riduci movimento · con «riduci movimento» il disegno resta fermo  → false
-  ✓ telefono, riduci movimento · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · la scheda «Il motore in spaccato» c'è e disegna  → true
-  ✓ schermo grande · il bilancio è scritto: 762 J = 459 J + 303 J, η = 60,2 %  → true
-  ✓ schermo grande · senza, il motore gira  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-22 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_cinema</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── La corrente di probabilità ──
-  ✓ J numerica = ħm|ψ|²/(mₑρ) φ̂ in 15 punti di 5 orbitali (scarto relativo 6.4e-10)  → true
-  ✓ nessuna componente radiale né lungo z (4.0e-10)  → true
-  ✓ m → −m inverte la corrente  → true
-  ✓ m = 0: corrente nulla  → 0
-  ✓ il contorno del 90 % del 4f, m = 3 esiste (322 segmenti)  → true
-  ✓ 2p, m = 1: densità massima all'equatore, a 4 a₀  → true
-  ✓ 3d, m = 1: densità massima a θ = 45°  → 45 (atteso 45)
-  ✓ le normali della superficie (dal gradiente di |ψ|²) sono perpendicolari al contorno (cos max 0.018)  → true
-
-── I pianeti alla data (Keplero, elementi JPL) ──
-  ✓ equinozio di marzo 2026: la Terra a longitudine eliocentrica 180° (179.64°)  → true
-  ✓ perielio del 3 gennaio 2026: distanza Terra–Sole (UA)  → 0.983291 (atteso 0.9833)
-  ✓ afelio del 3 luglio 2026: distanza Terra–Sole (UA)  → 1.0167 (atteso 1.01664)
-  ✓ Giove torna allo stesso punto dopo 11,86 anni  → true
-  ✓ Mercurio al perielio: a(1 − e) (UA)  → 0.307507 (atteso 0.3074977516112289)
-
-── La Galassia e il flusso ──
-  ✓ inclinazione del piano galattico sull'eclittica (gradi)  → 60.1886 (atteso 60.19)
-  ✓ distanza del centro galattico (kpc)  → 8.178 (atteso 8.178)
-  ✓ centro galattico: longitudine eclittica (gradi)  → 266.84 (atteso 266.84)
-  ✓ centro galattico: latitudine eclittica (gradi)  → -5.53631 (atteso -5.536)
-  ✓ Alfa Centauri: latitudine eclittica (gradi)  → -42.5911 (atteso -42.59)
-  ✓ punto di ristagno sul naso dell'eliopausa: |v| = 0  → true
-  ✓ lontano, la velocità è quella del gas interstellare (km/s)  → 26 (atteso 26)
-
-── La pagina, telefono, riduci movimento ──
-  ✓ telefono, riduci movimento · orbitali: la scheda «Onde di fase e correnti» con le formule in sovrimpressione, la superficie di vetro e il pulsante AR  → true
-  ✓ telefono, riduci movimento · la resa «cinema» è accesa e l'immagine non è nera (luminosità media 22)  → true
-  ✓ telefono, riduci movimento · con «riduci movimento» le scie restano ferme  → false
-  ✓ telefono, riduci movimento · Galassia: la scheda, la didascalia in UA, a 4×10⁹ UA le bolle di Fermi ed eROSITA  → true
-  ✓ telefono, riduci movimento · alla scala galattica si vedono Galassia e bolle (9), i pianeti sono spenti (39)  → true
-  ✓ telefono, riduci movimento · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · orbitali: la scheda «Onde di fase e correnti» con le formule in sovrimpressione, la superficie di vetro e il pulsante AR  → true
-  ✓ schermo grande · la resa «cinema» è accesa e l'immagine non è nera (luminosità media 16)  → true
-  ✓ schermo grande · le scie si muovono  → true
-  ✓ schermo grande · Galassia: la scheda, la didascalia in UA, a 4×10⁹ UA le bolle di Fermi ed eROSITA  → true
-  ✓ schermo grande · alla scala galattica si vedono Galassia e bolle (9), i pianeti sono spenti (39)  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-34 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_materiaoscura</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Cosmologia ──
-  ✓ D(z = 1)  → 0.606754 (atteso 0.6068)
-  ✓ D(a)/a a a = 0,01 (soppressione da Λ: 1/0,788)  → 1.26934 (atteso 1.2693)
-  ✓ distanza di diametro angolare a z = 1 (Mpc)  → 1700.63 (atteso 1700.6)
-  ✓ σ₈ dalla normalizzazione  → 0.811 (atteso 0.811)
-  ✓ la funzione di trasferimento vale 1 a grande scala e scende a piccola  → true
-
-── FFT e rete cosmica ──
-  ✓ FFT contro la trasformata discreta (scarto 4.5e-14)  → true
-  ✓ scarto quadratico di δ sulla griglia = √(Σ P(k)/V)  → 1.47231 (atteso 1.4752715487757528)
-  ✓ div ψ = −δ (scarto 1.8e-15)  → true
-  ✓ a D = 0 la densità è uniforme; a D = 1 ci sono vuoti e nodi  → true
-
-── Lenti ──
-  ✓ SIS: immagini a β − θ_E e β + θ_E (−0,9 e 1,5)  → true
-  ✓ SIS: amplificazioni −3 e 5  → true
-  ✓ massa puntiforme: amplificazione totale (u² + 2)/(u√(u² + 4))  → 2.18282 (atteso 2.182820625326997)
-  ✓ curva critica della SIS sul raggio di Einstein (scarto 0.0003″)  → true
-  ✓ SIE con la sorgente vicino al centro: quattro immagini (croce di Einstein)  → 4
-  ✓ θ_E di una galassia, σ = 200 km/s, z = 0,5 → 2 (″)  → 0.729823 (atteso 0.73)
-  ✓ θ_E di un ammasso, σ = 1000 km/s, z = 0,3 → 2 (″)  → 22.1271 (atteso 22.13)
-  ✓ NFW: h(x) continua in x = 1  → true
-
-── Fisica + apprendimento automatico ──
-  ✓ la rete impara: errore su θ_E da 0.178″ a 0.109″ (sotto 0,15″)  → true
-  ✓ il fit fisico che parte dalla rete ritrova θ_E entro 0,02″ (0.0010) con χ²/ν ≈ 1 (1.02)  → true
-
-── Curve di rotazione ──
-  ✓ il disco di Freeman ha il picco a 2,15 R_d  → 2.15 (atteso 2.15)
-  ✓ senza alone la curva scende come Keplero lontano dal disco  → true
-  ✓ con l'alone resta quasi piatta da 10 a 40 kpc (209 → 188 km/s)  → true
-
-── La pagina, telefono ──
-  ✓ telefono · nella barra, si apre, 5 schede con le tele (1,2,2,1,1)  → true
-  ✓ telefono · la regia: la sequenza dalla rete alla lente con le sue fasi  → true
-  ✓ telefono · i testi: rete troncata con σ₈, lente con θ_E vero, apprendimento con la fonte, rotazione con la misura del Sole  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · nella barra, si apre, 5 schede con le tele (1,2,2,1,1)  → true
-  ✓ schermo grande · la regia: la sequenza dalla rete alla lente con le sue fasi  → true
-  ✓ schermo grande · i testi: rete troncata con σ₈, lente con θ_E vero, apprendimento con la fonte, rotazione con la misura del Sole  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-32 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_elementi3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I dati e la fisica ──
-  ✓ ogni configurazione dei 118 elementi somma a Z elettroni  → 
-  ✓ Cr: 3d⁵ 4s¹ (eccezione)  → true
-  ✓ Cu: 3d¹⁰ 4s¹; Pd: 4d¹⁰ senza 5s; Au: 5d¹⁰ 6s¹; Pt: 5d⁹ 6s¹  → true
-  ✓ Gd: 4f⁷ 5d¹ 6s²; Lr: 5f¹⁴ 7s² 7p¹ (corretto nella v255)  → true
-  ✓ Slater: Na 3s, O 2p, Zn 3d e 4s, Fe 3d e 4s  → 2.20 4.55 8.85 4.35 6.25 3.75
-  ✓ Balmer in aria (Rydberg + Edlén) entro 0,02 nm dal NIST (656,279; 486,135; 434,047; 410,175): 656.29 486.14 434.05 410.18  → true
-  ✓ indice dell'aria a 589 nm (Edlén)  → 1.000277
-  ✓ le righe D del sodio  → 588.995 589.592
-  ✓ la densità radiale di Slater del ferro integra a 26 elettroni  → 26.000
-  ✓ tutte le righe scritte stanno fra 200 e 900 nm, con intensità fra 0 e 1  → true
-
-── La pagina, telefono ──
-  ✓ telefono · nella barra, si apre con due schede, la tavola ha 118 elementi (118)  → true
-  ✓ telefono · la tavola delle tendenze: colorata per elettronegatività, un tocco sul ferro apre il ferro in 3D  → true
-  ✓ telefono · i dati della vecchia tavola ci sono: ossidazione, fusione, periodo e gruppo  → true
-  ✓ telefono · un tocco sul sodio: dati e righe; sull'europio: dichiara che le righe non ci sono  → true
-  ✓ telefono · la scena ha il pulsante AR  → true
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · nella barra, si apre con due schede, la tavola ha 118 elementi (118)  → true
-  ✓ schermo grande · la tavola delle tendenze: colorata per elettronegatività, un tocco sul ferro apre il ferro in 3D  → true
-  ✓ schermo grande · i dati della vecchia tavola ci sono: ossidazione, fusione, periodo e gruppo  → true
-  ✓ schermo grande · un tocco sul sodio: dati e righe; sull'europio: dichiara che le righe non ci sono  → true
-  ✓ schermo grande · la scena ha il pulsante AR  → true
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-24 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_sentinella</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── La parola «Spectra» ──
-  ✓ si sveglia: «Spectra apri la tavola periodica» → «apri la tavola periodica»  → true
-  ✓ si sveglia: «spettra che ore sono» → «che ore sono»  → true
-  ✓ si sveglia: «Spektra calcola il pH» → «calcola il ph»  → true
-  ✓ si sveglia: «spectre mostrami gli orbitali» → «mostrami gli orbitali»  → true
-  ✓ si sveglia: «specter apri la chimica» → «apri la chimica»  → true
-  ✓ si sveglia: «spec tra apri la fisica» → «apri la fisica»  → true
-  ✓ si sveglia: «ehi Spectra dimmi il meteo» → «dimmi il meteo»  → true
-  ✓ si sveglia: «ok spectra» → «»  → true
-  ✓ si sveglia: «Spectra, apri le lenti gravitazionali» → «apri le lenti gravitazionali»  → true
-  ✓ non si sveglia: «lo spettro infrarosso del benzene»  → null
-  ✓ non si sveglia: «spettro di massa»  → null
-  ✓ non si sveglia: «gli spettri NMR»  → null
-  ✓ non si sveglia: «guardo lo specchio»  → null
-  ✓ non si sveglia: «che spettacolo»  → null
-  ✓ non si sveglia: «apri la sezione di Spectra»  → null
-  ✓ non si sveglia: «la spesa di oggi»  → null
-  ✓ il comando dopo la parola: «Spectra, apri le lenti gravitazionali»  → apri le lenti gravitazionali
-
-── Sempre in ascolto ──
-  ✓ si accende e ricorda la scelta  → true
-  ✓ dopo una chiusura per silenzio riparte da sola  → true
-  ✓ con errori di rete di fila non gira a vuoto: 0 riavvii nel primo mezzo secondo, errori contati 2  → true
-  ✓ dopo l'attesa (2 s con 2 errori) riprova comunque (1 riavvii)  → true
-  ✓ un risultato azzera il conto degli errori  → true
-  ✓ «Spectra …» trovato anche nella terza alternativa: la console si apre  → true
-  ✓ mentre la console ascolta la sentinella è in pausa, poi riprende  → true
-  ✓ quando la pagina torna visibile riparte  → true
-  ✓ «sveglia Spectra» fa partire il risveglio  → true
-  ✓ spenta: non riparte e dimentica la scelta  → true
-
-── Dopo una ricarica ──
-  ✓ la sentinella riparte da sola (permesso già dato) o al primo tocco  → true
-  ✓ nessun errore JavaScript  → 0
-
-29 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_costruttore</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le geometrie contro la VSEPR e le misure ──
-  ✓ metano: quattro angoli H–C–H a 109,47° ± 0,5°  → true
-  ✓ metano: C–H (misurato 1,087 Å)  → 1.070 (atteso 1.087 ± 0.03)
-  ✓ acqua: angolo H–O–H (misurato 104,5°)  → 104.500 (atteso 104.5 ± 1)
-  ✓ acqua: O–H (misurato 0,958 Å)  → 0.970 (atteso 0.958 ± 0.03)
-  ✓ ammoniaca: piramidale, H–N–H 107° ± 1°  → true
-  ✓ CO₂: lineare (180°)  → 180.000 (atteso 180 ± 0.5)
-  ✓ acetilene: H–C≡C lineare  → 179.999 (atteso 180 ± 0.5)
-  ✓ acetilene: C≡C (misurato 1,203 Å)  → 1.192 (atteso 1.203 ± 0.03)
-  ✓ etilene: angoli a 120° ± 1°  → true
-  ✓ etilene: piatto (scarto massimo dal piano 0.0000 Å < 0,02)  → true
-  ✓ benzene: sei C–C uguali a 1,39 Å ± 0,01 (non Kekulé alternato)  → true
-  ✓ benzene: dodici atomi nello stesso piano (scarto 0.0000 Å)  → true
-  ✓ cicloesano: angoli C–C–C tetraedrici ± 1,5° (sedia, non piatto)  → true
-  ✓ SF₆: ottaedro, angoli F–S–F a 90° o 180° ± 1°  → true
-  ✓ SF₆: 12 angoli a 90° e 3 a 180°  → 12 3
-  ✓ PCl₅: bipiramide trigonale, 6 angoli a 90°, 3 a 120°, 1 a 180°  → 6 3 1
-  ✓ acqua: VSEPR AX₂E₂, sp³  → 2 2 sp³
-
-── Formula, massa, insaturazioni, file ──
-  ✓ etanolo  → C₂H₆O 46.07
-  ✓ glicina  → C₂H₅NO₂ 75.07
-  ✓ acido solforico (Hill senza carbonio: ordine alfabetico)  → H₂O₄S 98.07
-  ✓ ammoniaca (Hill: H₃N)  → H₃N 17.03
-  ✓ insaturazioni: benzene 4, cicloesano 1, acetilene 2, etano 0  → 4 1 2 0
-  ✓ insaturazioni non definite con valenza espansa (SF₆)  → null
-  ✓ MOL V2000: riga dei conteggi (9 atomi, 8 legami)  →   9  8  0  0  0  0  0  0  0  0999 V2000
-  ✓ MOL: una riga per atomo e per legame, chiusa da M  END  → true
-  ✓ XYZ: 3 atomi, intestazione e righe  → 3 5
-
-── Costruire a mano ──
-  ✓ C → C → C → O e idrogeni: propanolo  → C₃H₈O
-  ✓ catena di sei carboni chiusa ad anello e completata: cicloesano  → C₆H₁₂
-  ✓ azoto con carica +: ione ammonio, tetraedrico  → H₄N⁺ 4
-  ✓ NH₄⁺: angoli a 109,47° ± 0,5°  → true
-  ✓ ossigeno con carica −: ossidrile  → HO⁻
-  ✓ un idrogeno non regge un secondo legame  → -1
-  ✓ un carbonio saturo non regge un quinto legame  → -1
-
-── La pagina ──
-  ✓ telefono · nella barra e si apre con la scena 3D  → true
-  ✓ telefono · il pulsante AR nella barra della scena  → true
-  ✓ telefono · parte dal metano  → CH₄
-  ✓ telefono · il tocco sul carbonio con O scelto: metanolo  → CH₄O
-  ✓ telefono · angolo C–O–H a 104,5° ± 1° dopo la minimizzazione  → true
-  ✓ telefono · il pannello dice formula, massa e VSEPR dell'atomo nuovo (Formula: CH₄OMassa molare: 32,04 g/molAtomi e legami: 6 · 5I…)  → true
-  ✓ telefono · il modello pronto «benzene»  → C₆H₆
-  ✓ telefono · la didascalia dichiara MODELLO (Benzene C₆H₆ · C₆H₆ · MODELLO: campo di forze semplificato)  → true
-  ✓ telefono · la scena è disegnata (352 pixel accesi su 4096)  → true
-  ✓ telefono · l'esportazione AR produce un GLB valido  → glTF
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · nessun errore JavaScript  → 0
-  ✓ schermo grande · nella barra e si apre con la scena 3D  → true
-  ✓ schermo grande · il pulsante AR nella barra della scena  → true
-  ✓ schermo grande · parte dal metano  → CH₄
-  ✓ schermo grande · il tocco sul carbonio con O scelto: metanolo  → CH₄O
-  ✓ schermo grande · angolo C–O–H a 104,5° ± 1° dopo la minimizzazione  → true
-  ✓ schermo grande · il pannello dice formula, massa e VSEPR dell'atomo nuovo (Formula: CH₄OMassa molare: 32,04 g/molAtomi e legami: 6 · 5I…)  → true
-  ✓ schermo grande · il modello pronto «benzene»  → C₆H₆
-  ✓ schermo grande · la didascalia dichiara MODELLO (Benzene C₆H₆ · C₆H₆ · MODELLO: campo di forze semplificato)  → true
-  ✓ schermo grande · la scena è disegnata (333 pixel accesi su 4096)  → true
-  ✓ schermo grande · l'esportazione AR produce un GLB valido  → glTF
-  ✓ schermo grande · non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-57 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spaccati</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il circuito a due maglie ──
-  ✓ caso del manuale: I₁, I₂, I₃ (A)  → 1.5882 -0.7059 0.8824
-  ✓ E₂ assorbe potenza (si ricarica) quando I₂ < 0  → true
-  ✓ 1000 circuiti casuali: nodo, due maglie e potenza chiudono (scarto massimo 7.1e-14)  → true
-  ✓ deriva in 1 mm² di rame con 1 A: 0,0735 mm/s  → 0.0735
-  ✓ codice colori: 10 Ω marrone-nero-nero, 47 Ω giallo-viola-nero, 100 Ω marrone-nero-marrone  → 1,0,0 4,7,0 1,0,1
-
-── Il laser Nd:YAG ──
-  ✓ soglia P_th = (T + L_i)/κ = 2,80 W  → 2.80
-  ✓ difetto quantico 808/1064  → 0.7594
-  ✓ a 10 W di pompa: P_out 3,51 W, efficienza differenziale 48,8 %  → 3.51 48.8
-  ✓ bilancio P_p = P_out + perdite + calore + non assorbita per 18 casi (scarto 4.4e-16 W)  → true
-  ✓ sotto soglia: niente fascio  → 0
-  ✓ inversione: cresce sotto soglia, poi resta ferma (gain clamping)  → 0.714 1 1
-  ✓ la potenza d'uscita cresce linearmente sopra soglia  → true
-
-── La giunzione p–n ──
-  ✓ N_A = N_D = 10¹⁶ cm⁻³: V_bi = 0,714 V (n_i = 10¹⁰)  → 0.714
-  ✓ e W = 0,430 µm (Sze: ≈ 0,43 µm)  → 0.430
-  ✓ 25 giunzioni: il campo integrato da Poisson = la formula chiusa e si annulla ai bordi (scarto 3.2e-15)  → true
-  ✓ il salto di potenziale integrato = V_bi − V (scarto relativo 2.2e-15)  → true
-  ✓ neutralità N_A x_p = N_D x_n (scarto 2.2e-16)  → true
-  ✓ in inversa la zona si allarga come √(V_bi − V)  → true
-  ✓ corrente di Shockley: inversa ≈ −I₀, diretta cresce di e per ogni 25,85 mV  → true
-
-── La pagina, telefono, riduci movimento ──
-  ✓ telefono, riduci movimento · sfiscirc: la scheda in spaccato c'è e disegna (12907 campioni accesi)  → true
-  ✓ telefono, riduci movimento · sfiscirc: il bilancio è scritto «1,588 + −0,706 = 0,882 A»  → true
-  ✓ telefono, riduci movimento · sfiscirc: con «riduci movimento» resta fermo  → false
-  ✓ telefono, riduci movimento · sfiscirc: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ telefono, riduci movimento · sfiscirc: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · sfislaser: la scheda in spaccato c'è e disegna (15487 campioni accesi)  → true
-  ✓ telefono, riduci movimento · sfislaser: il bilancio è scritto «10,00 W = 3,51 + 1,41 + 4,08 + 1,00 W»  → true
-  ✓ telefono, riduci movimento · sfislaser: con «riduci movimento» resta fermo  → false
-  ✓ telefono, riduci movimento · sfislaser: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ telefono, riduci movimento · sfislaser: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · sfissolido: la scheda in spaccato c'è e disegna (59354 campioni accesi)  → true
-  ✓ telefono, riduci movimento · sfissolido: il bilancio è scritto «V_bi = (kT/q) ln(N_A N_D/n_i²) = 0,744 V»  → true
-  ✓ telefono, riduci movimento · sfissolido: con «riduci movimento» resta fermo  → false
-  ✓ telefono, riduci movimento · sfissolido: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ telefono, riduci movimento · sfissolido: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · nessun errore JavaScript  → 0
-
-── La pagina, schermo grande ──
-  ✓ schermo grande · sfiscirc: la scheda in spaccato c'è e disegna (20355 campioni accesi)  → true
-  ✓ schermo grande · sfiscirc: il bilancio è scritto «1,588 + −0,706 = 0,882 A»  → true
-  ✓ schermo grande · sfiscirc: senza, si anima  → true
-  ✓ schermo grande · sfiscirc: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ schermo grande · sfiscirc: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sfislaser: la scheda in spaccato c'è e disegna (29571 campioni accesi)  → true
-  ✓ schermo grande · sfislaser: il bilancio è scritto «10,00 W = 3,51 + 1,41 + 4,08 + 1,00 W»  → true
-  ✓ schermo grande · sfislaser: senza, si anima  → true
-  ✓ schermo grande · sfislaser: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ schermo grande · sfislaser: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sfissolido: la scheda in spaccato c'è e disegna (136145 campioni accesi)  → true
-  ✓ schermo grande · sfissolido: il bilancio è scritto «V_bi = (kT/q) ln(N_A N_D/n_i²) = 0,744 V»  → true
-  ✓ schermo grande · sfissolido: senza, si anima  → true
-  ✓ schermo grande · sfissolido: l'ultima scheda resta quella 3D dove c'era  → true
-  ✓ schermo grande · sfissolido: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · nessun errore JavaScript  → 0
-
-51 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_ponte</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── H₂ e la curva di Morse ──
-  ✓ a = 2πcω_e √(μ/2D_e) = 1,944 Å⁻¹  → 1.944
-  ✓ D₀ = D_e − E₀ = 4,478 eV (misurato 4,4781)  → 4.478
-  ✓ periodo di vibrazione armonico 7,58 fs  → 7.58
-  ✓ moto esatto nel potenziale di Morse: energia conservata (scarto relativo 9.0e-10)  → true
-  ✓ il moto va da un punto di inversione all'altro in mezzo periodo  → true
-  ✓ livelli sempre più fitti verso la dissociazione  → true
-  ✓ nuvola σg: 30 000 punti, più densità fra i nuclei che fuori a pari distanza (50 % con |x| < r_e/2)  → true
-
-── Magnetosfera e aurore ──
-  ✓ dipolo puro: la linea da 60° si chiude e arriva a L = 1,01/cos²λ = 4,04 R_T (4.039)  → true
-  ✓ P_d per n = 5 cm⁻³, v = 400 km/s: 1,34 nPa  → 1.34
-  ✓ Shue 1998: r₀ = 10,42 R_T, α = 0,619  → 10.42 0.619
-  ✓ Chapman e Ferraro (f = 2) danno lo stesso ordine: 10.23 R_T  → true
-  ✓ più pressione, magnetopausa più vicina (r₀ ∝ P_d^(−1/6,6))  → true
-  ✓ B_z verso sud allarga la calotta e abbassa l'ovale: 71.0° (−10 nT) < 73.1° (−5) < 88.3° (+5)  → true
-
-── Il reticolo di Kelvin ──
-  ✓ Kelvin soddisfa Navier μ∇²u + (λ + μ)∇(∇·u) = 0 (residuo relativo 3.8e-5)  → true
-  ✓ la dilatazione è quella della formula chiusa (scarto 6.2e-7)  → true
-  ✓ con ν = 0,5 il materiale è incomprimibile: dilatazione nulla  → true
-
-── Il ponte con Spectra Prime ──
-  ✓ indirizzi: ws:// esterno no, https no, wss sì, ws://localhost sì; un indirizzo non ammesso non collega  → false false true true false spento
-  ✓ collegato al server finto, sessione persistente (bsi-ui13v7h3mwwc2ink)  → true
-  ✓ la telemetria arriva al server con la sezione aperta e i cursori  → true
-  ✓ il messaggio dell'utente arriva come USER_MESSAGE  → Mostrami la magnetosfera durante una tempesta
-  ✓ «load magnetosfera» apre la sezione delle scene e la scheda giusta  → true
-  ✓ il parametro del load muove il cursore della velocità  → 800
-  ✓ «update B_z = −12» muove il cursore del campo  → -12
-  ✓ «toggle_layer Onda d'urto» spegne la casella  → false
-  ✓ «focus» porta la camera a |pos − target| = 41,2 (41.23)  → true
-  ✓ un'azione sconosciuta non fa nulla: ok, ok, ok, ok, no:azione non ammessa: rm_rf  → true
-  ✓ scene o sezioni inesistenti rifiutate  → true
-  ✓ direttiva al corpo e risposta arrivano come eventi  → true
-  ✓ la telemetria dopo i comandi riporta la scena nuova  → true
-  ✓ la telemetria si manda solo quando cambia (7 invii in ~9 s, non 18)  → true
-  ✓ il server cade: il ponte si ricollega da solo  → 2
-  ✓ scollegato a mano resta spento  → spento
-  ✓ e non si ricollega  → 2
-  ✓ la guida «Occhiali e dispositivi» ha il riquadro Spectra Prime con l'indirizzo ricordato  → true
-  ✓ nessun errore JavaScript  → 0
-
-── Le scene sul telefono ──
-  ✓ telefono · «⚛️ H₂ e la curva di Morse»: disegnata (67853 campioni), pulsante AR, didascalia onesta  → true
-  ✓ telefono · «🧲 Magnetosfera e aurore»: disegnata (53240 campioni), pulsante AR, didascalia onesta  → true
-  ✓ telefono · «🕸️ Il reticolo deformabile»: disegnata (69115 campioni), pulsante AR, didascalia onesta  → true
-  ✓ telefono · tre schede  → 3
-  ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono · nessun errore JavaScript  → 0
-
-41 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_cosmo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── 9 · H₂ ──
-  ✓ minimo della curva a 74,1 pm e −4,75 eV  → 74.1 -4.75
-  ✓ D₀ = D_e − E₀ = 4,48 eV (432 kJ/mol)  → 4.48 432
-  ✓ vibra 1,32·10¹⁴ volte al secondo  → 1.32
-  ✓ moto esatto: energia conservata (scarto 1.6e-9)  → true
-  ✓ nuvola all'equilibrio: 35014 punti, densità condivisa fra i nuclei (48 % ciano)  → true
-  ✓ a 500 pm restano due 1s quasi separate (0.0 % ciano)  → true
-
-── 4 · Geodetiche di Schwarzschild ──
-  ✓ b_crit = 3√3 M = 5,196 M  → 5.196
-  ✓ b = 5,19 catturato, b = 5,20 sfugge  → catturato sfugge
-  ✓ campo debole: deflessione 4M/b + 15πM²/4b² a b = 100 (0.04124)  → true
-  ✓ giri: da ε = 10⁻⁴ a 10⁻⁸ crescono di ln(10⁴)/2π = 1,47 (1.46)  → true
-  ✓ vincolo conservato: ΔE/E < 10⁻⁷ (1.7e-9)  → true
-  ✓ lente: l'immagine di una stella allineata cade vicino all'anello di Einstein √(4MD) = 10,95 (12.65)  → true
-
-── 8 · Galassia e materia oscura ──
-  ✓ Bessel: I₀(1), K₀(1), I₁(1), K₁(1)  → 1.26607 0.42102 0.56516 0.60191
-  ✓ picco del disco di Freeman a R = 2,15 R_d  → 2.15
-  ✓ Φ coerente con v² = R dΦ/dR per le tre componenti (scarto 1.4e-7)  → true
-  ✓ curva piatta con l'alone: v(10) e v(25) entro il 10 % (228, 207 km/s)  → true
-  ✓ senza alone cala: v(25)/v(10) < 0,8  → true
-  ✓ con l'alone: 100 % legate, ΔE/E < 10⁻⁴ (8.0e-6)  → true
-  ✓ senza alone: le stelle esterne sfuggono (88.7 % legate)  → true
-  ✓ la curva misurata sulle stelle segue quella del modello a 8 kpc (229 km/s)  → true
-
-── 6 · Telo e N corpi ──
-  ✓ Velocity Verlet: energia conservata (2.3e-8)  → true
-  ✓ la luna resta entro la sfera di Hill del suo pianeta (distanza massima 0.32)  → true
-
-── 2 · Reticolo ──
-  ✓ lo spostamento punta verso la massa e si annulla senza massa  → true
-
-── 3 · Scala ──
-  ✓ Sole come pallina da tennis di 6,7 cm: scala 1 : 20,8 miliardi  → 20.79
-  ✓ la Terra diventa un granello di 0,61 mm  → 0.61
-  ✓ Proxima Centauri a circa 1933 km  → 1933
-  ✓ entro 12 anni luce lo spazio è vuoto per 99,999999999999999999999 % (pieno 4.3e-24)  → true
-
-── 1 · Sole e aurore ──
-  ✓ il foglio di corrente oscilla fino a ±α = 25°  → 25.0
-  ✓ dipolo allineato (α = 0): foglio piatto  → 0
-  ✓ spirale di Parker: un giro ogni 6.22 UA, il foglio si ripete  → true
-
-── La pagina, telefono ──
-  ✓ simulazioni registrate: h2, geodetiche, galassia, reticolo, telo, eliosfera, vialattea, scala, sole, spaccato  → true
-  ✓ una scheda-anteprima per simulazione  → 10
-  ✓ h2: disegna (358 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ geodetiche: disegna (307 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ galassia: disegna (575 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ reticolo: disegna (2083 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ telo: disegna (593 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ eliosfera: disegna (1771 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ vialattea: disegna (228 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ scala: disegna (290 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ sole: disegna (1068 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ spaccato: disegna (4910 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-44 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spaccato</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I dati di ogni scenario ──
-  ✓ ventitré scenari (nove della v260, quattordici della v261)  → supernova,sole,buconero,ia,kilonova,bigbang,terra,giove,galassia,protostella,nanabruna,nanarossa,cefeide,nova,lampox,pulsar,tde,grb,pisn,bhbh,quasar,nanabianca,ricombinazione
-  ✓ ogni scenario ha una categoria e un'icona  → true
-  ✓ ogni composizione (iniziale e di fine stadio) somma 100 %  → 0
-  ✓ le percentuali mostrate (resto maggiore) sommano esattamente 100  → 0
-  ✓ durate fisiche e d'animazione positive (quindi tempi crescenti)  → 0
-  ✓ 123 reazioni, tutte bilanciate in A e in Z  → 
-  ✓ ogni fonte citata esiste nell'oggetto FONTI  → 0
-  ✓ testo della reazione con apici e simboli  → 3 ⁴He → ¹²C + γ
-  ✓ un termine sconosciuto è rifiutato («termine sconosciuto: Xx »)  → true
-
-── Supernova: Woosley, Heger & Weaver 2002 ──
-  ✓ a 15 M☉ le durate sono quelle della tabella  → 11100000 1970000 2030 0.732 2.58 0.0501
-  ✓ a 25 M☉ le durate sono quelle della tabella  → 6700000 839000 522 0.891 0.402 0.00201
-  ✓ a 20 M☉ stanno fra le due (H 8.35 milioni di anni, Si 3.0 giorni)  → true
-  ✓ residuo: 12 e 25 M☉ stella di neutroni, 30 e 40 M☉ buco nero  → ns ns bh bh
-  ✓ l'ultimo stadio lascia il nucleo di ferro (Fe 92 %) e il silicio dura meno di un mese  → true
-  ✓ la temperatura del nucleo cresce a ogni stadio (4e+7 → 2e+8 → 8e+8 → 2e+9 → 2e+9 → 3e+9 K)  → true
-
-── Supernova Ia: ⁵⁶Ni → ⁵⁶Co → ⁵⁶Fe ──
-  ✓ Bateman: i nuclei si conservano (scarto 0.0e+0)  → true
-  ✓ il cobalto è al massimo dopo ~24.2 giorni  → 24.2
-  ✓ luce a 18 giorni ≈ 10⁴³ erg/s (1.18e+43)  → true
-  ✓ la coda segue il ⁵⁶Co: in 100 giorni cala di e^(−100/111,4)  → 0.408
-  ✓ l'accrescimento da 1,0 a 1,38 M☉ a 10⁻⁷ M☉/anno dura 3,8 milioni di anni  → 3.80
-
-── Kilonova, Big Bang, Terra, Galassia ──
-  ✓ kilonova: ~10⁴² erg/s a un giorno (1.29e+42)  → true
-  ✓ e cala come t^−1,3 da 1 a 10 giorni  → 0.0501
-  ✓ BBN: frazione di neutroni al congelamento 1/(1 + e^(1,293/0,75))  → 0.151
-  ✓ BBN: τ_n = 878,4 s fra 1 e 200 s  → 0.1207
-  ✓ BBN: Y = 2 X_n = 0.241, entro 0,01 dal misurato 0,245  → true
-  ✓ BBN: a 1 s la temperatura è ~1,3·10¹⁰ K  → 1.33e+10
-  ✓ BBN: a 20 minuti solo H ed He, che sommano 100  → true
-  ✓ Terra: calore iniziale 2.84e-7 W/kg, dimezzato (quasi tutto ²⁶Al) dopo 0,717 milioni di anni  → true
-  ✓ Galassia: alla nascita del Sole Z = 0.0136, entro il 10 % da Z☉ = 0,0134  → true
-  ✓ Galassia: al Big Bang niente metalli  → 0
-
-── Gli eventi della v261: i numeri calcolati ──
-  ✓ caduta libera di un nucleo denso (10⁴ cm⁻³): 309 mila anni (~3·10⁵)  → true
-  ✓ Kelvin–Helmholtz del Sole: 31.4 milioni di anni (~31)  → true
-  ✓ legge di Leavitt per δ Cephei (P = 5,366 d): M_V  → -3.39
-  ✓ distanza di δ Cephei dalla legge: 294 pc (Gaia ~270, HST 274 ± 11)  → true
-  ✓ Granchio: B = 3.81·10¹² G, età = 1271 anni (vera: 970), Ė = 4.3·10³⁸ erg/s  → true
-  ✓ Sole e buco nero di 10⁶ M☉: R_t = 0.465 UA = 23.6 R_S, ricaduta dopo 41 giorni  → true
-  ✓ la ricaduta cala come t^−5/3  → 0.03125
-  ✓ Eddington per una massa solare: 1,26·10³⁸ erg/s  → 1.26e+38
-  ✓ tempo di Salpeter (ε = 0,1): 50.1 milioni di anni (~50)  → true
-  ✓ GW150914: 35 Hz a ~0,2 s dalla fusione con la massa di chirp di 28 M☉ (34.2 Hz)  → true
-  ✓ Saha: metà dell'idrogeno è neutro a 3734 K (3700–3800 K), quasi tutto a 2970 K  → true
-  ✓ la frazione ionizzata cresce con la temperatura  → true
-  ✓ la composizione dello strato che pulsa somma sempre 100  → true
-  ✓ ogni scenario nuovo ha la sua spiegazione e almeno una fonte  → true
-
-── Il motore ──
-  ✓ in ogni istante di ogni scenario il tempo fisico non torna indietro  → 0
-  ✓ in ogni istante la composizione somma 100  → 0
-  ✓ alla fine della barra si arriva all'evento finale  → 0
-  ✓ orologio a fine sequenza (anni, separatore italiano)  → ≈ 9.572.206 anni
-  ✓ durate leggibili  → 18 giorni · 0,9 s · 6,70 milioni di anni
-  ✓ notazione scientifica con apici  → 3·10¹⁴
-  ✓ la sezione è registrata  → sastrospaccato
-  ✓ strumento per Spectra registrato, con i ventitré scenari  → true
-  ✓ e dice di usarlo SOLO quando l'utente lo chiede  → true
-
-── La pagina, telefono ──
-  ✓ nessuna apertura automatica: la sezione resta chiusa senza un gesto  → false
-  ✓ il pulsante della sezione c'è  → true
-  ✓ la scheda «Una stella muore» è nelle Simulazioni cosmiche  → true
-  ✓ ventitré scenari da scegliere, in cinque gruppi  → 23 5
-  ✓ supernova: disegna (4188 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 9.572.204 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ sole: disegna (8876 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 11.860.500.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ buconero: disegna (4195 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 4.593.329 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ ia: disegna (932 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «−214 anni dall'esplosione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ kilonova: disegna (1576 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «+0,2 s dalla fusione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ bigbang: disegna (2936 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «t = 2,1 min», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ terra: disegna (3119 px luminosi su 14 400), ciambella (7 fette) e legenda, orologio «≈ 20.415.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ giove: disegna (4740 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.290.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ galassia: disegna (3180 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.916.666.667 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ protostella: disegna (4496 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «≈ 392.609 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nanabruna: disegna (3669 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 274.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nanarossa: disegna (3636 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.238.800.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ cefeide: disegna (5009 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «t = 6,3 giorni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nova: disegna (927 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 10.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ lampox: disegna (2602 px luminosi su 14 400), ciambella (5 fette) e legenda, orologio «t = 3,0 ore», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ pulsar: disegna (425 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 574 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ tde: disegna (442 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (3 fette) e legenda, orologio «+109 min dalla distruzione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ grb: disegna (4604 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «+0,7 s dal collasso», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ pisn: disegna (8163 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «≈ 301.725 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ bhbh: disegna (121 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (2 fette) e legenda, orologio «−0,0 s dalla fusione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ quasar: disegna (2996 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 314.431.345 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nanabianca: disegna (2918 px luminosi su 14 400), ciambella (1 fette) e legenda, orologio «≈ 598.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ ricombinazione: disegna (7397 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (3 fette) e legenda, orologio «≈ 367.727 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ il grafico vivo nel palco c'è e disegna (scenari senza: giove)  → 
-  ✓ quasi tutti gli scenari hanno il grafico vivo  → true
-  ✓ supernova: la legenda somma 100 % (100)  → true
-  ✓ sole: la legenda somma 100 % (100)  → true
-  ✓ buconero: la legenda somma 100 % (100)  → true
-  ✓ ia: la legenda somma 100 % (100)  → true
-  ✓ kilonova: la legenda somma 100 % (100)  → true
-  ✓ bigbang: la legenda somma 100 % (100)  → true
-  ✓ terra: la legenda somma 100 % (100)  → true
-  ✓ giove: la legenda somma 100 % (100)  → true
-  ✓ galassia: la legenda somma 100 % (100)  → true
-  ✓ protostella: la legenda somma 100 % (100)  → true
-  ✓ nanabruna: la legenda somma 100 % (100)  → true
-  ✓ nanarossa: la legenda somma 100 % (100)  → true
-  ✓ cefeide: la legenda somma 100 % (100)  → true
-  ✓ nova: la legenda somma 100 % (100)  → true
-  ✓ lampox: la legenda somma 100 % (100)  → true
-  ✓ pulsar: la legenda somma 100 % (100)  → true
-  ✓ tde: la legenda somma 100 % (100)  → true
-  ✓ grb: la legenda somma 100 % (100)  → true
-  ✓ pisn: la legenda somma 100 % (100)  → true
-  ✓ bhbh: la legenda somma 100 % (100)  → true
-  ✓ quasar: la legenda somma 100 % (100)  → true
-  ✓ nanabianca: la legenda somma 100 % (100)  → true
-  ✓ ricombinazione: la legenda somma 100 % (100)  → true
-  ✓ supernova (20 M☉): alla fine resta una stella di neutroni  → ns
-  ✓ stella di 40 M☉: alla fine resta un buco nero  → bh
-  ✓ il Sole: alla fine resta una nana bianca  → wd
-  ✓ ogni scenario arriva in fondo  → true
-  ✓ non sborda  → 0
-  ✓ il cursore della massa a 35 M☉ passa al buco nero («Stella massiccia → buco neroH → He → C →»)  → true
-  ✓ nessun errore JavaScript  → 0
-
-── «Riduci movimento» ──
-  ✓ non parte da solo: resta al primo istante (≈ 0 anni), il tasto dice ▶  → true
-
-113 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_voce_microfono</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── console (Spectra Live) ──
-      sequenza: rec+ rec- voce voce voce voce rec+
-  ✓ il microfono si ferma prima della prima frase  → true
-  ✓ fra il microfono spento e la voce passa un attimo (463 ms ≥ 300)  → true
-  ✓ nessuna frase muta (detta col microfono acceso)  → 0
-  ✓ tutte e quattro le frasi dette  → 4
-  ✓ mentre parla la sentinella non riparte  → 0
-  ✓ finita la voce, la sentinella riparte da sola  → true
-
-── chat (🔊 Ascolta) ──
-      sequenza: rec+ rec- voce voce voce voce rec+
-  ✓ il microfono si ferma prima della prima frase  → true
-  ✓ fra il microfono spento e la voce passa un attimo (461 ms ≥ 300)  → true
-  ✓ nessuna frase muta (detta col microfono acceso)  → 0
-  ✓ tutte e quattro le frasi dette  → 4
-  ✓ mentre parla la sentinella non riparte  → 0
-  ✓ finita la voce, la sentinella riparte da sola  → true
-
-── voce di qualità senza chiave (ripiego del sistema) ──
-      sequenza: rec+ rec- voce voce voce voce rec+
-  ✓ il microfono si ferma prima della prima frase  → true
-  ✓ fra il microfono spento e la voce passa un attimo (499 ms ≥ 300)  → true
-  ✓ nessuna frase muta (detta col microfono acceso)  → 0
-  ✓ tutte e quattro le frasi dette  → 4
-  ✓ mentre parla la sentinella non riparte  → 0
-  ✓ finita la voce, la sentinella riparte da sola  → true
-
-── Senza sentinella non si aspetta ──
-  ✓ con la sentinella spenta la voce parte subito (10 ms)  → true
-  ✓ nessun errore JavaScript  → 0
-
-20 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_meccanismi3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── La chimica di ogni meccanismo ──
-  ✓ otto meccanismi  → sn2,sn1,e2,markovnikov,dielsalder,nitrazione,acilica,radicalica
-  ✓ sn2: carica totale costante (-1, scarto 0e+0), legami tipici agli estremi, atomi non legati a 1.97 Å (C–Ho), frecce su atomi veri, 1 stato/i di transizione, reagenti a 0  → true
-  ✓ sn1: carica totale costante (0, scarto 6e-17), legami tipici agli estremi, atomi non legati a 2.02 Å (C–Ha), frecce su atomi veri, 3 stato/i di transizione, reagenti a 0  → true
-  ✓ e2: carica totale costante (-1, scarto 0e+0), legami tipici agli estremi, atomi non legati a 2.11 Å (Ca–H3), frecce su atomi veri, 1 stato/i di transizione, reagenti a 0  → true
-  ✓ markovnikov: carica totale costante (0, scarto 0e+0), legami tipici agli estremi, atomi non legati a 1.84 Å (C2–Hn), frecce su atomi veri, 2 stato/i di transizione, reagenti a 0  → true
-  ✓ dielsalder: carica totale costante (0, scarto 0e+0), legami tipici agli estremi, atomi non legati a 1.16 Å (C1–H6a), frecce su atomi veri, 1 stato/i di transizione, reagenti a 0  → true
-  ✓ nitrazione: carica totale costante (1, scarto 2e-16), legami tipici agli estremi, atomi non legati a 2.01 Å (C2–H1), frecce su atomi veri, 2 stato/i di transizione, reagenti a 0  → true
-  ✓ acilica: carica totale costante (-1, scarto 0e+0), legami tipici agli estremi, atomi non legati a 1.29 Å (C–Hn), frecce su atomi veri, 3 stato/i di transizione, reagenti a 0  → true
-  ✓ radicalica: carica totale costante (0, scarto 0e+0), legami tipici agli estremi, atomi non legati a 2.38 Å (H2–ClC), frecce su atomi veri, 2 stato/i di transizione, reagenti a 0  → true
-  ✓ Diels–Alder: Ea e ΔH misurati (kJ/mol)  → 115 -166
-  ✓ clorurazione: Cl–Cl 243, propagazione 1 +7, propagazione 2 −109 (kJ/mol)  → 243 7 -109
-  ✓ SN2: inversione di Walden (angolo H–C–Br da 109.5° a 70.5°)  → true
-  ✓ E2: H e Br antiperiplanari (angolo fra i legami 161°, > 150°)  → true
-
-── La pagina, telefono ──
-  ✓ il pulsante «Meccanismi 3D» è nella barra della chimica  → true
-  ✓ otto meccanismi da scegliere  → 8
-  ✓ sn2: disegna allo stato di transizione (413 px), profilo vivo (1897), spiegazione del passo, arriva ai prodotti (E = -75 kJ/mol)  → true
-  ✓ sn1: disegna allo stato di transizione (435 px), profilo vivo (2526), spiegazione del passo, arriva ai prodotti (E = -10 kJ/mol)  → true
-  ✓ e2: disegna allo stato di transizione (431 px), profilo vivo (1918), spiegazione del passo, arriva ai prodotti (E = -40 kJ/mol)  → true
-  ✓ markovnikov: disegna allo stato di transizione (830 px), profilo vivo (2234), spiegazione del passo, arriva ai prodotti (E = -65 kJ/mol)  → true
-  ✓ dielsalder: disegna allo stato di transizione (1456 px), profilo vivo (2025), spiegazione del passo, arriva ai prodotti (E = -166 kJ/mol)  → true
-  ✓ nitrazione: disegna allo stato di transizione (758 px), profilo vivo (2168), spiegazione del passo, arriva ai prodotti (E = -110 kJ/mol)  → true
-  ✓ acilica: disegna allo stato di transizione (423 px), profilo vivo (2530), spiegazione del passo, arriva ai prodotti (E = -60 kJ/mol)  → true
-  ✓ radicalica: disegna allo stato di transizione (266 px), profilo vivo (2348), spiegazione del passo, arriva ai prodotti (E = 141 kJ/mol)  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-25 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_animmat</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I numeri ──
-  ✓ nove animazioni  → fourier,riemann,taylor,derivata,eulero,galton,buffon,fibonacci,e
-  ✓ Gibbs: picco della somma parziale fino a k = 199  → 1.179
-  ✓ Riemann: raddoppiando n l'errore si divide per 4  → 4.00
-  ✓ Taylor grado 7 in π: errore 7.52e-2 ≤ Lagrange 8.21e-2  → true
-  ✓ secante di x³ − 2x in 1 con h = 0,001  → 1.003001
-  ✓ Galton: media 6.00 (6 ± 0,06), varianza 2.74 (3 ± 0,45)  → true
-  ✓ Galton: tutte le 800 palline contate  → 800
-  ✓ Buffon: π ≈ 3.0644 entro 3 errori standard (0.130)  → true
-  ✓ Fibonacci: F(20)/F(19) a meno di 10⁻⁷ da φ  → true
-  ✓ (1 + 1/n)ⁿ con n = 10⁶: scarto 1.36e-6 ≈ e/(2n) = 1,36·10⁻⁶  → true
-
-── La pagina, telefono ──
-  ✓ il pulsante «Animazioni matematiche» è nella barra della matematica  → true
-  ✓ nove animazioni da scegliere  → 9
-  ✓ fourier: disegna (5833 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ riemann: disegna (28869 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ taylor: disegna (57172 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ derivata: disegna (8055 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ eulero: disegna (6408 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ galton: disegna (12553 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ buffon: disegna (18858 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ fibonacci: disegna (7944 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ e: disegna (5690 campioni luminosi), HUD con i numeri, formato verticale (1.78), descritta per i lettori di schermo  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-23 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_voce_elevenlabs</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Accesa e spenta ──
-  ✓ senza chiave né Voice ID: ElevenLabs spento  → false
-  ✓ con chiave e Voice ID: acceso, e la qualità della voce diventa «audio»  → true audio
-  ✓ la chiave sta in bsi_api_keys (come le altre), non nelle impostazioni della voce  → sk_prova_finta true
-
-── La richiesta ──
-  ✓ URL: voce scelta e mp3 44,1 kHz 128 kbps  → https://api.elevenlabs.io/v1/text-to-speech/VOCE123?output_format=mp3_44100_128
-  ✓ header xi-api-key  → sk_prova_finta
-  ✓ modello e stile «ultron» (stability, similarity_boost, style, speed, speaker boost)  → eleven_multilingual_v2 0.6 0.85 0.25 0.93 true
-  ✓ parametri fuori dai limiti stretti a [0, 1] e speed a [0,7, 1,2]  → 1 0.7 0
-
-── Testi lunghi, cache, coda ──
-  ✓ una frase di 702 caratteri in 2 pezzi; il primo porta next_text, il secondo previous_text  → true
-  ✓ il secondo pezzo si scarica mentre suona il primo (dopo 0 ms, prima che il primo finisca)  → true
-  ✓ detta con ElevenLabs  → true elevenlabs
-  ✓ la stessa frase detta due volte si paga una volta (cache)  → 1
-  ✓ coda: le frasi arrivano in ordine  → 1,2
-
-── Interrompere ──
-  ✓ «ferma» taglia la frase in corso  → true
-  ✓ «interrompi» taglia la precedente e dice la nuova  → annullata,detta
-
-── Errori ──
-  ✓ 401: errore «chiave» segnalato, e la frase la dice la voce del sistema  → chiave sistema
-  ✓ il ripiego dice davvero il testo («Una frase nuova per il caso 401.»)  → true
-  ✓ 429: si riprova e la seconda volta va (2 richieste)  → true 2
-
-── Proxy ──
-  ✓ con il proxy la richiesta va a <proxy>/voce  → https://proxy.prova/voce
-  ✓ …e senza nessuna chiave  → undefined
-  ✓ il client manda solo testo, modello, stile e contesto (niente voice_id)  → model_id,next_text,previous_text,text,voice_settings
-
-── Dentro l'app ──
-  ✓ il microfono della sentinella si libera prima e torna dopo (giù,giù,su,su)  → true
-  ✓ la chat («🔊 Ascolta») parla con ElevenLabs  → true
-  ✓ il pannello: chiave in un campo password, mai mostrata, si chiude  → password false true
-  ✓ nessun errore JavaScript  → 0
-
-24 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_biolab3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Le vie: carboni e bilanci ──
-  ✓ otto vie… anzi sette, più i capitoli  → glicolisi,pdh,krebs,beta,gluconeo,sintesiag,urea
-  ✓ in tutti i 41 passi i carboni si conservano (prima + entrati = dopo + usciti)  → true
-  ✓ glicolisi: +2 ATP, +2 NADH  → 2 2
-  ✓ PDH: 1 NADH, 1 CO₂  → 1 1
-  ✓ Krebs: 3 NADH, 1 FADH₂, 1 GTP, 2 CO₂  → 3 1 1 2
-  ✓ β-ossidazione: 1 FADH₂ + 1 NADH per giro  → 1 1
-  ✓ sintesi AG (primo giro): 2 NADPH, 1 ATP, la CO₂ entrata è la CO₂ uscita  → -2 -1 0
-  ✓ C8 = 50 ATP (3 giri, 4 acetil-CoA)  → 50 3 4
-  ✓ palmitato C16 = 106 ATP  → 106
-  ✓ glucosio: 32 (malato–aspartato) e 30 (glicerolo-3-P)  → 32 30
-  ✓ PDH: esce come CO₂ il C1 del piruvato, cioè il «t1» = C3·C4 del glucosio  → t1 COO⁻
-  ✓ Krebs: le due CO₂ di un giro vengono dall'ossalacetato, non dall'acetile  → o1,o4
-  ✓ aldolasi: C1–C3 → DHAP, C4–C6 → gliceraldeide-3-P  → g1g2g3|g4g5g6
-  ✓ ogni passo ha enzima, classe EC, cofattori, carboni e meccanismo in due lingue  → true
-  ✓ le tre tappe irreversibili della glicolisi sono le regolate (1, 3, 10)  → true
-
-── Cinetica ──
-  ✓ competitivo: Km × α (α = 4), Vmax uguale  → true
-  ✓ non competitivo puro: Km uguale, Vmax / α  → true
-  ✓ incompetitivo: Km e Vmax divise per lo stesso α′ (rette parallele in LB)  → true
-  ✓ Lineweaver–Burk: intercetta y 1/Vmax, x −1/Km, pendenza Km/Vmax  → true
-  ✓ V₀ = Vmax/2 quando [S] = Km  → true
-  ✓ frazioni E+ES+EI+ESI = 1 e frazione ES = V/Vmax per tutti i tipi (è così che i prodotti contati tornano con la formula)  → true
-  ✓ allosterico: sigmoide (V(K₀,₅) = Vmax/2, pendenza nulla all'origine), l'attivatore sposta a sinistra  → true
-
-── ATP sintasi e ossigrafo ──
-  ✓ 5 giri con c₈: 40 H⁺, 15 ATP, H⁺/ATP = 8/3  → 40 15 2.667
-  ✓ c₁₀ (lievito): H⁺/ATP 10/3  → 3.333
-  ✓ le tre β sono sempre in tre stati diversi (L, O, T)  → LOT
-  ✓ una β cambia stato 3 volte per giro (ogni 120°)  → 3
-  ✓ stato 3 (ADP): consumo di O₂ 4.4 volte lo stato 2 (controllo respiratorio > 3)  → true
-  ✓ oligomicina: niente ATP e il consumo ricade allo stato 2  → true
-  ✓ disaccoppiante: consumo più alto dello stato 3, gradiente crollato, niente ATP  → true
-  ✓ cianuro: consumo zero, gradiente scarico  → true
-
-── I 12 capitoli ──
-  ✓ 12 capitoli, numerati da 1 a 12  → 1,2,3,4,5,6,7,8,9,10,11,12
-  ✓ ognuno ha sintesi e risposta all'orale (≥ 40 parole) in due lingue  → true
-  ✓ i «non dire» della dispensa ci sono (enzima e ΔG, complesso II, oligomicina, giri del C8)  → true
-  ✓ tabella del capitolo 12: 18 enzimi regolati  → 18
-
-── La pagina, telefono ──
-  ✓ il pulsante «Biochimica 3D Lab» è nella barra della biochimica  → true
-  ✓ Spectra ha lo strumento biochimica_3d  → true
-  ✓ quattro schede  → 4
-  ✓ ATP sintasi: disegna (3243 px), ossigrafo vivo (1168), montata/spaccato/esplosa (3244, 3247 px)  → true
-  ✓ ATP sintasi: in 30 s il rotore gira (10.34 giri) e i contatori seguono l'angolo (83 H⁺, 31 ATP: ≈ 8 e 3 per giro)  → true
-  ✓ le tre β in tre stati diversi (LOT)  → true
-  ✓ con l'oligomicina il rotore si ferma  → true
-  ✓ enzimi: disegnano (2156 px), grafici MM e LB vivi (843, 897), 36 prodotti contati  → true
-  ✓ enzimi: la velocità contata (0.21) torna con la formula (0.20) entro 0,1  → true
-  ✓ glicolisi: disegna (264 px), grafico vivo (734), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ pdh: disegna (225 px), grafico vivo (227), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ krebs: disegna (105 px), grafico vivo (777), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ beta: disegna (218 px), grafico vivo (192), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ gluconeo: disegna (357 px), grafico vivo (197), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ sintesiag: disegna (260 px), grafico vivo (228), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ urea: disegna (259 px), grafico vivo (159), ispettore del passo, arriva in fondo col conto giusto  → true
-  ✓ teoria: 12 capitoli, risposta all'orale, 3 «non dire» nel cap. 6, quiz con 4 risposte, C8 = 50 ATP  → true
-  ✓ lo strumento di Spectra apre la via chiesta (Ciclo di Krebs)  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-54 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_risoluzione</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il codice ──
-  ✓ nessun limite fisso alla risoluzione fuori da BSIRisoluzione  → 
-  ✓ bsi-risoluzione.js è caricato per primo nelle cinque pagine  → true
-
-── I conti ──
-  ✓ telefono a 3×, modo 8K (predefinito): 6× (prima 2×)  → 6
-  ✓ modo nativa: 3×  → 3
-  ✓ modo risparmio: 1×  → 1
-  ✓ modo 4K a 1×: 1,5× (supercampionamento)  → 1.5
-  ✓ modo 8K a 1×: 2×  → 2
-  ✓ schermo intero 1920×1080 a 2×, modo 8K: si disegna a 7680 px (8K), non oltre  → true
-  ✓ tela quadrata enorme, modo 8K: mai oltre 7680×4320 pixel (5760² px)  → true
-  ✓ schermo 8K reale (4000 px CSS): il lato in pixel non supera la dimensione massima di texture della GPU (8192 nel test)  → true
-
-── La pagina, telefono a 3× ──
-  ✓ modo predefinito: 8K  → max8k
-  ✓ una scena 3D (Meccanismi 3D) disegna a 6× i pixel CSS in 8K (prima 2×): 6×  → true
-  ✓ resa cinema con bersaglio multicampionato (MSAA 4×) e senza grana  → true
-  ✓ il renderer è registrato, il pulsante della qualità c'è («8K» → «Risparmio»)  → true
-  ✓ cambiando modo la scena aperta si aggiorna subito (risparmio 1×, poi di nuovo 4K 4×)  → 1 4
-  ✓ la foto 📷 esce fino a 8K (6443 px, ≤ 7680) e poi la scena torna come prima (6×)  → true
-  ✓ anche le tele 2D disegnano oltre 2× (6×)  → true
-  ✓ nessun errore JavaScript  → 0
-
-18 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_quantumstudio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il catalogo ──
-  ✓ 13 aree  → 13
-  ✓ 16 moduli  → 16
-  ✓ ogni modulo ha motore, equazione, badge, ≥ 1 rappresentazione, ≥ 2 cursori con min < max, teoria completa in due lingue  → true
-  ✓ ogni modulo ha almeno una domanda del professore con risposta  → true
-  ✓ la 13ª area è la fisica quantistica (Hilbert, n-cubi, Calabi–Yau)  → true
-
-── I modelli ──
-  ✓ Morse dell'H₂: minimo −458 kJ/mol a rₑ = 74 pm  → -458 0
-  ✓ carattere ionico cresce con Δχ (0 → 0, Δχ=1,7 ≈ 51 %)  → true
-  ✓ NMR a 11,74 T: ν₀ = 500 MHz  → 500
-  ✓ J in ppm più stretto a campo alto (9,4 T vs 11,74 T)  → true
-  ✓ CH₂ quartetto 1:3:3:1 (4 righe)  → true
-  ✓ CH₃ tripletto 1:2:1 (3 righe)  → true
-  ✓ dose–risposta: antagonista 18 nM (K_B 2) → rapporto di dose 10  → 10
-  ✓ Eₘₐₓ invariata, EC₅₀ spostata a destra  → true
-  ✓ PCA: autovalori decrescenti, Σλ = traccia = 10 (autoscalati)  → true
-  ✓ più separazione → più varianza su PC1 (60% vs 46%)  → true
-  ✓ HPLC: N > 10 000 piatti, 3 picchi in ordine, 2 risoluzioni  → true
-  ✓ risoluzione cresce con √N: dimezzando il flusso (più piatti) Rs sale  → true
-  ✓ u ottimo = √(B/C) minimizza H  → true
-  ✓ PES: reagente e prodotto a energia più bassa della sella (Eₐ > 0), prodotto più in basso del reagente  → true
-  ✓ Eyring accelera con la temperatura  → true
-  ✓ Hodgkin–Huxley: spara con g_Na pieno (5), tace con g_Na = 0 (tetrodotossina)  → true
-  ✓ E_K dalla Nernst sale con [K⁺]ₑ (4 → 10 mM)  → true
-  ✓ Rabi a risonanza: impulso π porta P₁ ≈ 1, Bloch a |1⟩  → true
-  ✓ fuori risonanza P₁ < 1 e il vettore di Bloch resta unitario  → true
-  ✓ tesseratto: 16 vertici, 32 spigoli, 24 facce quadrate  → 16 32 24
-  ✓ 5-cubo: 32 vertici, 80 spigoli  → 32 80
-  ✓ proiezione R⁴ → R³ dà tre coordinate finite  → true
-  ✓ Calabi–Yau: ogni punto della sezione soddisfa z₁⁵ + z₂⁵ = 1 (residuo max 7.3e-15)  → true
-  ✓ Gibbs: ΔH −40, ΔS −100 → ΔG(298) = −10,2 kJ/mol, T* = 400 K  → -10.2 400
-  ✓ spontanea sotto T*, non spontanea sopra  → true
-  ✓ paracetamolo: la linea di trattamento dimezza ogni 4 h (150 a 4 h, 75 a 8 h)  → true
-  ✓ sopra la linea → rischio; una curva alta sta sopra, una bassa sotto  → true
-
-── La pagina, telefono ──
-  ✓ il pulsante «Quantum Studio» è nella barra  → true
-  ✓ 16 motori registrati  → true
-  ✓ Spectra ha lo strumento quantum_studio e il ponte SPECTRA_3D_BRIDGE  → true
-  ✓ 13 aree nella barra  → 13
-  ✓ bio_atp: disegna in 3D (1189 px), grafico vivo (3653), telemetria (6 voci)  → true
-  ✓ bio_enzimi: disegna in 3D (681 px), grafico vivo (4599), telemetria (5 voci)  → true
-  ✓ chem_orbitali: disegna in 3D (287 px), grafico vivo (5388), telemetria (4 voci)  → true
-  ✓ org_sn2: disegna in 3D (91 px), grafico vivo (6447), telemetria (4 voci)  → true
-  ✓ spec_nmr: disegna in 3D (90 px), grafico vivo (7558), telemetria (4 voci)  → true
-  ✓ pharm_dose: disegna in 3D (358 px), grafico vivo (4156), telemetria (4 voci)  → true
-  ✓ ds_pca: disegna in 3D (92 px), grafico vivo (14162), telemetria (5 voci)  → true
-  ✓ molbio_crispr: disegna in 3D (230 px), grafico vivo (7066), telemetria (4 voci)  → true
-  ✓ tox_paracetamolo: disegna in 3D (200 px), grafico vivo (9919), telemetria (4 voci)  → true
-  ✓ lab_hplc: disegna in 3D (51 px), grafico vivo (9726), telemetria (4 voci)  → true
-  ✓ comp_pes: disegna in 3D (938 px), grafico vivo (6670), telemetria (5 voci)  → true
-  ✓ biophys_hh: disegna in 3D (191 px), grafico vivo (1933), telemetria (4 voci)  → true
-  ✓ qm_qubit: disegna in 3D (32 px), grafico vivo (15065), telemetria (5 voci)  → true
-  ✓ hyper_ncubo: disegna in 3D (66 px), grafico vivo (4817), telemetria (5 voci)  → true
-  ✓ string_cy: disegna in 3D (1629 px), grafico vivo (10357), telemetria (5 voci)  → true
-  ✓ thermo_gibbs: disegna in 3D (237 px), grafico vivo (4982), telemetria (5 voci)  → true
-  ✓ il ponte imposta un parametro e dà lo stato  → true
-  ✓ il ponte cambia rappresentazione e apre un'area con l'alias openSection (string_cy)  → true
-  ✓ lo strumento quantum_studio apre il modulo chiesto  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-57 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_vocelive</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Gli strumenti puri ──
-  ✓ PCM Float32 → Int16 → base64 → Float32 torna identico (errore 3.8e-5 < un passo di quantizzazione)  → true
-  ✓ RMS giusto (onda quadra ±1 → 1; silenzio → 0)  → true
-  ✓ il codice dell'AudioWorklet registra il processore e converte in Int16 con RMS  → true
-  ✓ quattro strumenti vocali (con l'inorganica)  → apri_sezione,imposta_parametro,cambia_vista,inorganica
-  ✓ nel formato Gemini: 4 dichiarazioni, tipi in MAIUSCOLO (OBJECT/STRING/NUMBER)  → true
-  ✓ ogni area del Quantum Studio è raggiungibile a voce (13 aree)  → true
-  ✓ i nomi della proposta originale sono mappati sulle aree reali  → true
-  ✓ un id di modulo apre quel modulo (qm_qubit, bio_atp)  → true
-  ✓ assembled/cutaway/exploded → rappresentazioni  → atomi cutaway→schema proiezione
-  ✓ il prompt di sistema cita gli strumenti e la parsimonia vocale  → true
-
-── Il motore, con un WebSocket finto (senza rete) ──
-  ✓ il pulsante «Spectra Prime» è nella barra  → true
-  ✓ Spectra ha lo strumento voce_dal_vivo  → true
-  ✓ la console costruisce l'HUD: orb, stato, barge-in, soglia VAD, voce, parola di attivazione, registro  → true
-  ✓ alla connessione parte il setup giusto (4 strumenti, voce Aoede, modello, prompt di Spectra Prime)  → true
-  ✓ un comando vocale «apri_sezione qm_qubit» apre davvero il modulo nel Quantum Studio e rimanda la risposta  → true
-  ✓ «imposta_parametro detuning 1,5» pilota il ponte (valore 1.5)  → true
-  ✓ «cambia_vista cutaway» cambia la rappresentazione (densita → schema), 4 comandi eseguiti  → true
-  ✓ un messaggio «interrupted» ferma subito la riproduzione (barge-in)  → true
-  ✓ riconnessione a tentativi crescenti (ms)  → 1200,2400,3600
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-21 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_inorganica</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Slater ──
-  ✓ boro 2p: σ = 2,40, ζ = 2,60  → 2.4 2.6
-  ✓ sodio 3s: σ = 8,80, ζ = 2,20  → 8.8 2.2
-  ✓ fluoro 2p: σ = 3,80, ζ = 5,20  → 3.8 5.2
-  ✓ xeno e iodio: 4f VUOTO, valenza 5s5p (ζ_Xe = 8.25, ζ_I = 7.6)  → true
-  ✓ ferro neutro: valenza 4s4p (ζ_4s ≈ 3.75); l'elettrone 3d è molto meno schermato (ζ_3d ≈ 6.25)  → true
-  ✓ |Y|² del 2p_z: massimo a θ = 0°, piano nodale a 90°  → 0 90
-  ✓ d_z²: coni nodali a 54,7° e 125,3°  → true
-  ✓ 2p_x: massimo a θ = 90°  → 90
-  ✓ raggio più probabile r_mp = n*²/ζ (idrogenoide)  → true
-
-── Hückel ──
-  ✓ allile: E = α + √2β, α, α − √2β  → 1.4142 0 -1.4142
-  ✓ benzene: α ± 2β, α ± β (×2); E_deloc = 2β  → 2,1,1,-1,-1,-2 2
-  ✓ autovettori normalizzati (∑c² = 1, coefficienti a 4 cifre)  → true
-  ✓ butadiene: E_deloc = 0,472β  → 0.472
-  ✓ ciclobutadiene: E_deloc = 0 (diradicale, 2 MO a α)  → 0 2
-  ✓ ciclopropenile⁺: E_deloc = 2β (aromatico, 2 e⁻)  → 2
-  ✓ LiH eteronucleare: diagonale α diversa (autovalori asimmetrici)  → true
-
-── SALC con soglia ──
-  ✓ XeOF₄: OA totali = 9 + 4·O + 16·F... = 29; soglia più alta ⇒ più interazioni (6 → 10)  → true
-  ✓ con soglia 0 nessuna interazione passa; con soglia enorme tutte  → true
-  ✓ otto molecole ipervalenti/interalogene  → XeOF4,IOF5,XeF4,SF4,BrF3,SO2,SO3,I3
-  ✓ ogni molecola: conteggio coerente OL + AL + non-legame = OA totali  → true
-
-── Complessi (VBT + CFT + LFT) ──
-  ✓ [FeCl₄]⁻ d⁵ Td alto spin: 5 spaiati, μ = 5,92, CFSE = 0  → 5 5.92 0
-  ✓ [IrCl₆]²⁻ d⁵ Oh basso spin: 1 spaiato, μ = 1,73, CFSE = −2Δ  → 1 1.73 -2
-  ✓ [Ni(NH₃)₆]²⁺ d⁸ Oh: 2 spaiati, μ = 2,83, CFSE = −1,2Δ  → 2 2.83 -1.2
-  ✓ [Ni(CN)₄]²⁻ planare quadrata: diamagnetica (0 spaiati, μ = 0)  → true
-  ✓ [MnF₆]⁴⁻ d⁵ alto spin: CFSE 0, μ 5,92, nessun Jahn–Teller (t₂g³eg²)  → 0 5.92 no
-  ✓ [Ni(CO)₄] EAN 36 (18 e⁻), [Ag(CN)₂]⁻ EAN 50, entrambi diamagnetici  → 36 50 0 0
-  ✓ μ = √(n(n+2)) coerente per ogni complesso  → true
-  ✓ Jahn–Teller: d⁹ (eg³) forte, d⁵ alto spin (eg²) no, t₂g⁵ debole  → forte no debole
-
-── La pagina, telefono ──
-  ✓ il pulsante «Inorganica quantistica» è nella barra  → true
-  ✓ Spectra ha lo strumento inorganica_quantica  → true
-  ✓ quattro schede  → 4
-  ✓ Slater: disegna in 3D (1183 px) con il report numerico (6 valori, 326 caratteri)  → true
-  ✓ Hückel: disegna in 3D (1089 px) con il report numerico (4 valori, 439 caratteri)  → true
-  ✓ SALC: disegna in 3D (1159 px) con il report numerico (6 valori, 633 caratteri)  → true
-  ✓ Complessi: disegna in 3D (1268 px) con il report numerico (6 valori, 497 caratteri)  → true
-  ✓ il cursore della soglia SALC cambia le interazioni attive (6 con 8 eV → 18 con 40 eV)  → true
-  ✓ lo strumento di Spectra calcola [IrCl₆]²⁻ (μ = 1,73, 1 spaiato)  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-39 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_arrowlab</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I meccanismi ──
-  ✓ due meccanismi  → propanone-nabh4,sn2-bromobutano
-  ✓ propanone: 3 passi  → 3
-  ✓ SN2: 2 passi  → 2
-  ✓ ogni legame e ogni freccia attesa puntano a nodi/legami esistenti  → true
-  ✓ propanone passo 1: due frecce attese (H:⁻ → C, π(C=O) → O)  → true
-  ✓ propanone passo 3 (finale): nessuna freccia attesa  → true
-  ✓ clonaPassi fa una copia profonda (non sporca il preset)  → true
-  ✓ H:⁻ ha carica −1 e un doppietto  → true
-
-── La retrosintesi ──
-  ✓ due bersagli  → aril-propionico,beta-idrossiestere
-  ✓ ogni bersaglio ha due percorsi, uno verde e uno no, con building block e lavagna  → true
-  ✓ aril-propionico: percorso verde A 3 step, percorso B 5 step  → true
-
-── La pagina, telefono ──
-  ✓ il pulsante «Arrow Lab» è nella barra  → true
-  ✓ Spectra ha lo strumento arrow_lab  → true
-  ✓ la lavagna SVG c'è e due frecce giuste si disegnano (sorgente → destinazione)  → true
-  ✓ con le frecce corrette la diagnostica diventa verde  → true
-  ✓ «+ Passo» avanza al Passo 2 (Passo 2)  → true
-  ✓ «Risolvi» completa le frecce del passo  → true
-  ✓ la retrosintesi mostra i percorsi, e «solo verdi» ne nasconde (2 → 1)  → true
-  ✓ apre la lavagna della disconnessione  → true
-  ✓ lo strumento di Spectra apre il meccanismo chiesto (sn2-bromobutano)  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-22 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_metodi</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── I calcoli delle slide ──
-  ✓ Hooke C–H ≈ 3032 cm⁻¹  → 3032.1
-  ✓ Hooke C–D ≈ 2225 cm⁻¹ (stessa k, massa doppia)  → 2224.9
-  ✓ effetto isotopico C–H/C–D ≈ 1,36  → 1.3628028225987683
-  ✓ Hooke C=O ≈ 1731 cm⁻¹  → 1730.6
-  ✓ Woodward diene eteroanulare + 2 alchili = 224 nm  → 224
-  ✓ Woodward enone 6-term + esteso + β-R = 257 nm  → 257
-  ✓ Karplus 0°/90°/180° = 11 / 2 / 13 Hz  → 11 2 13
-  ✓ δ↔Hz: 7,26 ppm @400 MHz = 2904 Hz  → 2904
-  ✓ δ↔Hz inverso: 2400 Hz @400 MHz = 6,0 ppm  → 6
-  ✓ Larmor ¹H a 11,74 T ≈ 500 MHz  → 499.85
-  ✓ regola dell'azoto: massa 133 dispari → N dispari  → true
-  ✓ regola dell'azoto: massa 134 pari → N pari/zero  → false
-
-── Il catalogo delle tracce ──
-  ✓ almeno sei tracce con data, formula e prosa  → true
-  ✓ le tracce illustrative sono dichiarate tali (onestà)  → true
-  ✓ la traccia 27/02/2023 è C8H7NO  → true
-
-── La pagina, telefono ──
-  ✓ il pulsante «Metodi Fisici» è nella barra  → true
-  ✓ Spectra ha lo strumento metodi_fisici  → true
-  ✓ la sezione ha due schede  → 2
-  ✓ i calcolatori mostrano i risultati (cm⁻¹, nm, Hz)  → true
-  ✓ la scheda tracce ha l'area di testo per incollare lo spettro  → true
-  ✓ «Risolvi» delega al motore e produce le deduzioni (IHD = 6 per C8H7NO)  → true
-  ✓ lo strumento calcola Hooke per il C=O (≈1731 cm⁻¹)  → true
-  ✓ lo strumento risolve una traccia (formula letta, deduzioni > 0)  → true
-  ✓ non sborda  → 0
-  ✓ nessun errore JavaScript  → 0
-
-25 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_hub</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Il Centro spettri ha inglobato Metodi Fisici e Deconvoluzione ──
-  ✓ Metodi Fisici è una scheda del Centro spettri  → true
-  ✓ la Deconvoluzione è una scheda del Centro spettri  → true
-  ✓ i loro pulsanti sono nascosti dalla barra  → true
-  ✓ Metodi Fisici esiste una volta sola nel documento  → 1
-
-── Il Centro di Chimica Organica ──
-  ✓ il Centro organica raccoglie otto sezioni  → 8
-  ✓ ha un pulsante nella barra  → true
-  ✓ tutte e otto le sezioni sono dentro l'hub  → 8
-  ✓ tutti e otto i pulsanti sono nascosti  → 8
-  ✓ tutti e otto i pulsanti restano nel DOM (goSection, Spectra)  → 8
-  ✓ nessuna sezione è duplicata (max copie nel documento)  → 1
-  ✓ otto schede disegnate  → 8
-  ✓ una scheda apre il pannello DENTRO l'hub (Arrow Lab)  → true
-  ✓ non sborda  → 0
-
-── Pulito ──
-  ✓ il Centro organica ha la sua scheda di teoria  → true
-  ✓ il Centro organica è nel catalogo delle sezioni  → true
-      (224 pulsanti di navigazione in tutto)
-  ✓ nessun errore JavaScript  → 0
-
-16 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_spectra_nucleo</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-── Nessuna apertura senza un'azione dell'utente (10 s, telefono) ──
-  ✓ nuovo · nulla si apre da solo in 10 s  → 
-  ✓ nuovo · nessuna voce senza un gesto  → 0
-  ✓ il pulsante di Spectra non pulsa all'infinito  → none
-  ✓ nuovo · nessun errore JavaScript  → 0
-  ✓ con conversazioni · nulla si apre da solo in 10 s  → 
-  ✓ con conversazioni · nessuna voce senza un gesto  → 0
-  ✓ le novità sono un pallino sul pulsante: toccato, apre la sua finestra  → apre
-  ✓ con conversazioni · nessun errore JavaScript  → 0
-  ✓ sveglia e occhiali accesi · nulla si apre da solo in 10 s  → 
-  ✓ sveglia e occhiali accesi · nessuna voce senza un gesto  → 0
-  ✓ con le preferenze accese compaiono solo inviti da toccare (sveglia, riprendi l'ascolto)  → true
-  ✓ sveglia e occhiali accesi · nessun errore JavaScript  → 0
-
-── Il nucleo olografico ──
-  ✓ schermo grande · stato iniziale a parole: «IN LINEA»  → true
-  ✓ schermo grande · nessun salto: al cambio di stato la velocità parte dal valore di prima e varia al più di 3.33 al secondo (easeInOutSine in 0,75 s: massimo 3,35)  → true
-  ✓ schermo grande · in 0,75 s raggiunge l'obiettivo di «cerca» (2.60)  → true
-  ✓ schermo grande · nomi degli stati: CERCO · STO PENSANDO · PARLO · ATTENZIONE  → true
-  ✓ schermo grande · in inglese: «THINKING»  → true
-  ✓ schermo grande · tessere accese al massimo 6  → true
-  ✓ schermo grande · didascalia parola per parola (2 → 7 parole) e testo intero per i lettori di schermo  → true
-  ✓ schermo grande · avviso: ambra e striscione, poi rientra («IN LINEA»)  → true
-  ✓ schermo grande · le schede di dati emergono  → true
-  ✓ schermo grande · senza, gli anelli girano  → false
-  ✓ schermo grande · l'ologramma non cambia scena da solo  → false,true
-  ✓ schermo grande · nessuna richiesta al corpo, al rig o al volto androide  → 0
-  ✓ l'ologramma interattivo non parla da solo: «Spiega a voce automaticamente» spento di base, e ricordato (1)  → true
-  ✓ schermo grande · nessun errore JavaScript  → 0
-  ✓ riduci movimento · stato iniziale a parole: «IN LINEA»  → true
-  ✓ riduci movimento · nessun salto: al cambio di stato la velocità parte dal valore di prima e varia al più di 3.34 al secondo (easeInOutSine in 0,75 s: massimo 3,35)  → true
-  ✓ riduci movimento · in 0,75 s raggiunge l'obiettivo di «cerca» (2.60)  → true
-  ✓ riduci movimento · nomi degli stati: CERCO · STO PENSANDO · PARLO · ATTENZIONE  → true
-  ✓ riduci movimento · in inglese: «THINKING»  → true
-  ✓ riduci movimento · tessere accese al massimo 6  → true
-  ✓ riduci movimento · didascalia parola per parola (2 → 7 parole) e testo intero per i lettori di schermo  → true
-  ✓ riduci movimento · avviso: ambra e striscione, poi rientra («IN LINEA»)  → true
-  ✓ riduci movimento · le schede di dati emergono  → true
-  ✓ riduci movimento · con «riduci movimento» gli anelli restano fermi  → true
-  ✓ riduci movimento · l'ologramma non cambia scena da solo  → false,true
-  ✓ riduci movimento · nessuna richiesta al corpo, al rig o al volto androide  → 0
-  ✓ riduci movimento · nessun errore JavaScript  → 0
-
-── Senza WebGL ──
-  ✓ senza WebGL il nucleo in 2D, con lo stato e la didascalia (PARLO)  → true
-  ✓ senza WebGL · nessun errore JavaScript  → 0
-
-41 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_avvio</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── Con l'app in uso ──
-  ✓ 7 secondi di scorrimento: RDKit non è partito da solo  → true
-  ✓ e l'archivio dei nomi non è stato costruito  → true
-  ✓ chi chiede RDKit (una sezione che lo usa) lo ottiene comunque  → true
-
-── Da fermi ──
-  ✓ in Fisica, 7 secondi da fermi: RDKit non parte  → true
-  ✓ con «Risparmio dati», in Chimica da fermi: RDKit non parte  → true
-  ✓ in Chimica, da fermi: RDKit si scalda da solo (la prima molecola lo trova pronto)  → true
-  ✓ ma l'archivio dei nomi aspetta che serva  → true
-  ✓ aperto «Linguaggi delle molecole», l'archivio si costruisce (283 molecole)  → true
-  ✓ nessun errore JavaScript  → 0
-
-9 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_giro</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-── Tutte le sezioni, telefono ──
-  ✓ le sezioni del catalogo sono tante (224)  → true
-  ✓ nessun errore JavaScript all'avvio  → 0
-  ✓ ogni sezione chiesta per identificativo è quella che si apre  → 
-  ✓ ogni sezione aperta è visibile  → 
-  ✓ nessuna sezione vuota  → 
-  ✓ nessuna sezione fa sbordare la pagina in orizzontale  → 
-  ✓ in nessuna sezione compaiono «undefined», «NaN», «[object Object]»  → 
-  ✓ nessuna sezione dà errori JavaScript  → 
-
-── Le pagine a parte, telefono ──
-  ✓ 14 pagine: nessuna sborda in orizzontale  → 
-  ✓ nessuna pagina vuota  → 
-  ✓ nessun testo sospetto  → 
-  ✓ nessun errore JavaScript  → 
-
-── Tutte le sezioni, schermo grande ──
-  ✓ le sezioni del catalogo sono tante (224)  → true
-  ✓ nessun errore JavaScript all'avvio  → 0
-  ✓ ogni sezione chiesta per identificativo è quella che si apre  → 
-  ✓ ogni sezione aperta è visibile  → 
-  ✓ nessuna sezione vuota  → 
-  ✓ nessuna sezione fa sbordare la pagina in orizzontale  → 
-  ✓ in nessuna sezione compaiono «undefined», «NaN», «[object Object]»  → 
-  ✓ nessuna sezione dà errori JavaScript  → 
-
-── Le pagine a parte, schermo grande ──
-  ✓ 14 pagine: nessuna sborda in orizzontale  → 
-  ✓ nessuna pagina vuota  → 
-  ✓ nessun testo sospetto  → 
-  ✓ nessun errore JavaScript  → 
-
-24 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_guidaproxy</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-
-1) Si arriva alla guida dal riquadro del proxy
-  ✓ il pulsante "come si attiva" esiste  → true
-  ✓ e apre la guida  → true
-  ✓ con i comandi da eseguire  → 4
-  ✓ spiega che le chiavi finiscono sul server  → true
-  ✓ e che i fornitori bloccati tornano a rispondere  → true
-  ✓ nomina wrangler deploy  → true
-  ✓ e il segreto con la chiave  → true
-
-2) I comandi si copiano davvero
-  ✓ c'è un pulsante copia  → true
-  ✓ e ha copiato il comando giusto  → cd proxy
-  ✓ dandone conferma a schermo  → true
-
-3) Chiudendo si richiude, senza rompere nulla
-  ✓ la guida si richiude  → true
-  ✓ nessun errore JS  → 0
-
-12 passati
-```
-
-</details>
-
-<details>
-<summary><code>test_fluidita</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Fluidità — il tempo che la pagina resta bloccata a ogni cambio di sezione
-
-── Viewer 3D PRO ──
-  ✓ il click NON costruisce il contesto WebGL (tele create nel gestore)  → 0
-  ✓ e il gestore resta sotto il tetto grossolano (ms)  → 21 (limite 400)
-  ✓ il viewer si costruisce comunque: la tela WebGL esiste  → true
-  ✓ e i comandi del pannello ci sono  → true
-      (49 nodi, 1 tela, 33 comandi)
-
-── Sintesi: 296 figure ──
-  ✓ le carte delle reazioni ci sono tutte subito  → 296
-  ✓ e le figure NON sono ancora tutte disegnate (il differimento esiste)  → true
-  ✓ poco dopo, ogni figura è disegnata  → 296
-  ✓ nessuna cornice resta vuota  → 0
-      (0 figure all'apertura → 296 dopo quattro secondi)
-  ✓ alla stampa le figure si disegnano tutte, subito  → 296
-  ✓ e prima dell'evento di stampa non lo erano  → true
-  ✓ la ricerca filtra anche le carte non ancora disegnate  → true
-      («aldol»: 9 su 296)
-
-── I cambi di sezione ──
-  ✓ le sezioni attraversate sono tutte  → true
-  ✓ il cambio di sezione mediano (ms)  → 12 (limite 40)
-  ✓ il cambio di sezione peggiore (ms)  → 172 (limite 260)
-  ✓ quante sezioni superano i 100 ms  → 2 (limite 2)
-      (224 sezioni; le più lente: sfarm 172ms, sspaziochim 119ms, smatanalcomp 72ms, sanimmat 66ms)
-  ✓ nessun errore JavaScript percorrendo tutta l'applicazione  → 0
-
-16 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_lingue</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Lingua dell’interfaccia e linguaggi delle molecole
-
-── I moduli ──
-  ✓ il motore delle lingue è esposto  → true
-  ✓ il motore dei linguaggi molecolari è esposto  → true
-  ✓ le due voci sono nel menu ✨  → true
-  ✓ «Lingua» e «Linguaggi» hanno un pulsante di navigazione  → 2
-  ✓ e la loro sezione esiste  → 2
-  ✓ la sezione Lingua si disegna davvero  → true
-  ✓ la sezione Linguaggi si disegna con le sue quattro schede  → 4
-  ✓ nessuna delle due mostra «Sezione in costruzione»  → false
-  ✓ nessun identificativo duplicato con entrambe disegnate  → 0
-  ✓ la voce del menu ✨ porta alla sezione  → slingua
-  ✓ il selezionatore ha un campo di ricerca  → true
-  ✓ elenca tutte le lingue  → true
-  ✓ ognuna mostra la copertura misurata  → 13
-  ✓ cercando «pol» ne resta una  → 1
-  ✓ cercando una parola inesistente lo dice  → block
-  ✓ e svuotando la ricerca tornano tutte  → 14
-  ✓ e non apre una finestra sovrapposta  → false
-
-── La lingua ──
-  ✓ le lingue offerte sono molte  → true
-      (it · en · es · fr · de · pt · nl · pl · ro · el · ru · zh · ja · ar)
-  ✓ ogni lingua copre tutto lo scheletro  → 
-  ✓ e ognuna cambia davvero il testo  → 
-      · en  307/307  (267 testi cambiati)
-      · es  307/307  (261 testi cambiati)
-      · fr  307/307  (267 testi cambiati)
-      · de  307/307  (266 testi cambiati)
-      · pt  307/307  (261 testi cambiati)
-      · nl  307/307  (271 testi cambiati)
-      · pl  307/307  (271 testi cambiati)
-      · ro  307/307  (271 testi cambiati)
-      · el  307/307  (272 testi cambiati)
-      · ru  307/307  (273 testi cambiati)
-      · zh  307/307  (273 testi cambiati)
-      · ja  307/307  (273 testi cambiati)
-      · ar  307/307  (273 testi cambiati)
-  ✓ lo scheletro misurato è tutto (≥160 elementi)  → true
-  ✓ nessun elemento dello scheletro resta senza traduzione  → 0
-  ✓ i pulsanti di navigazione tradotti sono tutti  → 224
-  ✓ i titoli di sezione tradotti sono tutti  → 57
-  ✓ passando all’inglese il testo cambia davvero  → true
-  ✓ tornando all’italiano il testo è identico a prima  → 0
-  ✓ in arabo la pagina scorre da destra a sinistra  → rtl
-  ✓ in giapponese no  → ltr
-  ✓ e tornando all’italiano nemmeno  → ltr
-  ✓ le categorie della barra sono dieci (📐 Matematica dalla v228, 🔭 Astrofisica dalla v237)  → 10
-  ✓ e cambiano tutte con la lingua  → 10
-  ✓ anche il segnaposto della ricerca cambia  → true
-  ✓ e torna quello di prima in italiano  → true
-      (in tedesco: «🔬 Chemie» · «🔍 Abschnitt suchen...»)
-      (307/307 elementi, 267 testi cambiati passando a «en»)
-
-── I linguaggi delle molecole ──
-  ✓ ogni chiave InChI coincide con quella di letteratura  → 
-  ✓ SMILES → molfile → SMILES torna identico  → 
-  ✓ ogni formula è quella giusta  → 
-  ✓ InChI, chiave e testo libero vengono rifiutati, non inventati  → 3
-  ✓ i linguaggi prodotti sono molti  → true
-      (smiles · cxsmarts · smilesConH · morgan · maccs · rdkitFp · coppieAtomi · torsioni · pattern · smilesPiano · cxsmiles · molfileAromatico · smarts · molfile · molfileV3000 · inchi · json · chiaveInchi · xyz · pdb · cml · composizione · stereo · formula · scheletroChiave)
-  ✓ l’XYZ ha una riga per atomo più le due di intestazione  → 8
-  ✓ e il conteggio in testa è il numero di atomi  → 6
-  ✓ le coordinate dell’XYZ non sono tutte nulle  → true
-  ✓ e l’XYZ dichiara che sono 2D generate  → true
-  ✓ il PDB ha un HETATM per atomo  → 6
-  ✓ e i CONECT per i legami  → true
-  ✓ e dichiara anch’esso la natura delle coordinate  → true
-  ✓ la stereochimica CIP viene letta  → true
-      (stereo: atomo 1: (R))
-  ✓ il CXSMARTS c’è  → true
-  ✓ i linguaggi prodotti sono almeno diciassette  → true
-  ✓ lo SMILES senza stereochimica perde i marcatori  → CC(N)C(=O)O
-  ✓ e quello isomerico li tiene  → C[C@@H](N)C(=O)O
-  ✓ la composizione dell’alanina  → C 40.44%  ·  H 7.92%  ·  N 15.72%  ·  O 35.91%
-  ✓ e quella dell’aspirina  → C 60.00%  ·  H 4.48%  ·  O 35.52%
-  ✓ un sale viene dichiarato come due componenti  → true
-  ✓ e una molecola sola non ha quella riga  → null
-  ✓ il CML è XML ben formato  → true
-  ✓ una reazione viene riconosciuta e scomposta  → 2 reagenti, 2 prodotti
-  ✓ e lo dice invece di convertirla come molecola  → true
-      (7 chiavi, 7 giri completi, 4 formule)
-
-── Il nominatore IUPAC ──
-  ✓ ogni nome IUPAC coincide con quello scritto a mano, in due lingue  → 
-  ✓ ogni molecola fuori classe viene RIFIUTATA  → 
-      (26 nomi × 2 lingue · 7 rifiuti attesi)
-
-── I pannelli ──
-  ✓ il pannello dei linguaggi ha le sue quattro schede  → 4
-  ✓ la guida è scritta, non annunciata  → true
-  ✓ la guida copre SMILES, IUPAC, InChI, SMARTS e molfile  → true
-  ✓ e dichiara i limiti invece di tacerli  → true
-      (7360 caratteri di guida)
-  ✓ nessun errore JavaScript  → 0
-
-64 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_sellingua</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Il cambio lingua, tondo, in alto a destra
-
-── schermo grande ──
-  ✓ il pulsante del cambio lingua c’è e si vede  → true
-  ✓   · è tondo  → true
-  ✓   · sta in alto  → true
-  ✓   · a destra  → true
-  ✓   · e all’altezza del titolo  → true
-  ✓   · con un nome accessibile che dice che cosa fa  → true
-  ✓ si apre in un disco  → true
-  ✓   · con tutte le lingue  → 14
-  ✓   · su due gusci  → 2
-  ✓   · e il disco sta dentro lo schermo  → true
-  ✓ scegliendo una bandiera la lingua cambia davvero  → true
-      («🔍 Molecola» → «🔍 Molecule»)
-  ✓   · e la bandiera del pulsante segue  → 🇬🇧
-  ✓   · e il disco si chiude  → true
-  ✓ tornando all’italiano il testo è identico a prima  → 🔍 Molecola
-  ✓ nessun errore JavaScript  → 0
-
-── telefono ──
-  ✓ il pulsante del cambio lingua c’è e si vede  → true
-  ✓   · è tondo  → true
-  ✓   · sta in alto  → true
-  ✓   · a destra  → true
-  ✓   · e all’altezza del titolo  → true
-  ✓   · con un nome accessibile che dice che cosa fa  → true
-  ✓ si apre in un disco  → true
-  ✓   · con tutte le lingue  → 14
-  ✓   · su due gusci  → 2
-  ✓   · e il disco sta dentro lo schermo  → true
-  ✓ scegliendo una bandiera la lingua cambia davvero  → true
-      («🔍 Molecola» → «🔍 Molecule»)
-  ✓   · e la bandiera del pulsante segue  → 🇬🇧
-  ✓   · e il disco si chiude  → true
-  ✓ tornando all’italiano il testo è identico a prima  → 🔍 Molecola
-  ✓ nessun errore JavaScript  → 0
-
-
-30 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_mol3d</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-La molecola che si forma, e gli angoli fra i suoi legami
-
-── Il modulo ──
-  ✓ il modulo è caricato  → true
-  ✓ e ha preso il posto di render3DOnCanvas  → true
-  ✓ conservando l’originale, raggiungibile  → true
-
-── Gli angoli ──
-  ✓ metano · tetraedro regolare  → 109.4712° (atteso 109.4712°)
-  ✓   · quanti angoli ha metano  → 6
-  ✓   · geometria riconosciuta  → tetraedrica
-  ✓ acqua · angolata  → 104.4734° (atteso 104.47°)
-  ✓   · quanti angoli ha acqua  → 1
-  ✓   · geometria riconosciuta  → angolata (sp³)
-  ✓ anidride carbonica · lineare  → 180° (atteso 180°)
-  ✓   · quanti angoli ha anidride carbonica  → 1
-  ✓   · geometria riconosciuta  → lineare
-  ✓ trifluoruro di boro · trigonale planare  → 120° (atteso 120°)
-  ✓   · quanti angoli ha trifluoruro di boro  → 3
-  ✓   · geometria riconosciuta  → trigonale planare
-  ✓ ammoniaca · piramidale  → 106.1312° (atteso 106.13°)
-  ✓   · quanti angoli ha ammoniaca  → 3
-  ✓   · geometria riconosciuta  → piramidale trigonale
-
-── Coordinate piatte ──
-  ✓ una struttura con z = 0 è riconosciuta piatta  → true
-  ✓ e una con z ≠ 0 NON è riconosciuta piatta  → false
-
-── La formazione ──
-  ✓ all’avvio la tela è quasi vuota (polvere)  → true
-  ✓ due secondi dopo c’è una molecola  → true
-  ✓ il ciclo si ferma quando lo si ferma  → true
-      (176 pixel accesi a 130 ms → 3806 a 2,3 s)
-
-── I comandi ──
-  ✓ la barra dei comandi compare accanto alla tela  → true
-  ✓ ha tre pulsanti  → 3
-  ✓ ognuno ha un nome accessibile  → 3 pulsanti, 0 senza nome
-      · ↻ Rivedi la formazione  [Rivedi l’animazione di formazione della molecola]
-      · 🎞️ Scorri gli angoli  [Mostra gli angoli a turno, da solo]
-      · ✕ Pulisci  [Togli la selezione di atomi]
-  ✓ su coordinate piatte il pulsante degli angoli è spento  → true
-  ✓ e la ragione è scritta, non taciuta  → true
-      («la struttura caricata è piana (z = 0): gli angoli reali non si possono m…»)
-
-── L’ordine d’arrivo ──
-  ✓ ogni atomo pesante parte prima di ogni idrogeno  → true
-  ✓ e a metà strada lo scheletro è più avanti degli idrogeni  → true
-      (ritardo: scheletro fino a 0.105, idrogeni da 0.158)
-
-── La selezione ──
-  ✓ un atomo mostra tutti i suoi angoli  → ventaglio
-  ✓   · e sono sei, sul carbonio tetraedrico  → 6
-  ✓ due atomi danno la lunghezza del legame  → lunghezza
-  ✓   · C–C dell’etanolo (Å)  → 1.508879385504355° (atteso 1.509°)
-  ✓   · e dice che sono legati  → true
-  ✓ tre atomi danno l’angolo  → angolo
-  ✓   · C–C–O dell’etanolo  → 111.8655151392881° (atteso 111.9°)
-  ✓ quattro atomi danno il diedro  → diedro
-  ✓   · H–C–C–O dell’etanolo  → 60.67155732887734° (atteso 60.7°)
-  ✓ due atomi non legati sono dichiarati tali  → false
-  ✓ e la selezione si svuota quando la si svuota  → 0
-
-── I diedri ──
-  ✓ diedro anti  → 180° (atteso 180°)
-  ✓ diedro eclissata  → 0° (atteso 0°)
-  ✓ diedro ortogonale  → 90° (atteso 90°)
-  ✓ diedro gauche  → 60° (atteso 60°)
-      (anti-periplanare (sfalsata) · sin-periplanare (eclissata) · anti-clinale · sin-clinale (gauche))
-  ✓ nessun errore JavaScript  → 0
-
-46 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>test_menu</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Utility nel menù principale, e nessuna ripetizione
-
-── schermo grande ──
-  ✓ il modulo è caricato  → object
-  ✓ la categoria Utility esiste  → true
-  ✓   · ed è VISIBILE nella barra  → true
-      (🛠️ Utility)
-  ✓ tutte le voci di Utility sono raggiungibili dalla barra  → 15
-  ✓   · e anche le due delle lingue  → 2
-  ✓ «sai» non è nella barra (ha una casa migliore)  → false
-  ✓   · ma il suo pulsante è ancora nel documento, per goSection()  → true
-  ✓ «sspettrolettore» non è nella barra (ha una casa migliore)  → false
-  ✓   · ma il suo pulsante è ancora nel documento, per goSection()  → true
-  ✓ il pulsante ✨ c’è ed è visibile  → true
-  ✓ e apre il pannello del menù  → true
-  ✓ nessuna voce del menù ripete una sezione della barra  → 0
-  ✓   · né due voci con la stessa etichetta  → 0
-  ✓   · e il modulo non inserisce righe di sezione  → 0
-  ✓ il pannello ha le sue voci (strumenti e sovrapposizioni)  → true
-      (30 voci nel pannello)
-  ✓ cliccando «snotes» nella barra la sezione si apre  → true
-  ✓ cliccando «slingua» nella barra la sezione si apre  → true
-  ✓ cliccando «slinguaggi» nella barra la sezione si apre  → true
-  ✓ cliccando «sarticoli» nella barra la sezione si apre  → true
-  ✓ cliccando «sdatasci» nella barra la sezione si apre  → true
-  ✓ nessun errore JavaScript  → 0
-
-── telefono ──
-  ✓ il modulo è caricato  → object
-  ✓ la categoria Utility esiste  → true
-  ✓   · ed è VISIBILE nella barra  → true
-      (🛠️ Utility)
-  ✓ tutte le voci di Utility sono raggiungibili dalla barra  → 15
-  ✓   · e anche le due delle lingue  → 2
-  ✓ «sai» non è nella barra (ha una casa migliore)  → false
-  ✓   · ma il suo pulsante è ancora nel documento, per goSection()  → true
-  ✓ «sspettrolettore» non è nella barra (ha una casa migliore)  → false
-  ✓   · ma il suo pulsante è ancora nel documento, per goSection()  → true
-  ✓ il pulsante ✨ c’è ed è visibile  → true
-  ✓ e apre il pannello del menù  → true
-  ✓ nessuna voce del menù ripete una sezione della barra  → 0
-  ✓   · né due voci con la stessa etichetta  → 0
-  ✓   · e il modulo non inserisce righe di sezione  → 0
-  ✓ il pannello ha le sue voci (strumenti e sovrapposizioni)  → true
-      (30 voci nel pannello)
-  ✓ cliccando «snotes» nella barra la sezione si apre  → true
-  ✓ cliccando «slingua» nella barra la sezione si apre  → true
-  ✓ cliccando «slinguaggi» nella barra la sezione si apre  → true
-  ✓ cliccando «sarticoli» nella barra la sezione si apre  → true
-  ✓ cliccando «sdatasci» nella barra la sezione si apre  → true
-  ✓ nessun errore JavaScript  → 0
-
-42 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>@verifica-sicurezza</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Verifica di sicurezza
-
-File tracciati esaminati: 792
-
-── SEC-01 · Chiavi API nei file tracciati ──
-  ✓ nessuna chiave API in un file pubblicato
-
-── SEC-01b · Configurazione del proxy ──
-  ✓ wrangler.toml esiste
-  ✓ non contiene chiavi
-  ✓ avverte di usare wrangler secret put
-
-── SEC-03 · Password in chiaro ──
-  ✓ nessuna password in chiaro nel codice
-  ✓ il File Manager confronta un hash SHA-256
-
-── SEC-05 · Telemetria ──
-  ✓ la variabile di telemetria esiste
-  ✓ ed è vuota (nessun invio remoto)
-
-── SEC-06 · Script da domini esterni ──
-  ✓ nessuno script caricato da un dominio esterno
-  ✓ il numero di file dichiarato nei documenti è quello misurato
-      (792 file tracciati, citati in 4 documenti)
-
-10 controlli passati
-```
-
-</details>
-
-<details>
-<summary><code>audit_storia</code> — SUPERATO (codice di uscita 0)</summary>
-
-```
-Storia del repository — nessuna credenziale in nessuna versione
-
-── Prima: gli schemi si riconoscono fra loro ──
-  ✓ ogni schema riconosce il proprio esempio  → 
-  ✓ e nessuno prende il proprio quasi-esempio  → 
-      (9 schemi, provati nei due versi)
-
-── La superficie esaminata ──
-  ✓ il clone NON è superficiale (altrimenti la storia è parziale)  → false
-  ✓ i commit esaminati sono molti  → true
-  ✓ le versioni di file di testo sono molte  → true
-      (712 commit · 7740 versioni distinte di file di testo)
-
-── La ricerca ──
-  ✓ nessuna credenziale in nessuna versione di nessun file  → 
-      (7740 versioni esaminate con 9 schemi)
-  ✓ le eccezioni dichiarate sono tutte ancora nella storia, nessuna di più  → 1
-      · cc1a0ba00 — tools/banchi/audit_storia.js al commit 825ef66 — la prima stesura di QUESTO banco, che scriveva …
-
-7 controlli passati
+```
+(nessuna uscita)
 ```
 
 </details>
@@ -8022,7 +1280,7 @@ Storia del repository — nessuna credenziale in nessuna versione
 ```
 Nessun dato dell'utente lascia il dispositivo
 
-  valore spia seminato in 71 depositi · 224 sezioni percorse · 228 richieste ispezionate
+  valore spia seminato in 71 depositi · 226 sezioni percorse · 229 richieste ispezionate
 
   ✓ la spia e' stata seminata  → true
   ✓ almeno una richiesta e' stata ispezionata  → true
@@ -8044,7 +1302,7 @@ Nessun dato dell'utente lascia il dispositivo
 Verifica di accessibilità
 WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
-  ✓ index                   224/224 sez · 38479 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 10211 in SVG · 1492 su gradiente (misurati sulla tappa peggiore) · 7 su immagine, non misurabili · 3 di sole emoji
+  ✓ index                   226/226 sez · 39423 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 10245 in SVG · 1485 su gradiente (misurati sulla tappa peggiore) · 7 su immagine, non misurabili · 3 di sole emoji
   ✓ astro                             4999 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 2 su gradiente (misurati sulla tappa peggiore) · 1 su immagine, non misurabili · 1 di sole emoji
   ✓ chimorga                          1701 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 469 in SVG · 1 di sole emoji
   ✓ accademia                         61 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 1 su gradiente (misurati sulla tappa peggiore) · 13 di sole emoji
@@ -8062,10 +1320,10 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
   ✓ nessun comando privo di nome accessibile
   ✓ nessuna immagine priva di testo alternativo
   ✓ nessun salto nella gerarchia dei titoli
-      (224 sezioni percorse oltre alla vista iniziale di ogni pagina)
+      (226 sezioni percorse oltre alla vista iniziale di ogni pagina)
   ✓ contrasto sotto la soglia WCAG AA — invariato a 0 (debito dichiarato, non cresciuto)
   ✓ campi privi di etichetta — invariato a 0 (debito dichiarato, non cresciuto)
-  ✓ elementi di testo esaminati — cresciuta: 51452 contro 38408 (+13044). Aggiornare il riferimento con l'opzione --aggiorna-riferimento
+  ✓ elementi di testo esaminati — cresciuta: 52396 contro 38408 (+13988). Aggiornare il riferimento con l'opzione --aggiorna-riferimento
       riferimento del 2026-10-06 — il debito è dichiarato in docs/09 §4, non tollerato in silenzio
 
 6 controlli passati
@@ -8079,7 +1337,7 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 ```
 Traboccamento orizzontale a 390 px
 
-  ✓ sezioni percorse  → 224
+  ✓ sezioni percorse  → 226
   ✓ sezioni in cui la pagina scorre in orizzontale  → 0
   ✓ sezioni con contenuto piu’ largo dello schermo e IRRAGGIUNGIBILE  → 0
   ✓ nessun errore JavaScript  → 0
@@ -8189,7 +1447,7 @@ Traboccamento orizzontale a 390 px
 
 12) Nessun marcatore di conflitto e' finito nei file
   ✓ file con marcatori di conflitto  → 0
-   (794 file di testo controllati)
+   (795 file di testo controllati)
 
 71 controlli passati
 ```
@@ -8202,7 +1460,7 @@ Traboccamento orizzontale a 390 px
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v271
+Versione del codice (sw.js): bsi-v272
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -8255,7 +1513,7 @@ Verifica delle affermazioni numeriche
 Ogni numero dichiarato nei documenti è confrontato con quello
 misurato nell'applicazione in esecuzione.
 
-  ✓ sezioni navigabili  → 224
+  ✓ sezioni navigabili  → 226
   ✓ farmaci in banca dati  → 263
   ✓ malattie nell'atlante 3D  → 63
   ✓ malattie oncologiche  → 23
@@ -8264,7 +1522,7 @@ misurato nell'applicazione in esecuzione.
   ✓ moduli di chimica organica  → 25
 
 ── Badge del README ──
-  ✓ il badge della versione è allineato al codice  → bsi--v271
+  ✓ il badge della versione è allineato al codice  → bsi--v272
   ✓ il badge dei banchi coincide con la batteria  → 125
   ✓ il badge del contrasto coincide con la misura registrata  → 0
 
@@ -8282,7 +1540,7 @@ misurato nell'applicazione in esecuzione.
 ```
 Copertura di codice — istruzioni eseguite, non rami
 
-  224 sezioni percorse · 3 altre pagine · 3 file di script
+  226 sezioni percorse · 3 altre pagine · 3 file di script
 
   · astro.html                 50.52 %   (871 kB su 1723 kB)
   · bsi-risoluzione.js         75.16 %   (4 kB su 6 kB)
@@ -8290,7 +1548,7 @@ Copertura di codice — istruzioni eseguite, non rami
 
   complessiva: 50.99 %
 
-  ✓ sezioni percorse  → 224
+  ✓ sezioni percorse  → 226
   ✓ file di script raccolti  → true
   ✓ la copertura e' stata calcolata  → true
   ✓ copertura di codice — salita: 50.99 % contro 49.89 %. Aggiornare il riferimento con --aggiorna-riferimento
@@ -8439,7 +1697,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
   ✓   · e aprendola si vede davvero (riquadro non nullo)  → true
   ✓   · e non è annidata dentro un’altra sezione  → false
   ✓   · e NON anche dal menù ✨, che sarebbe la seconda strada  → false
-      (224 sezioni navigabili in tutto)
+      (226 sezioni navigabili in tutto)
   ✓ «costanti J» porta all’unica tabella che resta  → true
   ✓   · e la tabella ha le sue righe  → 15 (minimo 10)
   ✓ nessun errore JavaScript  → 0
@@ -8467,13 +1725,13 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
 
 ### calc() senza spazi  (28)
    index.html:31500  bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));'
-   index.html:32313  body.bsi-sez-fuori > .section.on{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)}
-   index.html:35144  'body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important}',
-   index.html:35145  '#main{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)!important}',
-   index.html:35147  '#bsi105-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)!important;',
-   index.html:35151  '#bsi105-menu{bottom:calc(env(safe-area-inset-bottom,0px) + 156px)!important;}',
-   index.html:35593  '#hdr{padding-top:calc(14px + env(safe-area-inset-top,0px))!important;}',
-   index.html:35606  '#bsi-scroll-top{position:fixed;left:18px;bottom:calc(env(safe-area-inset-bottom, 0px) + 80px);',
+   index.html:32314  body.bsi-sez-fuori > .section.on{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)}
+   index.html:35145  'body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important}',
+   index.html:35146  '#main{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)!important}',
+   index.html:35148  '#bsi105-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)!important;',
+   index.html:35152  '#bsi105-menu{bottom:calc(env(safe-area-inset-bottom,0px) + 156px)!important;}',
+   index.html:35594  '#hdr{padding-top:calc(14px + env(safe-area-inset-top,0px))!important;}',
+   index.html:35607  '#bsi-scroll-top{position:fixed;left:18px;bottom:calc(env(safe-area-inset-bottom, 0px) + 80px);',
    … e altri 20
 
 ### id duplicati (1)  (1)
@@ -8503,7 +1761,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 15a050cdc77f
+git checkout a1779c96fa7b
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -8534,4 +1792,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-11-25T17:00:09.107Z._
+_Generato il 2026-11-25T21:50:12.201Z._
