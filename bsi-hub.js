@@ -57,8 +57,14 @@
       ' rgba(94,234,212,.17),rgba(124,111,255,.09));color:#eafffb}',
       '.bsiHub-sc small{font-weight:500;font-size:10.5px;color:#8aadcc}',
       '.bsiHub-sc.on small{color:#9fe8da}',
-      '.bsiHub-corpo>.section{margin:0;padding:0}',
-      '.bsiHub-corpo>.section>.section-title{display:none}'
+      '.bsiHub-corpo{min-width:0;max-width:100%}',
+      '.bsiHub-corpo>.section{margin:0;padding:0;min-width:0;max-width:100%;box-sizing:border-box}',
+      '.bsiHub-corpo>.section>.section-title{display:none}',
+      /* un viewer 3D (Three.js) che si inizializza mentre l\'hub sta
+         comparendo può fissare inline la larghezza del canvas a un valore
+         più grande del contenitore: max-width lo riporta dentro lo schermo
+         senza aspettare un ridimensionamento. */
+      '.bsiHub-corpo canvas{max-width:100%}'
     ].join('');
     D.head.appendChild(s);
   }
