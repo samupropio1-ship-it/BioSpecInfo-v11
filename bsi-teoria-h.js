@@ -650,4 +650,43 @@
     ],
     collegamenti: ['smecc3d', 'sinorganica', 'squantum']
   };
+
+  T['smetodi'] = {
+    titolo: "Metodi fisici in chimica organica: come IR, NMR, MS e UV-Vis dicono la struttura",
+    sintesi: "Determinare una struttura organica significa far parlare quattro spettroscopie e metterle d'accordo. L'IR vede i legami che vibrano, e la legge di Hooke spiega a quale numero d'onda. L'NMR conta e colloca gli idrogeni e i carboni, con la frequenza di Larmor e l'accoppiamento che segue l'angolo diedro di Karplus. La spettrometria di massa pesa la molecola e i suoi frammenti. L'UV-Vis misura la coniugazione. Nessuna da sola basta: la struttura è l'unica ipotesi coerente con tutti i dati insieme.",
+    paragrafi: [
+      { titolo: "L'infrarosso e la legge di Hooke", testo: "Un legame covalente si comporta come due masse unite da una molla: vibra a una frequenza che dipende da quanto è rigida la molla, la costante di forza k, e da quanto sono pesanti le masse, riassunte nella massa ridotta. Da qui il numero d'onda cresce con l'ordine di legame — un triplo assorbe più in alto di un doppio e di un singolo — e scende se le masse aumentano. È per questo che sostituire l'idrogeno con il deuterio abbassa nettamente l'assorbimento, pur lasciando k invariata: cambia solo la massa. La coniugazione e gli effetti elettronici spostano il carbonile di qualche decina di cm⁻¹, e il legame a idrogeno allarga la banda dell'ossidrile." },
+      { titolo: "La risonanza magnetica nucleare", testo: "In un campo magnetico i nuclei di spin un mezzo precedono alla frequenza di Larmor, proporzionale al campo. Lo spostamento chimico, espresso in parti per milione, è indipendente dallo strumento, mentre la separazione in hertz cresce con il campo: ecco perché gli spettrometri più potenti separano meglio i segnali. L'accoppiamento tra nuclei vicini apre i segnali in multipletti la cui ampiezza, per i protoni a tre legami, segue l'equazione di Karplus e dipende dall'angolo diedro. L'anisotropia magnetica degli anelli aromatici, dei carbonili e dei tripli legami sposta i segnali in modo diagnostico, e le sequenze APT e DEPT distinguono i carboni per numero di idrogeni." },
+      { titolo: "La spettrometria di massa", testo: "La molecola viene ionizzata e pesata: lo ione molecolare dà la massa, e la regola dell'azoto lega la parità di quella massa al numero di atomi di azoto. I frammenti raccontano come la molecola si rompe: la scissione che lascia la carica sul frammento più stabile secondo Stevenson, il riarrangiamento di McLafferty con il suo trasferimento di idrogeno in gamma attraverso uno stato a sei termini, le perdite neutre tipiche come acqua, metile o monossido di carbonio. L'alta risoluzione, misurando il difetto di massa, arriva a scegliere la formula bruta." },
+      { titolo: "L'ultravioletto-visibile e la coniugazione", testo: "L'assorbimento nell'ultravioletto nasce da transizioni elettroniche: le più intense portano un elettrone da un orbitale di legame pi greco a uno di antilegame, le più deboli partono da un doppietto non condiviso. Più il sistema coniugato è esteso, più piccolo è il salto di energia e più il massimo di assorbimento si sposta verso il visibile. Le regole di Woodward-Fieser mettono tutto questo in conto: a una lunghezza d'onda di base, propria del diene o dell'enone, si sommano incrementi per ogni doppio legame esteso e per i sostituenti, ottenendo una stima del massimo." },
+      { titolo: "Mettere tutto d'accordo: le tracce d'esame", testo: "Una traccia d'esame fornisce formula e spettri e chiede la struttura. Il metodo onesto parte da ciò che i dati impongono senza interpretazione: i gradi di insaturazione dalla formula, la massa attesa, i gruppi che l'IR vede con certezza. Poi si aggiungono le deduzioni più fragili, dichiarandole come ipotesi. Lo strumento dell'app non indovina: calcola ciò che è aritmetica, assegna le bande e le regioni di spostamento con le tabelle, e dice sempre quali dati non ha usato, perché una conclusione costruita su metà dei dati può essere sbagliata con tutti i passaggi giusti." }
+    ],
+    formule: [
+      ["ν̃ = (1/2πc)·√(k/μ)", "il numero d'onda di stretching IR, con k costante di forza e μ massa ridotta del legame"],
+      ["μ = m₁·m₂/(m₁+m₂)", "la massa ridotta, che da sola spiega l'effetto isotopico fra C–H e C–D"],
+      ["ν₀ = γ·B₀/2π", "la frequenza di Larmor: la risonanza NMR cresce con il campo magnetico applicato"],
+      ["³J(φ) = A + B·cosφ + C·cos2φ", "l'equazione di Karplus lega l'accoppiamento vicinale all'angolo diedro"],
+      ["λmax = base + Σ incrementi", "le regole additive di Woodward-Fieser per dieni ed enoni coniugati"],
+      ["IHD = 1 + Σ nᵢ(vᵢ−2)/2", "i gradi di insaturazione ricavati dalla sola formula bruta"]
+    ],
+    ipotesi: [
+      "I calcoli di Hooke e di Woodward-Fieser sono modelli (oscillatore armonico, regole empiriche additive): danno stime indicative, non misure di laboratorio.",
+      "Le tabelle di correlazione sono condivise con il resto dell'app (un'unica base di conoscenza): questa sezione le usa, non le riscrive."
+    ],
+    errori: [
+      "Fidarsi di una sola tecnica: la struttura va confermata incrociando IR, NMR, MS e UV-Vis, non decisa da uno spettro solo.",
+      "Dimenticare la regola dell'azoto o leggere male lo ione molecolare, scambiando un frammento per il picco di massa."
+    ],
+    esempio: {
+      testo: "Perché il legame C–H assorbe intorno a 3000 cm⁻¹ e il C–D molto più in basso, pur avendo la stessa costante di forza?",
+      risultato: "Perché cambia solo la massa ridotta (μ ≈ 1,71 per C–D contro 0,92 per C–H) e ν̃ ∝ 1/√μ, così la frequenza scende di circa 1,36 volte (≈2225 contro ≈3030 cm⁻¹)"
+    },
+    fonti: [
+      "R. M. Silverstein, F. X. Webster, D. J. Kiemle, Spectrometric Identification of Organic Compounds, 7ª ed., Wiley 2005",
+      "E. Pretsch, P. Bühlmann, M. Badertscher, Structure Determination of Organic Compounds, 4ª ed., Springer 2009",
+      "D. L. Pavia, G. M. Lampman, G. S. Kriz, Introduction to Spectroscopy, 5ª ed., Cengage 2015",
+      "J. B. Lambert et al., Organic Structural Spectroscopy, 2ª ed., Pearson 2011"
+    ],
+    collegamenti: ['sinorganica', 'squantum', 'sarrowlab']
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -7,6 +7,34 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v270] — 2026-11-25
+
+**Metodi Fisici in Chimica Organica: la teoria delle dispense, i calcoli e il risolutore delle tracce — una sola base di conoscenza**
+
+### Aggiunto
+- **📐 Metodi Fisici** (`smetodi`, `bsi-metodi-fisici.js`): un modulo integratore che porta nel sistema la teoria
+  completa delle dispense del corso (IR, NMR, MS, UV-Vis) assieme al catalogo delle tracce d'esame e al risolutore.
+  - **Teoria & calcoli**: i principi delle slide in schede bilingui e i calcoli che mancavano, tutti interattivi —
+    **legge di Hooke** per il numero d'onda IR (con l'effetto isotopico C–H/C–D), **Woodward-Fieser** per il λmax di
+    dieni ed enoni, **Karplus** per ³J dall'angolo diedro, conversione **δ↔Hz** a campo variabile, **Larmor** e **regola
+    dell'azoto**. Ogni stima è etichettata come MODELLO.
+  - **Tracce & risolutore**: il catalogo degli appelli (data, formula, note) e un'area per incollare lo spettro; la
+    soluzione — gradi di insaturazione, massa attesa, regola dell'azoto, assegnazione delle bande, deduzioni con la loro
+    certezza — è prodotta **delegando al motore di elucidazione già presente** (`BSIQuesito` → `BSIElucida`).
+- Strumento di Spectra **`metodi_fisici`** (60 strumenti): esegue i calcoli o risolve una traccia. Scheda di teoria
+  `smetodi` (Hooke, Larmor/Karplus, MS, Woodward); banco **`test_metodi`** (25 controlli). Totale **124 banchi**.
+
+### Note
+- **Una sola base di conoscenza, senza duplicati**: le tabelle IR/NMR/MS/UV e il risolutore esistevano già nell'app
+  (`IR_DATA`, `BSIPretsch`, `BSINMR`, `MS_DATA`, `UV_DATA`, `BSIElucida`, `BSIQuesito`). Questo modulo **non le ricopia**:
+  aggiunge solo i calcoli che mancavano e il collante (concetti delle slide, catalogo), e per risolvere delega ai motori
+  esistenti. La proposta ricevuta (`metodi_completo.py`) era un motore Python autonomo: qui è riscritta in stile locale
+  dell'app (IIFE su window), riusando la conoscenza già presente invece di ridichiararla.
+- È uno strumento **didattico**: Hooke e Woodward-Fieser sono modelli (oscillatore armonico, regole additive), danno
+  stime indicative; dove non possiedo lo spettro completo di una traccia lo dico, e gli esempi con spettro sono marcati
+  come dati illustrativi.
+
+---
 ## [bsi-v269] — 2026-11-24
 
 **Arrow Lab e Retrosintesi: disegnare le frecce curve e pianificare una sintesi, offline**
