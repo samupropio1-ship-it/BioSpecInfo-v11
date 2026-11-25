@@ -214,11 +214,46 @@
      formule lette a parole, sigle comuni sciolte */
   function perLaVoce(s) {
     s = String(s || '');
-    s = s.replace(/```[\s\S]*?```/g, ' ').replace(/`([^`]*)`/g, '$1').replace(/\[(.*?)\]\([^)]*\)/g, '$1').replace(/[*_#>|]/g, ' ');
+    s = s.replace(/```[\s\S]*?```/g, ' ').replace(/`([^`]*)`/g, '$1').replace(/\[(.*?)\]\([^)]*\)/g, '$1').replace(/[*_#>|~]/g, ' ');
+    /* (v273) URL ed emoji non si leggono; le arrows e i simboli matematici
+       (→ ∑ ∫ …) NON sono in questi intervalli e restano, gestiti sotto */
+    s = s.replace(/https?:\/\/\S+/g, ' ')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/gu, ' ');
+    /* (v273) pedici numerici (H₂O) → cifre, così le formule si leggono; i
+       numeri ² ³ restano, li dice la tabella come «al quadrato / al cubo» */
+    s = s.replace(/[₀-₉]/g, function (c) { return '₀₁₂₃₄₅₆₇₈₉'.indexOf(c); });
     var it = lingua() !== 'en';
+    /* (v273) NORMALIZZAZIONE SCIENTIFICA FONETICA: sigle e unità lette per
+       esteso, prima della spaziatura delle formule brute */
+    if (it) {
+      s = s.replace(/\bcm\s*(?:\^|\*\*)?\s*[-−⁻]\s*[1¹](?![\w¹])/gi, ' centimetri alla meno uno ')
+        .replace(/\bm\s*\/\s*z\b/gi, ' rapporto massa su carica ')
+        .replace(/\bIHD\b/g, ' indice di insaturazione ')
+        .replace(/\bDBE\b/g, ' gradi di insaturazione ')
+        .replace(/\bppm\b/gi, ' parti per milione ')
+        .replace(/\bD2O\b/g, ' acqua deuterata ')
+        .replace(/\bCDCl3\b/g, ' cloroformio deuterato ')
+        .replace(/\bDMSO\b/g, ' dimetilsolfossido ')
+        .replace(/\b1H[\s-]?NMR\b/gi, ' risonanza magnetica protonica ')
+        .replace(/\b13C[\s-]?NMR\b/gi, ' risonanza magnetica del carbonio tredici ')
+        .replace(/\bNMR\b/gi, ' risonanza magnetica nucleare ')
+        .replace(/\bFT[\s-]?IR\b/gi, ' spettroscopia infrarossa ')
+        .replace(/\bEI[\s-]?MS\b/gi, ' spettrometria di massa ')
+        .replace(/\bUV[\s-]?Vis\b/gi, ' ultravioletto visibile ');
+    } else {
+      s = s.replace(/\bcm\s*(?:\^|\*\*)?\s*[-−⁻]\s*[1¹](?![\w¹])/gi, ' per centimeter ')
+        .replace(/\bm\s*\/\s*z\b/gi, ' mass to charge ratio ')
+        .replace(/\bIHD\b/g, ' degree of unsaturation ')
+        .replace(/\bppm\b/gi, ' parts per million ');
+    }
     var R = it ? [[/²/g, ' al quadrato'], [/³/g, ' al cubo'], [/√/g, ' radice di '], [/≈/g, ' circa '], [/≤/g, ' minore o uguale a '], [/≥/g, ' maggiore o uguale a '], [/≠/g, ' diverso da '], [/·|×/g, ' per '], [/−/g, ' meno '], [/→/g, ' porta a '], [/∫/g, ' integrale di '], [/∑/g, ' somma di '], [/π/g, ' pi greco '], [/Δ/g, ' delta '], [/λ/g, ' lambda '], [/μ/g, ' mu '], [/°C/g, ' gradi Celsius'], [/°/g, ' gradi'], [/\be\.g\./g, 'per esempio'], [/ m\/s\b/g, ' metri al secondo'], [/\bkm\b/g, ' chilometri'], [/\beV\b/g, ' elettronvolt'], [/\bJ\b/g, ' joule']]
       : [[/²/g, ' squared'], [/³/g, ' cubed'], [/√/g, ' square root of '], [/≈/g, ' about '], [/·|×/g, ' times '], [/−/g, ' minus '], [/π/g, ' pi '], [/°C/g, ' degrees Celsius']];
     R.forEach(function (r) { s = s.replace(r[0], r[1]); });
+    /* (v273) formule brute e sigle: C8H7NO → «C 8 H 7 N O», ATP → «A T P»;
+       un gettone di due o più gruppi «elemento+numero» viene scandito tutto */
+    s = s.replace(/\b(?:[A-Z][a-z]?\d*){2,}\b/g, function (m) {
+      return ' ' + m.replace(/([A-Z][a-z]?)(\d*)/g, function (_, el, n) { return el + (n ? ' ' + n : '') + ' '; }).replace(/\s+/g, ' ').trim() + ' ';
+    });
     return s.replace(/\s+/g, ' ').trim();
   }
   function frasi(s) { return (perLaVoce(s).match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }); }

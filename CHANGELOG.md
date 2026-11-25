@@ -7,6 +7,29 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v273] — 2026-11-25
+
+**La voce di Spectra pronuncia bene la scienza**
+
+### Cambiato
+- **Normalizzatore fonetico unico** (`perLaVoce`, `bsi-spectra-live.js`): è il filtro che ogni motore vocale di
+  Spectra (ElevenLabs, audio OpenAI, voce di sistema, console dal vivo) attraversa già. Ora, oltre a markdown e simboli
+  matematici, scioglie la scienza: le formule brute e le sigle si scandiscono (`C8H7NO` → «C 8 H 7 N O», `ATP` → «A T P»),
+  le unità si leggono per esteso (`cm⁻¹`/`cm-1`/`cm^-1` → «centimetri alla meno uno», `m/z` → «rapporto massa su carica»,
+  `IHD` → «indice di insaturazione», `ppm` → «parti per milione»), i solventi e le tecniche pure (`CDCl3`, `D2O`, `DMSO`,
+  `1H-NMR`, `13C-NMR`, `FT-IR`, `EI-MS`). Toglie emoji e URL; i pedici numerici diventano cifre; i simboli matematici
+  (→, ∑, √, ²) restano, letti come prima.
+- **Master System Prompt vocale**: `BASE_SYSTEM` (`bsi-ai-hub.js`) ora chiede al modello di scrivere testo pronunciabile
+  quando la risposta sarà letta a voce — niente markdown né emoji, formule e sigle sciolte, pause naturali, conferma
+  breve all'attivazione, tre-cinque frasi ben scandite.
+
+### Note
+- Non è un secondo motore vocale: lo sblocco audio al primo tocco (mobile/WebView), la scelta della voce, lo spezzettamento
+  in frasi con `resume()` anti-taglio dei 15 secondi, la campana «🔔 Prova voce», il toggle «🔊 Leggi automaticamente» e la
+  lettura automatica di ogni risposta **esistevano già**: qui si è potenziato il punto in cui tutti confluiscono, senza
+  duplicare nulla. Banco `test_pronuncia` (27 controlli). 126 banchi, 794 file tracciati.
+
+---
 ## [bsi-v272] — 2026-11-25
 
 **Hub per argomento, seconda ondata: Biochimica e Farmacologia**
