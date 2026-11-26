@@ -7,6 +7,25 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v276] — 2026-11-26
+
+**«Sento il bip ma non la voce»: diagnosi chiara invece del silenzio**
+
+### Cambiato
+- **Prova voce 🔔** (`bsi-ai-hub.js`): il bip è un tono generato dall'app (Web Audio) e si sente sempre; la voce che
+  parla, invece, viene dal motore TTS del sistema operativo o da una voce cloud. Se il browser non ha **nessuna** voce
+  installata per la lingua attiva, la sintesi resta muta. Prima il pulsante beepava e poi taceva senza spiegare; ora,
+  quando non c'è nessuna voce utilizzabile, compare un **avviso chiaro** con i passi per attivarla (Android: Impostazioni
+  → Sistema → Uscita sintesi vocale → voce italiana; desktop; oppure una voce cloud che non richiede voci di sistema).
+  Inoltre, se è configurata una **voce cloud** (ElevenLabs/OpenAI), la prova la usa — così si sente anche senza voci di
+  sistema.
+
+### Note
+- Non è un difetto del codice: una pagina web può parlare solo con una voce del sistema operativo o una voce cloud; il
+  bip non è una voce, è un tono. Verificato che un browser senza motore TTS riporta zero voci e quindi resta muto.
+  126 banchi, 795 file.
+
+---
 ## [bsi-v275] — 2026-11-26
 
 **Spectra parla e risponde nella lingua del selettore**

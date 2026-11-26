@@ -7303,7 +7303,36 @@ function buildChatPane(){
   var pvE = document.getElementById('spectra-voce-el');
   if(pvE){ pvE.onclick = function(){ if(window.BSISpectraElevenLabs) window.BSISpectraElevenLabs.apriImpostazioni(); }; }
   var pv = document.getElementById('spectra-prova-voce');
-  if(pv){ pv.onclick = function(){ var L = window.BSISpectraLive; if(L && L.provaAudio){ L.provaAudio(); } else { speakRobotic('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); } }; }
+  /* (v276) «sento il bip ma non la voce»: il bip lo genera l'app (Web Audio),
+     ma per PARLARE serve una voce TTS del sistema operativo o una voce cloud.
+     Se il browser non ne ha nessuna, la prova restava muta senza spiegazione.
+     Ora: se c'è una voce cloud la prova la usa; se non c'è NESSUNA voce, invece
+     del silenzio compare un avviso con i passi per attivarla. */
+  function mostraAvvisoVoce(r){
+    var box = document.getElementById('spectra-voce-avviso');
+    var q = window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : 'sistema';
+    var vociSistema = r && typeof r.voci === 'number' ? r.voci : -1;
+    var serve = (q !== 'audio') && vociSistema === 0;   /* nessuna voce cloud e nessuna voce di sistema */
+    if(!box){
+      if(!serve) return;
+      box = document.createElement('div'); box.id = 'spectra-voce-avviso';
+      box.style.cssText = 'margin:8px 0;padding:10px 12px;border:1px solid #b45309;background:#2a1c08;color:#f0d08a;border-radius:10px;font-size:12.5px;line-height:1.55';
+      if(pv && pv.parentNode) pv.parentNode.insertBefore(box, pv.nextSibling);
+    }
+    if(!serve){ box.style.display='none'; return; }
+    box.style.display='block';
+    box.innerHTML = '<b>Hai sentito il bip: l\'audio funziona.</b> Ma questo browser non ha nessuna voce installata per leggere ad alta voce, perciò la voce resta muta.<br>' +
+      '• <b>Android</b>: Impostazioni → Sistema → Lingue e immissione → <b>Uscita sintesi vocale</b> → motore «Google», poi scarica la voce <b>italiana</b>. Riapri l\'app.<br>' +
+      '• <b>Desktop</b>: su Windows le voci ci sono già; su Linux installa un motore TTS (es. speech-dispatcher).<br>' +
+      '• <b>Senza installare nulla</b>: tocca <b>🎙️ Voce</b> e configura una voce cloud (ElevenLabs/OpenAI): si sente come il bip, non richiede voci di sistema.';
+  }
+  if(pv){ pv.onclick = function(){
+    var L = window.BSISpectraLive, r = (L && L.provaAudio) ? L.provaAudio() : null;
+    var q = window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : 'sistema';
+    if(q === 'audio' && window.BSISpectraVoce){ try{ window.BSISpectraVoce.parla('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); }catch(e){} }
+    else if(!r){ speakRobotic('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); }
+    mostraAvvisoVoce(r);
+  }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
   document.getElementById('bsi-hub-reset').onclick = function(){
     if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }
