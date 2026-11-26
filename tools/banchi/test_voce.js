@@ -184,13 +184,26 @@ function sintesiFinta() {
   vero('dopo un annullamento la frase nuova parte ' + an.ritardo + ' ms dopo, non nello stesso istante («' + an.nuova + '»)', an.ritardo >= 120 && /frase nuova/.test(an.nuova));
   await ctxA.close();
 
-  console.log('\n── Senza sintesi vocale ──');
+  console.log('\n── Senza voci di sistema, ma con la voce integrata (v277) ──');
+  /* (v277) senza speechSynthesis il dispositivo non ha voci di sistema, ma l'app ha la
+     PROPRIA voce offline (meSpeak via Web Audio): la voce c'è lo stesso, non si resta muti. */
   const pg2 = await ctx.newPage();
   await pg2.addInitScript(() => { try { delete window.speechSynthesis; Object.defineProperty(window, 'speechSynthesis', { configurable: true, get() { return undefined; } }); } catch (e) {} });
   await pg2.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
   await pg2.waitForFunction(() => !!window.createSpeakButton, null, { timeout: 60000 });
-  const n = await pg2.evaluate(() => ({ bottone: createSpeakButton('ciao'), parla: speakRobotic('ciao') }));
-  vero('nessun pulsante 🔊 e nessun errore: la voce semplicemente non c\'è', n.bottone === null && n.parla === false);
+  const n = await pg2.evaluate(() => ({ bottone: !!createSpeakButton('ciao'), parla: speakRobotic('ciao'), qualita: window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : null, supportata: typeof window.voceSupportata === 'function' ? window.voceSupportata() : null }));
+  vero('la qualità vocale è «integrata» (voce dell\'app, nessuna installazione)', n.qualita === 'integrata' && n.supportata === true);
+  vero('il pulsante 🔊 compare lo stesso e la lettura parte dalla voce integrata', n.bottone === true && n.parla === true);
+
+  console.log('\n── Senza alcun audio del tutto (né voci di sistema né Web Audio) ──');
+  /* il vero caso «nessuna voce»: nessuna sintesi di sistema E nessuna Web Audio.
+     Allora, onestamente, non c'è pulsante e la lettura non parte. */
+  const pg3 = await ctx.newPage();
+  await pg3.addInitScript(() => { try { delete window.speechSynthesis; Object.defineProperty(window, 'speechSynthesis', { configurable: true, get() { return undefined; } }); } catch (e) {} try { Object.defineProperty(window, 'AudioContext', { configurable: true, get() { return undefined; } }); Object.defineProperty(window, 'webkitAudioContext', { configurable: true, get() { return undefined; } }); } catch (e) {} });
+  await pg3.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+  await pg3.waitForFunction(() => !!window.createSpeakButton, null, { timeout: 60000 });
+  const n3 = await pg3.evaluate(() => ({ bottone: createSpeakButton('ciao'), parla: speakRobotic('ciao') }));
+  vero('nessun pulsante 🔊 e nessun errore: la voce davvero non c\'è', n3.bottone === null && n3.parla === false);
 
   att('nessun errore JavaScript', 0, errs.length);
   errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));

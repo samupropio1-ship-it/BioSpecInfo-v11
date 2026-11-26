@@ -214,9 +214,14 @@ Una versione è pubblicata solo se **tutti** i criteri seguenti sono soddisfatti
 
 ## 7. Proprietà intellettuale e licenze
 
-Tutti i componenti di terze parti sono distribuiti con licenze **permissive**
-(MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain), reciprocamente compatibili e
-prive di vincoli copyleft forti. Il modello 3D «Noir» usato come volto di
+Quasi tutti i componenti di terze parti sono distribuiti con licenze
+**permissive** (MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain). Fa eccezione
+la **voce integrata offline** (meSpeak/eSpeak, `vendor/mespeak/`), sotto
+**GPL-3.0**: la licenza copyleft si applica soltanto a quel componente, usato
+come libreria separata tramite la sua interfaccia pubblica, e non si estende al
+resto dell'applicazione (dettagli e testo della licenza in
+[`04-Open-Source-Licenses.md`](04-Open-Source-Licenses.md) e in
+`vendor/mespeak/`). Il modello 3D «Noir» usato come volto di
 Spectra (`models/spectra-noir.glb`) è di Skyfox13
 (<https://sketchfab.com/podderkuntal25>), con licenza
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), ed è stato

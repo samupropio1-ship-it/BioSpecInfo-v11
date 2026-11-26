@@ -215,9 +215,14 @@ A version is published only if **all** the following criteria are satisfied.
 
 ## 7. Intellectual property and licences
 
-All third-party components are distributed under **permissive** licences (MIT,
-BSD-3-Clause, Apache-2.0, CC0, Public Domain), mutually compatible and free of
-strong copyleft constraints. The «Noir» 3D model used as Spectra's face
+Almost all third-party components are distributed under **permissive** licences
+(MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain). The exception is the
+**built-in offline voice** (meSpeak/eSpeak, `vendor/mespeak/`), under
+**GPL-3.0**: the copyleft licence applies only to that component, used as a
+separate library through its public interface, and does not extend to the rest of
+the application (details and licence text in
+[`04-Open-Source-Licenses.md`](04-Open-Source-Licenses.md) and in
+`vendor/mespeak/`). The «Noir» 3D model used as Spectra's face
 (`models/spectra-noir.glb`) is by Skyfox13
 (<https://sketchfab.com/podderkuntal25>), under the
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licence, and has been

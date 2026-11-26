@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-26T17:48:43.368Z",
+    "timestamp": "2026-11-26T18:32:46.443Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "e1c82bc1900497b7cc166808774d46ff18921e3f"
+        "value": "1e6577d7708ada3e991bd4693853c5aebff04817"
       }
     ]
   },
@@ -347,6 +347,31 @@
         {
           "alg": "SHA-256",
           "content": "b781b54819d1d2aabf751788a813d8da830dabaddb913085352b572140903479"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "meSpeak.js + eSpeak (voce integrata offline)",
+      "publisher": "Norbert Landsteiner (meSpeak, masswerk.at) / eSpeak",
+      "description": "Voce integrata di Spectra: motore TTS a formanti (eSpeak) compilato in JavaScript, usato come ripiego quando il dispositivo non ha voci di sistema. Genera un WAV riprodotto via Web Audio. Nota di licenza in vendor/mespeak/NOTICE.md, testo GPL in vendor/mespeak/COPYING-GPL-3.0.txt.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "http://www.masswerk.at/mespeak/"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4fc7e4af27c8d9d43a26df5b77b68910a3c82db86aefdd2ccbea6b2ab77d7652"
         }
       ]
     },
