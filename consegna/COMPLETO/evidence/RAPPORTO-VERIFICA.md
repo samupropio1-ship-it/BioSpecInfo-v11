@@ -15,7 +15,7 @@
 |---|---|
 | **Banchi superati** | 126 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 7791 s |
+| **Durata totale** | 7959 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,12 +24,12 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-11-26T10:29:07.963Z` |
-| Commit | `1219ab2bead6c8bf7d5643a39a2bd3680a337ee2` |
-| Ripresa | 115 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
+| Istante (UTC) | `2026-11-26T17:48:06.590Z` |
+| Commit | `e1c82bc1900497b7cc166808774d46ff18921e3f` |
+| Ripresa | 125 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
-| Versione applicazione | `bsi-v275` |
+| Versione applicazione | `bsi-v276` |
 | Node.js | `v22.23.5` |
 | Piattaforma | `linux x64` |
 | Chromium | `Google Chrome for Testing 158.0.8127.36` |
@@ -41,10 +41,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.840.488 | `1b17235e55b3df169697113db3cb346c6aabee0812b2d2c0020bd0f53cc823af` |
-| `bsi-ai-hub.js` | 462.915 | `3860587228c140f97b20427e3f5059cc08f8d16162db8ec80fab02023fd7f985` |
+| `index.html` | 4.840.488 | `caa137c48518e9a1378be47aae8e7ad079836026339d0fb4d277f5147d12223d` |
+| `bsi-ai-hub.js` | 465.064 | `9df5d463bd5e0c056201096f71a757eb6ccd7a410f16a53d52dce72b3739b1fb` |
 | `bsi-spettri.js` | 37.207 | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
-| `sw.js` | 10.919 | `af94c99b9680dd6f5a68f619cd7ba667941272a9d349913b5480418e98380c2c` |
+| `sw.js` | 10.919 | `6db53dafc65b7489916820fef140cc4f13155dc498ce89f4b43af6e27a424c91` |
 | `bsi-pretsch.js` | 38.320 | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | 58.695 | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | 46.729 | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
@@ -65,40 +65,40 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-farmaci` | ✅ SUPERATO | 5.7 s | ✓ CONFORME |
-| `audit_farmaci` | ✅ SUPERATO | 6.0 s | 263 farmaci controllati — nessun errore, 21 avvisi |
-| `verifica_farmaci_v187` | ✅ SUPERATO | 6.8 s | 36/36 formule coincidono |
+| `@verifica-farmaci` | ✅ SUPERATO | 5.9 s | ✓ CONFORME |
+| `audit_farmaci` | ✅ SUPERATO | 5.7 s | 263 farmaci controllati — nessun errore, 21 avvisi |
+| `verifica_farmaci_v187` | ✅ SUPERATO | 6.7 s | 36/36 formule coincidono |
 | `test_spettri` | ✅ SUPERATO | 4.9 s | 41 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 11.1 s | 16 passati |
+| `test_spettri_ui` | ✅ SUPERATO | 11.3 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 6.5 s | 13 passati |
 | `test_assi_canvas` | ✅ SUPERATO | 9.3 s | 6 passati |
-| `test_costanti` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 45 controlli |
+| `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.0 s | ✓ 29 controlli superati |
-| `test_simmetria` | ✅ SUPERATO | 4.2 s | 26 passati |
-| `test_cheminfo` | ✅ SUPERATO | 12.8 s | 192 controlli passati |
-| `test_farm_ui` | ✅ SUPERATO | 6.9 s | 11 controlli passati |
-| `test_datasci` | ✅ SUPERATO | 8.1 s | 23 controlli passati |
-| `test_astro` | ✅ SUPERATO | 6.8 s | 13 controlli passati |
+| `test_simmetria` | ✅ SUPERATO | 4.0 s | 26 passati |
+| `test_cheminfo` | ✅ SUPERATO | 13.0 s | 192 controlli passati |
+| `test_farm_ui` | ✅ SUPERATO | 7.3 s | 11 controlli passati |
+| `test_datasci` | ✅ SUPERATO | 8.3 s | 23 controlli passati |
+| `test_astro` | ✅ SUPERATO | 6.7 s | 13 controlli passati |
 | `test_spettrolettore` | ✅ SUPERATO | 60.1 s | 66 controlli passati |
-| `test_documento` | ✅ SUPERATO | 21.6 s | 50 controlli passati |
+| `test_documento` | ✅ SUPERATO | 22.0 s | 50 controlli passati |
 | `test_nmr` | ✅ SUPERATO | 25.6 s | 66 controlli passati |
-| `test_nmr2d` | ✅ SUPERATO | 13.5 s | 40 controlli passati |
-| `test_geom3d` | ✅ SUPERATO | 8.7 s | 29 controlli passati |
-| `test_elucida` | ✅ SUPERATO | 7.7 s | 32 controlli passati |
-| `test_digitalizza` | ✅ SUPERATO | 7.7 s | 45 controlli passati |
-| `test_fisica` | ✅ SUPERATO | 150.5 s | 92 controlli passati |
-| `test_matematica` | ✅ SUPERATO | 141.9 s | 154 controlli passati |
-| `test_esami` | ✅ SUPERATO | 132.5 s | 235 controlli passati |
-| `test_assistente` | ✅ SUPERATO | 48.4 s | 159 controlli passati |
-| `test_grafica3d` | ✅ SUPERATO | 75.3 s | 115 controlli passati |
-| `test_laboratori` | ✅ SUPERATO | 186.9 s | 151 controlli passati |
-| `test_scienze` | ✅ SUPERATO | 197.5 s | 91 controlli passati |
-| `test_esplorazioni` | ✅ SUPERATO | 161.7 s | 82 controlli passati |
-| `test_approfondimenti` | ✅ SUPERATO | 191.9 s | 114 controlli passati |
-| `test_pareggio` | ✅ SUPERATO | 281.4 s | 527 controlli passati |
-| `test_v237` | ✅ SUPERATO | 667.8 s | 1061 controlli passati |
-| `test_3d238` | ✅ SUPERATO | 763.8 s | 488 controlli passati |
-| `test_potenzia250` | ✅ SUPERATO | 28.8 s | 65 controlli passati |
+| `test_nmr2d` | ✅ SUPERATO | 13.8 s | 40 controlli passati |
+| `test_geom3d` | ✅ SUPERATO | 9.0 s | 29 controlli passati |
+| `test_elucida` | ✅ SUPERATO | 7.8 s | 32 controlli passati |
+| `test_digitalizza` | ✅ SUPERATO | 7.9 s | 45 controlli passati |
+| `test_fisica` | ✅ SUPERATO | 151.6 s | 92 controlli passati |
+| `test_matematica` | ✅ SUPERATO | 142.8 s | 154 controlli passati |
+| `test_esami` | ✅ SUPERATO | 133.8 s | 235 controlli passati |
+| `test_assistente` | ✅ SUPERATO | 50.1 s | 159 controlli passati |
+| `test_grafica3d` | ✅ SUPERATO | 76.7 s | 115 controlli passati |
+| `test_laboratori` | ✅ SUPERATO | 187.6 s | 151 controlli passati |
+| `test_scienze` | ✅ SUPERATO | 198.0 s | 91 controlli passati |
+| `test_esplorazioni` | ✅ SUPERATO | 162.9 s | 82 controlli passati |
+| `test_approfondimenti` | ✅ SUPERATO | 191.8 s | 114 controlli passati |
+| `test_pareggio` | ✅ SUPERATO | 285.5 s | 527 controlli passati |
+| `test_v237` | ✅ SUPERATO | 680.2 s | 1061 controlli passati |
+| `test_3d238` | ✅ SUPERATO | 765.2 s | 488 controlli passati |
+| `test_potenzia250` | ✅ SUPERATO | 29.7 s | 65 controlli passati |
 
 ### Agente AI
 
@@ -106,19 +106,19 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 4.7 s | 13 passati |
-| `test_ko` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 35 controlli |
-| `test_404` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 36 controlli |
+| `test_nucleo` | ✅ SUPERATO | 5.0 s | 13 passati |
+| `test_ko` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 35 controlli |
+| `test_404` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 36 controlli |
 | `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
 | `test_firma` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 31 controlli |
-| `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
-| `test_attesalunga` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 14 controlli |
+| `test_attesa` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 11 controlli |
+| `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 38.0 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 54.0 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 5.3 s | 7 passati |
+| `browser_ko` | ✅ SUPERATO | 39.1 s | 37 passati |
+| `browser_prova` | ✅ SUPERATO | 54.4 s | 29 passati |
+| `browser_prov` | ✅ SUPERATO | 5.5 s | 7 passati |
 | `test_doppioinvio` | ✅ SUPERATO | 11.8 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 65.6 s | 22 passati |
+| `caccia_ai` | ✅ SUPERATO | 66.0 s | 22 passati |
 
 ### Stabilita
 
@@ -126,11 +126,11 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 278.7 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 115.7 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 43.3 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 35.0 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 10.8 s | 15 passati |
+| `audit_stabilita` | ✅ SUPERATO | 290.6 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 117.1 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 43.9 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 35.9 s | 22 passati |
+| `test_filemanager` | ✅ SUPERATO | 11.1 s | 15 passati |
 | `test_visore3d` | ✅ SUPERATO | 9.6 s | 5 passati |
 
 ### Interfaccia
@@ -139,65 +139,65 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 11.0 s | 24 passati |
+| `browser_reset` | ✅ SUPERATO | 11.6 s | 24 passati |
 | `browser_proxy` | ✅ SUPERATO | 9.6 s | 15 passati |
-| `browser_proxyui` | ✅ SUPERATO | 12.2 s | 17 passati |
-| `browser_rdkit` | ✅ SUPERATO | 4.5 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 11.1 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 6.4 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.7 s | 9 passati |
-| `test_controllaagg` | ✅ SUPERATO | 8.9 s | 12 controlli passati |
-| `test_spectra238` | ✅ SUPERATO | 25.3 s | 66 controlli passati |
-| `test_lezione` | ✅ SUPERATO | 506.5 s | 30 controlli passati |
-| `test_spectra_studio` | ✅ SUPERATO | 188.3 s | 79 controlli passati |
-| `test_spectra_rig` | ✅ SUPERATO | 1.1 s | 30 controlli passati |
-| `test_spectra_figura` | ✅ SUPERATO | 115.4 s | 113 controlli passati |
-| `test_spectra_esplora` | ✅ SUPERATO | 750.1 s | 75 controlli passati |
-| `test_spectra_olo` | ✅ SUPERATO | 56.0 s | 69 controlli passati |
-| `test_impronta` | ✅ SUPERATO | 19.0 s | 25 controlli passati |
-| `test_voce` | ✅ SUPERATO | 9.6 s | 21 controlli passati |
-| `test_agenda` | ✅ SUPERATO | 4.4 s | 59 controlli passati |
-| `test_risveglio` | ✅ SUPERATO | 51.6 s | 110 controlli passati |
-| `test_potenzia252` | ✅ SUPERATO | 35.6 s | 80 controlli passati |
-| `test_teoria` | ✅ SUPERATO | 15.2 s | 24 controlli passati |
-| `test_spaziotempo` | ✅ SUPERATO | 12.6 s | 33 controlli passati |
+| `browser_proxyui` | ✅ SUPERATO | 12.4 s | 17 passati |
+| `browser_rdkit` | ✅ SUPERATO | 4.7 s | 31 passati |
+| `browser_lab` | ✅ SUPERATO | 11.2 s | 21 passati |
+| `browser_frontiera` | ✅ SUPERATO | 6.8 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 6.0 s | 9 passati |
+| `test_controllaagg` | ✅ SUPERATO | 9.3 s | 12 controlli passati |
+| `test_spectra238` | ✅ SUPERATO | 24.9 s | 66 controlli passati |
+| `test_lezione` | ✅ SUPERATO | 510.4 s | 30 controlli passati |
+| `test_spectra_studio` | ✅ SUPERATO | 212.7 s | 79 controlli passati |
+| `test_spectra_rig` | ✅ SUPERATO | 1.0 s | 30 controlli passati |
+| `test_spectra_figura` | ✅ SUPERATO | 113.9 s | 113 controlli passati |
+| `test_spectra_esplora` | ✅ SUPERATO | 750.2 s | 75 controlli passati |
+| `test_spectra_olo` | ✅ SUPERATO | 55.1 s | 69 controlli passati |
+| `test_impronta` | ✅ SUPERATO | 18.7 s | 25 controlli passati |
+| `test_voce` | ✅ SUPERATO | 9.8 s | 21 controlli passati |
+| `test_agenda` | ✅ SUPERATO | 4.5 s | 59 controlli passati |
+| `test_risveglio` | ✅ SUPERATO | 52.7 s | 110 controlli passati |
+| `test_potenzia252` | ✅ SUPERATO | 35.9 s | 80 controlli passati |
+| `test_teoria` | ✅ SUPERATO | 15.5 s | 24 controlli passati |
+| `test_spaziotempo` | ✅ SUPERATO | 12.8 s | 33 controlli passati |
 | `test_correzioni` | ✅ SUPERATO | 4.7 s | 24 controlli passati |
-| `test_memoria` | ✅ SUPERATO | 4.4 s | 29 controlli passati |
-| `test_orbitali` | ✅ SUPERATO | 31.5 s | 48 controlli passati |
-| `test_ar` | ✅ SUPERATO | 48.7 s | 33 controlli passati |
-| `test_eliosfera` | ✅ SUPERATO | 22.6 s | 49 controlli passati |
-| `test_medfarm` | ✅ SUPERATO | 17.9 s | 53 controlli passati |
-| `test_matmappa` | ✅ SUPERATO | 5.0 s | 21 controlli passati |
-| `test_motore` | ✅ SUPERATO | 6.6 s | 22 controlli passati |
-| `test_cinema` | ✅ SUPERATO | 18.7 s | 34 controlli passati |
+| `test_memoria` | ✅ SUPERATO | 4.6 s | 29 controlli passati |
+| `test_orbitali` | ✅ SUPERATO | 33.2 s | 48 controlli passati |
+| `test_ar` | ✅ SUPERATO | 50.2 s | 33 controlli passati |
+| `test_eliosfera` | ✅ SUPERATO | 23.1 s | 49 controlli passati |
+| `test_medfarm` | ✅ SUPERATO | 18.0 s | 53 controlli passati |
+| `test_matmappa` | ✅ SUPERATO | 5.2 s | 21 controlli passati |
+| `test_motore` | ✅ SUPERATO | 6.9 s | 22 controlli passati |
+| `test_cinema` | ✅ SUPERATO | 19.3 s | 34 controlli passati |
 | `test_materiaoscura` | ✅ SUPERATO | 30.4 s | 32 controlli passati |
-| `test_elementi3d` | ✅ SUPERATO | 13.4 s | 24 controlli passati |
-| `test_sentinella` | ✅ SUPERATO | 11.2 s | 29 controlli passati |
-| `test_costruttore` | ✅ SUPERATO | 8.0 s | 57 controlli passati |
-| `test_spaccati` | ✅ SUPERATO | 15.8 s | 51 controlli passati |
-| `test_spectra_ponte` | ✅ SUPERATO | 28.9 s | 41 controlli passati |
-| `test_cosmo` | ✅ SUPERATO | 30.9 s | 44 controlli passati |
-| `test_spaccato` | ✅ SUPERATO | 155.8 s | 113 controlli passati |
-| `test_voce_microfono` | ✅ SUPERATO | 10.6 s | 20 controlli passati |
-| `test_meccanismi3d` | ✅ SUPERATO | 20.6 s | 25 controlli passati |
+| `test_elementi3d` | ✅ SUPERATO | 14.0 s | 24 controlli passati |
+| `test_sentinella` | ✅ SUPERATO | 11.6 s | 29 controlli passati |
+| `test_costruttore` | ✅ SUPERATO | 9.0 s | 57 controlli passati |
+| `test_spaccati` | ✅ SUPERATO | 15.9 s | 51 controlli passati |
+| `test_spectra_ponte` | ✅ SUPERATO | 31.4 s | 41 controlli passati |
+| `test_cosmo` | ✅ SUPERATO | 36.5 s | 44 controlli passati |
+| `test_spaccato` | ✅ SUPERATO | 162.1 s | 113 controlli passati |
+| `test_voce_microfono` | ✅ SUPERATO | 10.8 s | 20 controlli passati |
+| `test_meccanismi3d` | ✅ SUPERATO | 21.8 s | 25 controlli passati |
 | `test_animmat` | ✅ SUPERATO | 4.4 s | 23 controlli passati |
-| `test_voce_elevenlabs` | ✅ SUPERATO | 5.7 s | 24 controlli passati |
-| `test_pronuncia` | ✅ SUPERATO | 1.6 s | 34 controlli passati |
-| `test_biolab3d` | ✅ SUPERATO | 47.8 s | 54 controlli passati |
-| `test_risoluzione` | ✅ SUPERATO | 20.2 s | 18 controlli passati |
-| `test_quantumstudio` | ✅ SUPERATO | 58.2 s | 57 controlli passati |
-| `test_vocelive` | ✅ SUPERATO | 5.6 s | 21 controlli passati |
-| `test_inorganica` | ✅ SUPERATO | 14.4 s | 39 controlli passati |
+| `test_voce_elevenlabs` | ✅ SUPERATO | 5.8 s | 24 controlli passati |
+| `test_pronuncia` | ✅ SUPERATO | 1.5 s | 34 controlli passati |
+| `test_biolab3d` | ✅ SUPERATO | 46.9 s | 54 controlli passati |
+| `test_risoluzione` | ✅ SUPERATO | 18.3 s | 18 controlli passati |
+| `test_quantumstudio` | ✅ SUPERATO | 57.9 s | 57 controlli passati |
+| `test_vocelive` | ✅ SUPERATO | 6.2 s | 21 controlli passati |
+| `test_inorganica` | ✅ SUPERATO | 14.7 s | 39 controlli passati |
 | `test_arrowlab` | ✅ SUPERATO | 4.9 s | 22 controlli passati |
-| `test_metodi` | ✅ SUPERATO | 3.3 s | 25 controlli passati |
-| `test_hub` | ✅ SUPERATO | 7.3 s | 28 controlli passati |
-| `test_spectra_nucleo` | ✅ SUPERATO | 79.1 s | 41 controlli passati |
-| `test_avvio` | ✅ SUPERATO | 31.0 s | 9 controlli passati |
-| `test_giro` | ✅ SUPERATO | 447.0 s | 24 controlli passati |
-| `test_guidaproxy` | ✅ SUPERATO | 5.5 s | 12 passati |
-| `test_fluidita` | ✅ SUPERATO | 57.8 s | 16 controlli passati |
-| `test_lingue` | ✅ SUPERATO | 15.6 s | 64 controlli passati |
-| `test_sellingua` | ✅ SUPERATO | 22.1 s | 30 controlli passati |
+| `test_metodi` | ✅ SUPERATO | 3.2 s | 25 controlli passati |
+| `test_hub` | ✅ SUPERATO | 7.2 s | 28 controlli passati |
+| `test_spectra_nucleo` | ✅ SUPERATO | 78.2 s | 41 controlli passati |
+| `test_avvio` | ✅ SUPERATO | 30.8 s | 9 controlli passati |
+| `test_giro` | ✅ SUPERATO | 446.4 s | 24 controlli passati |
+| `test_guidaproxy` | ✅ SUPERATO | 5.6 s | 12 passati |
+| `test_fluidita` | ✅ SUPERATO | 60.4 s | 16 controlli passati |
+| `test_lingue` | ✅ SUPERATO | 16.0 s | 64 controlli passati |
+| `test_sellingua` | ✅ SUPERATO | 22.3 s | 30 controlli passati |
 | `test_mol3d` | ✅ SUPERATO | 12.8 s | 46 controlli passati |
 | `test_menu` | ✅ SUPERATO | 27.4 s | 42 controlli passati |
 
@@ -207,11 +207,11 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-sicurezza` | ✅ SUPERATO | 0.6 s | 10 controlli passati |
-| `audit_storia` | ✅ SUPERATO | 14.6 s | 7 controlli passati |
-| `audit_rete` | ✅ SUPERATO | 102.7 s | 5 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 263.3 s | 6 controlli passati |
-| `audit_mobile` | ✅ SUPERATO | 97.1 s | 4 controlli passati |
+| `@verifica-sicurezza` | ✅ SUPERATO | 2.2 s | 10 controlli passati |
+| `audit_storia` | ✅ SUPERATO | 42.4 s | 7 controlli passati |
+| `audit_rete` | ✅ SUPERATO | 105.9 s | 5 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 284.8 s | 6 controlli passati |
+| `audit_mobile` | ✅ SUPERATO | 104.0 s | 4 controlli passati |
 
 ### Coerenza documentazione/codice
 
@@ -220,9 +220,9 @@ _Cio che la documentazione promette esiste davvero nel codice._
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
 | `verifica_guida` | ✅ SUPERATO | 0.3 s | 71 controlli passati |
-| `@verifica-documenti` | ✅ SUPERATO | 0.1 s | 18 controlli passati |
-| `@verifica-affermazioni` | ✅ SUPERATO | 10.3 s | 10 controlli passati |
-| `audit_copertura` | ✅ SUPERATO | 124.4 s | 4 controlli passati |
+| `@verifica-documenti` | ✅ SUPERATO | 0.2 s | 18 controlli passati |
+| `@verifica-affermazioni` | ✅ SUPERATO | 10.9 s | 10 controlli passati |
+| `audit_copertura` | ✅ SUPERATO | 131.0 s | 4 controlli passati |
 
 ### Una sola casa per funzione
 
@@ -230,8 +230,8 @@ _Lo stack React/FastAPI esegue gli STESSI file dell'applicazione, non una copia;
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_stack` | ✅ SUPERATO | 0.4 s | 9 controlli passati, il resto saltato |
-| `test_articoli` | ✅ SUPERATO | 23.8 s | 87 controlli passati |
+| `test_stack` | ✅ SUPERATO | 0.5 s | 9 controlli passati, il resto saltato |
+| `test_articoli` | ✅ SUPERATO | 24.1 s | 87 controlli passati |
 | `audit_statico` | ✅ SUPERATO | 0.5 s | nessuna delle tre misure e' cresciuta |
 
 ---
@@ -1190,7 +1190,7 @@ Lettore di spettri e modelli avanzati
       (23 gruppi confrontati · ombrello 27 righe · riferimento 28)
   ✓ e nessun ombrello è arbitrariamente più largo del riferimento  → 0
       (margine concesso: 140 cm⁻¹ oltre il riferimento)
-  ✓ il distintivo in intestazione riporta la versione vera  → v275
+  ✓ il distintivo in intestazione riporta la versione vera  → v276
   ✓ nessun errore JavaScript  → 0
 
 66 controlli passati
@@ -1542,15 +1542,15 @@ Geometria 3D — costruita dal grafo, misurata contro la chimica
   ✓ e lo scarto dai limiti resta piccolo  → 0.017 (al più 0.12)
 
 ── Le molecole vere ──
-      caffeina        24 atomi · scarto 0.027 Å · minima 2.33 Å · 70 ms
-      ibuprofene      33 atomi · scarto 0.014 Å · minima 1.99 Å · 106 ms
-      naprossene      31 atomi · scarto 0.022 Å · minima 2.27 Å · 148 ms
-      paracetamolo    20 atomi · scarto 0.011 Å · minima 2.33 Å · 37 ms
-      atorvastatina   76 atomi · scarto 0.31 Å · minima 1.63 Å · 710 ms
+      caffeina        24 atomi · scarto 0.027 Å · minima 2.33 Å · 96 ms
+      ibuprofene      33 atomi · scarto 0.014 Å · minima 1.99 Å · 80 ms
+      naprossene      31 atomi · scarto 0.022 Å · minima 2.27 Å · 112 ms
+      paracetamolo    20 atomi · scarto 0.011 Å · minima 2.33 Å · 32 ms
+      atorvastatina   76 atomi · scarto 0.31 Å · minima 1.63 Å · 512 ms
   ✓ ognuna produce una geometria  → 0
   ✓ il residuo peggiore resta nel valore dichiarato (Å)  → 0.31 (al più 0.4)
   ✓ e nessuna coppia scende sotto 1,5 Å  → 1.63 (almeno 1.5)
-  ✓ nessuna impiega più di due secondi  → 710 (al più 2000)
+  ✓ nessuna impiega più di due secondi  → 512 (al più 2000)
 
 ── Riproducibilità ──
   ✓ la stessa molecola dà sempre la stessa forma  → true
@@ -2580,7 +2580,7 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ orbitali: la tela ha un nome accessibile («3d_z² · Z = 1 · ψ > 0ψ < 0»)  → true
   ✓ orbitali: trascinando ruota, con la rotellina si allontana  → true
   ✓ orbitali: i pulsanti hanno un nome  → true
-  ✓ moti: la scena disegna (1573 pixel non di sfondo)  → true
+  ✓ moti: la scena disegna (1570 pixel non di sfondo)  → true
   ✓ moti: la tela ha un nome accessibile («B ∥ z · elettrone»)  → true
   ✓ moti: trascinando ruota, con la rotellina si allontana  → true
   ✓ moti: i pulsanti hanno un nome  → true
@@ -2600,7 +2600,7 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ cinque schede  → 5
   ✓ superfici: la scena disegna (9523 pixel non di sfondo)  → true
   ✓ orbitali: la scena disegna (8854 pixel non di sfondo)  → true
-  ✓ moti: la scena disegna (657 pixel non di sfondo)  → true
+  ✓ moti: la scena disegna (660 pixel non di sfondo)  → true
   ✓ cristalli: la scena disegna (9216 pixel non di sfondo)  → true
   ✓ campi: la scena disegna (873 pixel non di sfondo)  → true
   ✓ a 390 px niente sborda  → 0
@@ -2902,7 +2902,7 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ schicinet: ogni animazione ha la barra completa con i nomi (2/2)  → true
   ✓ il tempo avanza  → true
   ✓ in pausa il tempo si ferma  → true
-  ✓ a ×4 si va più veloce che a ×¼ (0.20 / 4.00 s in 1 s)  → true
+  ✓ a ×4 si va più veloce che a ×¼ (0.30 / 4.00 s in 1 s)  → true
   ✓ fuori dallo schermo l’animazione si ferma  → true
   ✓ tornando visibile riparte  → true
   ✓ nessun errore JavaScript  → 0
@@ -3294,7 +3294,7 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ schermo grande · sastroorbite: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ schermo grande · sastroorbite: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ schermo grande · sastromat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (36 / 1 ms)  → true
+  ✓ schermo grande · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (32 / 1 ms)  → true
   ✓ schermo grande · sastrostelle: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ schermo grande · sastrostelle: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ schermo grande · sastrobh: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
@@ -3304,31 +3304,31 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ schermo grande · sastrogal: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ schermo grande · sastrogal: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ schermo grande · sastrocosmo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 2 ms)  → true
+  ✓ schermo grande · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ schermo grande · sastrocielo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sastrocielo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
+  ✓ schermo grande · sastrocielo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 0 ms)  → true
   ✓ schermo grande · sastroeso: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ schermo grande · sastroeso: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ schermo grande · sfisspin: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (13 / 7 ms)  → true
+  ✓ schermo grande · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (9 / 7 ms)  → true
   ✓ schermo grande · sfisstat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 19 ms)  → true
+  ✓ schermo grande · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 30 ms)  → true
   ✓ schermo grande · sfisnuclei: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (17 / 7 ms)  → true
+  ✓ schermo grande · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (12 / 6 ms)  → true
   ✓ schermo grande · sfismateriali: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 20 ms)  → true
+  ✓ schermo grande · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 14 ms)  → true
   ✓ schermo grande · sfiselettronica: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (15 / 12 ms)  → true
+  ✓ schermo grande · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (16 / 10 ms)  → true
   ✓ schermo grande · smatedp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ schermo grande · smatedp: schede 2D entro 250 ms, schede 3D entro 6 s (16 / 1 ms)  → true
   ✓ schermo grande · smatanalcomp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (45 / 1 ms)  → true
+  ✓ schermo grande · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (41 / 1 ms)  → true
   ✓ schermo grande · smatmarkov: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (37 / 1 ms)  → true
+  ✓ schermo grande · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (42 / 0 ms)  → true
   ✓ schermo grande · smatsvd: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (36 / 1 ms)  → true
+  ✓ schermo grande · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (32 / 1 ms)  → true
   ✓ schermo grande · smatcodici: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ schermo grande · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (13 / 1 ms)  → true
+  ✓ schermo grande · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (12 / 0 ms)  → true
       (sezioni: fisica 52, astrofisica 18, matematica 34)
   ✓ il gruppo Astrofisica ha almeno 12 sezioni  → true
   ✓ la fisica ha almeno 35 sezioni  → true
@@ -3339,41 +3339,41 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ telefono · sastroorbite: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ telefono · sastroorbite: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ telefono · sastromat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (40 / 1 ms)  → true
+  ✓ telefono · sastromat: schede 2D entro 250 ms, schede 3D entro 6 s (30 / 1 ms)  → true
   ✓ telefono · sastrostelle: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrostelle: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 3 ms)  → true
+  ✓ telefono · sastrostelle: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 2 ms)  → true
   ✓ telefono · sastrobh: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrobh: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
+  ✓ telefono · sastrobh: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 3 ms)  → true
   ✓ telefono · sastrogw: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ telefono · sastrogw: schede 2D entro 250 ms, schede 3D entro 6 s (1 / 1 ms)  → true
   ✓ telefono · sastrogal: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrogal: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 0 ms)  → true
+  ✓ telefono · sastrogal: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ telefono · sastrocosmo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 0 ms)  → true
+  ✓ telefono · sastrocosmo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ telefono · sastrocielo: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ telefono · sastrocielo: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 0 ms)  → true
   ✓ telefono · sastroeso: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
   ✓ telefono · sastroeso: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 1 ms)  → true
   ✓ telefono · sfisspin: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (5 / 7 ms)  → true
+  ✓ telefono · sfisspin: schede 2D entro 250 ms, schede 3D entro 6 s (6 / 5 ms)  → true
   ✓ telefono · sfisstat: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 23 ms)  → true
+  ✓ telefono · sfisstat: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 19 ms)  → true
   ✓ telefono · sfisnuclei: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (7 / 4 ms)  → true
+  ✓ telefono · sfisnuclei: schede 2D entro 250 ms, schede 3D entro 6 s (16 / 4 ms)  → true
   ✓ telefono · sfismateriali: 4 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 11 ms)  → true
+  ✓ telefono · sfismateriali: schede 2D entro 250 ms, schede 3D entro 6 s (0 / 14 ms)  → true
   ✓ telefono · sfiselettronica: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (8 / 8 ms)  → true
+  ✓ telefono · sfiselettronica: schede 2D entro 250 ms, schede 3D entro 6 s (9 / 9 ms)  → true
   ✓ telefono · smatedp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatedp: schede 2D entro 250 ms, schede 3D entro 6 s (18 / 1 ms)  → true
+  ✓ telefono · smatedp: schede 2D entro 250 ms, schede 3D entro 6 s (19 / 1 ms)  → true
   ✓ telefono · smatanalcomp: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (52 / 1 ms)  → true
+  ✓ telefono · smatanalcomp: schede 2D entro 250 ms, schede 3D entro 6 s (41 / 1 ms)  → true
   ✓ telefono · smatmarkov: 6 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (46 / 1 ms)  → true
+  ✓ telefono · smatmarkov: schede 2D entro 250 ms, schede 3D entro 6 s (49 / 1 ms)  → true
   ✓ telefono · smatsvd: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (19 / 0 ms)  → true
+  ✓ telefono · smatsvd: schede 2D entro 250 ms, schede 3D entro 6 s (30 / 1 ms)  → true
   ✓ telefono · smatcodici: 5 schede piene, nessun avviso, le tele disegnano e hanno un nome  → true
-  ✓ telefono · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (7 / 1 ms)  → true
+  ✓ telefono · smatcodici: schede 2D entro 250 ms, schede 3D entro 6 s (9 / 1 ms)  → true
   ✓ a 390 px niente sborda  → 0
   ✓ telefono: nessun errore JavaScript  → 0
 
@@ -3436,128 +3436,128 @@ Elucidazione — i conti verificati contro compiti già corretti
 ── Nel browser ──
   ✓ schermo grande · schipes: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · schipes: l'ultima scheda («🧊 Superficie 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · schipes: ogni scheda si apre entro 250 ms (11 ms)  → true
+  ✓ schermo grande · schipes: ogni scheda si apre entro 250 ms (10 ms)  → true
   ✓ schermo grande · scristalli: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · scristalli: l'ultima scheda («🧊 Celle in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · scristalli: ogni scheda si apre entro 250 ms (12 ms)  → true
+  ✓ schermo grande · scristalli: ogni scheda si apre entro 250 ms (16 ms)  → true
   ✓ schermo grande · sschrod: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sschrod: l'ultima scheda («🧊 Nuvola 3D |ψ|²») è una scena 3D che disegna  → true
-  ✓ schermo grande · sschrod: ogni scheda si apre entro 250 ms (19 ms)  → true
+  ✓ schermo grande · sschrod: ogni scheda si apre entro 250 ms (20 ms)  → true
   ✓ schermo grande · shf: 3 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · shf: l'ultima scheda («🧊 Orbitali in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · shf: ogni scheda si apre entro 250 ms (1 ms)  → true
+  ✓ schermo grande · shf: ogni scheda si apre entro 250 ms (2 ms)  → true
   ✓ schermo grande · srotovib: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · srotovib: l'ultima scheda («🧊 Rotazione e vibrazione 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · srotovib: ogni scheda si apre entro 250 ms (8 ms)  → true
+  ✓ schermo grande · srotovib: ogni scheda si apre entro 250 ms (7 ms)  → true
   ✓ schermo grande · sdinmol: 2 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sdinmol: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sdinmol: ogni scheda si apre entro 250 ms (4 ms)  → true
+  ✓ schermo grande · sdinmol: ogni scheda si apre entro 250 ms (6 ms)  → true
   ✓ schermo grande · schifasi: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · schifasi: l'ultima scheda («🧊 Superficie P–V–T») è una scena 3D che disegna  → true
-  ✓ schermo grande · schifasi: ogni scheda si apre entro 250 ms (62 ms)  → true
+  ✓ schermo grande · schifasi: ogni scheda si apre entro 250 ms (61 ms)  → true
   ✓ schermo grande · sfismecc: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfismecc: l'ultima scheda («🌬️ Lancio 3D con vento») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfismecc: ogni scheda si apre entro 250 ms (7 ms)  → true
+  ✓ schermo grande · sfismecc: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ schermo grande · sfisem: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisem: l'ultima scheda («🌀 Campi 3D e Lorentz») è una scena 3D che disegna  → true
   ✓ schermo grande · sfisem: ogni scheda si apre entro 250 ms (3 ms)  → true
   ✓ schermo grande · sfisonde: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisonde: l'ultima scheda («🌊 Ondoscopio 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisonde: ogni scheda si apre entro 250 ms (13 ms)  → true
+  ✓ schermo grande · sfisonde: ogni scheda si apre entro 250 ms (12 ms)  → true
   ✓ schermo grande · sfisgrav: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisgrav: l'ultima scheda («🕳️ Pozzo di potenziale 3D») è una scena 3D che disegna  → true
   ✓ schermo grande · sfisgrav: ogni scheda si apre entro 250 ms (48 ms)  → true
   ✓ schermo grande · sfisrel: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisrel: l'ultima scheda («🔦 Cono di luce 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisrel: ogni scheda si apre entro 250 ms (12 ms)  → true
+  ✓ schermo grande · sfisrel: ogni scheda si apre entro 250 ms (6 ms)  → true
   ✓ schermo grande · sfisfluidi: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisfluidi: l'ultima scheda («🌀 Flusso attorno a un ostacolo 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisfluidi: ogni scheda si apre entro 250 ms (9 ms)  → true
+  ✓ schermo grande · sfisfluidi: ogni scheda si apre entro 250 ms (5 ms)  → true
   ✓ schermo grande · sfistermo: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfistermo: l'ultima scheda («🗻 Superficie p-V-T 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfistermo: ogni scheda si apre entro 250 ms (22 ms)  → true
+  ✓ schermo grande · sfistermo: ogni scheda si apre entro 250 ms (12 ms)  → true
   ✓ schermo grande · smatmulti: 3 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatmulti: l'ultima scheda («🧊 Piano tangente in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatmulti: ogni scheda si apre entro 250 ms (11 ms)  → true
+  ✓ schermo grande · smatmulti: ogni scheda si apre entro 250 ms (14 ms)  → true
   ✓ schermo grande · smatvett: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatvett: l'ultima scheda («🧊 Campo 3D e divergenza») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatvett: ogni scheda si apre entro 250 ms (58 ms)  → true
+  ✓ schermo grande · smatvett: ogni scheda si apre entro 250 ms (60 ms)  → true
   ✓ schermo grande · smatcalc: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatcalc: l'ultima scheda («🧊 Solidi di rotazione») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatcalc: ogni scheda si apre entro 250 ms (12 ms)  → true
+  ✓ schermo grande · smatcalc: ogni scheda si apre entro 250 ms (11 ms)  → true
   ✓ schermo grande · smatlin: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatlin: l'ultima scheda («🧊 Trasformazioni dello spazio») è una scena 3D che disegna  → true
   ✓ schermo grande · smatlin: ogni scheda si apre entro 250 ms (11 ms)  → true
   ✓ schermo grande · smatode: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatode: l'ultima scheda («🧊 Caos nello spazio delle fasi 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatode: ogni scheda si apre entro 250 ms (25 ms)  → true
+  ✓ schermo grande · smatode: ogni scheda si apre entro 250 ms (20 ms)  → true
   ✓ schermo grande · smatprob: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatprob: l'ultima scheda («🧊 Normale bivariata 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatprob: ogni scheda si apre entro 250 ms (10 ms)  → true
+  ✓ schermo grande · smatprob: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ schermo grande · smattopo: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smattopo: l'ultima scheda («🧊 Superfici in 3D: χ e orientabilità») è una scena 3D che disegna  → true
-  ✓ schermo grande · smattopo: ogni scheda si apre entro 250 ms (14 ms)  → true
+  ✓ schermo grande · smattopo: ogni scheda si apre entro 250 ms (22 ms)  → true
   ✓ schermo grande · smatnoneucl: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatnoneucl: l'ultima scheda («🧊 Sfera e iperboloide in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatnoneucl: ogni scheda si apre entro 250 ms (12 ms)  → true
+  ✓ schermo grande · smatnoneucl: ogni scheda si apre entro 250 ms (18 ms)  → true
   ✓ schermo grande · smatcompl: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatcompl: l'ultima scheda («🧊 Sfera di Riemann») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatcompl: ogni scheda si apre entro 250 ms (13 ms)  → true
+  ✓ schermo grande · smatcompl: ogni scheda si apre entro 250 ms (14 ms)  → true
   ✓ schermo grande · smatvariaz: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · smatvariaz: l'ultima scheda («🧊 Pellicola di sapone in 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · smatvariaz: ogni scheda si apre entro 250 ms (8 ms)  → true
+  ✓ schermo grande · smatvariaz: ogni scheda si apre entro 250 ms (13 ms)  → true
   ✓ schermo grande · sfissolido: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfissolido: l'ultima scheda («🔷 Zona di Brillouin 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfissolido: ogni scheda si apre entro 250 ms (10 ms)  → true
+  ✓ schermo grande · sfissolido: ogni scheda si apre entro 250 ms (17 ms)  → true
   ✓ schermo grande · schicinet: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · schicinet: l'ultima scheda («🧊 Urti molecolari») è una scena 3D che disegna  → true
-  ✓ schermo grande · schicinet: ogni scheda si apre entro 250 ms (11 ms)  → true
+  ✓ schermo grande · schicinet: ogni scheda si apre entro 250 ms (13 ms)  → true
   ✓ schermo grande · sfisising: 4 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfisising: l'ultima scheda («🧊 Ising 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfisising: ogni scheda si apre entro 250 ms (9 ms)  → true
+  ✓ schermo grande · sfisising: ogni scheda si apre entro 250 ms (12 ms)  → true
   ✓ schermo grande · sfispart: 5 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · sfispart: l'ultima scheda («🔭 Rivelatore 3D») è una scena 3D che disegna  → true
-  ✓ schermo grande · sfispart: ogni scheda si apre entro 250 ms (11 ms)  → true
+  ✓ schermo grande · sfispart: ogni scheda si apre entro 250 ms (12 ms)  → true
   ✓ schermo grande · schiequil: 3 schede piene, tele disegnate e con un nome  → true
   ✓ schermo grande · schiequil: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
   ✓ schermo grande · schiequil: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ schermo grande: nessun errore JavaScript  → 0
   ✓ telefono · schipes: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · schipes: l'ultima scheda («🧊 Superficie 3D») è una scena 3D che disegna  → true
-  ✓ telefono · schipes: ogni scheda si apre entro 250 ms (8 ms)  → true
+  ✓ telefono · schipes: ogni scheda si apre entro 250 ms (7 ms)  → true
   ✓ telefono · scristalli: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · scristalli: l'ultima scheda («🧊 Celle in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · scristalli: ogni scheda si apre entro 250 ms (59 ms)  → true
+  ✓ telefono · scristalli: ogni scheda si apre entro 250 ms (38 ms)  → true
   ✓ telefono · sschrod: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sschrod: l'ultima scheda («🧊 Nuvola 3D |ψ|²») è una scena 3D che disegna  → true
-  ✓ telefono · sschrod: ogni scheda si apre entro 250 ms (30 ms)  → true
+  ✓ telefono · sschrod: ogni scheda si apre entro 250 ms (24 ms)  → true
   ✓ telefono · shf: 3 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · shf: l'ultima scheda («🧊 Orbitali in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · shf: ogni scheda si apre entro 250 ms (1 ms)  → true
+  ✓ telefono · shf: ogni scheda si apre entro 250 ms (4 ms)  → true
   ✓ telefono · srotovib: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · srotovib: l'ultima scheda («🧊 Rotazione e vibrazione 3D») è una scena 3D che disegna  → true
-  ✓ telefono · srotovib: ogni scheda si apre entro 250 ms (4 ms)  → true
+  ✓ telefono · srotovib: ogni scheda si apre entro 250 ms (7 ms)  → true
   ✓ telefono · sdinmol: 2 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sdinmol: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sdinmol: ogni scheda si apre entro 250 ms (8 ms)  → true
+  ✓ telefono · sdinmol: ogni scheda si apre entro 250 ms (7 ms)  → true
   ✓ telefono · schifasi: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · schifasi: l'ultima scheda («🧊 Superficie P–V–T») è una scena 3D che disegna  → true
-  ✓ telefono · schifasi: ogni scheda si apre entro 250 ms (46 ms)  → true
+  ✓ telefono · schifasi: ogni scheda si apre entro 250 ms (79 ms)  → true
   ✓ telefono · sfismecc: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfismecc: l'ultima scheda («🌬️ Lancio 3D con vento») è una scena 3D che disegna  → true
-  ✓ telefono · sfismecc: ogni scheda si apre entro 250 ms (5 ms)  → true
+  ✓ telefono · sfismecc: ogni scheda si apre entro 250 ms (10 ms)  → true
   ✓ telefono · sfisem: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisem: l'ultima scheda («🌀 Campi 3D e Lorentz») è una scena 3D che disegna  → true
-  ✓ telefono · sfisem: ogni scheda si apre entro 250 ms (4 ms)  → true
+  ✓ telefono · sfisem: ogni scheda si apre entro 250 ms (5 ms)  → true
   ✓ telefono · sfisonde: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisonde: l'ultima scheda («🌊 Ondoscopio 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisonde: ogni scheda si apre entro 250 ms (13 ms)  → true
+  ✓ telefono · sfisonde: ogni scheda si apre entro 250 ms (7 ms)  → true
   ✓ telefono · sfisgrav: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisgrav: l'ultima scheda («🕳️ Pozzo di potenziale 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisgrav: ogni scheda si apre entro 250 ms (132 ms)  → true
+  ✓ telefono · sfisgrav: ogni scheda si apre entro 250 ms (74 ms)  → true
   ✓ telefono · sfisrel: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisrel: l'ultima scheda («🔦 Cono di luce 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisrel: ogni scheda si apre entro 250 ms (4 ms)  → true
+  ✓ telefono · sfisrel: ogni scheda si apre entro 250 ms (5 ms)  → true
   ✓ telefono · sfisfluidi: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisfluidi: l'ultima scheda («🌀 Flusso attorno a un ostacolo 3D») è una scena 3D che disegna  → true
   ✓ telefono · sfisfluidi: ogni scheda si apre entro 250 ms (4 ms)  → true
@@ -3566,49 +3566,49 @@ Elucidazione — i conti verificati contro compiti già corretti
   ✓ telefono · sfistermo: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ telefono · smatmulti: 3 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatmulti: l'ultima scheda («🧊 Piano tangente in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatmulti: ogni scheda si apre entro 250 ms (9 ms)  → true
+  ✓ telefono · smatmulti: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ telefono · smatvett: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatvett: l'ultima scheda («🧊 Campo 3D e divergenza») è una scena 3D che disegna  → true
-  ✓ telefono · smatvett: ogni scheda si apre entro 250 ms (74 ms)  → true
+  ✓ telefono · smatvett: ogni scheda si apre entro 250 ms (57 ms)  → true
   ✓ telefono · smatcalc: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatcalc: l'ultima scheda («🧊 Solidi di rotazione») è una scena 3D che disegna  → true
-  ✓ telefono · smatcalc: ogni scheda si apre entro 250 ms (7 ms)  → true
+  ✓ telefono · smatcalc: ogni scheda si apre entro 250 ms (12 ms)  → true
   ✓ telefono · smatlin: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatlin: l'ultima scheda («🧊 Trasformazioni dello spazio») è una scena 3D che disegna  → true
-  ✓ telefono · smatlin: ogni scheda si apre entro 250 ms (7 ms)  → true
+  ✓ telefono · smatlin: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ telefono · smatode: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatode: l'ultima scheda («🧊 Caos nello spazio delle fasi 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatode: ogni scheda si apre entro 250 ms (23 ms)  → true
+  ✓ telefono · smatode: ogni scheda si apre entro 250 ms (18 ms)  → true
   ✓ telefono · smatprob: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatprob: l'ultima scheda («🧊 Normale bivariata 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatprob: ogni scheda si apre entro 250 ms (6 ms)  → true
+  ✓ telefono · smatprob: ogni scheda si apre entro 250 ms (4 ms)  → true
   ✓ telefono · smattopo: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smattopo: l'ultima scheda («🧊 Superfici in 3D: χ e orientabilità») è una scena 3D che disegna  → true
-  ✓ telefono · smattopo: ogni scheda si apre entro 250 ms (14 ms)  → true
+  ✓ telefono · smattopo: ogni scheda si apre entro 250 ms (34 ms)  → true
   ✓ telefono · smatnoneucl: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatnoneucl: l'ultima scheda («🧊 Sfera e iperboloide in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatnoneucl: ogni scheda si apre entro 250 ms (13 ms)  → true
+  ✓ telefono · smatnoneucl: ogni scheda si apre entro 250 ms (14 ms)  → true
   ✓ telefono · smatcompl: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatcompl: l'ultima scheda («🧊 Sfera di Riemann») è una scena 3D che disegna  → true
-  ✓ telefono · smatcompl: ogni scheda si apre entro 250 ms (10 ms)  → true
+  ✓ telefono · smatcompl: ogni scheda si apre entro 250 ms (14 ms)  → true
   ✓ telefono · smatvariaz: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · smatvariaz: l'ultima scheda («🧊 Pellicola di sapone in 3D») è una scena 3D che disegna  → true
-  ✓ telefono · smatvariaz: ogni scheda si apre entro 250 ms (9 ms)  → true
+  ✓ telefono · smatvariaz: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ telefono · sfissolido: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfissolido: l'ultima scheda («🔷 Zona di Brillouin 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfissolido: ogni scheda si apre entro 250 ms (12 ms)  → true
+  ✓ telefono · sfissolido: ogni scheda si apre entro 250 ms (8 ms)  → true
   ✓ telefono · schicinet: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · schicinet: l'ultima scheda («🧊 Urti molecolari») è una scena 3D che disegna  → true
-  ✓ telefono · schicinet: ogni scheda si apre entro 250 ms (15 ms)  → true
+  ✓ telefono · schicinet: ogni scheda si apre entro 250 ms (9 ms)  → true
   ✓ telefono · sfisising: 4 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfisising: l'ultima scheda («🧊 Ising 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfisising: ogni scheda si apre entro 250 ms (6 ms)  → true
+  ✓ telefono · sfisising: ogni scheda si apre entro 250 ms (5 ms)  → true
   ✓ telefono · sfispart: 5 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · sfispart: l'ultima scheda («🔭 Rivelatore 3D») è una scena 3D che disegna  → true
-  ✓ telefono · sfispart: ogni scheda si apre entro 250 ms (15 ms)  → true
+  ✓ telefono · sfispart: ogni scheda si apre entro 250 ms (24 ms)  → true
   ✓ telefono · schiequil: 3 schede piene, tele disegnate e con un nome  → true
   ✓ telefono · schiequil: l'ultima scheda («🧊 Scatola 3D») è una scena 3D che disegna  → true
-  ✓ telefono · schiequil: ogni scheda si apre entro 250 ms (5 ms)  → true
+  ✓ telefono · schiequil: ogni scheda si apre entro 250 ms (4 ms)  → true
   ✓ a 390 px niente sborda  → 0
   ✓ telefono: nessun errore JavaScript  → 0
 
@@ -4339,11 +4339,11 @@ Due Invio di fila, a mezzo secondo di distanza
 
 ═══ 1. SESSIONE LUNGA: aprire e chiudere ogni scheda 5 volte ═══
     · schede trovate: 226 (scentrorganica, sdashboard, sareachim, sesplchim, smol, spt…)
-    · nodi DOM per giro: 8304 → 59705 → 59797 → 59803 → 59806 → 59813
+    · nodi DOM per giro: 8304 → 59717 → 59796 → 59805 → 59811 → 59815
     · canvas   per giro: 24 → 185 → 185 → 185 → 185 → 185
     · setInterval vivi (creati-cancellati): -5
-    · costruzione (giro 1): +51401 nodi
-    · dopo la costruzione (giri 2-5): +108 nodi  (27/giro)
+    · costruzione (giro 1): +51413 nodi
+    · dopo la costruzione (giri 2-5): +98 nodi  (25/giro)
   ✓ il DOM smette di crescere a costruzione finita (< 150/giro)  → true
   ✓ i canvas non si moltiplicano dopo il primo giro  → true
   ✓ gli intervalli non si accumulano (< 25 vivi)  → true
@@ -4451,17 +4451,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v275 con 236 voci
+    · cache: bsi-v276 con 236 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 7698 nodi in 848 ms — "BioSpecInfo · v8"
+    · 7711 nodi in 1170 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 11049 ms con 8205 nodi — rete bloccata 199 volte
+    · caricata in 11058 ms con 8205 nodi — rete bloccata 198 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -4469,7 +4469,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3507 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3506 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -4809,8 +4809,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v275   ·  sw.js: bsi-v275
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v275
+    · app: bsi-v276   ·  sw.js: bsi-v276
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v276
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -4823,7 +4823,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v275Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v276Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -4835,9 +4835,9 @@ Chiave condivisa nella UI
 <summary><code>test_controllaagg</code> — SUPERATO (codice di uscita 0)</summary>
 
 ```
-  ✓ stessa versione: «hai già l'ultima versione», con il numero  [✅ Hai già l’ultima versione pubblicata: bsi-v275.]  → true
+  ✓ stessa versione: «hai già l'ultima versione», con il numero  [✅ Hai già l’ultima versione pubblicata: bsi-v276.]  → true
   ✓ e niente pulsante «Aggiorna ora»  → false
-  ✓ versione nuova sul sito: la annuncia, con le due versioni  [🆕 Nuova versione disponibile: bsi-v999 (hai la bsi-v275)]  → true
+  ✓ versione nuova sul sito: la annuncia, con le due versioni  [🆕 Nuova versione disponibile: bsi-v999 (hai la bsi-v276)]  → true
   ✓ e offre «Aggiorna ora»  → true
   ✓ sito irraggiungibile: lo dice  [⚠️ Impossibile verificare ora: il sito non risponde (connessione assente?). L’ap]  → true
   ✓ controlla(): stessa versione  → aggiornata
@@ -4916,7 +4916,7 @@ Chiave condivisa nella UI
   ✓ riconosciuto: «chi ti ha creato?» → «Tu, Samuele»  → true
   ✓ e non chiede di nuovo la prova  → true
   ✓ il modello sa che parla con il suo creatore (anche dal quadro della mente)  → true
-  ✓ all'apertura della console lo saluta per nome  [Buongiorno, Samuele. È sempre bello quando torna i]  → true
+  ✓ all'apertura della console lo saluta per nome  [Buon pomeriggio, Samuele. È sempre bello quando to]  → true
   ✓ la telemetria dice chi è  → true
   ✓ «dimentica che sono il tuo creatore» toglie il riconoscimento  → true
   ✓ nessun errore JavaScript  → 0
@@ -4955,7 +4955,7 @@ Chiave condivisa nella UI
 ── Il lettore, telefono ──
   ✓ il pulsante apre la lezione, che parte dall'apertura («Onde e ottica»)  → true
   ✓ durante la lezione i pulsanti flottanti si nascondono (visible → hidden)  → true
-  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (21 valori)  → true
+  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (23 valori)  → true
   ✓ e il riflettore lo illumina  → true
   ✓ saltando avanti a metà, il cursore torna dov'era (1 → 1)  → true
   ✓ una scelta passa in rassegna le opzioni (4) e torna com'era  → true
@@ -4969,7 +4969,7 @@ Chiave condivisa nella UI
 ── Il lettore, schermo grande ──
   ✓ il pulsante apre la lezione, che parte dall'apertura («Onde e ottica»)  → true
   ✓ durante la lezione i pulsanti flottanti si nascondono (visible → hidden)  → true
-  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (21 valori)  → true
+  ✓ un cursore viene mostrato al lavoro: il valore cambia davvero (20 valori)  → true
   ✓ e il riflettore lo illumina  → true
   ✓ saltando avanti a metà, il cursore torna dov'era (1 → 1)  → true
   ✓ una scelta passa in rassegna le opzioni (4) e torna com'era  → true
@@ -5005,7 +5005,7 @@ Chiave condivisa nella UI
   ✓ gioia → sorriso (0.85); preoccupazione → angoli giù (0.40) e il sorriso se ne va (0.00)  → true
   ✓ labiale dall'audio: la mandibola si apre (0.75)  → true
   ✓ battito: le palpebre si chiudono (1.00)  → true
-  ✓ voce: i bassi a 80 Hz escono rinforzati (10.1 dB)  → true
+  ✓ voce: i bassi a 80 Hz escono rinforzati (9.9 dB)  → true
   ✓ voce: la stanza lascia una coda dopo la fine del suono  → true
   ✓ senza chiave la voce ripiega sulla sintesi del sistema  → sistema
   ✓ nessun errore JavaScript  → 0
@@ -5069,7 +5069,7 @@ Chiave condivisa nella UI
 
 ```
 ── Lo scheletro ──
-  ✓ rig costruito in 68 ms (sotto 3 s)  → true
+  ✓ rig costruito in 44 ms (sotto 3 s)  → true
   ✓ 27 ossa (20 che pesano e 7 punte)  → 27
   ✓ nomi Mixamo (Hips, Spine2, Neck, Head, LeftArm, RightForeArm…)  → true
   ✓ il driver del corpo le riconosce (20/23)  → true
@@ -5433,7 +5433,7 @@ Chiave condivisa nella UI
 ── Nella console di Spectra ──
   ✓ «attiva l'impronta» la lega e Spectra lo dice (Fatto, Samuele: la tua impronta è legata a me. Da ora, su qu…)  → true
   ✓ aperta in una sessione nuova, la console chiede l'impronta con «👆 Sono io» (Sei tu, Samuele? Fammi sentire la tua impronta.👆 )  → true
-  ✓ toccato il pulsante: riconosciuto e salutato per nome (Buongiorno, Samuele. È sempre bello quando torna il mio crea…)  → true
+  ✓ toccato il pulsante: riconosciuto e salutato per nome (Buon pomeriggio, Samuele. È sempre bello quando torna il mio…)  → true
   ✓ «prova la voce» dice quante voci vede o cosa fare (Il telefono non mi dà nessuna voce. Su Android apri Impostazioni → Sis…)  → true
   ✓ lo stato della voce si legge (attiva, voci, motore)  → true
   ✓ «dimentica che sono il tuo creatore» toglie anche l'impronta  → true
@@ -5445,7 +5445,7 @@ Chiave condivisa nella UI
 
 ── Dalla scheda 💬 Chat, e con Gemini sovraccarico ──
   ✓ «sono il tuo creatore» scritto nella Chat apre la console col campo nascosto, senza chiamare il modello (password, 0 chiamate)  → true
-  ✓ Gemini sovraccarico (503) su un modello: si passa da soli a un altro modello con la stessa chiave (gemini-2.5-flash → gemini-flash-latest, 4 ms, «Eccomi.» )  → true
+  ✓ Gemini sovraccarico (503) su un modello: si passa da soli a un altro modello con la stessa chiave (gemini-2.5-flash → gemini-flash-latest, 3 ms, «Eccomi.» )  → true
   ✓ …subito, senza le quattro attese (< 5 s)  → true
   ✓ nessun errore JavaScript  → 0
 
@@ -5506,7 +5506,7 @@ Chiave condivisa nella UI
 
 ── I comandi, senza modello ──
   ✓ «ricordami domani alle 18 di chiamare il relatore» → Segnato: chiamare il relatore — domani alle 18:00.  → true
-  ✓ l'ora detta DOPO la cosa → Segnato: comprare i guanti in nitrile — oggi alle 13:02.  → true
+  ✓ l'ora detta DOPO la cosa → Segnato: comprare i guanti in nitrile — oggi alle 19:56.  → true
   ✓ «ricordami che venerdì alle 9:30 ho l'esame» → Segnato: ho l'esame di Organica — domani alle 09:30.  → true
   ✓ tre voci, con le ore giuste  → 3
   ✓ senza un'ora, lo chiede: «Quando te lo devo ricordare? Dimmelo cos…»  → true
@@ -5521,14 +5521,14 @@ Chiave condivisa nella UI
 
 ── Il promemoria che arriva ──
   ✓ prima dell'ora non dice nulla  → 0
-  ✓ dentro l'anticipo lo dice: «Promemoria: uscire per il laboratorio — oggi alle 12:02.»  → true
+  ✓ dentro l'anticipo lo dice: «Promemoria: uscire per il laboratorio — oggi alle 18:56.»  → true
   ✓ compare scritto sullo schermo  → true
   ✓ ed è detto a voce: «Promemoria: uscire per il laboratorio — oggi alle »  → true
   ✓ con la voce di Spectra (tono/velocità)  → 0.58/0.88
   ✓ parte l'evento per il resto dell'app  → 1
   ✓ detto una volta sola  → 0
   ✓ ma resta aperto finché non è fatto  → 1
-  ✓ scaduto ad app chiusa: alla riapertura dice quando era: «Promemoria: prendere la pastiglia — era per oggi alle 08:02.»  → true
+  ✓ scaduto ad app chiusa: alla riapertura dice quando era: «Promemoria: prendere la pastiglia — era per oggi alle 14:56.»  → true
   ✓ ogni giorno: il prossimo è domani alla stessa ora  → 12/11/2026 21:00
   ✓ completato con giorni di ritardo: il prossimo è nel futuro  → true
   ✓ ogni mese dal 31 gennaio: l'ultimo giorno di febbraio  → 28/02/2027 10:00
@@ -5538,7 +5538,7 @@ Chiave condivisa nella UI
 ── Per il modello: strumenti e continuità ──
   ✓ i tre strumenti dell'agenda registrati fra quelli del modello  → 3
   ✓ registrati una volta sola  → 1
-  ✓ segna_impegno: {"ok":true,"segnato":"ricevimento con il relatore — domani alle 11:00","id":"i1-y93c"}  → true
+  ✓ segna_impegno: {"ok":true,"segnato":"ricevimento con il relatore — domani alle 11:00","id":"i1-6213"}  → true
   ✓ una data non capita torna al modello come errore, che la chiede: «non capisco quando: «quando capita». Dimmi u…»  → true
   ✓ leggi_agenda: {"ok":true,"totale":1,"impegni":[{"genere":"evento","cosa":"ricevimento con il relatore","  → true
   ✓ chiudi_impegno rimanda: ricevimento con il relatore — sabato alle 15:00  → true
@@ -5557,7 +5557,7 @@ Chiave condivisa nella UI
   ✓ un file qualunque non scrive nulla  → rifiutato,rifiutato,rifiutato
 
 ── Nella Chat e nella console, senza chiave ──
-  ✓ nella Chat, senza chiave: «Segnato: bere — oggi alle 13:02.📋 Copia🔊 Ascolta📌 Ripassa»  → true
+  ✓ nella Chat, senza chiave: «Segnato: bere — oggi alle 19:56.📋 Copia🔊 Ascolta📌 Ripassa»  → true
   ✓ nessuna chiamata a un fornitore di modelli  → 0
   ✓ nella console, con i due punti dell'ora  → Segnato: portare il camice — domani alle 09:30.
 
@@ -5616,7 +5616,7 @@ Chiave condivisa nella UI
   ✓ senza chiave lo dice: «Collegamento al cervello in locale: calcoli e comandi dell'app»  → true
   ✓ le righe compaiono una dopo l'altra  → 6
   ✓ e lo stile delle righe non nasconde gli elenchi della guida  → true
-  ✓ il punto sullo schermo: «Buongiorno. Fuori, a Milano ci sono 13 gradi, cielo coperto, percepiti…»  → true
+  ✓ il punto sullo schermo: «Buon pomeriggio. Fuori, a Milano ci sono 13 gradi, cielo coperto, perc…»  → true
   ✓ e a voce, dall'avvio: «Inizializzazione dei sistemi completata. Rete neurale online. Lavoro in locale: …»  → true
   ✓ con la voce di Spectra  → 0.58/0.88
   ✓ da ora il punto delle 8 e delle 20 è attivo  → true
@@ -6096,7 +6096,7 @@ Chiave condivisa nella UI
 ── La pagina, schermo grande ──
   ✓ schermo grande · il pulsante AR c'è nelle scene 3D degli orbitali e dei buchi neri (1 + 1)  → true
   ✓ schermo grande · il pulsante dice che cosa fa  → true
-  ✓ schermo grande · senza AR scarica «laboratorio-degli-orbitali-4f-m-1.glb», un GLB valido di 41118 triangoli  → true
+  ✓ schermo grande · senza AR scarica «laboratorio-degli-orbitali-4f-m-1.glb», un GLB valido di 41164 triangoli  → true
   ✓ schermo grande · e dice perché  → true
   ✓ schermo grande · con Quick Look apre un USDZ valido con rel="ar" (1.6 MB, 12 materiali)  → true
   ✓ schermo grande · con WebXR chiede «immersive-ar» con hit-test e dom-overlay  → true
@@ -6636,7 +6636,7 @@ Chiave condivisa nella UI
   ✓ telefono, riduci movimento · sfislaser: con «riduci movimento» resta fermo  → false
   ✓ telefono, riduci movimento · sfislaser: l'ultima scheda resta quella 3D dove c'era  → true
   ✓ telefono, riduci movimento · sfislaser: non sborda e non mostra valori mancanti  → 0 null
-  ✓ telefono, riduci movimento · sfissolido: la scheda in spaccato c'è e disegna (59431 campioni accesi)  → true
+  ✓ telefono, riduci movimento · sfissolido: la scheda in spaccato c'è e disegna (59365 campioni accesi)  → true
   ✓ telefono, riduci movimento · sfissolido: il bilancio è scritto «V_bi = (kT/q) ln(N_A N_D/n_i²) = 0,744 V»  → true
   ✓ telefono, riduci movimento · sfissolido: con «riduci movimento» resta fermo  → false
   ✓ telefono, riduci movimento · sfissolido: l'ultima scheda resta quella 3D dove c'era  → true
@@ -6644,7 +6644,7 @@ Chiave condivisa nella UI
   ✓ telefono, riduci movimento · nessun errore JavaScript  → 0
 
 ── La pagina, schermo grande ──
-  ✓ schermo grande · sfiscirc: la scheda in spaccato c'è e disegna (20396 campioni accesi)  → true
+  ✓ schermo grande · sfiscirc: la scheda in spaccato c'è e disegna (20387 campioni accesi)  → true
   ✓ schermo grande · sfiscirc: il bilancio è scritto «1,588 + −0,706 = 0,882 A»  → true
   ✓ schermo grande · sfiscirc: senza, si anima  → true
   ✓ schermo grande · sfiscirc: l'ultima scheda resta quella 3D dove c'era  → true
@@ -6654,7 +6654,7 @@ Chiave condivisa nella UI
   ✓ schermo grande · sfislaser: senza, si anima  → true
   ✓ schermo grande · sfislaser: l'ultima scheda resta quella 3D dove c'era  → true
   ✓ schermo grande · sfislaser: non sborda e non mostra valori mancanti  → 0 null
-  ✓ schermo grande · sfissolido: la scheda in spaccato c'è e disegna (136131 campioni accesi)  → true
+  ✓ schermo grande · sfissolido: la scheda in spaccato c'è e disegna (136151 campioni accesi)  → true
   ✓ schermo grande · sfissolido: il bilancio è scritto «V_bi = (kT/q) ln(N_A N_D/n_i²) = 0,744 V»  → true
   ✓ schermo grande · sfissolido: senza, si anima  → true
   ✓ schermo grande · sfissolido: l'ultima scheda resta quella 3D dove c'era  → true
@@ -6694,7 +6694,7 @@ Chiave condivisa nella UI
 
 ── Il ponte con Spectra Prime ──
   ✓ indirizzi: ws:// esterno no, https no, wss sì, ws://localhost sì; un indirizzo non ammesso non collega  → false false true true false spento
-  ✓ collegato al server finto, sessione persistente (bsi-zkmd3jy1mwxe3h7s)  → true
+  ✓ collegato al server finto, sessione persistente (bsi-otu4ckepmwxuio8i)  → true
   ✓ la telemetria arriva al server con la sezione aperta e i cursori  → true
   ✓ il messaggio dell'utente arriva come USER_MESSAGE  → Mostrami la magnetosfera durante una tempesta
   ✓ «load magnetosfera» apre la sezione delle scene e la scheda giusta  → true
@@ -6706,7 +6706,7 @@ Chiave condivisa nella UI
   ✓ scene o sezioni inesistenti rifiutate  → true
   ✓ direttiva al corpo e risposta arrivano come eventi  → true
   ✓ la telemetria dopo i comandi riporta la scena nuova  → true
-  ✓ la telemetria si manda solo quando cambia (8 invii in ~9 s, non 18)  → true
+  ✓ la telemetria si manda solo quando cambia (7 invii in ~9 s, non 18)  → true
   ✓ il server cade: il ponte si ricollega da solo  → 2
   ✓ scollegato a mano resta spento  → spento
   ✓ e non si ricollega  → 2
@@ -6714,8 +6714,8 @@ Chiave condivisa nella UI
   ✓ nessun errore JavaScript  → 0
 
 ── Le scene sul telefono ──
-  ✓ telefono · «⚛️ H₂ e la curva di Morse»: disegnata (67715 campioni), pulsante AR, didascalia onesta  → true
-  ✓ telefono · «🧲 Magnetosfera e aurore»: disegnata (53241 campioni), pulsante AR, didascalia onesta  → true
+  ✓ telefono · «⚛️ H₂ e la curva di Morse»: disegnata (67839 campioni), pulsante AR, didascalia onesta  → true
+  ✓ telefono · «🧲 Magnetosfera e aurore»: disegnata (53251 campioni), pulsante AR, didascalia onesta  → true
   ✓ telefono · «🕸️ Il reticolo deformabile»: disegnata (69115 campioni), pulsante AR, didascalia onesta  → true
   ✓ telefono · tre schede  → 3
   ✓ telefono · non sborda e non mostra valori mancanti  → 0 null
@@ -6780,13 +6780,13 @@ Chiave condivisa nella UI
   ✓ h2: disegna (358 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ geodetiche: disegna (307 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ galassia: disegna (564 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ reticolo: disegna (2083 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
+  ✓ reticolo: disegna (2084 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ telo: disegna (772 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ eliosfera: disegna (1752 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ vialattea: disegna (226 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
+  ✓ eliosfera: disegna (1753 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
+  ✓ vialattea: disegna (234 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ scala: disegna (290 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ sole: disegna (1346 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
-  ✓ spaccato: disegna (4910 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
+  ✓ spaccato: disegna (4929 pixel luminosi su 14 400), HUD con i numeri, formato verticale (1.56), pulsante Registra  → true
   ✓ non sborda  → 0
   ✓ nessun errore JavaScript  → 0
 
@@ -6869,29 +6869,29 @@ Chiave condivisa nella UI
   ✓ il pulsante della sezione c'è  → true
   ✓ la scheda «Una stella muore» è nelle Simulazioni cosmiche  → true
   ✓ ventitré scenari da scegliere, in cinque gruppi  → 23 5
-  ✓ supernova: disegna (4184 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 9.572.204 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ sole: disegna (8875 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 11.860.500.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ buconero: disegna (4200 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 4.593.329 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ ia: disegna (932 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «−214 anni dall'esplosione», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ supernova: disegna (4188 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 9.572.204 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ sole: disegna (8876 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 11.860.500.000 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ buconero: disegna (4195 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 4.593.329 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ ia: disegna (937 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «−214 anni dall'esplosione», reazioni o HUD, formato verticale (1.56)  → true
   ✓ kilonova: disegna (1576 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «+0,2 s dalla fusione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ bigbang: disegna (2940 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «t = 2,1 min», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ bigbang: disegna (2936 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «t = 2,1 min», reazioni o HUD, formato verticale (1.56)  → true
   ✓ terra: disegna (3116 px luminosi su 14 400), ciambella (7 fette) e legenda, orologio «≈ 20.415.000 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ giove: disegna (4740 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.290.000 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ galassia: disegna (3180 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.916.666.667 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ protostella: disegna (4496 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «≈ 392.609 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ protostella: disegna (4501 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «≈ 392.609 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ nanabruna: disegna (3669 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 274.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nanarossa: disegna (3653 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.238.800.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ nanarossa: disegna (3650 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «≈ 2.238.800.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ cefeide: disegna (5017 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «t = 6,3 giorni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nova: disegna (933 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 10.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ lampox: disegna (2591 px luminosi su 14 400), ciambella (5 fette) e legenda, orologio «t = 3,0 ore», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ nova: disegna (924 px luminosi su 14 400), ciambella (6 fette) e legenda, orologio «≈ 10.000 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ lampox: disegna (2598 px luminosi su 14 400), ciambella (5 fette) e legenda, orologio «t = 3,0 ore», reazioni o HUD, formato verticale (1.56)  → true
   ✓ pulsar: disegna (428 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 574 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ tde: disegna (442 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (3 fette) e legenda, orologio «+109 min dalla distruzione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ grb: disegna (4604 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «+0,7 s dal collasso», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ grb: disegna (4609 px luminosi su 14 400), ciambella (3 fette) e legenda, orologio «+0,7 s dal collasso», reazioni o HUD, formato verticale (1.56)  → true
   ✓ pisn: disegna (8163 px luminosi su 14 400), ciambella (4 fette) e legenda, orologio «≈ 301.725 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ bhbh: disegna (119 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (2 fette) e legenda, orologio «−0,0 s dalla fusione», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ quasar: disegna (3005 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 314.431.345 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ nanabianca: disegna (2920 px luminosi su 14 400), ciambella (1 fette) e legenda, orologio «≈ 598.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
-  ✓ ricombinazione: disegna (7397 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (3 fette) e legenda, orologio «≈ 367.727 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ quasar: disegna (3000 px luminosi su 14 400), ciambella (2 fette) e legenda, orologio «≈ 314.431.345 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ nanabianca: disegna (2916 px luminosi su 14 400), ciambella (1 fette) e legenda, orologio «≈ 598.000.000 anni», reazioni o HUD, formato verticale (1.56)  → true
+  ✓ ricombinazione: disegna (7398 px luminosi su 14 400, scena scura per natura: soglia 40), ciambella (3 fette) e legenda, orologio «≈ 367.727 anni», reazioni o HUD, formato verticale (1.56)  → true
   ✓ il grafico vivo nel palco c'è e disegna (scenari senza: giove)  → 
   ✓ quasi tutti gli scenari hanno il grafico vivo  → true
   ✓ supernova: la legenda somma 100 % (100)  → true
@@ -6959,14 +6959,14 @@ Chiave condivisa nella UI
 ── voce di qualità senza chiave (ripiego del sistema) ──
       sequenza: rec+ rec- voce voce voce voce rec+
   ✓ il microfono si ferma prima della prima frase  → true
-  ✓ fra il microfono spento e la voce passa un attimo (494 ms ≥ 300)  → true
+  ✓ fra il microfono spento e la voce passa un attimo (496 ms ≥ 300)  → true
   ✓ nessuna frase muta (detta col microfono acceso)  → 0
   ✓ tutte e quattro le frasi dette  → 4
   ✓ mentre parla la sentinella non riparte  → 0
   ✓ finita la voce, la sentinella riparte da sola  → true
 
 ── Senza sentinella non si aspetta ──
-  ✓ con la sentinella spenta la voce parte subito (10 ms)  → true
+  ✓ con la sentinella spenta la voce parte subito (11 ms)  → true
   ✓ nessun errore JavaScript  → 0
 
 20 controlli passati
@@ -6996,13 +6996,13 @@ Chiave condivisa nella UI
 ── La pagina, telefono ──
   ✓ il pulsante «Meccanismi 3D» è nella barra della chimica  → true
   ✓ otto meccanismi da scegliere  → 8
-  ✓ sn2: disegna allo stato di transizione (413 px), profilo vivo (1897), spiegazione del passo, arriva ai prodotti (E = -75 kJ/mol)  → true
+  ✓ sn2: disegna allo stato di transizione (410 px), profilo vivo (1897), spiegazione del passo, arriva ai prodotti (E = -75 kJ/mol)  → true
   ✓ sn1: disegna allo stato di transizione (435 px), profilo vivo (2526), spiegazione del passo, arriva ai prodotti (E = -10 kJ/mol)  → true
   ✓ e2: disegna allo stato di transizione (431 px), profilo vivo (1918), spiegazione del passo, arriva ai prodotti (E = -40 kJ/mol)  → true
   ✓ markovnikov: disegna allo stato di transizione (830 px), profilo vivo (2234), spiegazione del passo, arriva ai prodotti (E = -65 kJ/mol)  → true
   ✓ dielsalder: disegna allo stato di transizione (1456 px), profilo vivo (2025), spiegazione del passo, arriva ai prodotti (E = -166 kJ/mol)  → true
-  ✓ nitrazione: disegna allo stato di transizione (760 px), profilo vivo (2168), spiegazione del passo, arriva ai prodotti (E = -110 kJ/mol)  → true
-  ✓ acilica: disegna allo stato di transizione (424 px), profilo vivo (2530), spiegazione del passo, arriva ai prodotti (E = -60 kJ/mol)  → true
+  ✓ nitrazione: disegna allo stato di transizione (758 px), profilo vivo (2168), spiegazione del passo, arriva ai prodotti (E = -110 kJ/mol)  → true
+  ✓ acilica: disegna allo stato di transizione (423 px), profilo vivo (2530), spiegazione del passo, arriva ai prodotti (E = -60 kJ/mol)  → true
   ✓ radicalica: disegna allo stato di transizione (266 px), profilo vivo (2348), spiegazione del passo, arriva ai prodotti (E = 141 kJ/mol)  → true
   ✓ non sborda  → 0
   ✓ nessun errore JavaScript  → 0
@@ -7194,12 +7194,12 @@ Chiave condivisa nella UI
   ✓ il pulsante «Biochimica 3D Lab» è nella barra della biochimica  → true
   ✓ Spectra ha lo strumento biochimica_3d  → true
   ✓ quattro schede  → 4
-  ✓ ATP sintasi: disegna (3247 px), ossigrafo vivo (1134), montata/spaccato/esplosa (3251, 3248 px)  → true
-  ✓ ATP sintasi: in 30 s il rotore gira (10.33 giri) e i contatori seguono l'angolo (82 H⁺, 31 ATP: ≈ 8 e 3 per giro)  → true
+  ✓ ATP sintasi: disegna (3241 px), ossigrafo vivo (1134), montata/spaccato/esplosa (3248, 3240 px)  → true
+  ✓ ATP sintasi: in 30 s il rotore gira (10.32 giri) e i contatori seguono l'angolo (83 H⁺, 31 ATP: ≈ 8 e 3 per giro)  → true
   ✓ le tre β in tre stati diversi (OTL)  → true
   ✓ con l'oligomicina il rotore si ferma  → true
-  ✓ enzimi: disegnano (2263 px), grafici MM e LB vivi (774, 853), 33 prodotti contati  → true
-  ✓ enzimi: la velocità contata (0.22) torna con la formula (0.20) entro 0,1  → true
+  ✓ enzimi: disegnano (2252 px), grafici MM e LB vivi (774, 853), 44 prodotti contati  → true
+  ✓ enzimi: la velocità contata (0.29) torna con la formula (0.20) entro 0,1  → true
   ✓ glicolisi: disegna (274 px), grafico vivo (689), ispettore del passo, arriva in fondo col conto giusto  → true
   ✓ pdh: disegna (220 px), grafico vivo (233), ispettore del passo, arriva in fondo col conto giusto  → true
   ✓ krebs: disegna (110 px), grafico vivo (755), ispettore del passo, arriva in fondo col conto giusto  → true
@@ -7299,16 +7299,16 @@ Chiave condivisa nella UI
   ✓ bio_enzimi: disegna in 3D (681 px), grafico vivo (4599), telemetria (5 voci)  → true
   ✓ chem_orbitali: disegna in 3D (287 px), grafico vivo (5388), telemetria (4 voci)  → true
   ✓ org_sn2: disegna in 3D (91 px), grafico vivo (6447), telemetria (4 voci)  → true
-  ✓ spec_nmr: disegna in 3D (93 px), grafico vivo (7558), telemetria (4 voci)  → true
+  ✓ spec_nmr: disegna in 3D (90 px), grafico vivo (7558), telemetria (4 voci)  → true
   ✓ pharm_dose: disegna in 3D (358 px), grafico vivo (4156), telemetria (4 voci)  → true
-  ✓ ds_pca: disegna in 3D (92 px), grafico vivo (14162), telemetria (5 voci)  → true
+  ✓ ds_pca: disegna in 3D (81 px), grafico vivo (14162), telemetria (5 voci)  → true
   ✓ molbio_crispr: disegna in 3D (230 px), grafico vivo (7066), telemetria (4 voci)  → true
-  ✓ tox_paracetamolo: disegna in 3D (196 px), grafico vivo (9919), telemetria (4 voci)  → true
-  ✓ lab_hplc: disegna in 3D (55 px), grafico vivo (9726), telemetria (4 voci)  → true
+  ✓ tox_paracetamolo: disegna in 3D (197 px), grafico vivo (9919), telemetria (4 voci)  → true
+  ✓ lab_hplc: disegna in 3D (60 px), grafico vivo (9726), telemetria (4 voci)  → true
   ✓ comp_pes: disegna in 3D (937 px), grafico vivo (6670), telemetria (5 voci)  → true
-  ✓ biophys_hh: disegna in 3D (189 px), grafico vivo (2030), telemetria (4 voci)  → true
+  ✓ biophys_hh: disegna in 3D (199 px), grafico vivo (1933), telemetria (4 voci)  → true
   ✓ qm_qubit: disegna in 3D (32 px), grafico vivo (15065), telemetria (5 voci)  → true
-  ✓ hyper_ncubo: disegna in 3D (75 px), grafico vivo (4878), telemetria (5 voci)  → true
+  ✓ hyper_ncubo: disegna in 3D (75 px), grafico vivo (4825), telemetria (5 voci)  → true
   ✓ string_cy: disegna in 3D (1643 px), grafico vivo (10357), telemetria (5 voci)  → true
   ✓ thermo_gibbs: disegna in 3D (237 px), grafico vivo (4982), telemetria (5 voci)  → true
   ✓ il ponte imposta un parametro e dà lo stato  → true
@@ -7694,7 +7694,7 @@ Fluidità — il tempo che la pagina resta bloccata a ogni cambio di sezione
 
 ── Viewer 3D PRO ──
   ✓ il click NON costruisce il contesto WebGL (tele create nel gestore)  → 0
-  ✓ e il gestore resta sotto il tetto grossolano (ms)  → 4 (limite 400)
+  ✓ e il gestore resta sotto il tetto grossolano (ms)  → 5 (limite 400)
   ✓ il viewer si costruisce comunque: la tela WebGL esiste  → true
   ✓ e i comandi del pannello ci sono  → true
       (49 nodi, 1 tela, 33 comandi)
@@ -7713,9 +7713,9 @@ Fluidità — il tempo che la pagina resta bloccata a ogni cambio di sezione
 ── I cambi di sezione ──
   ✓ le sezioni attraversate sono tutte  → true
   ✓ il cambio di sezione mediano (ms)  → 9 (limite 40)
-  ✓ il cambio di sezione peggiore (ms)  → 112 (limite 260)
+  ✓ il cambio di sezione peggiore (ms)  → 138 (limite 260)
   ✓ quante sezioni superano i 100 ms  → 1 (limite 2)
-      (226 sezioni; le più lente: sspaziochim 112ms, sfarm 91ms, smatanalcomp 56ms, smatmulti 47ms)
+      (226 sezioni; le più lente: sspaziochim 138ms, sfarm 96ms, smatanalcomp 55ms, sdatasci 51ms)
   ✓ nessun errore JavaScript percorrendo tutta l'applicazione  → 0
 
 16 controlli passati
@@ -7913,7 +7913,7 @@ La molecola che si forma, e gli angoli fra i suoi legami
   ✓ all’avvio la tela è quasi vuota (polvere)  → true
   ✓ due secondi dopo c’è una molecola  → true
   ✓ il ciclo si ferma quando lo si ferma  → true
-      (176 pixel accesi a 130 ms → 3806 a 2,3 s)
+      (176 pixel accesi a 130 ms → 3804 a 2,3 s)
 
 ── I comandi ──
   ✓ la barra dei comandi compare accanto alla tela  → true
@@ -8067,11 +8067,11 @@ Storia del repository — nessuna credenziale in nessuna versione
   ✓ il clone NON è superficiale (altrimenti la storia è parziale)  → false
   ✓ i commit esaminati sono molti  → true
   ✓ le versioni di file di testo sono molte  → true
-      (725 commit · 7976 versioni distinte di file di testo)
+      (728 commit · 8037 versioni distinte di file di testo)
 
 ── La ricerca ──
   ✓ nessuna credenziale in nessuna versione di nessun file  → 
-      (7976 versioni esaminate con 9 schemi)
+      (8037 versioni esaminate con 9 schemi)
   ✓ le eccezioni dichiarate sono tutte ancora nella storia, nessuna di più  → 1
       · cc1a0ba00 — tools/banchi/audit_storia.js al commit 825ef66 — la prima stesura di QUESTO banco, che scriveva …
 
@@ -8108,7 +8108,7 @@ Nessun dato dell'utente lascia il dispositivo
 Verifica di accessibilità
 WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
-  ✓ index                   226/226 sez · 40046 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 10246 in SVG · 1485 su gradiente (misurati sulla tappa peggiore) · 7 su immagine, non misurabili · 3 di sole emoji
+  ✓ index                   226/226 sez · 40046 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 10245 in SVG · 1485 su gradiente (misurati sulla tappa peggiore) · 7 su immagine, non misurabili · 3 di sole emoji
   ✓ astro                             4999 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 2 su gradiente (misurati sulla tappa peggiore) · 1 su immagine, non misurabili · 1 di sole emoji
   ✓ chimorga                          1701 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 469 in SVG · 1 di sole emoji
   ✓ accademia                         61 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 1 su gradiente (misurati sulla tappa peggiore) · 13 di sole emoji
@@ -8266,7 +8266,7 @@ Traboccamento orizzontale a 390 px
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v275
+Versione del codice (sw.js): bsi-v276
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -8328,7 +8328,7 @@ misurato nell'applicazione in esecuzione.
   ✓ moduli di chimica organica  → 25
 
 ── Badge del README ──
-  ✓ il badge della versione è allineato al codice  → bsi--v275
+  ✓ il badge della versione è allineato al codice  → bsi--v276
   ✓ il badge dei banchi coincide con la batteria  → 126
   ✓ il badge del contrasto coincide con la misura registrata  → 0
 
@@ -8486,7 +8486,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
   ✓   · ma nascosti: la barra non li mostra più  → 12
   ✓ goSection() su ogni scheda apre il centro su quella scheda  → 0
   ✓   · e ogni pannello ha contenuto  → 0
-      (sspettrolettore:176 · snmrpred:23 · snoe:56 · sms:51 · sirvis:41 · suvvis:116 · sdeconv:93 · smetodi:140 · sspec:259 · scentro:265 · selucid:99 · squizspec:59)
+      (sspettrolettore:176 · snmrpred:23 · snoe:56 · sms:51 · sirvis:41 · suvvis:116 · sdeconv:93 · smetodi:140 · sspec:259 · scentro:265 · selucid:99 · squizspec:61)
 
 ── Niente cose doppie ──
   ✓ nessun id ripetuto nel documento  → 0
@@ -8567,7 +8567,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 1219ab2bead6
+git checkout e1c82bc19004
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -8598,4 +8598,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-11-26T10:29:07.963Z._
+_Generato il 2026-11-26T17:48:06.590Z._

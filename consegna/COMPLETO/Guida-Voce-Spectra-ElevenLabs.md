@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Versione descritta** | `bsi-v275` (prima versione con la voce ElevenLabs) |
+| **Versione descritta** | `bsi-v276` (prima versione con la voce ElevenLabs) |
 | **File** | `bsi-spectra-elevenlabs.js` (client), `proxy/spectra-proxy.js` (route `POST /voce`), `tools/spectra-voce-design.mjs` (Voice Design) |
 | **Banchi** | `test_voce_elevenlabs` (24 controlli, nella batteria), `tools/banchi/test_worker.mjs` (sezione 14, route `/voce`) |
 

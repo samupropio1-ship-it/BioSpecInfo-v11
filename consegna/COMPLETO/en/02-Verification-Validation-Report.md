@@ -116,7 +116,7 @@ In line with the principle of scientific transparency:
 
 ---
 
-## 7. Verification battery — state at version `bsi-v275`
+## 7. Verification battery — state at version `bsi-v276`
 
 Verification is no longer only functional end-to-end testing: it includes
 benches dedicated to the properties a functional test does not observe
