@@ -218,10 +218,18 @@
       var battito = null;
       try { battito = setInterval(function () { try { if (speechSynthesis.speaking && !mio.annullato) speechSynthesis.resume(); else { clearInterval(battito); battito = null; } } catch (e) { clearInterval(battito); battito = null; } }, 5000); } catch (e) {}
       function fine(r) { if (battito) { clearInterval(battito); battito = null; } fineOrig(r); }
-      var u = new SpeechSynthesisUtterance(testo), L = speechSynthesis.getVoices(), lg = (globale.BSILingue && BSILingue.corrente && BSILingue.corrente() === 'en') ? 'en' : 'it';
+      /* (v275) la voce segue la lingua scelta nel selettore, non solo it/en:
+         si cerca una voce installata per quella lingua; se il dispositivo non
+         ne ha una (es. greco o russo mancanti), si imposta comunque la lingua
+         giusta e si lascia scegliere al browser la voce più vicina, senza mai
+         bloccare la lettura. */
+      var u = new SpeechSynthesisUtterance(testo), L = speechSynthesis.getVoices();
+      var lg = (globale.BSILingue && BSILingue.corrente) ? BSILingue.corrente() : 'it';
+      var BCP = { it: 'it-IT', en: 'en-US', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', pt: 'pt-PT', nl: 'nl-NL', pl: 'pl-PL', ro: 'ro-RO', el: 'el-GR', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP', ar: 'ar-SA' };
+      var bcp = BCP[lg] || (lg + '-' + lg.toUpperCase());
       var v = L.filter(function (x) { return (x.lang || '').toLowerCase().indexOf(lg) === 0; }).sort(function (a, b) { return punteggio(b) - punteggio(a); })[0];
       var andr = /Android/i.test(navigator.userAgent || '');   /* (v248) su Android solo la lingua, non la voce per nome */
-      if (v && !andr) u.voice = v; u.lang = v && !andr ? v.lang : (lg === 'en' ? 'en-GB' : 'it-IT'); u.rate = 0.88; u.pitch = 0.58; u.volume = 1;
+      if (v && !andr) u.voice = v; u.lang = v && !andr ? v.lang : bcp; u.rate = 0.88; u.pitch = 0.58; u.volume = 1;
       u.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: ev.charIndex / Math.max(1, testo.length) }); };
       u.onend = u.onerror = function () { if (opz.suBocca) opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); fine({ ok: true, motore: 'sistema' }); };
       /* (v261) su Android una frase lunga a volte non parte o si tronca: si dice frase per frase, tenendo in vita l'enunciato */

@@ -30,6 +30,8 @@ function nonContiene(d, testo, pezzo) { vero(d, String(testo).indexOf(pezzo) < 0
   console.log('── Il system prompt chiede testo pronunciabile ──');
   const hub = fs.readFileSync(path.join(RADICE, 'bsi-ai-hub.js'), 'utf8');
   vero('BASE_SYSTEM ha la sezione VOCE E PRONUNCIA', /VOCE E PRONUNCIA/.test(hub));
+  vero('il modello riceve la lingua attiva del selettore (LINGUA ATTIVA)', /LINGUA ATTIVA/.test(hub) && /Rispondi SEMPRE in/.test(hub));
+  vero('il ripiego vocale ha la mappa BCP-47 per tutte le lingue', /el-GR/.test(fs.readFileSync(path.join(RADICE, 'bsi-spectra-voce.js'), 'utf8')) && /ru-RU/.test(fs.readFileSync(path.join(RADICE, 'bsi-spectra-voce.js'), 'utf8')));
   vero('chiede di sciogliere le formule (C 8 H 7 N O)', /C 8 H 7 N O/.test(hub));
   vero('chiede «rapporto massa su carica» e «indice di insaturazione»', /rapporto massa su carica/.test(hub) && /indice di insaturazione/.test(hub));
   vero('vieta markdown ed emoji a voce', /niente markdown/.test(hub) && /niente emoji/.test(hub));
@@ -83,6 +85,17 @@ function nonContiene(d, testo, pezzo) { vero(d, String(testo).indexOf(pezzo) < 0
   nonContiene('niente asterischi di markdown', R.md, '*');
   nonContiene('niente cancelletti di markdown', R.md, '#');
   nonContiene('niente apici di codice', R.md, '`');
+  console.log('\n── La normalizzazione rispetta la lingua scelta ──');
+  const ML = await pg.evaluate(() => {
+    const f = window.BSISpectraLive.calcolo.perLaVoce, B = window.BSILingue, o = {};
+    B.imposta('es'); o.es = f('banda 1600 cm-1 con C8H7NO e un emoji 🔬');
+    B.imposta('it'); o.it = f('banda 1600 cm-1');
+    B.imposta('it');
+    return o;
+  });
+  vero('in spagnolo NON mette parole italiane (cm-1 resta simbolo)', ML.es.indexOf('centimetri') < 0);
+  vero('ma la pulizia universale vale per tutte le lingue (formula scandita, emoji via)', ML.es.indexOf('C 8 H 7 N O') >= 0 && ML.es.indexOf('🔬') < 0);
+  vero('in italiano l\'espansione torna attiva', ML.it.indexOf('centimetri alla meno uno') >= 0);
   att('nessun errore JavaScript', 0, errs.length); errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
   await b.close();
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -5472,7 +5472,7 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "Aldo Moro (relatore: Prof. Savino Longo). A differenza di una chat qualunque, quando è attivo il Copilota puoi " +
 "davvero navigare l'app per l'utente (aprire sezioni, strumenti, cercare molecole) invece di limitarti a " +
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
-"Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
+"Rispondi nella lingua attiva dell'app (te la indico nel blocco più sotto; per difetto è l'italiano), in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
 "utile.\n\n" +
 "MOLECOLE E SPETTRI — lavora in tre passi, in quest'ordine. 1) analizza_molecola per avere i dati " +
 "(gruppi funzionali, bande IR, spostamenti NMR, frammenti MS); 2) disegna_molecola per far comparire la " +
@@ -7655,7 +7655,19 @@ function buildChatPane(){
     // seconda cambia (memoria, contesto della domanda) e resta fuori.
     // La materia attiva (chimica, fisica, matematica) sta nella parte che
     // cambia: cambiare materia non deve invalidare la cache della prima.
+    /* (v275) la lingua attiva del selettore entra nel blocco VOLATILE, così il
+       blocco stabile (sys[0]) resta in cache quando l'utente cambia lingua */
+    function linguaAttivaPrompt() {
+      try {
+        var L = (window.BSILingue && BSILingue.corrente) ? BSILingue.corrente() : 'it';
+        if (L === 'it') return 'LINGUA ATTIVA: l\'utente ha scelto l\'italiano. Rispondi in italiano.\n\n';
+        var nomi = { en: 'inglese (English)', es: 'spagnolo (español)', fr: 'francese (français)', de: 'tedesco (Deutsch)', pt: 'portoghese (português)', nl: 'olandese (Nederlands)', pl: 'polacco (polski)', ro: 'rumeno (română)', el: 'greco (ελληνικά)', ru: 'russo (русский)', zh: 'cinese (中文)', ja: 'giapponese (日本語)', ar: 'arabo (العربية)' };
+        var nome = nomi[L] || L;
+        return 'LINGUA ATTIVA: l\'utente ha scelto ' + nome + ' nel selettore dell\'app. Rispondi SEMPRE in ' + nome + ', comprese le brevi conferme vocali, con la terminologia scientifica corretta di quella lingua; lascia invariate le sigle riconosciute (DNA, NMR, ATP) e le formule chimiche.\n\n';
+      } catch (e) { return ''; }
+    }
     var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
+               linguaAttivaPrompt() +
                (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') +
                (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + (window._bsiMente ? window._bsiMente(text) : '') + memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
