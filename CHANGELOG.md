@@ -7,6 +7,25 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v274] — 2026-11-26
+
+**Voce: frequenze pronunciate e battito anti-silenzio**
+
+### Cambiato
+- **Normalizzatore `perLaVoce`** (`bsi-spectra-live.js`): aggiunge le frequenze — `Hz` → «hertz», `MHz` → «megahertz»,
+  `kHz` → «chilohertz», `GHz` → «gigahertz» — così lo spettrometro «a 400 megahertz» e l'accoppiamento «7 hertz» si
+  leggono bene.
+- **Keep-alive anti-freeze** nel ripiego vocale di sistema (`bsi-spectra-voce.js`): oltre al `resume()` prima di ogni
+  frase, un battito periodico ogni 5 s tiene viva la sintesi mentre parla, così su Android/Chrome la voce non si spegne
+  da sola dopo ~15 secondi di parlato continuo. Si ferma da solo appena l'enunciato finisce o viene interrotto.
+
+### Note
+- Seconda tornata di rifiniture vocali presa dalla proposta «SpectraVoiceEngine v4.0». Come già per la v273, non si è
+  aggiunto un secondo motore: lo sblocco audio, la scelta della voce, lo spezzettamento, la campana e la lettura
+  automatica esistono già e parlano con una sola voce; qui si sono presi solo i due pezzi davvero mancanti. Banco
+  `test_pronuncia` esteso a 29 controlli. 126 banchi, 794 file.
+
+---
 ## [bsi-v273] — 2026-11-25
 
 **La voce di Spectra pronuncia bene la scienza**

@@ -239,12 +239,14 @@
         .replace(/\bNMR\b/gi, ' risonanza magnetica nucleare ')
         .replace(/\bFT[\s-]?IR\b/gi, ' spettroscopia infrarossa ')
         .replace(/\bEI[\s-]?MS\b/gi, ' spettrometria di massa ')
-        .replace(/\bUV[\s-]?Vis\b/gi, ' ultravioletto visibile ');
+        .replace(/\bUV[\s-]?Vis\b/gi, ' ultravioletto visibile ')
+        .replace(/\bGHz\b/g, ' gigahertz ').replace(/\bMHz\b/g, ' megahertz ').replace(/\bkHz\b/g, ' chilohertz ').replace(/\bHz\b/g, ' hertz ');
     } else {
       s = s.replace(/\bcm\s*(?:\^|\*\*)?\s*[-−⁻]\s*[1¹](?![\w¹])/gi, ' per centimeter ')
         .replace(/\bm\s*\/\s*z\b/gi, ' mass to charge ratio ')
         .replace(/\bIHD\b/g, ' degree of unsaturation ')
-        .replace(/\bppm\b/gi, ' parts per million ');
+        .replace(/\bppm\b/gi, ' parts per million ')
+        .replace(/\bGHz\b/g, ' gigahertz ').replace(/\bMHz\b/g, ' megahertz ').replace(/\bkHz\b/g, ' kilohertz ').replace(/\bHz\b/g, ' hertz ');
     }
     var R = it ? [[/²/g, ' al quadrato'], [/³/g, ' al cubo'], [/√/g, ' radice di '], [/≈/g, ' circa '], [/≤/g, ' minore o uguale a '], [/≥/g, ' maggiore o uguale a '], [/≠/g, ' diverso da '], [/·|×/g, ' per '], [/−/g, ' meno '], [/→/g, ' porta a '], [/∫/g, ' integrale di '], [/∑/g, ' somma di '], [/π/g, ' pi greco '], [/Δ/g, ' delta '], [/λ/g, ' lambda '], [/μ/g, ' mu '], [/°C/g, ' gradi Celsius'], [/°/g, ' gradi'], [/\be\.g\./g, 'per esempio'], [/ m\/s\b/g, ' metri al secondo'], [/\bkm\b/g, ' chilometri'], [/\beV\b/g, ' elettronvolt'], [/\bJ\b/g, ' joule']]
       : [[/²/g, ' squared'], [/³/g, ' cubed'], [/√/g, ' square root of '], [/≈/g, ' about '], [/·|×/g, ' times '], [/−/g, ' minus '], [/π/g, ' pi '], [/°C/g, ' degrees Celsius']];

@@ -49,6 +49,7 @@ function nonContiene(d, testo, pezzo) { vero(d, String(testo).indexOf(pezzo) < 0
       acr: f('misura di ATP e NADH'),
       cm1: f('1715 cm-1'), cmsup: f('1600 cm⁻¹'), cmpow: f('2200 cm^-1'),
       mz: f('picco m/z 133'),
+      hz: f('accoppiamento 7 Hz'), mhz: f('spettrometro 400 MHz'),
       ihd: f('IHD pari a 6'), ppm: f('segnale a 7,26 ppm'),
       nmr1: f('spettro 1H-NMR'), nmr13: f('spettro 13C-NMR'),
       solv: f('in CDCl3 con D2O e DMSO'),
@@ -65,6 +66,8 @@ function nonContiene(d, testo, pezzo) { vero(d, String(testo).indexOf(pezzo) < 0
   contiene('cm⁻¹ (apice) → unità per esteso', R.cmsup, 'centimetri alla meno uno');
   contiene('cm^-1 → unità per esteso', R.cmpow, 'centimetri alla meno uno');
   contiene('m/z → rapporto massa su carica', R.mz, 'rapporto massa su carica');
+  contiene('Hz → hertz', R.hz, 'hertz');
+  contiene('MHz → megahertz', R.mhz, 'megahertz');
   contiene('IHD → indice di insaturazione', R.ihd, 'indice di insaturazione');
   contiene('ppm → parti per milione', R.ppm, 'parti per milione');
   contiene('1H-NMR → risonanza magnetica protonica', R.nmr1, 'protonica');

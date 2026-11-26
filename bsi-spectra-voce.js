@@ -210,7 +210,14 @@
   /* il ripiego: la sintesi del sistema, voce maschile piu' grave */
   function sistema(testo, opz, mio) {
     if (!('speechSynthesis' in globale)) return Promise.resolve({ ok: false, motore: 'nessuno' });
-    return new Promise(function (fine) {
+    return new Promise(function (fineOrig) {
+      /* (v274) keep-alive anti-freeze: oltre al resume() prima di ogni frase,
+         un battito periodico tiene viva la sintesi: su Android/Chrome la voce
+         si spegne da sola dopo ~15 s di parlato continuo, e questo lo evita.
+         Si spegne appena l'enunciato finisce o viene fermato. */
+      var battito = null;
+      try { battito = setInterval(function () { try { if (speechSynthesis.speaking && !mio.annullato) speechSynthesis.resume(); else { clearInterval(battito); battito = null; } } catch (e) { clearInterval(battito); battito = null; } }, 5000); } catch (e) {}
+      function fine(r) { if (battito) { clearInterval(battito); battito = null; } fineOrig(r); }
       var u = new SpeechSynthesisUtterance(testo), L = speechSynthesis.getVoices(), lg = (globale.BSILingue && BSILingue.corrente && BSILingue.corrente() === 'en') ? 'en' : 'it';
       var v = L.filter(function (x) { return (x.lang || '').toLowerCase().indexOf(lg) === 0; }).sort(function (a, b) { return punteggio(b) - punteggio(a); })[0];
       var andr = /Android/i.test(navigator.userAgent || '');   /* (v248) su Android solo la lingua, non la voce per nome */

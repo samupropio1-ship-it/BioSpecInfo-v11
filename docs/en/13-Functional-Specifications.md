@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v273` |
+| **Version described** | `bsi-v274` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -725,4 +725,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v273`._
+_Document updated to version `bsi-v274`._
