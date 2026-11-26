@@ -207,8 +207,30 @@
     }
     return sistema(testo, opz, mio);
   }
-  /* il ripiego: la sintesi del sistema, voce maschile piu' grave */
+  /* (v277) quante voci di sistema sono realmente disponibili (0 = telefono muto pur col bip) */
+  function vociSistemaUsabili() { try { return ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : 0; } catch (e) { return 0; } }
+  /* (v277) router del ripiego: se mancano le voci di sistema (o l'utente sceglie la voce
+     integrata), usa la voce offline di Spectra (meSpeak via Web Audio); altrimenti la sintesi
+     del sistema. Così "si sente il bip ma non la voce" è risolto senza installare nulla. */
   function sistema(testo, opz, mio) {
+    var TI = globale.BSISpectraTTSIntegrata;
+    if (TI && TI.supportata() && (opz.integrata || vociSistemaUsabili() === 0)) return integrata(testo, opz, mio);
+    return sistemaReale(testo, opz, mio);
+  }
+  /* (v277) la voce integrata offline; se fallisce davvero (non per annullamento), ripiega
+     sulla sintesi di sistema reale per non lasciare mai Spectra senza tentativi. */
+  function integrata(testo, opz, mio) {
+    var TI = globale.BSISpectraTTSIntegrata;
+    var lang = (globale.BSILingue && globale.BSILingue.corrente) ? globale.BSILingue.corrente() : 'it';
+    var tk = { annullato: false }; mio.integrata = tk;
+    if (mio.annullato) return Promise.resolve({ annullato: true });
+    return TI.parla(testo, lang, { suBocca: opz.suBocca, token: tk, speed: opz.speed, pitch: opz.pitch, amplitude: opz.amplitude, variant: opz.variant }).then(function (r) {
+      if (r && r.ok === false && !r.vuoto && !mio.annullato && ('speechSynthesis' in globale) && vociSistemaUsabili() > 0) return sistemaReale(testo, opz, mio);
+      return r || { ok: true, motore: 'integrata' };
+    });
+  }
+  /* il ripiego: la sintesi del sistema, voce maschile piu' grave */
+  function sistemaReale(testo, opz, mio) {
     if (!('speechSynthesis' in globale)) return Promise.resolve({ ok: false, motore: 'nessuno' });
     return new Promise(function (fineOrig) {
       /* (v274) keep-alive anti-freeze: oltre al resume() prima di ogni frase,
@@ -251,13 +273,22 @@
   }
   function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0) + (/neural|natural|premium|enhanced|siri|multilingual/.test(n) ? 2 : 0); }
   function ferma() {
+    if (corrente && corrente.integrata) { corrente.integrata.annullato = true; try { if (globale.BSISpectraTTSIntegrata) globale.BSISpectraTTSIntegrata.ferma(); } catch (e) {} }
     if (corrente && corrente.el) { corrente.annullato = true; try { corrente.el.ferma(); } catch (e) { } }
     if (corrente) { corrente.annullato = true; try { if (corrente.src) corrente.src.stop(); } catch (e) {} if (corrente.chain) corrente.chain.ferma(); if (corrente.raf) cancelAnimationFrame(corrente.raf); }
     try { if ('speechSynthesis' in globale && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); } catch (e) {}   /* (v261) annullare a vuoto, su Android, fa cadere la frase dopo */
   }
   /* (v243) chiamata al primo tocco: il contesto audio nasce/riprende dentro un gesto, come chiedono i browser dei telefoni */
   function sblocca() { try { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) globale.BSISpectraElevenLabs.voce().sblocca(); } catch (e) { } var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }
-  function qualita() { if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) return 'audio'; return chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext) ? 'audio' : ('speechSynthesis' in globale ? 'sistema' : 'testo'); }
+  /* (v277) 'integrata' = voce offline di Spectra, usata quando non ci sono voci di
+     sistema ma la Web Audio funziona (il caso "si sente il bip ma non la voce"). */
+  function qualita() {
+    if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) return 'audio';
+    if (chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext)) return 'audio';
+    if (('speechSynthesis' in globale) && vociSistemaUsabili() > 0) return 'sistema';
+    if (globale.BSISpectraTTSIntegrata && globale.BSISpectraTTSIntegrata.supportata()) return 'integrata';
+    return ('speechSynthesis' in globale) ? 'sistema' : 'testo';
+  }
 
   function impostaPreset(nome) { if (!PRESET[nome]) return presetSalvato(); try { localStorage.setItem('bsi-voce-preset', nome); } catch (e) {} return nome; }
   globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, PRESET: PRESET, timbro: timbro, impostaPreset: impostaPreset, presetSalvato: presetSalvato, ISTRUZIONI: ISTRUZIONI, versione: '2.0' };

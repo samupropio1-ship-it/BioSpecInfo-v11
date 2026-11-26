@@ -354,6 +354,7 @@
        fatta di soli spazi, lasciando in coda tutto quello che viene dopo: li' non si manda */
     try { if ('speechSynthesis' in globale && !ANDROID) { var u0 = new SpeechSynthesisUtterance(' '); u0.volume = 0; u0.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; speechSynthesis.speak(u0); speechSynthesis.resume(); } } catch (e) {}
     try { if (globale.BSISpectraVoce && globale.BSISpectraVoce.sblocca) globale.BSISpectraVoce.sblocca(); } catch (e) {}
+    try { ctxAudio(); } catch (e) {} /* (v277) sblocca anche il contesto Web Audio per la voce integrata */
   }
   if (typeof document !== 'undefined') {
     ['pointerdown', 'keydown', 'touchend'].forEach(function (ev) { document.addEventListener(ev, sbloccaVoce, { capture: true, passive: true }); });
@@ -362,6 +363,17 @@
   /* (v248) PROVA AUDIO: un bip con Web Audio (non dipende dal motore vocale) e poi una frase. Se il bip non si sente il
      telefono e' in muto o il volume multimediale e' a zero; se si sente il bip ma non la frase, manca la voce del telefono */
   var acProva = null;
+  /* (v277) contesto Web Audio condiviso e gia' sbloccato (lo stesso del bip): la voce integrata
+     meSpeak suona qui dentro, cosi' funziona anche nell'auto-lettura (fuori da un gesto utente),
+     perche' un contesto gia' sbloccato resta "running". */
+  function ctxAudio() {
+    try {
+      var AC = globale.AudioContext || globale.webkitAudioContext; if (!AC) return null;
+      if (!acProva) acProva = new AC();
+      if (acProva.state === 'suspended') { try { acProva.resume(); } catch (e) {} }
+      return acProva;
+    } catch (e) { return null; }
+  }
   function provaAudio() {
     sbloccaVoce(); voce.attiva = true; voce.scelta = null; var bip = false;
     try {
@@ -1325,7 +1337,7 @@
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella, eSpectra: eSpectra, haSpectra: haSpectra, pausa: pausaSentinella, riprendi: riprendiSentinella, stato: function () { return { attiva: sentinella.attiva, inPausa: sentinella.inPausa, errori: sentinella.errori }; }, attiva: function () { return sentinella.attiva; } },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
-    apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, provaAudio: provaAudio, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
+    apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, provaAudio: provaAudio, ctxAudio: ctxAudio, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
 })(typeof window !== 'undefined' ? window : globalThis);

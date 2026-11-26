@@ -6356,9 +6356,14 @@ function providerSelectHtml(selected){
    sono anche globali, con i nomi chiesti dall'autore. */
 var VOCE_ROBOTICA = { pitch: 0.58, rate: 0.88, volume: 1 };
 var VOCE_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
-var _vocePreferita = null, _voceGiro = 0, _voceInCorso = false;
+var _vocePreferita = null, _voceGiro = 0, _voceInCorso = false, _voceMotore = false;
 var autoSpeakEnabled = (function(){ try{ return localStorage.getItem('spectraAutoSpeak') === 'true'; }catch(e){ return false; } })();
-function voceSupportata(){ return typeof window !== 'undefined' && !!window.speechSynthesis && typeof window.speechSynthesis.speak === 'function' && typeof SpeechSynthesisUtterance !== 'undefined'; }
+function voceSupportata(){
+  var sp = typeof window !== 'undefined' && !!window.speechSynthesis && typeof window.speechSynthesis.speak === 'function' && typeof SpeechSynthesisUtterance !== 'undefined';
+  /* (v277) anche senza voci di sistema la voce integrata offline (meSpeak via Web Audio) funziona */
+  var integ = typeof window !== 'undefined' && window.BSISpectraTTSIntegrata && window.BSISpectraTTSIntegrata.supportata();
+  return !!(sp || integ);
+}
 function caricaVoci(){
   if(!voceSupportata()) return null;
   var V = []; try{ V = speechSynthesis.getVoices() || []; }catch(e){}
@@ -6396,12 +6401,18 @@ var _pulsanteInCorso = null;
 /** Fa parlare Spectra con la voce maschile robotica. Restituisce false se il browser non ha la sintesi. */
 function speakRobotic(text, opz){
   opz = opz || {};
-  /* (v263) con la voce ElevenLabs configurata la chat parla con quella (stessa voce della console e della figura) */
+  /* (v263) con la voce ElevenLabs configurata la chat parla con quella (stessa voce della console e della figura)
+     (v277) in generale, quando è disponibile una voce "motore" (cloud ElevenLabs/OpenAI, oppure la voce
+     integrata offline quando mancano le voci di sistema) la lettura passa da BSISpectraVoce.parla, che sceglie
+     da sé la catena giusta. Così l'auto-lettura non resta più muta sui dispositivi senza voci TTS. */
   var EL = window.BSISpectraElevenLabs, VQ = window.BSISpectraVoce;
-  if(EL && VQ && EL.attiva()){
-    stopSpeaking(true); var mioEL = ++_voceGiro; _voceInCorso = true; _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
+  var q = VQ ? VQ.qualita() : 'sistema';
+  var usaMotore = VQ && ((EL && EL.attiva()) || q === 'audio' || q === 'integrata');
+  if(usaMotore){
+    stopSpeaking(true); var mioM = ++_voceGiro; _voceInCorso = true; _voceMotore = true; _pulsanteInCorso = opz.pulsante || null; segnaPulsanti(true);
     try{ document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: testoPerVoce(text).slice(0, 4000) } })); }catch(e){}
-    VQ.parla(testoPerVoce(text)).then(function(){ if(mioEL !== _voceGiro) return; _voceInCorso = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); });
+    var chiudiM = function(){ if(mioM !== _voceGiro) return; _voceInCorso = false; _voceMotore = false; _pulsanteInCorso = null; segnaPulsanti(false); if(opz.fatto) opz.fatto(); };
+    VQ.parla(testoPerVoce(text)).then(chiudiM, chiudiM);   /* la liberazione del microfono la gestisce già VQ.parla */
     return true;
   }
   if(!voceSupportata()) return false;
@@ -6438,6 +6449,9 @@ function speakRobotic(text, opz){
 /** Interrompe la lettura (anche la voce della console). */
 function stopSpeaking(senzaPulsanti){
   _voceGiro++; var miaVoce = _voceInCorso; _voceInCorso = false;
+  /* (v277) se si stava leggendo con una voce "motore" (cloud o integrata), la si ferma da lì */
+  if(miaVoce && _voceMotore && window.BSISpectraVoce){ try{ window.BSISpectraVoce.ferma(); }catch(e){} }
+  _voceMotore = false;
   if(miaVoce && window.BSISpectraElevenLabs && window.BSISpectraElevenLabs.attiva() && window.BSISpectraVoce){ try{ window.BSISpectraVoce.ferma(); }catch(e){} }
   if(miaVoce && window.bsiDopoAverParlato){ try{ window.bsiDopoAverParlato(); }catch(e){} }
   if(!senzaPulsanti){ _pulsanteInCorso = null; segnaPulsanti(false); }
@@ -6469,6 +6483,7 @@ function createSpeakButton(text){
 function speak(text){ speakRobotic(text); }
 window.speakRobotic = speakRobotic; window.stopSpeaking = stopSpeaking;
 window.toggleAutoSpeak = toggleAutoSpeak; window.createSpeakButton = createSpeakButton;
+window.voceSupportata = voceSupportata;   /* (v277) usato dai controlli voce e verificabile dai banchi */
 window.bsiVoceRobotica = { parametri: VOCE_ROBOTICA, voce: function(){ return _vocePreferita || caricaVoci(); }, auto: function(){ return autoSpeakEnabled; } };
 /* si ferma quando si cambia sezione */
 document.addEventListener('click', function(e){
@@ -7312,7 +7327,8 @@ function buildChatPane(){
     var box = document.getElementById('spectra-voce-avviso');
     var q = window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : 'sistema';
     var vociSistema = r && typeof r.voci === 'number' ? r.voci : -1;
-    var serve = (q !== 'audio') && vociSistema === 0;   /* nessuna voce cloud e nessuna voce di sistema */
+    /* (v277) con la voce integrata offline non manca nulla: niente avviso */
+    var serve = (q !== 'audio') && (q !== 'integrata') && vociSistema === 0;
     if(!box){
       if(!serve) return;
       box = document.createElement('div'); box.id = 'spectra-voce-avviso';
@@ -7329,11 +7345,22 @@ function buildChatPane(){
   if(pv){ pv.onclick = function(){
     var L = window.BSISpectraLive, r = (L && L.provaAudio) ? L.provaAudio() : null;
     var q = window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : 'sistema';
-    if(q === 'audio' && window.BSISpectraVoce){ try{ window.BSISpectraVoce.parla('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); }catch(e){} }
-    else if(!r){ speakRobotic('Questa è la voce di Spectra. Se mi senti, l\'audio funziona.'); }
+    var frase = 'Ciao, sono Spectra. Se mi senti, la voce funziona.';
+    /* (v277) voce cloud o voce integrata offline: parla da BSISpectraVoce (la integrata suona via Web Audio,
+       come il bip). Altrimenti, se non c'è stato nemmeno il bip, si prova la sintesi di sistema. */
+    if((q === 'audio' || q === 'integrata') && window.BSISpectraVoce){ try{ window.BSISpectraVoce.parla(frase); }catch(e){} }
+    else if(!r){ speakRobotic(frase); }
     mostraAvvisoVoce(r);
   }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
+  /* (v277) se la voce attiva è quella integrata offline, si pre-carica il motore (una volta sola,
+     ~5 MB poi in cache) così la prima lettura non ha ritardo. Solo quando serve davvero. */
+  try{
+    if(window.BSISpectraVoce && window.BSISpectraVoce.qualita() === 'integrata' && window.BSISpectraTTSIntegrata){
+      var lgPre = (window.BSILingue && window.BSILingue.corrente) ? window.BSILingue.corrente() : 'it';
+      window.BSISpectraTTSIntegrata.prepara(lgPre);
+    }
+  }catch(e){}
   document.getElementById('bsi-hub-reset').onclick = function(){
     if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }
     disegnaReset();                 // ridisegnato ogni volta: i conteggi cambiano
