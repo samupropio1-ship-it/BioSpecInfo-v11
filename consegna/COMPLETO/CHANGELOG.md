@@ -7,6 +7,35 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v275] — 2026-11-26
+
+**Spectra parla e risponde nella lingua del selettore**
+
+### Cambiato
+- **La voce segue la lingua scelta** (`bsi-spectra-voce.js`): il ripiego vocale di sistema non sceglie più solo fra
+  italiano e inglese, ma cerca la voce installata per la lingua attiva del selettore (14 lingue, mappa BCP-47:
+  it-IT, en-US, es-ES, fr-FR, de-DE, pt-PT, nl-NL, pl-PL, ro-RO, el-GR, ru-RU, zh-CN, ja-JP, ar-SA). Se il dispositivo
+  non ha una voce per quella lingua (es. greco o russo mancanti), imposta comunque la lingua giusta e lascia scegliere
+  al browser la voce più vicina, senza mai bloccare la lettura.
+- **Il modello risponde nella lingua attiva** (`bsi-ai-hub.js`): al posto del fisso «rispondi sempre in italiano», un
+  blocco dinamico «LINGUA ATTIVA» dice al modello la lingua scelta nel selettore e gli chiede di rispondere in quella,
+  conferme vocali comprese. Sta nella parte volatile del prompt, così la cache del blocco stabile non si invalida.
+- **Normalizzatore `perLaVoce`** (`bsi-spectra-live.js`): le espansioni a parole (unità, sigle, simboli) si applicano
+  solo per italiano e inglese — le uniche tradotte — mentre per le altre lingue si fa solo la pulizia universale
+  (markdown, emoji, URL, pedici, formule scandite), così non finiscono parole italiane in una frase spagnola o greca.
+
+### Aggiunto (dalla proposta «SpectraVoiceEngine v4.0»)
+- **Frequenze**: `Hz` → «hertz», `MHz` → «megahertz», `kHz` → «chilohertz», `GHz` → «gigahertz».
+- **Keep-alive anti-freeze** nel ripiego vocale: un battito periodico ogni 5 s con `resume()` tiene viva la sintesi, così
+  su Android la voce non si spegne da sola dopo ~15 secondi di parlato continuo.
+
+### Note
+- Terza tornata di rifiniture vocali (proposte «v4.0» e «v5.0 multilingua»). Come per la v273, non si è aggiunto un
+  secondo motore: lo sblocco audio, la campana, lo spezzettamento, la scelta della voce e la lettura automatica esistono
+  già e parlano con una sola voce; qui si sono presi solo i pezzi davvero mancanti, compreso il salto alle altre lingue.
+  Banco `test_pronuncia` esteso a 34 controlli. 126 banchi, 794 file tracciati.
+
+---
 ## [bsi-v273] — 2026-11-25
 
 **La voce di Spectra pronuncia bene la scienza**
