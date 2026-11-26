@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v276` |
+| **Versione** | `bsi-v277` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v276` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v277` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -214,9 +214,14 @@ Una versione è pubblicata solo se **tutti** i criteri seguenti sono soddisfatti
 
 ## 7. Proprietà intellettuale e licenze
 
-Tutti i componenti di terze parti sono distribuiti con licenze **permissive**
-(MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain), reciprocamente compatibili e
-prive di vincoli copyleft forti. Il modello 3D «Noir» usato come volto di
+Quasi tutti i componenti di terze parti sono distribuiti con licenze
+**permissive** (MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain). Fa eccezione
+la **voce integrata offline** (meSpeak/eSpeak, `vendor/mespeak/`), sotto
+**GPL-3.0**: la licenza copyleft si applica soltanto a quel componente, usato
+come libreria separata tramite la sua interfaccia pubblica, e non si estende al
+resto dell'applicazione (dettagli e testo della licenza in
+[`04-Open-Source-Licenses.md`](04-Open-Source-Licenses.md) e in
+`vendor/mespeak/`). Il modello 3D «Noir» usato come volto di
 Spectra (`models/spectra-noir.glb`) è di Skyfox13
 (<https://sketchfab.com/podderkuntal25>), con licenza
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), ed è stato
@@ -302,4 +307,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v276`._
+_Versione `bsi-v277`._

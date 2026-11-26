@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v277` |
-| Commit | `1e6577d7708ada3e991bd4693853c5aebff04817` |
-| Generato (UTC) | `2026-11-26T18:32:46.443Z` |
+| Commit | `911237fbd54073e83ec45dd8602c0c5d9508939f` |
+| Generato (UTC) | `2026-11-26T23:11:19.625Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,7 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
 | `models/spectra-noir.glb` | `b781b54819d1d2aabf751788a813d8da830dabaddb913085352b572140903479` |
-| `vendor/mespeak/mespeak-bundle.js` | `4fc7e4af27c8d9d43a26df5b77b68910a3c82db86aefdd2ccbea6b2ab77d7652` |
+| `vendor/mespeak/mespeak-bundle.js` | `0c490eb8f0126579b8dd98c4c4cf29167e983dc45e5d9f756c6ff36001faa441` |
 
 ---
 
@@ -267,7 +267,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | SHA-256 |
 |---|---|
 | `index.html` | `3878691ed6481bd481baf6b23b198fb7196bfc9b50b9856674b5150570e29fae` |
-| `bsi-ai-hub.js` | `b5aa1ac3b252bc3ea5b3ea6734032e7a7ba16677f6574fb375380d527f2a131c` |
+| `bsi-ai-hub.js` | `ee43ba00208a91f281937b1b3ed8370594b8fac31d3ce912b93f4fec06a9b937` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -518,4 +518,4 @@ dei progetti a monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-26T18:32:46.443Z._
+_Generato il 2026-11-26T23:11:19.625Z._

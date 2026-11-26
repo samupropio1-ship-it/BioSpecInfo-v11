@@ -43,7 +43,7 @@ server zero** e **100% offline-ready**.
 | Single-file HTML5 / ES6, installabile come **PWA** | **Centro Spettri**: IR, ¹H/¹³C-NMR, MS + pattern isotopico, UV-Vis, Raman |
 | Rendering **2D** (SVG/Canvas) e **3D** (three.js, 3Dmol.js) | **Chimica Organica**: 25 moduli interattivi |
 | **Service Worker** offline-first, versionato | **Retrosintesi**: 46 strategie + meccanismi animati 2D/3D |
-| Zero dipendenze copyleft (solo MIT/BSD-3) | **Atlante Farmaci 3D**: 63 malattie (23 tumori), organi 3D, PubMed |
+| Terze parti permissive; unica eccezione la voce integrata (meSpeak/eSpeak, GPL-3.0, libreria separata) | **Atlante Farmaci 3D**: 63 malattie (23 tumori), organi 3D, PubMed |
 | Storage locale (localStorage, SQLite via sql.js) | Astrochimica 3D, Lab Quantistico, Accademia (quiz SM-2) |
 
 **Validazione quantitativa (benchmark di tesi)**
@@ -102,8 +102,10 @@ NASA/ESA).
 Il sottoscritto **Samuele Pio Provenzano** dichiara che:
 1. Il software **BioSpecInfo** è **opera originale** dell'autore, ad eccezione
    delle librerie open-source di terze parti (RDKit, 3Dmol.js, three.js,
-   SmilesDrawer, sql.js) utilizzate secondo le rispettive licenze permissive e
-   documentate nella *Open-Source Licensing & IP Matrix*.
+   SmilesDrawer, sql.js, PDF.js) utilizzate secondo le rispettive licenze
+   permissive, e della **voce integrata offline** (meSpeak/eSpeak, **GPL-3.0**),
+   usata come libreria separata; tutto è documentato nella *Open-Source Licensing
+   & IP Matrix*.
 2. I dati di validazione riportati (MAE 0,31 ppm per ¹H-NMR vs SDBS; MAE 11 cm⁻¹
    per la banda IR C=O vs NIST) sono stati misurati dall'autore nell'ambito del
    lavoro di tesi; i predittori sono **euristici ad additività di gruppo**,

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v276` |
+| **Version** | `bsi-v277` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v276` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v277` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -215,9 +215,14 @@ A version is published only if **all** the following criteria are satisfied.
 
 ## 7. Intellectual property and licences
 
-All third-party components are distributed under **permissive** licences (MIT,
-BSD-3-Clause, Apache-2.0, CC0, Public Domain), mutually compatible and free of
-strong copyleft constraints. The «Noir» 3D model used as Spectra's face
+Almost all third-party components are distributed under **permissive** licences
+(MIT, BSD-3-Clause, Apache-2.0, CC0, Public Domain). The exception is the
+**built-in offline voice** (meSpeak/eSpeak, `vendor/mespeak/`), under
+**GPL-3.0**: the copyleft licence applies only to that component, used as a
+separate library through its public interface, and does not extend to the rest of
+the application (details and licence text in
+[`04-Open-Source-Licenses.md`](04-Open-Source-Licenses.md) and in
+`vendor/mespeak/`). The «Noir» 3D model used as Spectra's face
 (`models/spectra-noir.glb`) is by Skyfox13
 (<https://sketchfab.com/podderkuntal25>), under the
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licence, and has been
@@ -300,4 +305,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v276`._
+_Version `bsi-v277`._

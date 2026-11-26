@@ -43,7 +43,7 @@ cost** and **100% offline-ready**.
 | Single-file HTML5 / ES6, installable as **PWA** | **Spectra Centre**: IR, ¹H/¹³C-NMR, MS + isotope pattern, UV-Vis, Raman |
 | **2D** (SVG/Canvas) and **3D** (three.js, 3Dmol.js) rendering | **Organic Chemistry**: 25 interactive modules |
 | **Service Worker** offline-first, versioned | **Retrosynthesis**: 46 strategies + animated 2D/3D mechanisms |
-| Zero copyleft dependencies (MIT/BSD-3 only) | **3D Drug Atlas**: 63 diseases (23 tumours), 3D organs, PubMed |
+| Permissive third parties; the only exception is the built-in voice (meSpeak/eSpeak, GPL-3.0, separate library) | **3D Drug Atlas**: 63 diseases (23 tumours), 3D organs, PubMed |
 | Local storage (localStorage, SQLite via sql.js) | 3D astrochemistry, Quantum Lab, Academy (SM-2 quizzes) |
 
 **Quantitative validation (thesis benchmark)**
@@ -102,8 +102,9 @@ NASA/ESA).
 The undersigned **Samuele Pio Provenzano** declares that:
 1. The software **BioSpecInfo** is the author's **original work**, except for the
    third-party open-source libraries (RDKit, 3Dmol.js, three.js, SmilesDrawer,
-   sql.js) used under their respective permissive licenses and documented in the
-   *Open-Source Licensing & IP Matrix*.
+   sql.js, PDF.js) used under their respective permissive licenses, and the
+   **built-in offline voice** (meSpeak/eSpeak, **GPL-3.0**) used as a separate
+   library; all documented in the *Open-Source Licensing & IP Matrix*.
 2. The reported validation data (MAE 0.31 ppm for ¹H-NMR vs SDBS; MAE 11 cm⁻¹ for
    the IR C=O band vs NIST) were measured by the author as part of the thesis
    work; the predictors are **heuristic group-additivity** models, suitable for

@@ -1,9 +1,13 @@
 # Third-Party Notices — BioSpecInfo
 
-BioSpecInfo includes the following third-party open-source components. Each is
-distributed under its own permissive license; the original copyright notices are
-reproduced below as required by those licenses. **No copyleft (GPL/AGPL/LGPL)
-component is used.**
+BioSpecInfo includes the following third-party open-source components. The
+original copyright notices are reproduced below as required by their licenses.
+Almost all are **permissive**; the one exception is the built-in offline voice
+(**meSpeak / eSpeak**), which is under the **GPL-3.0** strong-copyleft license.
+That license applies **only to that component** — used as a separate library
+through its public interface — and its full text is in
+[`vendor/mespeak/COPYING-GPL-3.0.txt`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/COPYING-GPL-3.0.txt), with
+a note in [`vendor/mespeak/NOTICE.md`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/NOTICE.md).
 
 This file lists **only third-party components**. The proprietary BioSpecInfo
 code is covered by the project [`LICENSE`](LICENSE) ("All rights reserved").
@@ -18,6 +22,7 @@ code is covered by the project [`LICENSE`](LICENSE) ("All rights reserved").
 | PDF.js | `vendor/pdfjs/pdf.min.mjs`, `vendor/pdfjs/pdf.worker.min.mjs`, `vendor/pdfjs/standard_fonts/` | Apache-2.0 | Mozilla Foundation & PDF.js contributors |
 | «Noir» 3D model (Spectra's face) | `models/spectra-noir.glb` | CC BY 4.0 | Skyfox13 (Sketchfab) |
 | «Bounty Hunter» 3D model (Spectra's body), embedded as a packed block | `models/spectra-corpo.bsi` | CGTrader Royalty Free | Its author on CGTrader (name not present in the file) |
+| meSpeak.js + eSpeak (built-in offline voice) | `vendor/mespeak/mespeak-bundle.js`, `vendor/mespeak/mespeak_config.json`, `vendor/mespeak/voices/*.json` | **GPL-3.0** | Norbert Landsteiner (meSpeak, masswerk.at); eSpeak authors |
 
 > The exact version of each library is the one bundled in this repository.
 
@@ -174,3 +179,39 @@ embedded in the app as a packed block (`models/spectra-corpo.bsi`, produced by
 The model has been **modified** in the browser: automatic rig, hood, night-blue
 recolouring, the «Noir» face on the collar. See `models/CREDITS.md`.
 
+
+---
+
+## meSpeak.js + eSpeak — GPL-3.0 (built-in offline voice)
+
+Spectra's built-in voice uses **meSpeak.js**, a JavaScript wrapper by
+**Norbert Landsteiner** (masswerk.at) over **eSpeak**, a formant text-to-speech
+engine compiled to JavaScript/asm.js. It is used as a fallback so that Spectra
+can speak on devices that have **no system TTS voice**, generating a WAV that is
+played through the Web Audio API — with nothing to install and no external
+service.
+
+```
+meSpeak.js — Copyright (C) Norbert Landsteiner (masswerk.at)
+eSpeak     — Copyright (C) Jonathan Duddington and the eSpeak authors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+```
+
+- Full licence text: [`vendor/mespeak/COPYING-GPL-3.0.txt`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/COPYING-GPL-3.0.txt)
+- Component note and sources: [`vendor/mespeak/NOTICE.md`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/NOTICE.md)
+- Upstream: meSpeak — http://www.masswerk.at/mespeak/ · eSpeak — https://espeak.sourceforge.net/
+- The engine (`ESpeak.js`) and the wrapper (`mespeak.js`) were **not modified**:
+  they are only concatenated, as-is, into `mespeak-bundle.js` so they load as a
+  single browser script. That file is the component's distributed source form.
+
+**This GPL-3.0 component stays under the GPL on redistribution.** It is invoked
+only through its public API (`loadConfig` / `loadVoice` / `speak`) as a separate
+library; the rest of BioSpecInfo remains under the project [`LICENSE`](LICENSE).

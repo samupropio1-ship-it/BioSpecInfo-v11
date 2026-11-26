@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v276` |
-| Commit | `e1c82bc1900497b7cc166808774d46ff18921e3f` |
-| Generato (UTC) | `2026-11-26T17:48:43.368Z` |
+| Versione applicazione | `bsi-v277` |
+| Commit | `911237fbd54073e83ec45dd8602c0c5d9508939f` |
+| Generato (UTC) | `2026-11-26T23:11:19.625Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -37,6 +37,7 @@ la dipendenza dalla disponibilità di terzi.
 | **SQLite (WebAssembly)**<br><sub>SQLite Consortium</sub> | `lib/sql-wasm.wasm` | Public Domain | 644 kB | Motore SQLite compilato in WebAssembly. |
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Dati sperimentali per l'esercitazione di fisica delle particelle. |
 | **Modello 3D «Noir» (Skyfox13, Sketchfab)**<br><sub>Skyfox13 — https://sketchfab.com/podderkuntal25</sub> | `models/spectra-noir.glb` | CC-BY-4.0 | 8154 kB | Volto di Spectra nella console Spectra Live. Modificato: texture ricompresse, tangenti tolte, viso in metallo grigio scuro, bocca e testa animate. Attribuzione nella console. |
+| **meSpeak.js + eSpeak (voce integrata offline)**<br><sub>Norbert Landsteiner (meSpeak, masswerk.at) / eSpeak</sub> | `vendor/mespeak/mespeak-bundle.js` | GPL-3.0 | 4858 kB | Voce integrata di Spectra: motore TTS a formanti (eSpeak) compilato in JavaScript, usato come ripiego quando il dispositivo non ha voci di sistema. Genera un WAV riprodotto via Web Audio. Nota di licenza in vendor/mespeak/NOTICE.md, testo GPL in vendor/mespeak/COPYING-GPL-3.0.txt. |
 
 ### Impronte
 
@@ -55,6 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
 | `models/spectra-noir.glb` | `b781b54819d1d2aabf751788a813d8da830dabaddb913085352b572140903479` |
+| `vendor/mespeak/mespeak-bundle.js` | `0c490eb8f0126579b8dd98c4c4cf29167e983dc45e5d9f756c6ff36001faa441` |
 
 ---
 
@@ -63,7 +65,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | Dimensione | Ruolo |
 |---|---:|---|
 | `index.html` | 4727 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 454 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `bsi-ai-hub.js` | 456 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
@@ -209,7 +211,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 129 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 130 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
@@ -218,7 +220,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
-| `bsi-spectra-voce.js` | 21 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
+| `bsi-spectra-voce.js` | 23 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
 | `bsi-spectra-olointerattivo.js` | 76 kB | Ologramma interattivo di Spectra: spettri IR/¹H/¹³C/massa/UV di molecole di riferimento o della traccia scritta, con attribuzione di ogni segnale; universo con dati NASA, Keplero e vis-viva; matematica e fisica con lo svolgimento dell'assistente; ogni passaggio spiegato a voce e per iscritto. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili, dieci capitoli dalle superiori al PhD avanzato con previsione, cursore che ricalcola, visione dal vivo nell'ologramma e spiegazione completa. |
@@ -264,8 +266,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `caa137c48518e9a1378be47aae8e7ad079836026339d0fb4d277f5147d12223d` |
-| `bsi-ai-hub.js` | `9df5d463bd5e0c056201096f71a757eb6ccd7a410f16a53d52dce72b3739b1fb` |
+| `index.html` | `3878691ed6481bd481baf6b23b198fb7196bfc9b50b9856674b5150570e29fae` |
+| `bsi-ai-hub.js` | `ee43ba00208a91f281937b1b3ed8370594b8fac31d3ce912b93f4fec06a9b937` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -411,7 +413,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `5f656428998aa85f22069dd76dc5f418b32be1884e74d31eff695038983aef5b` |
+| `bsi-spectra-live.js` | `da637ac36a7ae56bf70cb12e9be9cb440d922772030d00829c23518c9b0e23a0` |
 | `bsi-spectra-androide.js` | `cb20786c198a6f172b396edd0b5b6d4ac0ec80bc3cb2cc916d2b2dad8392cfec` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
@@ -420,7 +422,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | `aad16296bfe21f1298ba8eb6bcc6fc59dd67afa859519f06bb75c64c48c370e3` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
-| `bsi-spectra-voce.js` | `ce18926c79c052777fa90669ee6d6ba73214553907d79b067d5b805f6692b83b` |
+| `bsi-spectra-voce.js` | `2390462702c00010f51c889842261eed017e6263af993cab29da9533c9615d66` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-olointerattivo.js` | `ba6124d18d5899c81d43aab328e6373b60cf944666fb73fee83d0e4b20fd92b7` |
 | `bsi-spectra-esplora.js` | `abca4cd053689e2499c90a0937b300d4c1abea3635cf6bcd6b1c117f1fa97d76` |
@@ -456,7 +458,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `ed2f111eecd8a6e40a7d178c9e2cb299fa84e3d3986ba45925b7aa56fe3d6a0b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `6db53dafc65b7489916820fef140cc4f13155dc498ce89f4b43af6e27a424c91` |
+| `sw.js` | `013148e332fb851000e3702bbbdae31bd3113e4cfde48a217c0f222d9dd9e9ac` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -495,13 +497,19 @@ Nessun dato personale viene trasmesso: le chiavi API, se inserite, restano nel
 
 ## 5. Compatibilità delle licenze
 
-Tutte le licenze dei componenti distribuiti (MIT, BSD-3-Clause, CC0, CC BY 4.0,
-Public Domain) sono **permissive** e reciprocamente compatibili. Nessun componente è
-soggetto a licenza copyleft forte (GPL/AGPL): non esistono vincoli di
-ridistribuzione del codice proprio del progetto.
+Quasi tutti i componenti distribuiti (MIT, BSD-3-Clause, Apache-2.0, CC0, CC BY 4.0,
+Public Domain) hanno licenza **permissiva**. Fa eccezione la **voce integrata**
+(`vendor/mespeak/` — meSpeak/eSpeak), che è sotto **GPL-3.0**, una licenza copyleft
+forte.
 
-Gli obblighi residui sono di **attribuzione**: le note di licenza dei progetti a
-monte sono riportate in `THIRD_PARTY_NOTICES.md`.
+La GPL si applica **soltanto a quel componente**, usato come libreria separata
+attraverso la sua interfaccia pubblica (`meSpeak.loadConfig/loadVoice/speak`): resta
+sotto GPL, il suo codice sorgente è incluso (lo stesso file JavaScript distribuito) e
+chi ridistribuisce deve mantenerlo sotto GPL. Il testo della licenza è in
+`vendor/mespeak/COPYING-GPL-3.0.txt` e la nota in `vendor/mespeak/NOTICE.md`.
+
+Gli obblighi dei componenti permissivi sono di **attribuzione**: le note di licenza
+dei progetti a monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 
 > **La licenza dell'applicazione è distinta da quelle dei componenti.**
 > Il codice proprio di BioSpecInfo è **proprietario** — *All rights reserved*
@@ -510,4 +518,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-26T17:48:43.368Z._
+_Generato il 2026-11-26T23:11:19.625Z._

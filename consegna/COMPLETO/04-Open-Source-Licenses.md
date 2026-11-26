@@ -9,10 +9,12 @@
 
 ## 1. Matrice delle dipendenze di terze parti
 
-Tutte le librerie di terze parti incluse sono **open-source con licenze
-permissive** (MIT / BSD-3-Clause). **Nessuna dipendenza copyleft virale
-(GPL / AGPL / LGPL)** è utilizzata, quindi non vi sono obblighi di
-ridistribuzione del codice proprietario.
+Quasi tutte le librerie di terze parti incluse sono **open-source con licenze
+permissive** (MIT / BSD-3-Clause / Apache-2.0). Fa **eccezione la voce integrata
+offline** (meSpeak/eSpeak, `vendor/mespeak/`), sotto **GPL-3.0** — una licenza
+copyleft forte. La GPL si applica **soltanto a quel componente**, usato come
+libreria separata attraverso la sua interfaccia pubblica: non estende la GPL al
+resto dell'applicazione (vedi §3).
 
 | Componente | File nel repo | Uso | Licenza |
 |-----------|---------------|-----|---------|
@@ -22,10 +24,14 @@ ridistribuzione del codice proprietario.
 | **SmilesDrawer** | `smiles-drawer.min.js` | Depiction 2D di stringhe SMILES | **MIT** |
 | **sql.js** (SQLite compilato in WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | Playground SQL client-side | **MIT** |
 | **PDF.js** | `vendor/pdfjs/` | Apertura dei documenti PDF nel lettore di spettri: ogni pagina disegnata e il suo strato di testo | **Apache-2.0** |
+| **meSpeak.js + eSpeak** | `vendor/mespeak/` | Voce integrata offline di Spectra: motore TTS a formanti compilato in JavaScript, ripiego quando il dispositivo non ha voci di sistema | **GPL-3.0** |
 
 > Le versioni esatte sono quelle dei file inclusi nel repository. Ogni licenza
-> permissiva richiede la conservazione dell'avviso di copyright originale, che va
-> mantenuto nei file di libreria o in un file `THIRD_PARTY_NOTICES`.
+> permissiva richiede la conservazione dell'avviso di copyright originale
+> (raccolto in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)). Per la voce
+> integrata, il testo completo della GPL è in
+> [`vendor/mespeak/COPYING-GPL-3.0.txt`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/COPYING-GPL-3.0.txt) e
+> la nota di componente in [`vendor/mespeak/NOTICE.md`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/vendor/mespeak/NOTICE.md).
 
 ---
 
@@ -48,8 +54,14 @@ pacchetto): il loro uso è soggetto ai rispettivi termini.
   vettoriale SVG dei meccanismi, viewer stereochimico CIP in Canvas, predittori
   spettrali euristici, contenuti didattici, database interni) è **opera
   originale dell'autore**, salvo le librerie di terze parti sopra elencate.
-- **Nessun codice sotto licenza copyleft** è incorporato nel sorgente
-  proprietario: l'autore mantiene piena libertà di licenza sul proprio codice.
+- **Nessun codice sotto licenza copyleft è incorporato NEL sorgente
+  proprietario**: il codice dell'autore non deriva da eSpeak né lo ingloba. La
+  voce integrata (meSpeak/eSpeak, GPL-3.0) è un componente **separato**, caricato
+  come libreria a sé e invocato solo tramite la sua interfaccia pubblica
+  (`meSpeak.loadConfig` / `loadVoice` / `speak`). Resta sotto GPL (il suo sorgente
+  è incluso, nella forma distribuita); chi ridistribuisce l'applicazione deve
+  mantenerlo sotto GPL. L'autore mantiene piena libertà di licenza sul **proprio**
+  codice, che non è un'opera derivata di quel componente.
 
 ### 3.1 Licenza del progetto
 Il repository include un file [`LICENSE`](LICENSE) **proprietario — "All
@@ -66,8 +78,9 @@ licenze permissive.
 
 | Voce | Esito |
 |------|-------|
-| Dipendenze copyleft virali (GPL/AGPL) | **Assenti** |
-| Licenze delle dipendenze | Permissive (MIT / BSD-3-Clause) |
-| Obbligo di conservare gli avvisi di copyright | Sì (nei file di libreria / NOTICES) |
-| Libertà di licenza sul codice proprietario | Piena |
+| Dipendenze copyleft forti (GPL/AGPL) | **Una**: la voce integrata offline (meSpeak/eSpeak, GPL-3.0), usata come libreria separata |
+| Licenze delle dipendenze | Permissive (MIT / BSD-3-Clause / Apache-2.0), tranne la voce integrata (GPL-3.0) |
+| Obbligo di conservare gli avvisi di copyright | Sì (nei file di libreria / `THIRD_PARTY_NOTICES.md`) |
+| Obbligo per la voce integrata | Mantenerla sotto GPL-3.0 e conservarne il sorgente (incluso in `vendor/mespeak/`) |
+| Libertà di licenza sul codice proprietario | Piena (non è opera derivata della voce integrata) |
 | File `LICENSE` del progetto | ✅ Presente — proprietaria «All rights reserved» |
