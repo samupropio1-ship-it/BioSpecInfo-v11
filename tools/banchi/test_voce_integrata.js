@@ -55,6 +55,9 @@ function vero(d, c) { att(d, true, !!c); }
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required'] });
   const pg = await (await b.newContext({ serviceWorkers: 'block' })).newPage();
   const errs = []; pg.on('pageerror', e => errs.push(e.message.slice(0, 160)));
+  /* (v277) anche gli ERRORI DI CONSOLE: caricare il bundle della voce non deve sporcare la
+     console (es. «unload is not allowed», che i banchi "nessun errore" intercettano). */
+  const consErr = []; pg.on('console', m => { if (m.type() === 'error') consErr.push(m.text().slice(0, 160)); });
   await pg.addInitScript(() => { try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {} });
   await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
   await pg.waitForFunction(() => !!(window.BSISpectraTTSIntegrata && window.BSISpectraVoce), null, { timeout: 60000 });
@@ -94,6 +97,7 @@ function vero(d, c) { att(d, true, !!c); }
   vero('si può fermare senza errori', taci);
 
   att('nessun errore JavaScript', 0, errs.length); errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
+  att('nessun errore di console caricando e usando la voce integrata', 0, consErr.length); consErr.slice(0, 3).forEach(e => console.log('      ! ' + e));
   await b.close();
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
   process.exit(ko ? 1 : 0);

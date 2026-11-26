@@ -84295,7 +84295,10 @@ function unloadHandler(event) {
 	webSoundPool = {};
 }
 
-if (typeof window !== 'undefined') window.addEventListener('unload', unloadHandler, false);
+/* BioSpecInfo v277: 'unload' è vietato dalla Permissions-Policy dell'app (genera un errore
+   in console che i banchi "nessun errore" intercettano). 'pagehide' è l'equivalente moderno
+   e consentito, e fa scattare la stessa pulizia audio. */
+if (typeof window !== 'undefined') window.addEventListener('pagehide', unloadHandler, false);
 
 // public interface
 module.exports = {

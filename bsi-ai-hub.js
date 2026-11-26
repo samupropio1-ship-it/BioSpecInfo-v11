@@ -7353,10 +7353,11 @@ function buildChatPane(){
     mostraAvvisoVoce(r);
   }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
-  /* (v277) se la voce attiva è quella integrata offline, si pre-carica il motore (una volta sola,
-     ~5 MB poi in cache) così la prima lettura non ha ritardo. Solo quando serve davvero. */
+  /* (v277) se la voce attiva è quella integrata offline E l'auto-lettura è accesa, si pre-carica
+     il motore (una volta sola, ~5 MB poi in cache) così la prima lettura non ha ritardo. Si evita
+     di scaricarlo quando l'auto-lettura è spenta: non servirebbe e appesantirebbe l'apertura. */
   try{
-    if(window.BSISpectraVoce && window.BSISpectraVoce.qualita() === 'integrata' && window.BSISpectraTTSIntegrata){
+    if(autoSpeakEnabled && window.BSISpectraVoce && window.BSISpectraVoce.qualita() === 'integrata' && window.BSISpectraTTSIntegrata){
       var lgPre = (window.BSILingue && window.BSILingue.corrente) ? window.BSILingue.corrente() : 'it';
       window.BSISpectraTTSIntegrata.prepara(lgPre);
     }
