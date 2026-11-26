@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v272` |
-| Commit | `a1779c96fa7b5641a03e7e283eb4068a2a6672cb` |
-| Generated (UTC) | `2026-11-25T22:00:47.070Z` |
+| Application version | `bsi-v273` |
+| Commit | `3012047ff412bc470b2a112b26aa03e06f3937ae` |
+| Generated (UTC) | `2026-11-26T00:24:02.467Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -63,7 +63,7 @@ availability.
 | File | Size | Role |
 |---|---:|---|
 | `index.html` | 4727 kB | Main application: interface, teaching sections, chemical data. |
-| `bsi-ai-hub.js` | 450 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
+| `bsi-ai-hub.js` | 451 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 36 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
@@ -209,7 +209,7 @@ availability.
 | `bsi-mat-markov.js` | 65 kB | Markov chains and stochastic processes: PageRank, gambler's ruin, walks, queues. |
 | `bsi-mat-svd.js` | 58 kB | SVD and applied linear algebra: 2×2 and 3×3 SVD, compression, PCA, least squares. |
 | `bsi-mat-codici.js` | 60 kB | Codes and elliptic curves: Hamming, CRC, curves over ℝ and F_p, ECDH. |
-| `bsi-spectra-live.js` | 126 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
+| `bsi-spectra-live.js` | 128 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
 | `bsi-spectra-androide.js` | 45 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
 | `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
 | `bsi-spectra-agenda.js` | 36 kB | Spectra's agenda: reminders, tasks, events, dates said in words, continuity for the model, exportable memory. |
@@ -264,8 +264,8 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `0910759499e2c762c5aa1c083761ed4e9442d5d5908a217053eed76ae995ccaf` |
-| `bsi-ai-hub.js` | `84f74de7a3db60c3912cdd088945185dfebbbfc6c38a072c653a4ee2a5027b7d` |
+| `index.html` | `d322f5d1ec054cdfef3c68b8b3746614f7de4365f0131bd6be3624807d4c998e` |
+| `bsi-ai-hub.js` | `6d68af3d9de75a62aefe22998520b83e65af56ea912b135fdd3f1b9d932a3135` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -411,7 +411,7 @@ availability.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `b13e893460758540b5baa30b978df2a94415eddd836a0075bd2f5cd247bd5e48` |
+| `bsi-spectra-live.js` | `6529b61eb60f2c148ff4f6225399882f6b171047d7aac44efeb48020206090fc` |
 | `bsi-spectra-androide.js` | `cb20786c198a6f172b396edd0b5b6d4ac0ec80bc3cb2cc916d2b2dad8392cfec` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
@@ -456,7 +456,7 @@ availability.
 | `bsi-lingue.js` | `ed2f111eecd8a6e40a7d178c9e2cb299fa84e3d3986ba45925b7aa56fe3d6a0b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `d7f6b7ed5b2057b297ca5decaa63407dd0d0407d8deaf90ce606d49f5fa8c330` |
+| `sw.js` | `087cf500354b36c58b8844fc97c2ee93b6e098522b8b3e3fd0a38948a430fd5b` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -510,4 +510,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-25T22:00:47.070Z._
+_Generated on 2026-11-26T00:24:02.467Z._
