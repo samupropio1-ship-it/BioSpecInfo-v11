@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v277` |
-| Commit | `911237fbd54073e83ec45dd8602c0c5d9508939f` |
-| Generato (UTC) | `2026-11-26T23:11:19.625Z` |
+| Versione applicazione | `bsi-v278` |
+| Commit | `87a7a2f05d7a17377943b45d32ad7fc30787ec1b` |
+| Generato (UTC) | `2026-11-27T13:18:11.004Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -65,7 +65,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | Dimensione | Ruolo |
 |---|---:|---|
 | `index.html` | 4727 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 456 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `bsi-ai-hub.js` | 460 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 36 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
@@ -211,7 +211,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 130 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-live.js` | 131 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
 | `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-agenda.js` | 36 kB | Agenda di Spectra: promemoria, compiti, eventi, date dette a parole, continuità per il modello, memoria esportabile. |
@@ -220,7 +220,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
-| `bsi-spectra-voce.js` | 23 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
+| `bsi-spectra-voce.js` | 24 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
 | `bsi-spectra-olointerattivo.js` | 76 kB | Ologramma interattivo di Spectra: spettri IR/¹H/¹³C/massa/UV di molecole di riferimento o della traccia scritta, con attribuzione di ogni segnale; universo con dati NASA, Keplero e vis-viva; matematica e fisica con lo svolgimento dell'assistente; ogni passaggio spiegato a voce e per iscritto. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili, dieci capitoli dalle superiori al PhD avanzato con previsione, cursore che ricalcola, visione dal vivo nell'ologramma e spiegazione completa. |
@@ -266,8 +266,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3878691ed6481bd481baf6b23b198fb7196bfc9b50b9856674b5150570e29fae` |
-| `bsi-ai-hub.js` | `ee43ba00208a91f281937b1b3ed8370594b8fac31d3ce912b93f4fec06a9b937` |
+| `index.html` | `c0fff04f801329a70c4a24fff2c347dbb3d84602098174f3f158df0d41f1c19e` |
+| `bsi-ai-hub.js` | `04c5d150675f4348899210398342e5045aa5165222bf531830291370531b6fec` |
 | `bsi-spettri.js` | `36911b64fd173917f9151c8ef82fc1c6f903eb93205fc851f20534a46d958921` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -413,7 +413,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `da637ac36a7ae56bf70cb12e9be9cb440d922772030d00829c23518c9b0e23a0` |
+| `bsi-spectra-live.js` | `66ccd0907acda60643fe96d2398b426514f2772501af648cc4e28c8a222b9b92` |
 | `bsi-spectra-androide.js` | `cb20786c198a6f172b396edd0b5b6d4ac0ec80bc3cb2cc916d2b2dad8392cfec` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-agenda.js` | `cbe3490cc58c8612279f84b63bf1c8be9162404829f2ae866ef7ed831b39af7c` |
@@ -422,7 +422,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-robot.js` | `aad16296bfe21f1298ba8eb6bcc6fc59dd67afa859519f06bb75c64c48c370e3` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
-| `bsi-spectra-voce.js` | `2390462702c00010f51c889842261eed017e6263af993cab29da9533c9615d66` |
+| `bsi-spectra-voce.js` | `1ded99d3c728eae3cfae04ac3590add2187fb778aacc7f5a280fde8b8e0c2171` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-olointerattivo.js` | `ba6124d18d5899c81d43aab328e6373b60cf944666fb73fee83d0e4b20fd92b7` |
 | `bsi-spectra-esplora.js` | `abca4cd053689e2499c90a0937b300d4c1abea3635cf6bcd6b1c117f1fa97d76` |
@@ -458,7 +458,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `ed2f111eecd8a6e40a7d178c9e2cb299fa84e3d3986ba45925b7aa56fe3d6a0b` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `9437192c6a3995425b3ef305ab86c70685011d40d789c2cc45736880a7369186` |
-| `sw.js` | `013148e332fb851000e3702bbbdae31bd3113e4cfde48a217c0f222d9dd9e9ac` |
+| `sw.js` | `00b76241c432f85a445363c7d08e7310b6928796e6ba8037958cec20cccbc817` |
 | `rdkit_lab.html` | `6235e377c110c2a772d499fcad7f803af61b85ad25185d1957aca6de501159f7` |
 | `astro.html` | `c5e7cd6a133c6e1dc4e3014086980c99bbb24dff5149a2881f8d6f26aa513b43` |
 | `chimorga.html` | `1b9044805736ea03a8b2f80afe2a002b2b652e9861a06bfdce788c39789371b0` |
@@ -518,4 +518,4 @@ dei progetti a monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-26T23:11:19.625Z._
+_Generato il 2026-11-27T13:18:11.004Z._
