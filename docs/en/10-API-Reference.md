@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v278` |
+| **Version described** | `bsi-v279` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -619,4 +619,4 @@ loop (the host calls `passo(dt)` and attaches `radice` to the body); with
 
 ---
 
-_Document updated to version `bsi-v278`._
+_Document updated to version `bsi-v279`._

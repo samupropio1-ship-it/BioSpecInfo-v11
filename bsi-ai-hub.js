@@ -7375,12 +7375,28 @@ function buildChatPane(){
   }
   if(pv){ pv.onclick = function(){
     var L = window.BSISpectraLive, r = (L && L.provaAudio) ? L.provaAudio() : null;
-    var q = window.BSISpectraVoce ? window.BSISpectraVoce.qualita() : 'sistema';
+    var VQ = window.BSISpectraVoce, q = VQ ? VQ.qualita() : 'sistema';
+    var ver = window.BSI_APP_VERSION || '?';
     var frase = 'Ciao, sono Spectra. Se mi senti, la voce funziona.';
+    /* (v279) DIAGNOSTICA A SCHERMO: versione, voce scelta ed esito della riproduzione, così si
+       capisce subito se l'app è aggiornata e se la voce suona davvero — niente più «ancora niente»
+       senza sapere perché. */
+    function diag(stato){
+      var box = document.getElementById('spectra-voce-diag');
+      if(!box){ box = document.createElement('div'); box.id = 'spectra-voce-diag'; box.style.cssText = 'margin:8px 0;padding:8px 10px;border:1px solid #2b6cb0;background:#0d2436;color:#cfe3f5;border-radius:10px;font-size:12px;line-height:1.5'; if(pv && pv.parentNode) pv.parentNode.insertBefore(box, pv.nextSibling); }
+      box.innerHTML = '🔎 <b>Diagnostica voce</b> — versione <b>' + ver + '</b> · voce: <b>' + q + '</b> · ' + stato;
+    }
     /* (v277) voce cloud o voce integrata offline: parla da BSISpectraVoce (la integrata suona via Web Audio,
        come il bip). Altrimenti, se non c'è stato nemmeno il bip, si prova la sintesi di sistema. */
-    if((q === 'audio' || q === 'integrata') && window.BSISpectraVoce){ try{ window.BSISpectraVoce.parla(frase); }catch(e){} }
-    else if(!r){ speakRobotic(frase); }
+    if((q === 'audio' || q === 'integrata') && VQ){
+      diag('riproduzione in corso…');
+      try{ VQ.parla(frase).then(function(res){
+        diag(res && res.ok ? '✅ riprodotta (' + (res.motore || '') + (res.durata ? ', ' + res.durata.toFixed(1) + 's' : '') + ')' : '⚠️ non riprodotta' + (res && res.errore ? (': ' + res.errore) : ''));
+      }, function(e){ diag('⚠️ errore: ' + (e && e.message || e)); }); }
+      catch(e){ diag('⚠️ errore: ' + e.message); }
+    }
+    else if(!r){ speakRobotic(frase); diag('uso la voce del telefono'); }
+    else diag('solo bip (nessuna voce attiva)');
     mostraAvvisoVoce(r);
   }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }

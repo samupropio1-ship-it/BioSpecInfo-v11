@@ -846,7 +846,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v278';
+window.BSI_APP_VERSION='bsi-v279';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -31529,6 +31529,21 @@ window.exportPDF=function(){
     navigator.serviceWorker.addEventListener('message',function(e){
       if(e.data&&e.data.type==='BSI_SW_UPDATED'&&_bsiControllataAllAvvio) _bsiAggiornamentoPronto();
     });
+    /* (v279) CONTROLLO AGGIORNAMENTI AL RIENTRO. Nelle app installate l'utente spesso
+       TORNA all'app dai recenti senza una navigazione nuova: il browser non controlla
+       da solo se c'e' una versione piu' recente, e la correzione non arriva mai.
+       Qui, ogni volta che l'app torna in primo piano (e all'avvio), si chiede al
+       service worker di controllare: se c'e' una versione nuova si installa, si attiva
+       e annuncia BSI_SW_UPDATED, che mostra la barra «Aggiorna ora». Throttling a 30 s
+       per non tempestare la rete. */
+    var _ultimoControlloSW = 0;
+    function _bsiControllaSW(){
+      var ora = Date.now(); if(ora - _ultimoControlloSW < 30000) return; _ultimoControlloSW = ora;
+      try{ navigator.serviceWorker.getRegistration().then(function(r){ if(r) try{ r.update(); }catch(e){} }); }catch(e){}
+    }
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) _bsiControllaSW(); });
+    window.addEventListener('focus', _bsiControllaSW);
+    setTimeout(_bsiControllaSW, 3000);
   }
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();

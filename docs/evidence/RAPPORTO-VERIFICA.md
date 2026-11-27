@@ -29,7 +29,7 @@
 | Ripresa | 117 banchi superati riusati dalla corsa interrotta da un riavvio del contenitore, sullo stesso commit e con l'albero pulito; gli altri eseguiti in questa corsa |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
-| Versione applicazione | `bsi-v278` |
+| Versione applicazione | `bsi-v279` |
 | Node.js | `v22.23.5` |
 | Piattaforma | `linux x64` |
 | Chromium | `Google Chrome for Testing 158.0.8127.36` |
