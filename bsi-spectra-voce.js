@@ -209,12 +209,18 @@
   }
   /* (v277) quante voci di sistema sono realmente disponibili (0 = telefono muto pur col bip) */
   function vociSistemaUsabili() { try { return ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : 0; } catch (e) { return 0; } }
-  /* (v277) router del ripiego: se mancano le voci di sistema (o l'utente sceglie la voce
-     integrata), usa la voce offline di Spectra (meSpeak via Web Audio); altrimenti la sintesi
-     del sistema. Così "si sente il bip ma non la voce" è risolto senza installare nulla. */
+  /* (v278) l'utente può preferire la voce del TELEFONO (sintesi di sistema) a quella dell'app.
+     Di default si usa la voce dell'app: su molti telefoni/PC le voci di sistema RISULTANO
+     elencate ma sono MUTE (voci di rete non scaricate), e l'utente sentiva solo il bip. La voce
+     integrata invece suona sempre (via Web Audio, come il bip). Chi ha una buona voce di sistema
+     può sceglierla dal pannello voce. */
+  function vuoleVoceTelefono() { try { return globale.localStorage && localStorage.getItem('bsiVoceTelefono') === '1'; } catch (e) { return false; } }
+  /* (v277/v278) router del ripiego: di default la voce dell'app (meSpeak via Web Audio), sempre
+     udibile; la voce del telefono solo se l'utente la sceglie esplicitamente o se la voce dell'app
+     non è disponibile. Così "si sente il bip ma non la voce" è risolto senza installare nulla. */
   function sistema(testo, opz, mio) {
     var TI = globale.BSISpectraTTSIntegrata;
-    if (TI && TI.supportata() && (opz.integrata || vociSistemaUsabili() === 0)) return integrata(testo, opz, mio);
+    if (TI && TI.supportata() && (opz.integrata || !vuoleVoceTelefono() || vociSistemaUsabili() === 0)) return integrata(testo, opz, mio);
     return sistemaReale(testo, opz, mio);
   }
   /* (v277) la voce integrata offline; se fallisce davvero (non per annullamento), ripiega
@@ -285,11 +291,16 @@
   function qualita() {
     if (globale.BSISpectraElevenLabs && globale.BSISpectraElevenLabs.attiva()) return 'audio';
     if (chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext)) return 'audio';
+    var TI = globale.BSISpectraTTSIntegrata;
+    /* (v278) di default la voce dell'app (sempre udibile); la voce del telefono solo se scelta */
+    if (TI && TI.supportata() && !vuoleVoceTelefono()) return 'integrata';
     if (('speechSynthesis' in globale) && vociSistemaUsabili() > 0) return 'sistema';
-    if (globale.BSISpectraTTSIntegrata && globale.BSISpectraTTSIntegrata.supportata()) return 'integrata';
+    if (TI && TI.supportata()) return 'integrata';
     return ('speechSynthesis' in globale) ? 'sistema' : 'testo';
   }
 
   function impostaPreset(nome) { if (!PRESET[nome]) return presetSalvato(); try { localStorage.setItem('bsi-voce-preset', nome); } catch (e) {} return nome; }
-  globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, PRESET: PRESET, timbro: timbro, impostaPreset: impostaPreset, presetSalvato: presetSalvato, ISTRUZIONI: ISTRUZIONI, versione: '2.0' };
+  /* (v278) preferenza voce app/telefono, ricordata su questo dispositivo */
+  function impostaVoceTelefono(on) { try { if (on) localStorage.setItem('bsiVoceTelefono', '1'); else localStorage.removeItem('bsiVoceTelefono'); } catch (e) {} }
+  globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, PRESET: PRESET, timbro: timbro, impostaPreset: impostaPreset, presetSalvato: presetSalvato, vuoleVoceTelefono: vuoleVoceTelefono, impostaVoceTelefono: impostaVoceTelefono, ISTRUZIONI: ISTRUZIONI, versione: '2.1' };
 })(typeof window !== 'undefined' ? window : globalThis);

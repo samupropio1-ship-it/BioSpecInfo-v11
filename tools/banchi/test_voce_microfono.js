@@ -34,6 +34,9 @@ function vero(d, c) { att(d, true, !!c); }
   pg.on('pageerror', e => errs.push(e.message.slice(0, 200)));
   await pg.addInitScript(() => {
     try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {}
+    /* (v278) qui si verifica la voce del TELEFONO (muta mentre il microfono è acceso): dalla v278
+       la voce predefinita è quella dell'app, quindi si sceglie esplicitamente la voce del telefono. */
+    try { localStorage.setItem('bsiVoceTelefono', '1'); } catch (e) {}
     const reg = window.__reg = [];
     const ora = () => Math.round(performance.now());
     /* il riconoscitore finto: avvio e fine registrati; «acceso» finché non si ferma */

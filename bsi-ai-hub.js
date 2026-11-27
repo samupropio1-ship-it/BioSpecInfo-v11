@@ -6603,25 +6603,56 @@ function makeWakeButton(onComando){
   return btn;
 }
 
+/* (v278) un messaggio CHIARO per ogni fallimento del microfono: prima restava
+   tutto muto e l'utente non capiva perché «parlando non scrive nulla». */
+function messaggioErroreMic(err){
+  switch(err){
+    case 'not-allowed': case 'service-not-allowed': return '🎤 Microfono negato: abilitalo per questo sito/app nelle impostazioni del telefono, poi riprova.';
+    case 'network': return '🎤 Il riconoscimento vocale ha bisogno di contattare un servizio e non c\'è riuscito (spesso non funziona nelle app installate sul telefono). Scrivi pure qui sotto.';
+    case 'audio-capture': return '🎤 Nessun microfono disponibile. Collega o abilita un microfono, poi riprova.';
+    case 'no-speech': return '🎤 Non ho sentito nulla: riprova parlando subito dopo il tocco.';
+    case 'aborted': return 'Parla';
+    default: return '🎤 Riconoscimento vocale non riuscito' + (err ? ' (' + err + ')' : '') + '. Puoi scrivere qui sotto.';
+  }
+}
+function notaMic(msg){ try{ var inp = document.getElementById('bsi-hub-input'); if(inp){ inp.placeholder = msg; } }catch(e){} }
 function makeMicButton(onResult){
   var btn = el('button', { class: 'bsi-hub-mic', type: 'button', title: 'Parla' }, '🎤');
   var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!Rec){ btn.disabled = true; btn.title = 'Riconoscimento vocale non supportato su questo browser'; return btn; }
+  if(!Rec){
+    /* (v278) niente pulsante morto e silenzioso: resta cliccabile e spiega la situazione */
+    btn.title = 'Riconoscimento vocale non disponibile su questo browser/app — scrivi pure qui sotto';
+    btn.onclick = function(){ notaMic('🎤 Il riconoscimento vocale non è disponibile qui (prova con Chrome): scrivi pure il messaggio.'); };
+    return btn;
+  }
   var rec = new Rec();
   // Stato di ascolto LOCALE a questa istanza (non condiviso su STATE):
   // Chat ed Esame hanno ciascuno il proprio microfono/pulsante, e uno stato
   // globale condiviso li faceva desincronizzare se entrambi venivano usati
   // nella stessa sessione (uno finiva di ascoltare e resettava lo stato
   // anche per l'altro, ancora attivo).
-  var listening = false;
+  var listening = false, ebbeRisultato = false, segnaposto = '';
   function untrack(){ var i = STATE.activeRecognitions.indexOf(rec); if(i > -1) STATE.activeRecognitions.splice(i, 1); }
-  rec.lang = 'it-IT'; rec.interimResults = false; rec.maxAlternatives = 1;
-  rec.onresult = function(e){ onResult(e.results[0][0].transcript); };
-  rec.onend = function(){ btn.classList.remove('rec'); listening = false; untrack(); };
-  rec.onerror = function(){ btn.classList.remove('rec'); listening = false; untrack(); };
+  rec.lang = (window.BSILingue && window.BSILingue.corrente && window.BSILingue.corrente() === 'en') ? 'en-US' : 'it-IT';
+  rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = function(e){ ebbeRisultato = true; onResult(e.results[0][0].transcript); };
+  rec.onend = function(){ btn.classList.remove('rec'); listening = false; untrack(); if(!ebbeRisultato) notaMic('🎤 Non ho colto nulla: riprova, oppure scrivi qui sotto.'); };
+  rec.onerror = function(ev){ btn.classList.remove('rec'); listening = false; untrack(); notaMic(messaggioErroreMic(ev && ev.error)); };
+  function avvia(){
+    try{ var inp = document.getElementById('bsi-hub-input'); segnaposto = inp ? inp.placeholder : ''; }catch(e){}
+    try{ rec.start(); listening = true; ebbeRisultato = false; btn.classList.add('rec'); STATE.activeRecognitions.push(rec); notaMic('🎤 Parla pure…'); }
+    catch(e){ notaMic('🎤 Non riesco ad avviare il microfono. Riprova, o scrivi qui sotto.'); }
+  }
   btn.onclick = function(){
     if(listening){ rec.stop(); return; }
-    try{ rec.start(); listening = true; btn.classList.add('rec'); STATE.activeRecognitions.push(rec); }catch(e){}
+    /* (v278) su telefono (PWA) chiediamo ESPLICITAMENTE il microfono: a volte rec.start()
+       non fa comparire il permesso e fallisce in silenzio. Chiesto il permesso, fermiamo
+       subito la cattura e lasciamo ascoltare al riconoscitore (un solo microfono alla volta). */
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(st){ try{ st.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} avvia(); })
+        .catch(function(){ notaMic(messaggioErroreMic('not-allowed')); });
+    } else avvia();
   };
   return btn;
 }
@@ -6748,7 +6779,7 @@ function buildChatPane(){
       '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-prova" title="Prova quali fornitori il tuo browser riesce davvero a contattare — bastano pochi secondi e non serve una chiave">🔌 Prova</button>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
-      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-prova-voce" title="Suona un bip e dice una frase: per capire se la voce arriva">🔔 Prova voce</button><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-voce-el" title="La voce di Spectra con ElevenLabs: chiave, Voice ID e stile">🎙️ Voce</button>' : '') +
+      (voceSupportata() ? '<label class="bsi-hub-btn ghost compatto" id="spectra-auto-speak-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" id="spectra-auto-speak-toggle" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>🔊 Leggi automaticamente</span></label><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-prova-voce" title="Suona un bip e dice una frase: per capire se la voce arriva">🔔 Prova voce</button><button type="button" class="bsi-hub-btn ghost compatto" id="spectra-voce-el" title="La voce di Spectra con ElevenLabs: chiave, Voice ID e stile">🎙️ Voce</button><label class="bsi-hub-btn ghost compatto" id="spectra-voce-tel-lbl" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none" title="Di norma Spectra usa la propria voce (sempre udibile). Spunta qui se preferisci la voce del telefono — utile solo se il tuo telefono ne ha una che funziona."><input type="checkbox" id="spectra-voce-telefono" style="accent-color:#00c9b7;width:16px;height:16px;margin:0"><span>📱 Voce del telefono</span></label>' : '') +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-provabox" style="display:none"></div>' +
@@ -7353,6 +7384,18 @@ function buildChatPane(){
     mostraAvvisoVoce(r);
   }; }
   if(tgV){ tgV.checked = autoSpeakEnabled; tgV.title = autoSpeakEnabled ? 'Auto-lettura attiva' : 'Auto-lettura disattivata'; tgV.onchange = function(){ toggleAutoSpeak(tgV.checked); }; }
+  /* (v278) preferenza voce app/telefono: di default la voce dell'app (sempre udibile). */
+  var tgTel = document.getElementById('spectra-voce-telefono');
+  if(tgTel && window.BSISpectraVoce && window.BSISpectraVoce.vuoleVoceTelefono){
+    tgTel.checked = !!window.BSISpectraVoce.vuoleVoceTelefono();
+    tgTel.onchange = function(){
+      try{ window.BSISpectraVoce.impostaVoceTelefono(tgTel.checked); }catch(e){}
+      try{ stopSpeaking(); }catch(e){}
+      try{ mostraAvvisoVoce(null); }catch(e){}
+      /* un assaggio immediato con la voce appena scelta */
+      try{ if(window.BSISpectraVoce) window.BSISpectraVoce.parla(tgTel.checked ? 'Ora uso la voce del telefono.' : 'Ora uso la voce dell\'app.'); }catch(e){}
+    };
+  }
   /* (v277) se la voce attiva è quella integrata offline E l'auto-lettura è accesa, si pre-carica
      il motore (una volta sola, ~5 MB poi in cache) così la prima lettura non ha ritardo. Si evita
      di scaricarlo quando l'auto-lettura è spenta: non servirebbe e appesantirebbe l'apertura. */

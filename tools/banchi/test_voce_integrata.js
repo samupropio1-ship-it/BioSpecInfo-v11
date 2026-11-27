@@ -96,6 +96,33 @@ function vero(d, c) { att(d, true, !!c); }
   const taci = await pg.evaluate(() => { try { window.BSISpectraVoce.ferma(); return true; } catch (e) { return false; } });
   vero('si può fermare senza errori', taci);
 
+  console.log('\n── Il caso dell\'autore: VOCI DI SISTEMA ELENCATE MA MUTE (v278) ──');
+  /* Su molti telefoni/PC le voci di sistema RISULTANO elencate (getVoices() > 0) ma sono MUTE
+     (voci di rete non scaricate): prima l'app sceglieva la voce di sistema e si sentiva solo il
+     bip. Dalla v278 la voce predefinita è quella dell'app, sempre udibile. */
+  const pg2 = await (await b.newContext({ serviceWorkers: 'block' })).newPage();
+  const errs2 = []; pg2.on('pageerror', e => errs2.push(e.message.slice(0, 160)));
+  await pg2.addInitScript(() => {
+    try {
+      const voci = [{ name: 'Rete IT', lang: 'it-IT' }, { name: 'Rete EN', lang: 'en-US' }];
+      /* voci ELENCATE ma MUTE: speak() non produce suono, come le voci di rete non scaricate */
+      const S = { speaking: false, pending: false, getVoices: () => voci, addEventListener() {}, removeEventListener() {}, resume() {}, pause() {}, cancel() {}, speak() {} };
+      Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: S });
+      window.SpeechSynthesisUtterance = function (t) { this.text = t; this.pitch = 1; this.rate = 1; this.volume = 1; this.voice = null; this.lang = ''; };
+      localStorage.setItem('bsi_guide_v3', '1');
+    } catch (e) {}
+  });
+  await pg2.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+  await pg2.waitForFunction(() => !!(window.BSISpectraTTSIntegrata && window.BSISpectraVoce), null, { timeout: 60000 });
+  const mute = await pg2.evaluate(() => ({ voci: speechSynthesis.getVoices().length, qualita: window.BSISpectraVoce.qualita() }));
+  vero('ci sono voci di sistema elencate (come sul dispositivo dell\'autore)', mute.voci > 0);
+  att('ma di default si usa la voce dell\'app (udibile), non quella di sistema (muta)', 'integrata', mute.qualita);
+  const muteParla = await pg2.evaluate(() => window.BSISpectraVoce.parla('Prova con voci di sistema elencate ma mute.'));
+  vero('la lettura usa davvero il motore integrato', muteParla && muteParla.ok === true && muteParla.motore === 'integrata');
+  const conTel = await pg2.evaluate(() => { window.BSISpectraVoce.impostaVoceTelefono(true); const q = window.BSISpectraVoce.qualita(); window.BSISpectraVoce.impostaVoceTelefono(false); return q; });
+  att('se l\'utente SCEGLIE la voce del telefono, torna «sistema»', 'sistema', conTel);
+  att('nessun errore JavaScript (voci mute)', 0, errs2.length); errs2.slice(0, 3).forEach(e => console.log('      ! ' + e));
+
   att('nessun errore JavaScript', 0, errs.length); errs.slice(0, 3).forEach(e => console.log('      ! ' + e));
   att('nessun errore di console caricando e usando la voce integrata', 0, consErr.length); consErr.slice(0, 3).forEach(e => console.log('      ! ' + e));
   await b.close();

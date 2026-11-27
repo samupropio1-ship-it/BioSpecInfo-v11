@@ -64,6 +64,9 @@ function sintesiFinta() {
   Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: S });
   window.SpeechSynthesisUtterance = function (t) { this.text = t; this.pitch = 1; this.rate = 1; this.volume = 1; this.voice = null; this.lang = ''; };
   try { localStorage.setItem('bsi_guide_v3', '1'); } catch (e) {}
+  /* (v278) questo banco verifica la VOCE DEL TELEFONO (sintesi di sistema): dalla v278 la voce
+     predefinita è quella dell'app, quindi qui si sceglie esplicitamente la voce del telefono. */
+  try { localStorage.setItem('bsiVoceTelefono', '1'); } catch (e) {}
 }
 
 (async () => {

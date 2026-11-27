@@ -873,4 +873,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v277`._
+_Guida aggiornata alla versione `bsi-v278`._

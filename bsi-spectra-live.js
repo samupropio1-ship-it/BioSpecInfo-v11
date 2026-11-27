@@ -966,7 +966,17 @@
       hud.interim = tmp;
       if (fin.trim()) { hud.interim = ''; hud.ascolto = false; testiHud(); elabora(fin.trim()); }
     };
-    r.onerror = function (ev) { hud.ascolto = false; stato('attesa'); testiHud(); if (ev.error === 'not-allowed') dialogo('', t('Il microfono è stato negato: puoi scrivere nel campo qui sotto.', 'The microphone was denied: you can type below.')); };
+    r.onerror = function (ev) {
+      hud.ascolto = false; stato('attesa'); testiHud();
+      var e = ev && ev.error, msg = '';
+      /* (v278) prima solo «not-allowed» aveva un messaggio: gli altri errori (tipicamente
+         «network» sulle app installate) restavano muti e sembrava che non funzionasse nulla. */
+      if (e === 'not-allowed' || e === 'service-not-allowed') msg = t('Il microfono è negato: abilitalo per questa app nelle impostazioni del telefono, oppure scrivi nel campo qui sotto.', 'The microphone is denied: enable it for this app in your phone settings, or type in the field below.');
+      else if (e === 'network') msg = t('Il riconoscimento vocale ha bisogno di contattare un servizio e non c\'è riuscito (spesso non funziona nelle app installate sul telefono): scrivi pure nel campo qui sotto.', 'Speech recognition needs to reach a service and could not (it often does not work in installed phone apps): just type in the field below.');
+      else if (e === 'audio-capture') msg = t('Nessun microfono disponibile: scrivi nel campo qui sotto.', 'No microphone available: type in the field below.');
+      else if (e && e !== 'no-speech' && e !== 'aborted') msg = t('Riconoscimento vocale non riuscito: scrivi pure nel campo qui sotto.', 'Speech recognition failed: just type in the field below.');
+      if (msg) dialogo('', msg);
+    };
     r.onend = function () { if (hud.ascolto) { hud.ascolto = false; testiHud(); stato('attesa'); } setTimeout(riprendiSentinella, 400); };
     pausaSentinella();                                                               /* (v255) un solo microfono alla volta */
     hud.rec = r; hud.ascolto = true; stato('ascolta'); testiHud();
